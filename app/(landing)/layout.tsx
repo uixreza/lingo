@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { Providers } from "@/components/Providers";
+import "../globals.css";
+import Navbar from "@/components/Navbar";
+import Auth from "@/components/Auth";
+import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",
@@ -14,14 +16,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html
-      dir="rtl"
-      lang="fa"
-      className={`h-full antialiased`}
-      suppressHydrationWarning>
-      <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+    <AuthProvider>
+      {children}
+      <Navbar />
+      <Auth />
+    </AuthProvider>
   );
 }

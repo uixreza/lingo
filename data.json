@@ -1,0 +1,105 @@
+{
+  "kids": {
+    "title": "کودکان",
+    "series": "Superminds",
+    "items": [
+      {
+        "name": "Superminds Starter",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/starter.jpg",
+        "bookUrl": "https://example.com/books/superminds-starter.pdf",
+        "audioUrl": "https://example.com/audio/superminds-starter.mp3"
+      },
+      {
+        "name": "Superminds 1",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/one.jpg",
+        "bookUrl": "https://example.com/books/superminds-1.pdf",
+        "audioUrl": "https://example.com/audio/superminds-1.mp3"
+      },
+      {
+        "name": "Superminds 2",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/two.jpg",
+        "bookUrl": "https://example.com/books/superminds-2.pdf",
+        "audioUrl": "https://example.com/audio/superminds-2.mp3"
+      },
+      {
+        "name": "Superminds 3",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/three.jpg",
+        "bookUrl": "https://example.com/books/superminds-3.pdf",
+        "audioUrl": "https://example.com/audio/superminds-3.mp3"
+      },
+      {
+        "name": "Superminds 4",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/four.jpg",
+        "bookUrl": "https://example.com/books/superminds-4.pdf",
+        "audioUrl": "https://example.com/audio/superminds-4.mp3"
+      },
+      {
+        "name": "Superminds 5",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/five.jpg",
+        "bookUrl": "https://example.com/books/superminds-5.pdf",
+        "audioUrl": "https://example.com/audio/superminds-5.mp3"
+      },
+      {
+        "name": "Superminds 6",
+        "author": "Herbert Puchta",
+        "cover": "/assets/img/Book-Covers/Superminds/six.jpg",
+        "bookUrl": "https://example.com/books/superminds-6.pdf",
+        "audioUrl": "https://example.com/audio/superminds-6.mp3"
+      }
+    ]
+  },
+  "adults": {
+    "title": "بزرگسالان",
+    "series": "Headway",
+    "items": [
+      {
+        "name": "Headway Beginner",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/beginner.jpg",
+        "bookUrl": "https://example.com/books/headway-beginner.pdf",
+        "audioUrl": "https://example.com/audio/headway-beginner.mp3"
+      },
+      {
+        "name": "Headway Elementary",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/elementary.jpg",
+        "bookUrl": "https://example.com/books/headway-elementary.pdf",
+        "audioUrl": "https://example.com/audio/headway-elementary.mp3"
+      },
+      {
+        "name": "Headway Pre-Intermediate",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/pre-intermediate.jpg",
+        "bookUrl": "https://example.com/books/headway-pre-intermediate.pdf",
+        "audioUrl": "https://example.com/audio/headway-pre-intermediate.mp3"
+      },
+      {
+        "name": "Headway Intermediate",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/intermediate.jpg",
+        "bookUrl": "https://example.com/books/headway-intermediate.pdf",
+        "audioUrl": "https://example.com/audio/headway-intermediate.mp3"
+      },
+      {
+        "name": "Headway Upper-Intermediate",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/upper-intermediate.jpg",
+        "bookUrl": "https://example.com/books/headway-upper-intermediate.pdf",
+        "audioUrl": "https://example.com/audio/headway-upper-intermediate.mp3"
+      },
+      {
+        "name": "Headway Advanced",
+        "author": "John & Liz Soars",
+        "cover": "/assets/img/Book-Covers/Headway/advanced.jpg",
+        "bookUrl": "https://example.com/books/headway-advanced.pdf",
+        "audioUrl": "https://example.com/audio/headway-advanced.mp3"
+      }
+    ]
+  }
+}

@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <>
       <div
-        className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/bg.png')] bg-[var(--dash-bg)] transition-colors duration-300"
+        className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
         dir="rtl">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
@@ -33,7 +33,7 @@ export default function RootLayout({
           <Header user={user} />
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto p-6 bg-[url('/assets/img/bg.png')] bg-[var(--dash-bg)] transition-colors duration-300">
+          <main className="flex-1 overflow-y-auto p-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300">
             <Breadcrum />
             <div className="max-w-7xl mx-auto">{children}</div>
           </main>

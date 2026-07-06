@@ -79,14 +79,14 @@ export default function Breadcrumb() {
           <li key={item.href} className="flex items-center gap-2">
             {index === breadcrumbItems.length - 1 ? (
               <span
-                className="font-medium cursor-default text-[var(--dark-purple)] dark:text-foreground"
+                className="font-medium cursor-default text-[var(--dash-text)]"
                 aria-current="page">
                 {item.label}
               </span>
             ) : (
               <Link
                 href={item.href}
-                className="flex items-center gap-1 transition-colors text-[var(--light-purple)] hover:text-[var(--dark-purple)] dark:text-foreground dark:hover:text-gray-800">
+                className="flex items-center gap-1 transition-colors text-[var(--dash-muted)] hover:text-[var(--dash-text)]">
                 {index === 0 ? (
                   <>
                     <Home className="size-4" />
@@ -100,7 +100,7 @@ export default function Breadcrumb() {
 
             {/* Separator - show for all except last item */}
             {index < breadcrumbItems.length - 1 && (
-              <ChevronRight className="size-4 text-[var(--light-purple)] dark:text-foreground" />
+              <ChevronRight className="size-4 text-[var(--dash-muted)]" />
             )}
           </li>
         ))}

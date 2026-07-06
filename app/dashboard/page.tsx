@@ -1,84 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import data from "@/data.json";
 
-const kidsBooks = [
-  {
-    id: "starter",
-    name: "Superminds",
-    level: "Starter",
-    image: "/assets/img/books/superminds-starter.jpg",
-  },
-  {
-    id: "1",
-    name: "Superminds",
-    level: "1",
-    image: "/assets/img/books/superminds-1.jpg",
-  },
-  {
-    id: "2",
-    name: "Superminds",
-    level: "2",
-    image: "/assets/img/books/superminds-2.jpg",
-  },
-  {
-    id: "3",
-    name: "Superminds",
-    level: "3",
-    image: "/assets/img/books/superminds-3.jpg",
-  },
-  {
-    id: "4",
-    name: "Superminds",
-    level: "4",
-    image: "/assets/img/books/superminds-4.jpg",
-  },
-  {
-    id: "5",
-    name: "Superminds",
-    level: "5",
-    image: "/assets/img/books/superminds-5.jpg",
-  },
-];
+const kidsBooks = data.kids.items.map((item, i) => ({
+  ...item,
+  id: `kid-${i}`,
+}));
 
-const adultBooks = [
-  {
-    id: "beginner",
-    name: "Headway",
-    level: "Beginner",
-    image: "/assets/img/books/headway-beginner.jpg",
-  },
-  {
-    id: "elementary",
-    name: "Headway",
-    level: "Elementary",
-    image: "/assets/img/books/headway-elementary.jpg",
-  },
-  {
-    id: "pre-intermediate",
-    name: "Headway",
-    level: "Pre-Intermediate",
-    image: "/assets/img/books/headway-pre-intermediate.jpg",
-  },
-  {
-    id: "intermediate",
-    name: "Headway",
-    level: "Intermediate",
-    image: "/assets/img/books/headway-intermediate.jpg",
-  },
-  {
-    id: "upper-intermediate",
-    name: "Headway",
-    level: "Upper-Intermediate",
-    image: "/assets/img/books/headway-upper-intermediate.jpg",
-  },
-  {
-    id: "advanced",
-    name: "Headway",
-    level: "Advanced",
-    image: "/assets/img/books/headway-advanced.jpg",
-  },
-];
+const adultBooks = data.adults.items.map((item, i) => ({
+  ...item,
+  id: `adult-${i}`,
+}));
 
 export default function DashboardPage() {
   const [activeGroup, setActiveGroup] = useState<"kids" | "adults">("kids");
@@ -158,7 +91,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
@@ -182,8 +115,12 @@ function StatCard({
       <div className="flex items-center gap-3">
         <span className="text-2xl">{icon}</span>
         <div>
-          <p className="text-sm font-medium text-[var(--dash-muted)]">{title}</p>
-          <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">{value}</p>
+          <p className="text-sm font-medium text-[var(--dash-muted)]">
+            {title}
+          </p>
+          <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">
+            {value}
+          </p>
         </div>
       </div>
     </div>
@@ -193,16 +130,15 @@ function StatCard({
 function BookCard({
   book,
 }: {
-  book: { name: string; level: string; image: string };
+  book: { id: string; name: string; author: string; cover: string; bookUrl: string; audioUrl: string };
 }) {
   return (
-    <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[3/4]">
+    <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
       {/* Background Image with Fallback */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]"
-        style={{ backgroundImage: `url(${book.image})` }}
+        style={{ backgroundImage: `url(${book.cover})` }}
       />
-
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
@@ -211,15 +147,15 @@ function BookCard({
         <h3 className="text-white font-bold text-lg leading-tight">
           {book.name}
         </h3>
-        <p className="text-white/80 text-sm mt-1 mb-4">سطح {book.level}</p>
+        <p className="text-white/80 text-sm mt-1 mb-4">{book.author}</p>
 
-        <div className="flex gap-3">
-          <button className="flex-1 px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg">
+        <div className="flex flex-col gap-2">
+          <a href={book.bookUrl} target="_blank" rel="noopener noreferrer" className="w-full px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
             دانلود کتاب
-          </button>
-          <button className="flex-1 px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200">
+          </a>
+          <a href={book.audioUrl} target="_blank" rel="noopener noreferrer" className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
             دانلود فایل صوتی
-          </button>
+          </a>
         </div>
       </div>
     </div>

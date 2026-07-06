@@ -94,9 +94,9 @@ export default function Sidebar() {
         <div className="py-6 px-4">
           <div className="flex items-center gap-3 transition-all duration-300">
             <div className="relative">
-              <div className="w-12 h-12 rounded-2xl bg-black flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-2xl overflow-hidden bg-black flex items-center justify-center shadow-lg">
                 <Image
-                  src="/assets/img/icon.png"
+                  src="/assets/img/sideIcon.png"
                   alt="Logo"
                   width={48}
                   height={48}
@@ -108,10 +108,10 @@ export default function Sidebar() {
                 isHovered ? "opacity-100 w-auto" : "opacity-0 w-0"
               }`}>
               <h1 className="text-xl font-bold text-[var(--sidebar-heading)] whitespace-nowrap">
-                Uixreza Academy{" "}
+                Lingo <span className="text-green-500">Fam</span>{" "}
               </h1>
               <p className="text-[var(--sidebar-text)] text-sm whitespace-nowrap">
-                پلتفرم آموزش برنامه نویسی
+                پلتفرم آموزش زبان
               </p>
             </div>
           </div>

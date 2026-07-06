@@ -142,7 +142,8 @@ export default function Sidebar() {
                   />
                 </div>
 
-                <span className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+                <span
+                  className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
                   <span
                     className={`whitespace-nowrap transition-all duration-300 ${
                       isHovered
@@ -186,7 +187,8 @@ export default function Sidebar() {
                 />
               </div>
 
-              <span className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+              <span
+                className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
                 <span
                   className={`whitespace-nowrap transition-all duration-300 font-medium ${
                     isHovered
@@ -202,7 +204,8 @@ export default function Sidebar() {
           {/* Logout */}
           <button className="w-full group flex items-center px-4 py-3 rounded-xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-300 hover:scale-105">
             <LogOut className="h-5 w-5 shrink-0" />
-            <span className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+            <span
+              className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
               <Link
                 href="/"
                 className={`whitespace-nowrap transition-all duration-300 font-medium ${
@@ -242,7 +245,9 @@ export default function Sidebar() {
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center shadow-lg">
               <BookOpen className="h-5 w-5 text-white" />
             </div>
-            <h3 className="text-xl font-bold text-[var(--sidebar-heading)]">منو</h3>
+            <h3 className="text-xl font-bold text-[var(--sidebar-heading)]">
+              منو
+            </h3>
           </div>
           <div className="w-10"></div> {/* Spacer for balance */}
         </div>
@@ -310,7 +315,9 @@ export default function Sidebar() {
                 />
               </div>
 
-              <span>{theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}</span>
+              <span>
+                {theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}
+              </span>
             </button>
           )}
 

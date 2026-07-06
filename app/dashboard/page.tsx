@@ -373,7 +373,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-dash-bg text-dash-text" dir="rtl">
       <div className="space-y-6 p-4 sm:p-6">
         {/* Welcome Banner & Stats */}
-        <div className="bg-dash-sides rounded-2xl shadow-lg border border-dash-muted/30 p-6 bg-[var(--dash-sides)]/80 backdrop-blur-2xl">
+        <div className="bg-dash-sides rounded-2xl shadow-lg border border-dash-muted/30 p-6 bg-[var(--dash-sides)] backdrop-blur-2xl">
           <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
             <div>
               <h1 className="text-2xl font-bold text-dash-text">

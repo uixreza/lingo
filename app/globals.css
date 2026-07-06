@@ -138,7 +138,7 @@
   position: relative;
 }
 
-.bg-pattern::before {
+.bg-pattern::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -148,22 +148,6 @@
   opacity: 0.5;
   pointer-events: none;
   z-index: -1;
-}
-
-.bg-pattern::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse at 25% 15%, rgba(85, 132, 103, 0.3) 0%, transparent 55%),
-    radial-gradient(ellipse at 75% 30%, rgba(85, 132, 103, 0.18) 0%, transparent 45%),
-    radial-gradient(ellipse at 50% 85%, rgba(85, 132, 103, 0.12) 0%, transparent 40%);
-  pointer-events: none;
-  z-index: -1;
-}
-
-.dark body {
-  background-color: #050505;
 }
 
 body {

@@ -4,16 +4,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
   Send,
-  Paperclip,
   Clock,
   CheckCircle,
   XCircle,
-  ChevronLeft,
-  ChevronRight,
   User,
   Calendar,
   Tag,
-  Loader2,
 } from "lucide-react";
 
 // Types
@@ -274,103 +270,65 @@ export default function TicketsPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen py-8 px-4">
-      <div className="max-w-7xl mx-auto">
+    <div dir="rtl" className="py-8 px-4">
+      <div className="max-w-7xl mx-auto space-y-6">
         {/* Header */}
-        <div className="mb-8">
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: "var(--dash-text)" }}>
+        <div>
+          <h1 className="text-3xl font-bold text-[var(--dash-text)] mb-2">
             پشتیبانی و تیکت‌ها
           </h1>
-          <p style={{ color: "var(--dash-muted)" }}>
-            درخواست‌های خود را مطرح کنید، ما در最短 زمان پاسخگو هستیم
+          <p className="text-[var(--dash-muted)]">
+            درخواست‌های خود را مطرح کنید، ما در کوتاه‌ترین زمان پاسخگو هستیم
           </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Tickets List Panel */}
           <div className="lg:col-span-1">
-            <div
-              className="rounded-xl border overflow-hidden"
-              style={{
-                backgroundColor: "var(--dash-sides)",
-                borderColor: "var(--dash-bg)",
-              }}>
+            <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
               {/* Create Ticket Button */}
-              <div
-                className="p-4 border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                <button
-                  onClick={() => setIsCreatingTicket(true)}
-                  className="w-full py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: "var(--dash-accent)",
-                    color: "white",
-                  }}>
-                  <MessageSquare size={18} />
-                  تیکت جدید
-                </button>
-              </div>
+              <button
+                onClick={() => setIsCreatingTicket(true)}
+                className="w-full py-3 rounded-xl font-bold transition-all duration-300 shadow-lg flex items-center justify-center gap-2 mb-6 bg-green-500 text-black hover:bg-green-400"
+              >
+                <MessageSquare size={18} />
+                تیکت جدید
+              </button>
 
               {/* Search */}
-              <div
-                className="p-4 border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                <input
-                  type="text"
-                  placeholder="جستجو در تیکت‌ها..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-offset-2 text-right"
-                  style={{
-                    backgroundColor: "var(--dash-bg)",
-                    borderColor: "var(--dash-border)",
-                    color: "var(--dash-text)",
-                  }}
-                />
-              </div>
+              <input
+                type="text"
+                placeholder="جستجو در تیکت‌ها..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all mb-4"
+              />
 
               {/* Tabs */}
-              <div
-                className="flex border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                {["all", "open", "in-progress", "resolved"].map((tab) => (
+              <div className="flex gap-2 mb-4 flex-wrap">
+                {(["all", "open", "in-progress", "resolved"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab as any)}
-                    className="flex-1 py-3 text-sm font-medium transition-colors relative"
-                    style={{
-                      color:
-                        activeTab === tab
-                          ? "var(--dash-accent)"
-                          : "var(--dash-muted)",
-                    }}>
+                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+                      activeTab === tab
+                        ? "bg-green-500 text-black shadow-lg"
+                        : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                    }`}
+                  >
                     {tab === "all" && "همه"}
                     {tab === "open" && "باز"}
                     {tab === "in-progress" && "در حال بررسی"}
                     {tab === "resolved" && "حل شده"}
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5"
-                        style={{ backgroundColor: "var(--dash-accent)" }}
-                      />
-                    )}
                   </button>
                 ))}
               </div>
 
               {/* Tickets List */}
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="max-h-[600px] overflow-y-auto space-y-3">
                 {filteredTickets.length === 0 ? (
-                  <div
-                    className="text-center py-12"
-                    style={{ color: "var(--dash-muted)" }}>
-                    <MessageSquare
-                      size={48}
-                      className="mx-auto mb-3 opacity-30"
-                    />
+                  <div className="text-center py-12 text-[var(--dash-muted)]">
+                    <MessageSquare size={48} className="mx-auto mb-3 opacity-30" />
                     <p>تیکتی وجود ندارد</p>
                   </div>
                 ) : (
@@ -379,46 +337,35 @@ export default function TicketsPage() {
                     const priorityBadge = getPriorityBadge(ticket.priority);
 
                     return (
-                      <motion.button
+                      <button
                         key={ticket.id}
                         onClick={() => setSelectedTicket(ticket)}
-                        className="w-full p-4 text-right border-b transition-all hover:bg-white/5"
-                        style={{
-                          borderColor: "var(--dash-bg)",
-                          backgroundColor:
-                            selectedTicket?.id === ticket.id
-                              ? "var(--dash-bg)"
-                              : "transparent",
-                        }}
-                        whileHover={{ x: 4 }}>
+                        className={`w-full text-right rounded-xl p-4 transition-all duration-200 shadow-lg ${
+                          selectedTicket?.id === ticket.id
+                            ? "bg-green-500 text-black"
+                            : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                        }`}
+                      >
                         <div className="flex justify-between items-start mb-2">
-                          <h3
-                            className="font-semibold line-clamp-1 flex-1"
-                            style={{ color: "var(--dash-text)" }}>
+                          <h3 className={`font-semibold line-clamp-1 flex-1 ${selectedTicket?.id === ticket.id ? "text-black" : "text-[var(--dash-text)]"}`}>
                             {ticket.title}
                           </h3>
-                          <StatusIcon
-                            size={16}
-                            className={
-                              getStatusBadge(ticket.status).color.split(" ")[1]
-                            }
-                          />
+                          <StatusIcon size={16} className={`shrink-0 mt-0.5 ${selectedTicket?.id === ticket.id ? "text-black/60" : getStatusBadge(ticket.status).color.split(" ")[1]}`} />
                         </div>
-                        <p
-                          className="text-sm line-clamp-2 mb-2"
-                          style={{ color: "var(--dash-muted)" }}>
+                        <p className={`text-sm line-clamp-2 mb-2 ${selectedTicket?.id === ticket.id ? "text-black/70" : "text-[var(--dash-muted)]"}`}>
                           {ticket.message}
                         </p>
                         <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: "var(--dash-muted)" }}>
+                          <span className={selectedTicket?.id === ticket.id ? "text-black/70" : "text-[var(--dash-muted)]"}>
                             {formatDate(ticket.createdAt)}
                           </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs ${priorityBadge.color}`}>
-                            {priorityBadge.label}
-                          </span>
+                          {selectedTicket?.id !== ticket.id && (
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${priorityBadge.color}`}>
+                              {priorityBadge.label}
+                            </span>
+                          )}
                         </div>
-                      </motion.button>
+                      </button>
                     );
                   })
                 )}
@@ -429,195 +376,114 @@ export default function TicketsPage() {
           {/* Ticket Detail Panel */}
           <div className="lg:col-span-2">
             {selectedTicket ? (
-              <motion.div
-                key={selectedTicket.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl border overflow-hidden"
-                style={{
-                  backgroundColor: "var(--dash-sides)",
-                  borderColor: "var(--dash-bg)",
-                }}>
+              <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
                 {/* Ticket Header */}
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
+                <div className="mb-6 pb-6 border-b border-[var(--dash-muted)]/20">
                   <div className="flex justify-between items-start mb-4">
-                    <h2
-                      className="text-xl font-bold"
-                      style={{ color: "var(--dash-text)" }}>
+                    <h2 className="text-xl font-bold text-[var(--dash-text)]">
                       {selectedTicket.title}
                     </h2>
                     <div className="flex gap-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityBadge(selectedTicket.priority).color}`}>
-                        اولویت:{" "}
-                        {getPriorityBadge(selectedTicket.priority).label}
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getPriorityBadge(selectedTicket.priority).color}`}>
+                        اولویت: {getPriorityBadge(selectedTicket.priority).label}
                       </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(selectedTicket.status).color}`}>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadge(selectedTicket.status).color}`}>
                         {getStatusBadge(selectedTicket.status).label}
                       </span>
                     </div>
                   </div>
 
-                  <div
-                    className="flex gap-4 text-sm"
-                    style={{ color: "var(--dash-muted)" }}>
-                    <div className="flex items-center gap-1">
-                      <User size={14} />
-                      <span>{selectedTicket.user.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      <span>{formatDate(selectedTicket.createdAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Tag size={14} />
-                      <span>
-                        {
-                          categories.find(
-                            (c) => c.value === selectedTicket.category,
-                          )?.label
-                        }
-                      </span>
-                    </div>
+                  <div className="flex gap-4 text-sm text-[var(--dash-muted)]">
+                    <span className="flex items-center gap-1"><User size={14} />{selectedTicket.user.name}</span>
+                    <span className="flex items-center gap-1"><Calendar size={14} />{formatDate(selectedTicket.createdAt)}</span>
+                    <span className="flex items-center gap-1"><Tag size={14} />{categories.find((c) => c.value === selectedTicket.category)?.label}</span>
                   </div>
                 </div>
 
                 {/* Initial Message */}
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
+                <div className="mb-6 pb-6 border-b border-[var(--dash-muted)]/20">
                   <div className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0">
-                      <User size={18} />
+                    <div className="w-10 h-10 rounded-full bg-[var(--hover-bg-strong)] flex items-center justify-center shrink-0">
+                      <User size={18} className="text-[var(--dash-text)]" />
                     </div>
                     <div className="flex-1">
                       <div className="flex justify-between items-center mb-2">
-                        <span
-                          className="font-medium"
-                          style={{ color: "var(--dash-text)" }}>
-                          {selectedTicket.user.name}
-                        </span>
-                        <span
-                          className="text-xs"
-                          style={{ color: "var(--dash-muted)" }}>
-                          {formatDate(selectedTicket.createdAt)}
-                        </span>
+                        <span className="font-medium text-[var(--dash-text)]">{selectedTicket.user.name}</span>
+                        <span className="text-xs text-[var(--dash-muted)]">{formatDate(selectedTicket.createdAt)}</span>
                       </div>
-                      <p
-                        style={{ color: "var(--dash-text)" }}
-                        className="leading-relaxed">
-                        {selectedTicket.message}
-                      </p>
+                      <p className="text-[var(--dash-text)] leading-relaxed">{selectedTicket.message}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Replies */}
-                <div
-                  className="p-6 border-b max-h-[400px] overflow-y-auto"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <h3
-                    className="font-medium mb-4"
-                    style={{ color: "var(--dash-text)" }}>
+                <div className="mb-6 pb-6 border-b border-[var(--dash-muted)]/20 max-h-[400px] overflow-y-auto">
+                  <h3 className="font-medium text-[var(--dash-text)] mb-4">
                     پاسخ‌ها ({selectedTicket.replies.length})
                   </h3>
                   <div className="space-y-4">
+                    {selectedTicket.replies.length === 0 && (
+                      <p className="text-[var(--dash-muted)] text-sm">هنوز پاسخی داده نشده است</p>
+                    )}
                     {selectedTicket.replies.map((reply) => (
-                      <motion.div
-                        key={reply.id}
-                        initial={{ opacity: 0, x: reply.isAdmin ? -20 : 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`flex gap-3 ${reply.isAdmin ? "flex-row" : ""}`}>
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            reply.isAdmin
-                              ? "bg-green-500/20 text-green-500"
-                              : "bg-blue-500/20 text-blue-500"
-                          }`}>
-                          {reply.isAdmin ? "👨‍💻" : <User size={18} />}
+                      <div key={reply.id} className={`flex gap-3 ${reply.isAdmin ? "" : "flex-row-reverse"}`}>
+                        <div className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-lg ${
+                          reply.isAdmin
+                            ? "bg-green-500"
+                            : "bg-[var(--hover-bg-strong)]"
+                        }`}>
+                          {reply.isAdmin ? (
+                            <span className="text-black text-sm font-bold">پ</span>
+                          ) : (
+                            <User size={18} className="text-[var(--dash-text)]" />
+                          )}
                         </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center mb-2">
-                            <span
-                              className="font-medium"
-                              style={{ color: "var(--dash-text)" }}>
-                              {reply.userName}
-                              {reply.isAdmin && (
-                                <span className="text-xs mr-2 px-2 py-0.5 rounded-full bg-green-500/20 text-green-500">
-                                  پشتیبان
-                                </span>
-                              )}
-                            </span>
-                            <span
-                              className="text-xs"
-                              style={{ color: "var(--dash-muted)" }}>
-                              {formatDate(reply.createdAt)}
-                            </span>
+                        <div className={`flex-1 ${reply.isAdmin ? "" : "text-left"}`}>
+                          <div className={`flex items-center mb-2 gap-2 ${reply.isAdmin ? "" : "flex-row-reverse"}`}>
+                            <span className="font-medium text-[var(--dash-text)] text-sm">{reply.userName}</span>
+                            {reply.isAdmin && (
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-500 text-black font-medium">پشتیبان</span>
+                            )}
+                            <span className="text-xs text-[var(--dash-muted)] mr-auto">{formatDate(reply.createdAt)}</span>
                           </div>
-                          <p
-                            style={{ color: "var(--dash-text)" }}
-                            className="leading-relaxed">
+                          <p className={`text-[var(--dash-text)] leading-relaxed text-sm bg-[var(--hover-bg)] rounded-2xl p-4 shadow-lg ${reply.isAdmin ? "ml-6" : "mr-6"}`}>
                             {reply.message}
                           </p>
                         </div>
-                      </motion.div>
+                      </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Reply Input */}
-                {selectedTicket.status !== "resolved" &&
-                  selectedTicket.status !== "closed" && (
-                    <div className="p-6">
-                      <div className="flex gap-3">
-                        <textarea
-                          value={replyMessage}
-                          onChange={(e) => setReplyMessage(e.target.value)}
-                          placeholder="پاسخ خود را بنویسید..."
-                          rows={3}
-                          className="flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-offset-2 resize-none"
-                          style={{
-                            backgroundColor: "var(--dash-bg)",
-                            borderColor: "var(--dash-border)",
-                            color: "var(--dash-text)",
-                          }}
-                        />
-                        <button
-                          onClick={handleSendReply}
-                          disabled={!replyMessage.trim()}
-                          className="px-6 rounded-lg font-medium transition-all disabled:opacity-50 flex items-center gap-2 self-end"
-                          style={{
-                            backgroundColor: "var(--dash-accent)",
-                            color: "white",
-                          }}>
-                          <Send size={18} />
-                          ارسال
-                        </button>
-                      </div>
-                    </div>
-                  )}
-              </motion.div>
+                {selectedTicket.status !== "resolved" && selectedTicket.status !== "closed" && (
+                  <div className="flex gap-3 items-stretch">
+                    <textarea
+                      value={replyMessage}
+                      onChange={(e) => setReplyMessage(e.target.value)}
+                      placeholder="پاسخ خود را بنویسید..."
+                      rows={3}
+                      className="flex-1 bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all resize-none"
+                    />
+                    <button
+                      onClick={handleSendReply}
+                      disabled={!replyMessage.trim()}
+                      className="px-6 rounded-xl font-bold transition-all duration-300 shadow-lg flex items-center gap-2 bg-green-500 text-black hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <Send size={18} />
+                      ارسال
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
-              <div
-                className="flex items-center justify-center h-full rounded-xl border"
-                style={{
-                  backgroundColor: "var(--dash-sides)",
-                  borderColor: "var(--dash-bg)",
-                }}>
-                <div className="text-center py-16">
-                  <MessageSquare
-                    size={64}
-                    className="mx-auto mb-4 opacity-30"
-                  />
-                  <h3
-                    className="text-xl font-medium mb-2"
-                    style={{ color: "var(--dash-text)" }}>
+              <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 flex items-center justify-center min-h-[400px]">
+                <div className="text-center">
+                  <MessageSquare size={64} className="mx-auto mb-4 opacity-30 text-[var(--dash-muted)]" />
+                  <h3 className="text-xl font-medium text-[var(--dash-text)] mb-2">
                     تیکتی انتخاب نشده
                   </h3>
-                  <p style={{ color: "var(--dash-muted)" }}>
+                  <p className="text-[var(--dash-muted)]">
                     از سمت راست تیکتی را انتخاب کنید یا تیکت جدید ایجاد کنید
                   </p>
                 </div>
@@ -639,24 +505,17 @@ export default function TicketsPage() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="max-w-lg w-full rounded-xl overflow-hidden"
-                style={{ backgroundColor: "var(--dash-sides)" }}
+                className="max-w-lg w-full bg-[var(--dash-sides)]/95 backdrop-blur-2xl rounded-2xl shadow-2xl overflow-hidden"
                 onClick={(e) => e.stopPropagation()}>
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <h2
-                    className="text-xl font-bold"
-                    style={{ color: "var(--dash-text)" }}>
+                <div className="p-6 border-b border-[var(--dash-muted)]/20">
+                  <h2 className="text-xl font-bold text-[var(--dash-text)]">
                     تیکت جدید
                   </h2>
                 </div>
 
                 <div className="p-6 space-y-4">
                   <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--dash-text)" }}>
+                    <label className="block text-sm font-medium text-[var(--dash-text)] mb-2">
                       عنوان
                     </label>
                     <input
@@ -664,31 +523,20 @@ export default function TicketsPage() {
                       value={newTicketTitle}
                       onChange={(e) => setNewTicketTitle(e.target.value)}
                       placeholder="مشکل در دسترسی به دوره..."
-                      className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-                      style={{
-                        backgroundColor: "var(--dash-bg)",
-                        borderColor: "var(--dash-border)",
-                        color: "var(--dash-text)",
-                      }}
+                      className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label
-                        className="block text-sm font-medium mb-2"
-                        style={{ color: "var(--dash-text)" }}>
+                      <label className="block text-sm font-medium text-[var(--dash-text)] mb-2">
                         دسته‌بندی
                       </label>
                       <select
                         value={newTicketCategory}
                         onChange={(e) => setNewTicketCategory(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-                        style={{
-                          backgroundColor: "var(--dash-bg)",
-                          borderColor: "var(--dash-border)",
-                          color: "var(--dash-text)",
-                        }}>
+                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+                      >
                         {categories.map((cat) => (
                           <option key={cat.value} value={cat.value}>
                             {cat.icon} {cat.label}
@@ -698,22 +546,14 @@ export default function TicketsPage() {
                     </div>
 
                     <div>
-                      <label
-                        className="block text-sm font-medium mb-2"
-                        style={{ color: "var(--dash-text)" }}>
+                      <label className="block text-sm font-medium text-[var(--dash-text)] mb-2">
                         اولویت
                       </label>
                       <select
                         value={newTicketPriority}
-                        onChange={(e) =>
-                          setNewTicketPriority(e.target.value as TicketPriority)
-                        }
-                        className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-                        style={{
-                          backgroundColor: "var(--dash-bg)",
-                          borderColor: "var(--dash-border)",
-                          color: "var(--dash-text)",
-                        }}>
+                        onChange={(e) => setNewTicketPriority(e.target.value as TicketPriority)}
+                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
+                      >
                         {priorities.map((p) => (
                           <option key={p.value} value={p.value}>
                             {p.label}
@@ -724,9 +564,7 @@ export default function TicketsPage() {
                   </div>
 
                   <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--dash-text)" }}>
+                    <label className="block text-sm font-medium text-[var(--dash-text)] mb-2">
                       توضیحات
                     </label>
                     <textarea
@@ -734,38 +572,23 @@ export default function TicketsPage() {
                       onChange={(e) => setNewTicketMessage(e.target.value)}
                       placeholder="مشکل خود را به طور کامل توضیح دهید..."
                       rows={5}
-                      className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 resize-none"
-                      style={{
-                        backgroundColor: "var(--dash-bg)",
-                        borderColor: "var(--dash-border)",
-                        color: "var(--dash-text)",
-                      }}
+                      className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all resize-none"
                     />
                   </div>
                 </div>
 
-                <div
-                  className="p-6 border-t flex gap-3"
-                  style={{ borderColor: "var(--dash-bg)" }}>
+                <div className="p-6 border-t border-[var(--dash-muted)]/20 flex gap-3">
                   <button
                     onClick={handleCreateTicket}
-                    disabled={
-                      !newTicketTitle.trim() || !newTicketMessage.trim()
-                    }
-                    className="flex-1 py-3 rounded-lg font-medium transition-all disabled:opacity-50"
-                    style={{
-                      backgroundColor: "var(--dash-accent)",
-                      color: "white",
-                    }}>
+                    disabled={!newTicketTitle.trim() || !newTicketMessage.trim()}
+                    className="flex-1 py-3 rounded-xl font-bold transition-all duration-300 shadow-lg bg-green-500 text-black hover:bg-green-400 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
                     ارسال تیکت
                   </button>
                   <button
                     onClick={() => setIsCreatingTicket(false)}
-                    className="px-6 py-3 rounded-lg font-medium transition-all"
-                    style={{
-                      backgroundColor: "var(--dash-bg)",
-                      color: "var(--dash-muted)",
-                    }}>
+                    className="px-6 py-3 rounded-xl font-medium transition-all duration-300 bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                  >
                     انصراف
                   </button>
                 </div>

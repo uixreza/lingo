@@ -129,7 +129,7 @@ export default function Sidebar() {
                 className={`group flex items-center px-4 py-3 rounded-xl transition-all duration-300 font-medium relative overflow-hidden
                   ${
                     isActive
-                      ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg scale-105"
+                      ? "bg-green-500 text-white shadow-lg scale-105"
                       : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
                   }`}>
                 <div className="relative shrink-0">
@@ -265,7 +265,7 @@ export default function Sidebar() {
                 className={`group flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 font-medium text-lg relative overflow-hidden
                   ${
                     isActive
-                      ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg scale-105"
+                      ? "bg-green-500 text-white shadow-lg scale-105"
                       : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
                   }`}>
                 <div className="relative">

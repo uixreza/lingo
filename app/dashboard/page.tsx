@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import data from "@/data.json";
 
 const kidsBooks = data.kids.items.map((item, i) => ({
@@ -21,6 +22,8 @@ export default function DashboardPage() {
     enrolledCourses: 3,
     upcomingClasses: 2,
     pendingAssignments: 1,
+    publicClassesAttended: 8,
+    privateSessionsRequested: 3,
   };
 
   const books = activeGroup === "kids" ? kidsBooks : adultBooks;
@@ -44,20 +47,46 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatCard
-            icon="📚"
-            title="دوره‌های ثبت‌نام شده"
-            value={student.enrolledCourses.toString()}
-          />
+          <Link
+            href="/dashboard/sessions"
+            className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden">
+            <div
+              className="absolute inset-0 opacity-[0.07]"
+              style={{
+                backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0L30 15L15 30L0 15Z' fill='white' fill-opacity='0.4'/%3E%3C/svg%3E")`,
+                backgroundSize: "30px 30px",
+                backgroundRepeat: "repeat",
+              }}
+            />
+            <div className="flex items-center gap-3">
+              <span className="text-3xl font-extrabold text-white tracking-tight">
+                درخواست جلسه
+              </span>
+              <svg
+                className="w-7 h-7 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}>
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15 5l-7 7 7 7"
+                />
+              </svg>
+            </div>
+
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </Link>
           <StatCard
             icon="📅"
-            title="کلاس‌های آینده"
-            value={student.upcomingClasses.toString()}
+            title="کلاس‌های عمومی شرکت شده"
+            value={student.publicClassesAttended.toString()}
           />
           <StatCard
             icon="📝"
-            title="تکالیف در انتظار"
-            value={student.pendingAssignments.toString()}
+            title="جلسات خصوصی درخواست شده"
+            value={student.privateSessionsRequested.toString()}
           />
         </div>
       </div>
@@ -105,32 +134,52 @@ function StatCard({
   icon,
   title,
   value,
+  href,
+  className,
 }: {
   icon: string;
   title: string;
   value: string;
+  href?: string;
+  className?: string;
 }) {
-  return (
-    <div className="bg-[var(--hover-bg)] rounded-xl p-4 shadow-xl">
-      <div className="flex items-center gap-3">
-        <span className="text-2xl">{icon}</span>
-        <div>
-          <p className="text-sm font-medium text-[var(--dash-muted)]">
-            {title}
-          </p>
-          <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">
-            {value}
-          </p>
-        </div>
+  const content = (
+    <div className="flex items-center gap-3">
+      <span className="text-2xl">{icon}</span>
+      <div>
+        <p className="text-sm font-medium text-[var(--dash-muted)]">{title}</p>
+        <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">
+          {value}
+        </p>
       </div>
     </div>
   );
+
+  const baseClasses = "rounded-xl p-4 shadow-xl";
+  const allClasses = `${baseClasses} ${href ? "block cursor-pointer transition-transform duration-200 hover:scale-[1.02]" : ""} ${className || "bg-[var(--hover-bg)]"}`;
+
+  if (href) {
+    return (
+      <Link href={href} className={allClasses}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={allClasses}>{content}</div>;
 }
 
 function BookCard({
   book,
 }: {
-  book: { id: string; name: string; author: string; cover: string; bookUrl: string; audioUrl: string };
+  book: {
+    id: string;
+    name: string;
+    author: string;
+    cover: string;
+    bookUrl: string;
+    audioUrl: string;
+  };
 }) {
   return (
     <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
@@ -150,10 +199,18 @@ function BookCard({
         <p className="text-white/80 text-sm mt-1 mb-4">{book.author}</p>
 
         <div className="flex flex-col gap-2">
-          <a href={book.bookUrl} target="_blank" rel="noopener noreferrer" className="w-full px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
+          <a
+            href={book.bookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
             دانلود کتاب
           </a>
-          <a href={book.audioUrl} target="_blank" rel="noopener noreferrer" className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
+          <a
+            href={book.audioUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
             دانلود فایل صوتی
           </a>
         </div>

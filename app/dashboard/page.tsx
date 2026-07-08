@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import data from "@/data.json";
+import { Calendar, FileText } from "lucide-react";
 
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
@@ -79,14 +80,14 @@ export default function DashboardPage() {
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
           <StatCard
-            icon="📅"
             title="کلاس‌های عمومی"
             value={student.publicClassesAttended.toString()}
+            icon={Calendar}
           />
           <StatCard
-            icon="📝"
             title="جلسات خصوصی"
             value={student.privateSessionsRequested.toString()}
+            icon={FileText}
           />
         </div>
       </div>
@@ -131,21 +132,20 @@ export default function DashboardPage() {
 }
 
 function StatCard({
-  icon,
   title,
   value,
   href,
   className,
+  icon: Icon,
 }: {
-  icon: string;
   title: string;
   value: string;
   href?: string;
   className?: string;
+  icon?: React.ComponentType<{ className?: string }>;
 }) {
   const content = (
     <div className="flex items-center gap-3">
-      <span className="text-2xl">{icon}</span>
       <div>
         <p className="text-sm font-medium text-[var(--dash-muted)]">{title}</p>
         <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">
@@ -155,18 +155,23 @@ function StatCard({
     </div>
   );
 
-  const baseClasses = "rounded-xl p-4 shadow-xl";
+  const baseClasses = "rounded-xl p-4 shadow-xl relative overflow-hidden";
   const allClasses = `${baseClasses} ${href ? "block cursor-pointer transition-transform duration-200 hover:scale-[1.02]" : ""} ${className || "bg-[var(--hover-bg)]"}`;
+
+  const iconElement = Icon && (
+    <Icon className="absolute top-1/2 -translate-y-1/2 -left-2 w-16 h-16 -rotate-12 text-black/15 dark:text-white/15" />
+  );
 
   if (href) {
     return (
       <Link href={href} className={allClasses}>
         {content}
+        {iconElement}
       </Link>
     );
   }
 
-  return <div className={allClasses}>{content}</div>;
+  return <div className={allClasses}>{content}{iconElement}</div>;
 }
 
 function BookCard({

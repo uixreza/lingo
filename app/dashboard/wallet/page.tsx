@@ -86,7 +86,7 @@ export default function WalletPage() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--light-purple)] mx-auto mb-4"></div>
           <p className="text-[var(--dash-text)] text-lg">
-            در حال بارگذاری اطلاعات کیف پول...
+            بارگذاری اطلاعات کیف پول...
           </p>
         </div>
       </div>

@@ -274,7 +274,7 @@ export default function TicketsPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen py-8 px-4">
+    <div dir="rtl" className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -284,7 +284,7 @@ export default function TicketsPage() {
             پشتیبانی و تیکت‌ها
           </h1>
           <p style={{ color: "var(--dash-muted)" }}>
-            درخواست‌های خود را مطرح کنید، ما در最短 زمان پاسخگو هستیم
+            درخواست‌های خود را مطرح کنید، ما در کوتاه ترین زمان پاسخگو هستیم
           </p>
         </div>
 
@@ -342,9 +342,7 @@ export default function TicketsPage() {
                     className="flex-1 py-3 text-sm font-medium transition-colors relative"
                     style={{
                       color:
-                        activeTab === tab
-                          ? "#22c55e"
-                          : "var(--dash-muted)",
+                        activeTab === tab ? "#22c55e" : "var(--dash-muted)",
                     }}>
                     {tab === "all" && "همه"}
                     {tab === "open" && "باز"}
@@ -427,13 +425,13 @@ export default function TicketsPage() {
           </div>
 
           {/* Ticket Detail Panel */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-2 min-w-0">
             {selectedTicket ? (
               <motion.div
                 key={selectedTicket.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl border overflow-hidden"
+                className="rounded-xl border overflow-hidden text-sm"
                 style={{
                   backgroundColor: "var(--dash-sides)",
                   borderColor: "var(--dash-bg)",
@@ -572,7 +570,7 @@ export default function TicketsPage() {
                 {selectedTicket.status !== "resolved" &&
                   selectedTicket.status !== "closed" && (
                     <div className="p-6">
-                      <div className="flex gap-3">
+                      <div className="flex flex-col sm:flex-row gap-3">
                         <textarea
                           value={replyMessage}
                           onChange={(e) => setReplyMessage(e.target.value)}
@@ -588,7 +586,7 @@ export default function TicketsPage() {
                         <button
                           onClick={handleSendReply}
                           disabled={!replyMessage.trim()}
-                          className="px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg"
+                          className="px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg sm:self-start"
                           style={{
                             backgroundColor: "#22c55e",
                             color: "black",

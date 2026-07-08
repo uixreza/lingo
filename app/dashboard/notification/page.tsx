@@ -201,7 +201,7 @@ export default function NotificationPage() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
+        <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-2 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex items-center gap-4">
             <Filter className="h-5 w-5 text-[var(--dash-muted)] max-sm:hidden" />
             <div className="flex flex-wrap gap-1 bg-[var(--dash-bg)] rounded-xl p-1 border border-[var(--dash-muted)]/20 dark:border-white/20">

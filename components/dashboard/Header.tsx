@@ -83,6 +83,9 @@ export default function Header({ user }: { user: User }) {
                   </span>
                 </div>
               )}
+              <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
+                {level}
+              </div>
             </div>
           </div>
 

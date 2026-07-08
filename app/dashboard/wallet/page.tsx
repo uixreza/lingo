@@ -96,19 +96,6 @@ export default function WalletPage() {
   return (
     <div className="min-h-screen  py-8 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 bg-gradient-to-l from-[var(--light-purple)]/10 to-[var(--dark-purple)]/10 border border-[var(--light-purple)]/20 dark:border-white/30 rounded-2xl px-6 py-3 mb-4 shadow-lg">
-            <Wallet className="h-8 w-8 text-[var(--dark-purple)] dark:text-white" />
-            <h1 className="text-3xl font-bold text-[var(--dash-text)]">
-              کیف پول
-            </h1>
-          </div>
-          <p className="text-[var(--dash-muted)] text-lg">
-            مدیریت موجودی و افزایش اعتبار حساب
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           {/* Current Balance Card */}
           <div className="lg:col-span-2">

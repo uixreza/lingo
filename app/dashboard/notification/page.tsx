@@ -162,13 +162,13 @@ export default function NotificationPage() {
   };
 
   return (
-    <div className="min-h-screen  p-4 sm:p-6">
+    <div className="min-h-screen  py-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-6 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] rounded-xl shadow-lg">
+              <div className="p-3 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] hidden md:block rounded-xl shadow-lg">
                 <Bell className="h-6 w-6 text-white" />
               </div>
               <div>
@@ -203,8 +203,8 @@ export default function NotificationPage() {
         {/* Filter Tabs */}
         <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex items-center gap-4">
-            <Filter className="h-5 w-5 text-[var(--dash-muted)]" />
-            <div className="flex gap-1 bg-[var(--dash-bg)] rounded-xl p-1 border border-[var(--dash-muted)]/20 dark:border-white/20">
+            <Filter className="h-5 w-5 text-[var(--dash-muted)] max-sm:hidden" />
+            <div className="flex flex-wrap gap-1 bg-[var(--dash-bg)] rounded-xl p-1 border border-[var(--dash-muted)]/20 dark:border-white/20">
               {[
                 { key: "all", label: "همه", count: notifications.length },
                 { key: "unread", label: "خوانده نشده", count: unreadCount },
@@ -261,15 +261,10 @@ export default function NotificationPage() {
                 key={notification.id}
                 className={`bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 border border-[var(--dash-muted)]/20 dark:border-white/20 transition-all duration-200 hover:shadow-xl ${
                   !notification.read
-                    ? "ring-2 ring-[var(--light-purple)]/20"
+                    ? "shadow-lg shadow-[var(--light-purple)]/30"
                     : ""
-                } ${getNotificationColor(notification.type)}`}>
+                }`}>
                 <div className="flex gap-4">
-                  {/* Icon */}
-                  <div className="flex-shrink-0">
-                    {getNotificationIcon(notification.type)}
-                  </div>
-
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-4">

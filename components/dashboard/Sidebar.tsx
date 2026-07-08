@@ -58,7 +58,7 @@ export default function Sidebar() {
   const MobileMenuButton = () => (
     <button
       onClick={() => setIsMobileOpen(true)}
-      className="lg:hidden fixed bottom-6 right-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-300 hover:scale-110 hover:shadow-xl"
+      className="lg:hidden fixed bottom-6 right-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
       aria-label="باز کردن منو">
       <Menu className="h-6 w-6" />
     </button>
@@ -67,7 +67,7 @@ export default function Sidebar() {
   // Backdrop for mobile
   const MobileBackdrop = () => (
     <div
-      className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all duration-300 ${
+      className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all duration-200 ${
         isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
       }`}
       onClick={() => setIsMobileOpen(false)}
@@ -86,13 +86,13 @@ export default function Sidebar() {
       <aside
         className={`hidden lg:flex ${
           isHovered ? "w-72" : "w-[5.5rem]"
-        } bg-[var(--sidebar-bg)] shadow-2xl flex-col transition-all duration-500 ease-in-out h-screen`}
+        } bg-[var(--sidebar-bg)] shadow-2xl flex-col transition-all duration-200 h-screen`}
         dir="rtl"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}>
         {/* Logo */}
         <div className="py-6 px-4">
-          <div className="flex items-center gap-3 transition-all duration-300">
+          <div className="flex items-center gap-3 transition-all duration-150">
             <div className="relative">
               <div className="w-12 h-12 rounded-2xl overflow-hidden bg-black flex items-center justify-center shadow-lg">
                 <Image
@@ -104,7 +104,7 @@ export default function Sidebar() {
               </div>
             </div>
             <div
-              className={`overflow-hidden transition-all duration-300 ${
+              className={`overflow-hidden transition-all duration-150 ${
                 isHovered ? "opacity-100 w-auto" : "opacity-0 w-0"
               }`}>
               <h1 className="text-xl font-bold text-[var(--sidebar-heading)] whitespace-nowrap">
@@ -126,7 +126,7 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group flex items-center px-4 py-3 rounded-xl transition-all duration-300 font-medium relative overflow-hidden
+                className={`group flex items-center px-4 py-3 rounded-xl font-medium relative overflow-hidden transition-all duration-150
                   ${
                     isActive
                       ? "bg-green-500 text-white shadow-lg scale-105"
@@ -134,7 +134,7 @@ export default function Sidebar() {
                   }`}>
                 <div className="relative shrink-0">
                   <Icon
-                    className={`h-5 w-5 transition-colors duration-300 ${
+                    className={`h-5 w-5 transition-colors duration-100 ${
                       isActive
                         ? "text-white"
                         : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
@@ -143,9 +143,9 @@ export default function Sidebar() {
                 </div>
 
                 <span
-                  className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+                  className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
                   <span
-                    className={`whitespace-nowrap transition-all duration-300 ${
+                    className={`whitespace-nowrap transition-all duration-150 ${
                       isHovered
                         ? "opacity-100 translate-x-0"
                         : "opacity-0 translate-x-4"
@@ -165,21 +165,21 @@ export default function Sidebar() {
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className={`
-                w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-300
+                w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150
                 text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]
                 backdrop-blur-sm
               `}
               aria-label="تغییر تم">
               <div className="relative w-5 h-5 shrink-0">
                 <Sun
-                  className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
+                  className={`absolute inset-0 w-5 h-5 transition-all duration-150 ${
                     theme === "dark"
                       ? "opacity-0 scale-0 rotate-90"
                       : "opacity-100 scale-100 rotate-0"
                   } group-hover:text-[var(--sidebar-text-hover)]`}
                 />
                 <Moon
-                  className={`absolute inset-0 w-5 h-5 transition-all duration-300 ${
+                  className={`absolute inset-0 w-5 h-5 transition-all duration-150 ${
                     theme === "dark"
                       ? "opacity-100 scale-100 rotate-0"
                       : "opacity-0 scale-0 -rotate-90"
@@ -188,9 +188,9 @@ export default function Sidebar() {
               </div>
 
               <span
-                className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+                className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
                 <span
-                  className={`whitespace-nowrap transition-all duration-300 font-medium ${
+                  className={`whitespace-nowrap font-medium transition-all duration-150 ${
                     isHovered
                       ? "opacity-100 translate-x-0"
                       : "opacity-0 translate-x-4"
@@ -202,13 +202,13 @@ export default function Sidebar() {
           )}
 
           {/* Logout */}
-          <button className="w-full group flex items-center px-4 py-3 rounded-xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-300 hover:scale-105">
+          <button className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
             <LogOut className="h-5 w-5 shrink-0" />
             <span
-              className={`overflow-hidden transition-all duration-300 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+              className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
               <Link
                 href="/"
-                className={`whitespace-nowrap transition-all duration-300 font-medium ${
+                className={`whitespace-nowrap font-medium transition-all duration-150 ${
                   isHovered
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-4"
@@ -223,7 +223,7 @@ export default function Sidebar() {
       {/* Mobile Sidebar - Bottom Sheet */}
       <aside
         className={`
-          lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--sidebar-bg)] shadow-2xl rounded-t-3xl flex flex-col transition-all duration-500 z-50 backdrop-blur-lg
+          lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--sidebar-bg)] shadow-2xl rounded-t-3xl flex flex-col transition-all duration-200 z-50 backdrop-blur-lg
           ${isMobileOpen ? "translate-y-0" : "translate-y-full"}
           max-h-[85vh]
         `}
@@ -237,7 +237,7 @@ export default function Sidebar() {
         <div className="flex items-center justify-between p-6">
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="p-3 rounded-2xl text-[var(--sidebar-heading)] hover:bg-[var(--hover-bg)] transition-all duration-300 hover:scale-110"
+            className="p-3 rounded-2xl text-[var(--sidebar-heading)] hover:bg-[var(--hover-bg)] transition-all duration-150 hover:scale-110"
             aria-label="بستن منو">
             <X className="h-5 w-5" />
           </button>
@@ -262,7 +262,7 @@ export default function Sidebar() {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsMobileOpen(false)}
-                className={`group flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 font-medium text-lg relative overflow-hidden
+                className={`group flex items-center gap-4 px-4 py-4 rounded-2xl font-medium text-lg relative overflow-hidden transition-all duration-150
                   ${
                     isActive
                       ? "bg-green-500 text-white shadow-lg scale-105"
@@ -270,7 +270,7 @@ export default function Sidebar() {
                   }`}>
                 <div className="relative">
                   <Icon
-                    className={`h-6 w-6 transition-colors ${
+                    className={`h-6 w-6 transition-colors duration-100 ${
                       isActive
                         ? "text-white"
                         : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
@@ -293,21 +293,21 @@ export default function Sidebar() {
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
               className={`
-                w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl transition-all duration-300 text-lg font-medium
+                w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-lg font-medium transition-all duration-150
                 text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]
                 backdrop-blur-sm
               `}
               aria-label="تغییر تم">
               <div className="relative w-6 h-6">
                 <Sun
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-300 ${
+                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
                     theme === "dark"
                       ? "opacity-0 scale-0 rotate-90"
                       : "opacity-100 scale-100 rotate-0"
                   } group-hover:text-[var(--sidebar-text-hover)]`}
                 />
                 <Moon
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-300 ${
+                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
                     theme === "dark"
                       ? "opacity-100 scale-100 rotate-0"
                       : "opacity-0 scale-0 -rotate-90"
@@ -324,7 +324,7 @@ export default function Sidebar() {
           {/* Logout */}
           <button
             onClick={() => setIsMobileOpen(false)}
-            className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-300 text-lg font-medium hover:scale-105">
+            className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
             <LogOut className="h-6 w-6" />
             <Link href="/" className="font-medium">
               خروج از حساب کاربری

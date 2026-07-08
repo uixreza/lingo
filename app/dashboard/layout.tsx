@@ -33,7 +33,7 @@ export default function RootLayout({
           <Header user={user} />
 
           {/* Page Content */}
-          <main className="flex-1 overflow-y-auto py-6 px-3 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">
+          <main className="flex-1 overflow-y-auto py-6 px-2 sm:px-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">
             <Breadcrum />
             <div className="max-w-7xl mx-auto">{children}</div>
           </main>

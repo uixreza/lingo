@@ -1,6 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import DatePicker from "react-multi-date-picker";
+import "react-multi-date-picker/styles/layouts/prime.css";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
 import {
   User,
   Mail,
@@ -32,6 +36,7 @@ export default function AccountPage() {
     confirmPassword: "",
   });
 
+  const [level, setLevel] = useState("");
   const [saveMessage, setSaveMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -151,8 +156,7 @@ export default function AccountPage() {
                         activeTab === tab.id
                           ? "bg-green-500 text-black shadow-lg"
                           : "text-[var(--dash-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--dash-text)]"
-                      }`}
-                    >
+                      }`}>
                       <Icon className="h-5 w-5" />
                       <span>{tab.label}</span>
                     </button>
@@ -172,8 +176,7 @@ export default function AccountPage() {
                     saveMessage.type === "success"
                       ? "bg-green-500 text-black"
                       : "bg-red-500/20 text-red-500"
-                  }`}
-                >
+                  }`}>
                   {saveMessage.text}
                 </div>
               )}
@@ -187,8 +190,7 @@ export default function AccountPage() {
                     </h2>
                     <button
                       onClick={handleSaveProfile}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300"
-                    >
+                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300">
                       <Save className="h-4 w-4" />
                       ذخیره
                     </button>
@@ -243,15 +245,69 @@ export default function AccountPage() {
                         <Calendar className="h-4 w-4 inline ml-1" />
                         تاریخ تولد
                       </label>
-                      <input
-                        type="text"
-                        name="birthDate"
+                      <DatePicker
                         value={userData.birthDate}
-                        onChange={handleProfileChange}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
-                        placeholder="۱۳۷۵-۰۳-۱۵"
+                        onChange={(val: any) => {
+                          const formatted = val?.format?.("YYYY/MM/DD") ?? "";
+                          setUserData((prev) => ({
+                            ...prev,
+                            birthDate: formatted,
+                          }));
+                        }}
+                        calendar={persian}
+                        locale={persian_fa}
+                        format="YYYY/MM/DD"
+                        containerClassName="w-full"
+                        inputClass="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
+                        calendarPosition="bottom-right"
                       />
                     </div>
+                  </div>
+
+                  {/* Level Selection */}
+                  <div>
+                    <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+                      سطح زبان
+                    </label>
+                    <div className="flex flex-wrap gap-2">
+                      {["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => {
+                        const levelColors: Record<string, string> = {
+                          A1: "bg-green-500/15 text-green-700 dark:text-green-300 hover:bg-green-500/25",
+                          A2: "bg-green-500/15 text-green-700 dark:text-green-300 hover:bg-green-500/25",
+                          B1: "bg-orange-500/15 text-orange-700 dark:text-orange-300 hover:bg-orange-500/25",
+                          B2: "bg-orange-500/15 text-orange-700 dark:text-orange-300 hover:bg-orange-500/25",
+                          C1: "bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-500/25",
+                          C2: "bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-500/25",
+                        };
+                        const selectedColors: Record<string, string> = {
+                          A1: "bg-green-500 text-white shadow-lg",
+                          A2: "bg-green-500 text-white shadow-lg",
+                          B1: "bg-orange-500 text-white shadow-lg",
+                          B2: "bg-orange-500 text-white shadow-lg",
+                          C1: "bg-red-500 text-white shadow-lg",
+                          C2: "bg-red-500 text-white shadow-lg",
+                        };
+                        return (
+                          <button
+                            key={lvl}
+                            onClick={() => setLevel(lvl === level ? "" : lvl)}
+                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                              level === lvl
+                                ? selectedColors[lvl]
+                                : levelColors[lvl]
+                            }`}>
+                            {lvl}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <a
+                      href="https://t.me/lingofam_support"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-3 text-xs text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors underline">
+                      درخواست رایگان تعیین سطح (تلگرام)
+                    </a>
                   </div>
                 </div>
               )}
@@ -279,10 +335,15 @@ export default function AccountPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors"
-                        >
-                          {showCurrentPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          onClick={() =>
+                            setShowCurrentPassword(!showCurrentPassword)
+                          }
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                          {showCurrentPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -303,9 +364,12 @@ export default function AccountPage() {
                         <button
                           type="button"
                           onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors"
-                        >
-                          {showNewPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                          {showNewPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -325,10 +389,15 @@ export default function AccountPage() {
                         />
                         <button
                           type="button"
-                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors"
-                        >
-                          {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                          onClick={() =>
+                            setShowConfirmPassword(!showConfirmPassword)
+                          }
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                          {showConfirmPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                          ) : (
+                            <Eye className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -336,8 +405,7 @@ export default function AccountPage() {
 
                   <button
                     onClick={handleChangePassword}
-                    className="w-full py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300"
-                  >
+                    className="w-full py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300">
                     تغییر رمز عبور
                   </button>
                 </div>

@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { Lock, Globe, Clock, CalendarDays, Users, User, FileText, CheckCircle, Hourglass, XCircle } from "lucide-react";
+import { useState, useEffect } from "react";
+import DatePicker from "react-multi-date-picker";
+import "react-multi-date-picker/styles/layouts/prime.css";
+import persian from "react-date-object/calendars/persian";
+import persian_fa from "react-date-object/locales/persian_fa";
+import {
+  Lock,
+  Globe,
+  Clock,
+  CalendarDays,
+  Users,
+  User,
+  FileText,
+  CheckCircle,
+  Hourglass,
+  XCircle,
+} from "lucide-react";
 
-const timeSlots = [
-  "08:30", "10:00", "12:30", "15:00", "17:00", "19:00",
-];
+const timeSlots = ["08:30", "10:00", "12:30", "15:00", "17:00", "19:00"];
 
 const languages = [
   { id: "en", label: "English", flag: "🇬🇧", available: true },
@@ -14,41 +27,92 @@ const languages = [
 ];
 
 const initialRequests = [
-  { id: 1, date: "1404/10/22", time: "10:00", language: "English", type: "Public", status: "approved" as const },
-  { id: 2, date: "1404/10/25", time: "12:30", language: "English", type: "Private", reason: "آمادگی برای آزمون آیلتس", status: "pending" as const },
-  { id: 3, date: "1404/09/15", time: "15:00", language: "English", type: "Public", status: "canceled" as const },
+  {
+    id: 1,
+    date: "1404/10/22",
+    time: "10:00",
+    language: "English",
+    type: "Public",
+    status: "approved" as const,
+  },
+  {
+    id: 2,
+    date: "1404/10/25",
+    time: "12:30",
+    language: "English",
+    type: "Private",
+    reason: "آمادگی برای آزمون آیلتس",
+    status: "pending" as const,
+  },
+  {
+    id: 3,
+    date: "1404/09/15",
+    time: "15:00",
+    language: "English",
+    type: "Public",
+    status: "canceled" as const,
+  },
 ];
 
 type RequestStatus = "approved" | "pending" | "canceled";
 
 export default function SessionsPage() {
-  const [date, setDate] = useState("");
-  const [time, setTime] = useState("");
+  const [date, setDate] = useState(null);
+  const [time, setTime] = useState<string[]>([]);
   const [language, setLanguage] = useState("");
   const [classType, setClassType] = useState<"Public" | "Private" | "">("");
   const [reason, setReason] = useState("");
+
+  const [mounted, setMounted] = useState(false);
   const [requests] = useState(initialRequests);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
 
-  const canSubmit = language && classType && (classType === "Public" || (date && time && reason.trim()));
+  useEffect(() => { setMounted(true); }, []);
 
-  const filteredRequests = filter === "all" ? requests : requests.filter((r) => r.status === filter);
+  const canSubmit =
+    mounted &&
+    language &&
+    classType &&
+    (classType === "Public" || (date && time.length > 0 && reason.trim()));
 
-  const statusIcons = { approved: CheckCircle, pending: Hourglass, canceled: XCircle };
-  const statusColors = { approved: "text-green-500", pending: "text-orange-500", canceled: "text-red-500" };
-  const statusBg = { approved: "bg-green-500/10", pending: "bg-orange-500/10", canceled: "bg-red-500/10" };
-  const statusLabel = { approved: "تأیید شده", pending: "در انتظار", canceled: "لغو شده" };
+  const filteredRequests =
+    filter === "all" ? requests : requests.filter((r) => r.status === filter);
+
+  const statusIcons = {
+    approved: CheckCircle,
+    pending: Hourglass,
+    canceled: XCircle,
+  };
+  const statusColors = {
+    approved: "text-green-500",
+    pending: "text-orange-500",
+    canceled: "text-red-500",
+  };
+  const statusBg = {
+    approved: "bg-green-500/10",
+    pending: "bg-orange-500/10",
+    canceled: "bg-red-500/10",
+  };
+  const statusLabel = {
+    approved: "تأیید شده",
+    pending: "در انتظار",
+    canceled: "لغو شده",
+  };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
       {/* Right: Request Form (wider) */}
       <div className="lg:col-span-3 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
-        <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">درخواست کلاس زبان</h2>
+        <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
+          درخواست کلاس زبان
+        </h2>
 
         <div className="space-y-5">
           {/* Language */}
           <div>
-            <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">زبان</label>
+            <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+              زبان
+            </label>
             <div className="grid grid-cols-3 gap-3">
               {languages.map((lang) => {
                 const selected = language === lang.id;
@@ -63,8 +127,7 @@ export default function SessionsPage() {
                         : selected
                           ? "bg-green-500 text-black shadow-lg scale-105"
                           : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
-                    }`}
-                  >
+                    }`}>
                     <span className="text-2xl">{lang.flag}</span>
                     <span>{lang.label}</span>
                     {!lang.available && (
@@ -78,7 +141,9 @@ export default function SessionsPage() {
 
           {/* Class Type */}
           <div>
-            <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">نوع کلاس</label>
+            <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+              نوع کلاس
+            </label>
             <div className="flex gap-3">
               {(["Public", "Private"] as const).map((type) => (
                 <button
@@ -88,9 +153,12 @@ export default function SessionsPage() {
                     classType === type
                       ? "bg-green-500 text-black shadow-lg"
                       : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
-                  }`}
-                >
-                  {type === "Public" ? <Users className="h-4 w-4" /> : <User className="h-4 w-4" />}
+                  }`}>
+                  {type === "Public" ? (
+                    <Users className="h-4 w-4" />
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
                   {type === "Public" ? "عمومی" : "خصوصی"}
                 </button>
               ))}
@@ -100,7 +168,9 @@ export default function SessionsPage() {
           {/* Reason (conditional) */}
           {classType === "Private" && (
             <div>
-              <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">دلیل یادگیری</label>
+              <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+                دلیل یادگیری
+              </label>
               <div className="relative">
                 <FileText className="absolute top-3 right-3 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
                 <textarea
@@ -118,33 +188,57 @@ export default function SessionsPage() {
           {classType === "Private" && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">تاریخ</label>
-                <div className="relative">
-                  <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all"
-                  />
-                </div>
+                <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+                  تاریخ
+                </label>
+                <DatePicker
+                  value={date}
+                  onChange={setDate}
+                  calendar={persian}
+                  locale={persian_fa}
+                  format="YYYY/MM/DD"
+                  placeholder="انتخاب تاریخ کلاس"
+                  containerClassName="w-full"
+                  inputClass="w-full outline-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all"
+                  calendarPosition="bottom-right"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">ساعت</label>
+                <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+                  ساعت پیشنهادی کلاس
+                </label>
                 <div className="grid grid-cols-3 gap-2">
-                  {timeSlots.map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => setTime(t)}
-                      className={`px-2 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 ${
-                        time === t
-                          ? "bg-green-500 text-black shadow-lg"
-                          : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
+                  {timeSlots.map((t) => {
+                    const isSelected = time.includes(t);
+                    return (
+                      <button
+                        key={t}
+                        onClick={() =>
+                          setTime(
+                            isSelected
+                              ? time.filter((s) => s !== t)
+                              : [...time, t],
+                          )
+                        }
+                        className={`flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-2 ${
+                          isSelected
+                            ? "border-green-500 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20 bg-transparent"
+                            : "border-[var(--dash-muted)]/20 text-[var(--dash-text)] hover:border-green-500/30 bg-transparent"
+                        }`}>
+                        <span
+                          className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                            isSelected
+                              ? "border-green-500 bg-green-500"
+                              : "border-[var(--dash-muted)]"
+                          }`}>
+                          {isSelected && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
+                          )}
+                        </span>
+                        {t}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -153,32 +247,52 @@ export default function SessionsPage() {
           {/* Public notification */}
           {classType === "Public" && (
             <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-green-500/20">
-                  <svg className="h-5 w-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-green-500/20">
+                    <svg
+                      className="h-5 w-5 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24">
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                  <p className="text-sm text-[var(--dash-muted)]">
+                    تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
+                    اطلاع داده خواهد شد.
+                  </p>
                 </div>
-                <p className="text-sm text-[var(--dash-muted)]">
-                  تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما اطلاع داده خواهد شد.
-                </p>
               </div>
-            </div>
           )}
 
           {/* Teacher Introduction */}
           <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
-            <h3 className="text-sm font-bold text-[var(--dash-text)] mb-3">مدرس شما</h3>
+            <h3 className="text-sm font-bold text-[var(--dash-text)] mb-3">
+              مدرس شما
+            </h3>
             <div className="flex items-start gap-4">
               <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center text-white font-bold text-lg shrink-0 shadow-lg">
                 RK
               </div>
               <div className="flex-1 min-w-0 space-y-1.5">
-                <p className="text-sm font-bold text-[var(--dash-text)]">رضا کمالی</p>
+                <p className="text-sm font-bold text-[var(--dash-text)]">
+                  رضا کمالی
+                </p>
                 <p className="text-xs text-[var(--dash-muted)]">سن: ۲۶ سال</p>
-                <p className="text-xs text-[var(--dash-muted)]">مدرک: TTC Holder</p>
-                <p className="text-xs text-[var(--dash-muted)]">سابقه تدریس: ۳ سال</p>
-                <p className="text-xs text-[var(--dash-muted)]">کارشناسی ارشد زبان انگلیسی از دانشگاه بجنورد</p>
+                <p className="text-xs text-[var(--dash-muted)]">
+                  مدرک: TTC Holder
+                </p>
+                <p className="text-xs text-[var(--dash-muted)]">
+                  سابقه تدریس: ۳ سال
+                </p>
+                <p className="text-xs text-[var(--dash-muted)]">
+                  کارشناسی ارشد زبان انگلیسی از دانشگاه بجنورد
+                </p>
               </div>
             </div>
           </div>
@@ -186,17 +300,29 @@ export default function SessionsPage() {
           {/* Price */}
           <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-[var(--dash-muted)]">قیمت هر جلسه</span>
+              <span className="text-sm font-medium text-[var(--dash-muted)]">
+                قیمت هر جلسه
+              </span>
               <div className="text-left">
                 {classType ? (
-                  <span className="text-lg font-bold text-[var(--dash-text)]">
-                    {classType === "Private"
-                      ? "۳۵۰,۰۰۰"
-                      : "۱۵۰,۰۰۰"}
-                    <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">تومان</span>
-                  </span>
+                  <div>
+                    <span className="text-sm font-medium text-[var(--dash-text)]">
+                      {classType === "Private" ? "۳۵۰,۰۰۰" : "۱۵۰,۰۰۰"}
+                      <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
+                        تومان
+                      </span>
+                    </span>
+                    <div className="text-base font-bold text-[var(--dash-text)] mt-0.5">
+                      {classType === "Private" ? "۵,۲۵۰,۰۰۰" : "۲,۲۵۰,۰۰۰"}
+                      <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
+                        تومان / ۱۵ جلسه
+                      </span>
+                    </div>
+                  </div>
                 ) : (
-                  <span className="text-sm text-[var(--dash-muted)]">نوع کلاس را انتخاب کنید</span>
+                  <span className="text-sm text-[var(--dash-muted)]">
+                    نوع کلاس را انتخاب کنید
+                  </span>
                 )}
               </div>
             </div>
@@ -209,8 +335,7 @@ export default function SessionsPage() {
               canSubmit
                 ? "bg-green-500 text-black hover:bg-green-400 hover:scale-[1.02]"
                 : "bg-[var(--hover-bg)] text-[var(--dash-muted)] cursor-not-allowed"
-            }`}
-          >
+            }`}>
             ثبت درخواست
           </button>
         </div>
@@ -218,7 +343,9 @@ export default function SessionsPage() {
 
       {/* Left: Requests List (narrower) */}
       <div className="lg:col-span-2 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
-        <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">درخواست‌های من</h2>
+        <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
+          درخواست‌های من
+        </h2>
 
         {/* Filter Tabs */}
         <div className="flex gap-2 mb-6 flex-wrap">
@@ -230,8 +357,7 @@ export default function SessionsPage() {
                 filter === key
                   ? "bg-green-500 text-black shadow-lg"
                   : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
-              }`}
-            >
+              }`}>
               {key === "all" ? "همه" : statusLabel[key]}
             </button>
           ))}
@@ -239,32 +365,46 @@ export default function SessionsPage() {
 
         <div className="space-y-4">
           {filteredRequests.length === 0 && (
-            <p className="text-[var(--dash-muted)] text-center py-12">درخواستی یافت نشد</p>
+            <p className="text-[var(--dash-muted)] text-center py-12">
+              درخواستی یافت نشد
+            </p>
           )}
           {filteredRequests.map((req) => {
             const StatusIcon = statusIcons[req.status];
             return (
               <div
                 key={req.id}
-                className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-xl transition-all duration-200 hover:scale-[1.02]"
-              >
+                className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-xl transition-all duration-200 hover:scale-[1.02]">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div className={`p-2.5 rounded-xl ${statusBg[req.status]}`}>
-                      <StatusIcon className={`h-5 w-5 ${statusColors[req.status]}`} />
+                      <StatusIcon
+                        className={`h-5 w-5 ${statusColors[req.status]}`}
+                      />
                     </div>
                     <div>
-                      <p className="font-bold text-[var(--dash-text)]">{req.language}</p>
-                      <p className="text-xs text-[var(--dash-muted)] mt-0.5">{req.type}</p>
+                      <p className="font-bold text-[var(--dash-text)]">
+                        {req.language}
+                      </p>
+                      <p className="text-xs text-[var(--dash-muted)] mt-0.5">
+                        {req.type}
+                      </p>
                     </div>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium ${statusBg[req.status]} ${statusColors[req.status]}`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusBg[req.status]} ${statusColors[req.status]}`}>
                     {statusLabel[req.status]}
                   </span>
                 </div>
                 <div className="flex items-center gap-4 text-xs text-[var(--dash-muted)]">
-                  <span className="flex items-center gap-1.5"><CalendarDays className="h-3.5 w-3.5" />{req.date}</span>
-                  <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" />{req.time}</span>
+                  <span className="flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    {req.date}
+                  </span>
+                  <span className="flex items-center gap-1.5">
+                    <Clock className="h-3.5 w-3.5" />
+                    {req.time}
+                  </span>
                 </div>
                 {req.reason && (
                   <p className="text-xs text-[var(--dash-muted)] mt-3 pr-1 border-r-2 border-[var(--dash-muted)]/30">

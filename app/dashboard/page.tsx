@@ -22,8 +22,8 @@ export default function DashboardPage() {
     enrolledCourses: 3,
     upcomingClasses: 2,
     pendingAssignments: 1,
-    publicClassesAttended: 8,
-    privateSessionsRequested: 3,
+    publicClassesAttended: 0,
+    privateSessionsRequested: 0,
   };
 
   const books = activeGroup === "kids" ? kidsBooks : adultBooks;
@@ -46,7 +46,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-sm:[&>:first-child]:col-span-full">
           <Link
             href="/dashboard/sessions"
             className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden">
@@ -80,12 +80,12 @@ export default function DashboardPage() {
           </Link>
           <StatCard
             icon="📅"
-            title="کلاس‌های عمومی شرکت شده"
+            title="کلاس‌های عمومی"
             value={student.publicClassesAttended.toString()}
           />
           <StatCard
             icon="📝"
-            title="جلسات خصوصی درخواست شده"
+            title="جلسات خصوصی"
             value={student.privateSessionsRequested.toString()}
           />
         </div>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}

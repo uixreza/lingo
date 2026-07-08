@@ -270,7 +270,7 @@ export default function Sidebar() {
                   }`}>
                 <div className="relative">
                   <Icon
-                    className={`h-6 w-6 transition-colors duration-300 ${
+                    className={`h-6 w-6 transition-colors ${
                       isActive
                         ? "text-white"
                         : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"

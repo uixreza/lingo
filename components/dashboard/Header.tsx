@@ -60,7 +60,7 @@ export default function Header({ user }: { user: User }) {
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Mobile Menu Button - Hidden on desktop */}
           <button
-            className="lg:hidden p-2 rounded-xl bg-[var(--hover-bg)]  shadow-lg"
+            className="lg:hidden p-2 rounded-xl bg-[var(--hover-bg)] shadow-lg"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             <Menu className="h-5 w-5 text-[var(--header-text)]" />
           </button>
@@ -202,8 +202,8 @@ export default function Header({ user }: { user: User }) {
                 <div key={badge} className="group relative">
                   <div className="bg-[var(--hover-bg-strong)] rounded-lg p-1.5  shadow-lg">
                     <div className="text-[var(--icon-muted)]">
-                        {badgeIcons[badge] || <Star className="h-3 w-3" />}
-                      </div>
+                      {badgeIcons[badge] || <Star className="h-3 w-3" />}
+                    </div>
                   </div>
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10 ">
                     {badgeNames[badge] || badge}

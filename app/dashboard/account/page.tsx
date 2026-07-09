@@ -117,14 +117,14 @@ export default function AccountPage() {
     <div dir="rtl">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
         {/* Header */}
-        <div>
+        {/* <div>
           <h1 className="text-3xl font-bold text-[var(--dash-text)] mb-2">
             تنظیمات
           </h1>
           <p className="text-[var(--dash-muted)]">
             مدیریت / ویرایش اطلاعات کاربری
           </p>
-        </div>
+        </div> */}
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}

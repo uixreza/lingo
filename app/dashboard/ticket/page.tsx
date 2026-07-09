@@ -277,7 +277,7 @@ export default function TicketsPage() {
     <div dir="rtl" className="min-h-screen py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
+        {/* <div className="mb-8">
           <h1
             className="text-3xl font-bold mb-2"
             style={{ color: "var(--dash-text)" }}>
@@ -286,7 +286,7 @@ export default function TicketsPage() {
           <p style={{ color: "var(--dash-muted)" }}>
             درخواست‌های خود را مطرح کنید، ما در کوتاه ترین زمان پاسخگو هستیم
           </p>
-        </div>
+        </div> */}
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Tickets List Panel */}

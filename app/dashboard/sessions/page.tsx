@@ -17,6 +17,10 @@ import {
   CheckCircle,
   Hourglass,
   XCircle,
+  Loader2,
+  Copy,
+  ExternalLink,
+  Video,
 } from "lucide-react";
 
 const timeSlots = ["08:30", "10:00", "12:30", "15:00", "17:00", "19:00"];
@@ -34,6 +38,16 @@ const initialRequests = [
     time: "10:00",
     language: "English",
     type: "Public",
+    status: "approved" as const,
+    meetLink: "https://meet.google.com/abc-defg-hij",
+  },
+  {
+    id: 4,
+    date: "1404/11/10",
+    time: "17:00",
+    language: "English",
+    type: "Private",
+    reason: "تقویت مهارت رایتینگ",
     status: "approved" as const,
   },
   {
@@ -60,13 +74,20 @@ type RequestStatus = "approved" | "pending" | "canceled";
 export default function SessionsPage() {
   const [date, setDate] = useState<DateObject | null>(null);
   const [time, setTime] = useState<string[]>([]);
-  const [language, setLanguage] = useState("");
-  const [classType, setClassType] = useState<"Public" | "Private" | "">("");
+  const [language, setLanguage] = useState("en");
+  const [classType, setClassType] = useState<"Public" | "Private">("Private");
   const [reason, setReason] = useState("");
 
   const [mounted, setMounted] = useState(false);
   const [requests] = useState(initialRequests);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  const handleCopyLink = async (id: number, link: string) => {
+    await navigator.clipboard.writeText(link);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   useEffect(() => {
     setMounted(true);
@@ -128,7 +149,7 @@ export default function SessionsPage() {
                       !lang.available
                         ? "opacity-40 cursor-not-allowed bg-[var(--hover-bg)]"
                         : selected
-                          ? "bg-green-500 text-black shadow-lg scale-105"
+                          ? "ring-2 ring-green-500 bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg"
                           : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
                     }`}>
                     <span className="text-2xl">{lang.flag}</span>
@@ -148,21 +169,35 @@ export default function SessionsPage() {
               نوع کلاس
             </label>
             <div className="flex gap-3">
-              {(["Public", "Private"] as const).map((type) => (
+              {[
+                { value: "Public" as const, label: "عمومی", available: false },
+                { value: "Private" as const, label: "خصوصی", available: true },
+              ].map(({ value, label, available }) => (
                 <button
-                  key={type}
-                  onClick={() => setClassType(type)}
-                  className={`flex items-center gap-2 flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                    classType === type
-                      ? "bg-green-500 text-black shadow-lg"
-                      : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                  key={value}
+                  onClick={() => available && setClassType(value)}
+                  disabled={!available}
+                  className={`relative flex items-center gap-2 flex-1 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    !available
+                      ? "opacity-40 cursor-not-allowed bg-[var(--hover-bg)]"
+                      : classType === value
+                        ? "ring-2 ring-green-500 bg-green-500/10 text-green-600 dark:text-green-400 shadow-lg"
+                        : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
                   }`}>
-                  {type === "Public" ? (
+                  {value === "Public" ? (
                     <Users className="h-4 w-4" />
                   ) : (
                     <User className="h-4 w-4" />
                   )}
-                  {type === "Public" ? "عمومی" : "خصوصی"}
+                  <div>
+                    <div>{label}</div>
+                    {value === "Private" && (
+                      <div className="text-[10px] opacity-70 mt-0.5">۱.۵ ساعته</div>
+                    )}
+                  </div>
+                  {!available && (
+                    <Lock className="absolute top-2 left-2 h-3.5 w-3.5 text-[var(--dash-muted)]" />
+                  )}
                 </button>
               ))}
             </div>
@@ -310,17 +345,19 @@ export default function SessionsPage() {
                 {classType ? (
                   <div>
                     <span className="text-sm font-medium text-[var(--dash-text)]">
-                      {classType === "Private" ? "۳۵۰,۰۰۰" : "۱۵۰,۰۰۰"}
+                      {classType === "Private" ? "۴۰۰,۰۰۰" : "۱۵۰,۰۰۰"}
                       <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
                         تومان
                       </span>
                     </span>
-                    <div className="text-base font-bold text-[var(--dash-text)] mt-0.5">
-                      {classType === "Private" ? "۵,۲۵۰,۰۰۰" : "۲,۲۵۰,۰۰۰"}
-                      <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
-                        تومان / ۱۵ جلسه
-                      </span>
-                    </div>
+                    {classType === "Public" && (
+                      <div className="text-base font-bold text-[var(--dash-text)] mt-0.5">
+                        {"۲,۲۵۰,۰۰۰"}
+                        <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
+                          تومان / ۱۵ جلسه
+                        </span>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <span className="text-sm text-[var(--dash-muted)]">
@@ -413,6 +450,51 @@ export default function SessionsPage() {
                   <p className="text-xs text-[var(--dash-muted)] mt-3 pr-1 border-r-2 border-[var(--dash-muted)]/30">
                     {req.reason}
                   </p>
+                )}
+
+                {req.status === "approved" && (
+                  <div className="mt-4 pt-4 border-t border-[var(--dash-muted)]/20 space-y-3">
+                    {"meetLink" in req && req.meetLink ? (
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                        <span className="text-xs truncate text-left font-mono flex-1" style={{ color: "var(--dash-text)", direction: "ltr" }}>
+                          {req.meetLink}
+                        </span>
+                        <button
+                          onClick={() => handleCopyLink(req.id, req.meetLink!)}
+                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
+                          {copiedId === req.id ? (
+                            <span className="text-xs text-green-500 font-medium">کپی شد</span>
+                          ) : (
+                            <Copy className="h-3.5 w-3.5" style={{ color: "var(--dash-muted)" }} />
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <Loader2 className="h-4 w-4 text-green-500 animate-spin shrink-0" />
+                        <span className="text-xs" style={{ color: "var(--dash-muted)" }}>
+                          لینک در تاریخ جلسه قرار داده می‌شود
+                        </span>
+                      </div>
+                    )}
+
+                    <a
+                      href={"meetLink" in req && req.meetLink ? req.meetLink : "#"}
+                      target={"meetLink" in req && req.meetLink ? "_blank" : "_self"}
+                      rel="noopener noreferrer"
+                      className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
+                        "meetLink" in req && req.meetLink
+                          ? "bg-green-500 text-black hover:bg-green-400 shadow-lg"
+                          : "bg-[var(--hover-bg)] text-[var(--dash-muted)] cursor-not-allowed opacity-60"
+                      }`}
+                      onClick={(e) => {
+                        if (!("meetLink" in req && req.meetLink)) e.preventDefault();
+                      }}>
+                      <Video className="h-4 w-4" />
+                      شرکت در کلاس
+                    </a>
+                  </div>
                 )}
               </div>
             );

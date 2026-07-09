@@ -5,6 +5,7 @@ import DatePicker from "react-multi-date-picker";
 import "react-multi-date-picker/styles/layouts/prime.css";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import DateObject from "react-date-object";
 import {
   Lock,
   Globe,
@@ -57,7 +58,7 @@ const initialRequests = [
 type RequestStatus = "approved" | "pending" | "canceled";
 
 export default function SessionsPage() {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState<DateObject | null>(null);
   const [time, setTime] = useState<string[]>([]);
   const [language, setLanguage] = useState("");
   const [classType, setClassType] = useState<"Public" | "Private" | "">("");

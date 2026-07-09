@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { House, LayoutDashboard, LifeBuoy, LogIn } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 const links = [
   { label: "خانه", icon: House },
@@ -61,7 +62,9 @@ export default function Navbar() {
         onClick={open}
         className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
         <LogIn size={16} />
-        <span className="">ورود</span>
+        <Link href={"/dashboard"} className="">
+          ورود
+        </Link>
       </motion.button>
     </motion.nav>
   );

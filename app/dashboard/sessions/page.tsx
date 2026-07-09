@@ -193,7 +193,7 @@ export default function SessionsPage() {
                 </label>
                 <DatePicker
                   value={date}
-                  onChange={setDate}
+                  onChange={(v) => setDate(v)}
                   calendar={persian}
                   locale={persian_fa}
                   format="YYYY/MM/DD"

@@ -68,13 +68,15 @@ export default function SessionsPage() {
   const [requests] = useState(initialRequests);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const canSubmit =
     mounted &&
     language &&
     classType &&
-    (classType === "Public" || (date && time.length > 0 && reason.trim()));
+    (classType === "Public" || (date && time.length > 0));
 
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
@@ -248,27 +250,27 @@ export default function SessionsPage() {
           {/* Public notification */}
           {classType === "Public" && (
             <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-xl bg-green-500/20">
-                    <svg
-                      className="h-5 w-5 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <p className="text-sm text-[var(--dash-muted)]">
-                    تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
-                    اطلاع داده خواهد شد.
-                  </p>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-xl bg-green-500/20">
+                  <svg
+                    className="h-5 w-5 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                    />
+                  </svg>
                 </div>
+                <p className="text-sm text-[var(--dash-muted)]">
+                  تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
+                  اطلاع داده خواهد شد.
+                </p>
               </div>
+            </div>
           )}
 
           {/* Teacher Introduction */}

@@ -159,7 +159,7 @@ function StatCard({
   const allClasses = `${baseClasses} ${href ? "block cursor-pointer transition-transform duration-200 hover:scale-[1.02]" : ""} ${className || "bg-[var(--hover-bg)]"}`;
 
   const iconElement = Icon && (
-    <Icon className="absolute top-1/2 -translate-y-1/2 -left-2 w-16 h-16 -rotate-12 text-black/15 dark:text-white/15" />
+    <Icon className="absolute top-1/2 -translate-y-1/2 -left-2 w-16 h-16 -rotate-12 text-background opacity-10" />
   );
 
   if (href) {
@@ -171,7 +171,12 @@ function StatCard({
     );
   }
 
-  return <div className={allClasses}>{content}{iconElement}</div>;
+  return (
+    <div className={allClasses}>
+      {content}
+      {iconElement}
+    </div>
+  );
 }
 
 function BookCard({

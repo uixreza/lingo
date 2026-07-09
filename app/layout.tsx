@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import Loading from "./loading";
 
 export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",

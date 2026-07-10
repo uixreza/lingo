@@ -101,5 +101,25 @@
         "audioUrl": "https://dl.digi-zaban.ir/books/headway/Headway%205th%20edition%20Advanced%20%20SB%20Audio.zip"
       }
     ]
+  },
+  "etc": {
+    "title": "متفرقه",
+    "series": "Etc",
+    "items": [
+      {
+        "name": "Grammar by Betty Azar",
+        "author": "Betty Azar",
+        "cover": "/assets/img/Book-Covers/Etc/azar.jpg",
+        "bookUrl": "https://dl.digi-zaban.ir/books/etc/azar.pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "Street Talk",
+        "author": "David Burke",
+        "cover": "/assets/img/Book-Covers/Etc/street-talk.jpg",
+        "bookUrl": "https://dl.digi-zaban.ir/books/etc/street-talk.pdf",
+        "audioUrl": ""
+      }
+    ]
   }
 }

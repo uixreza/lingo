@@ -15,8 +15,13 @@ const adultBooks = data.adults.items.map((item, i) => ({
   id: `adult-${i}`,
 }));
 
+const etcBooks = data.etc.items.map((item, i) => ({
+  ...item,
+  id: `etc-${i}`,
+}));
+
 export default function DashboardPage() {
-  const [activeGroup, setActiveGroup] = useState<"kids" | "adults">("kids");
+  const [activeGroup, setActiveGroup] = useState<"kids" | "adults" | "etc">("kids");
 
   const student = {
     name: "علی محمدی",
@@ -27,7 +32,7 @@ export default function DashboardPage() {
     privateSessionsRequested: 0,
   };
 
-  const books = activeGroup === "kids" ? kidsBooks : adultBooks;
+  const books = activeGroup === "kids" ? kidsBooks : activeGroup === "adults" ? adultBooks : etcBooks;
 
   return (
     <div className="space-y-6">
@@ -104,8 +109,8 @@ export default function DashboardPage() {
             onClick={() => setActiveGroup("kids")}
             className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
               activeGroup === "kids"
-                ? "bg-green-500 text-black shadow-lg scale-105"
-                : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
+                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
             }`}>
             کودکان
           </button>
@@ -113,10 +118,19 @@ export default function DashboardPage() {
             onClick={() => setActiveGroup("adults")}
             className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
               activeGroup === "adults"
-                ? "bg-green-500 text-black shadow-lg scale-105"
-                : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
+                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
             }`}>
             بزرگسالان
+          </button>
+          <button
+            onClick={() => setActiveGroup("etc")}
+            className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
+              activeGroup === "etc"
+                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
+                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
+            }`}>
+            متفرقه
           </button>
         </div>
 
@@ -216,13 +230,15 @@ function BookCard({
             className="w-full px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
             دانلود کتاب
           </a>
-          <a
-            href={book.audioUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
-            دانلود فایل صوتی
-          </a>
+          {book.audioUrl && (
+            <a
+              href={book.audioUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
+              دانلود فایل صوتی
+            </a>
+          )}
         </div>
       </div>
     </div>

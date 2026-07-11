@@ -16,34 +16,63 @@ datasource db {
 
 model User {
   id            Int       @id @default(autoincrement())
-  fullname      String    @map("fullname") @db.VarChar(100)
+  fullname      String    @db.VarChar(100)
   email         String    @unique @db.VarChar(100)
-  phone         String    @unique @db.VarChar(20)
+  phone         String    @unique @db.VarChar(11)
   dateOfBirth   DateTime  @map("date_of_birth") @db.Date
-  fluencyLevel  String    @map("fluency_level") @db.VarChar(2)
+  fluencyLevel  FluencyLevel    @map("fluency_level") 
   passwordHash  String    @map("password_hash") @db.VarChar(255)
   isVerified    Boolean   @default(false) @map("is_verified")
   isActive      Boolean   @default(true) @map("is_active")
-  role          String    @default("student") @db.VarChar(20)
+  role          Role    @default(Client) 
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   lastLoginAt   DateTime? @map("last_login_at")
-
+  userId        Int       @unique
+  wallet        Wallet?
   otpCodes          OtpCode[]
-  wallet            Wallet?
   sessions          Session[]
   transactions      Transaction[]
-  fluencyHistory          UserFluencyHistory[] @relation("UserFluencyHistory")
-  changedFluencyHistories UserFluencyHistory[] @relation("UserFluencyHistoryChangedBy")
-  sessionAuditLog         SessionAuditLog[]
+  sessionAuditLog   SessionAuditLog[]
 
   @@map("users")
+}
+
+
+model Wallet {
+  id         Int       @id @default(autoincrement())
+  userId     Int       @unique @map("user_id")
+  balance    BigInt    @default(0)
+  lastCharge BigInt    @default(0)
+  isActive   Boolean   @default(true) @map("is_active")
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
+   
+  transactions      Transaction[] 
+  user       User      @relation(fields: [userId],references: [id],onDelete: Cascade)
+
+  @@map("wallets")
+}
+
+enum FluencyLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum Role {
+  Admin
+  Teacher
+  Client
 }
 
 model OtpCode {
   id        Int      @id @default(autoincrement())
   userId    Int      @map("user_id")
-  phone     String   @db.VarChar(20)
+  phone     String   @db.VarChar(11)
   email     String?  @db.VarChar(100)
   otpCode   String   @map("otp_code") @db.VarChar(6)
   purpose   String   @default("login") @db.VarChar(20)
@@ -58,45 +87,28 @@ model OtpCode {
   @@map("otp_codes")
 }
 
-model Wallet {
-  id         Int       @id @default(autoincrement())
-  userId     Int       @unique @map("user_id")
-  balance    Decimal   @default(0.00) @db.Decimal(10, 2)
-  currency   String    @default("USD") @db.VarChar(3)
-  isActive   Boolean   @default(true) @map("is_active")
-  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("wallets")
-}
 
 model Session {
   id                Int       @id @default(autoincrement())
   userId            Int       @map("user_id")
   sessionDate       DateTime  @map("session_date") @db.Date
-  startTime         DateTime  @map("start_time") @db.Time(0)  // FIXED: Changed from String to DateTime
-  endTime           DateTime  @map("end_time") @db.Time(0)    // FIXED: Changed from String to DateTime
-  durationMinutes   Int       @default(60) @map("duration_minutes")
+  startTime         DateTime  @map("start_time") @db.Time(0)
   language          String    @default("English") @db.VarChar(50)
   reasonForLearning String?   @map("reason_for_learning") @db.Text
-  studentNotes      String?   @map("student_notes") @db.Text
   status            String    @default("pending") @db.VarChar(20)
   meetUrl           String?   @map("meet_url") @db.VarChar(500)
   meetingId         String?   @map("meeting_id") @db.VarChar(100)
-  meetingPassword   String?   @map("meeting_password") @db.VarChar(50)
-  amountPaid        Decimal   @map("amount_paid") @db.Decimal(10, 2)
+  amountPaid        BigInt    @map("amount_paid") @default(0)
   paymentStatus     String    @default("pending") @map("payment_status") @db.VarChar(20)
   requestedAt       DateTime  @default(now()) @map("requested_at") @db.Timestamp(3)
   approvedAt        DateTime? @map("approved_at") @db.Timestamp(3)
   cancelledAt       DateTime? @map("cancelled_at") @db.Timestamp(3)
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
-  adminNotes        String?   @map("admin_notes") @db.Text
+  sessionType       SessionType
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  transactions    Transaction[]
-  sessionAuditLog SessionAuditLog[]
+  sessionAuditLog   SessionAuditLog[]
 
   @@index([userId, status])
   @@index([sessionDate])
@@ -104,12 +116,16 @@ model Session {
   @@map("sessions")
 }
 
+
+enum SessionType {
+  Private
+  Public
+}
 model Transaction {
   id              Int       @id @default(autoincrement())
   userId          Int       @map("user_id")
-  sessionId       Int?      @map("session_id")
-  transactionType String    @map("transaction_type") @db.VarChar(20)
-  amount          Decimal   @db.Decimal(10, 2)
+  walletId       Int?       @map("wallet_id")
+  amount          BigInt    @default(0)
   balanceBefore   Decimal   @map("balance_before") @db.Decimal(10, 2)
   balanceAfter    Decimal   @map("balance_after") @db.Decimal(10, 2)
   description     String?   @db.VarChar(255)
@@ -120,37 +136,20 @@ model Transaction {
   completedAt     DateTime? @map("completed_at") @db.Timestamp(3)
 
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  wallet Wallet? @relation(fields: [walletId], references: [id], onDelete: SetNull)
 
   @@index([userId])
-  @@index([sessionId])
+  @@index([walletId])
   @@map("transactions")
 }
 
-model UserFluencyHistory {
-  id        Int       @id @default(autoincrement())
-  userId    Int       @map("user_id")
-  oldLevel  String?   @map("old_level") @db.VarChar(2)
-  newLevel  String    @map("new_level") @db.VarChar(2)
-  changedBy Int?      @map("changed_by")
-  reason    String?   @db.VarChar(255)
-  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
-
-  user    User  @relation("UserFluencyHistory", fields: [userId], references: [id], onDelete: Cascade)  // FIXED: Named relation
-  changer User? @relation("UserFluencyHistoryChangedBy", fields: [changedBy], references: [id], onDelete: SetNull)  // FIXED: Opposite relation
-
-  @@index([userId, createdAt])
-  @@map("user_fluency_history")
-}
 
 model SessionAuditLog {
   id        Int       @id @default(autoincrement())
   sessionId Int       @map("session_id")
   userId    Int       @map("user_id")
-  action    String    @db.VarChar(50)
   oldStatus String?   @map("old_status") @db.VarChar(50)
   newStatus String?   @map("new_status") @db.VarChar(50)
-  notes     String?   @db.Text
   ipAddress String?   @map("ip_address") @db.VarChar(45)
   createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
 
@@ -159,17 +158,4 @@ model SessionAuditLog {
 
   @@index([sessionId])
   @@map("session_audit_log")
-}
-
-model SessionPricing {
-  id              Int       @id @default(autoincrement())
-  language        String    @db.VarChar(50)
-  durationMinutes Int       @map("duration_minutes")
-  price           Decimal   @db.Decimal(10, 2)
-  isActive        Boolean   @default(true) @map("is_active")
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
-  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
-
-  @@unique([language, durationMinutes])
-  @@map("session_pricing")
 }

@@ -99,6 +99,7 @@ model Session {
   status            String    @default("pending") @db.VarChar(20)
   meetUrl           String?   @map("meet_url") @db.VarChar(500)
   meetingId         String?   @map("meeting_id") @db.VarChar(100)
+  sessionNote       String?   @map("session_note") @db.VarChar(255)
   amountPaid        BigInt    @map("amount_paid") @default(0)
   paymentStatus     String    @default("pending") @map("payment_status") @db.VarChar(20)
   requestedAt       DateTime  @default(now()) @map("requested_at") @db.Timestamp(3)

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import "../globals.css";
+import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Auth from "@/components/Auth";
-import { AuthProvider } from "@/contexts/AuthContext";
 
 export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",

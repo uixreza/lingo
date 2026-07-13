@@ -1,0 +1,128 @@
+import { NextRequest, NextResponse } from "next/server";
+import { PrismaClient } from "@/app/generated/prisma";
+import { PrismaPg } from "@prisma/adapter-pg";
+import pg from "pg";
+import bcrypt from "bcryptjs";
+
+const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+const adapter = new PrismaPg(pool);
+const prisma = new PrismaClient({ adapter });
+
+export async function POST(req: NextRequest) {
+  try {
+    const { fullname, password, phone, otp } = await req.json();
+
+    if (!fullname || !password || !phone) {
+      return NextResponse.json(
+        { error: "همه فیلدها الزامی هستند" },
+        { status: 400 }
+      );
+    }
+
+    if (password.length < 8) {
+      return NextResponse.json(
+        { error: "رمز عبور باید حداقل ۸ کاراکتر باشد" },
+        { status: 400 }
+      );
+    }
+
+    if (!/^09\d{9}$/.test(phone)) {
+      return NextResponse.json(
+        { error: "شماره موبایل نامعتبر است" },
+        { status: 400 }
+      );
+    }
+
+    const existingUser = await prisma.user.findUnique({ where: { phone } });
+    if (existingUser) {
+      return NextResponse.json(
+        { error: "این شماره موبایل قبلاً ثبت شده است" },
+        { status: 409 }
+      );
+    }
+
+    if (otp) {
+      const otpRecord = await prisma.oTP.findFirst({
+        where: {
+          phone,
+          code: otp,
+          isUsed: false,
+          expiresAt: { gte: new Date() },
+        },
+      });
+
+      if (!otpRecord) {
+        return NextResponse.json(
+          { error: "کد تأیید نامعتبر یا منقضی شده است" },
+          { status: 400 }
+        );
+      }
+
+      await prisma.oTP.update({
+        where: { id: otpRecord.id },
+        data: { isUsed: true },
+      });
+
+      const passwordHash = await bcrypt.hash(password, 12);
+
+      const user = await prisma.$transaction(async (tx) => {
+        const newUser = await tx.user.create({
+          data: {
+            fullname,
+            phone,
+            email: `${phone}@lingofam.ir`,
+            dateOfBirth: new Date("2000-01-01"),
+            fluencyLevel: "A1",
+            passwordHash,
+            userId: Math.floor(Date.now() / 1000),
+          },
+        });
+
+        await tx.user.update({
+          where: { id: newUser.id },
+          data: { userId: newUser.id },
+        });
+
+        await tx.wallet.create({
+          data: { userId: newUser.id, balance: 0, lastCharge: 0 },
+        });
+
+        return newUser;
+      });
+
+      return NextResponse.json(
+        {
+          message: "ثبت‌نام با موفقیت انجام شد",
+          user: {
+            id: user.id,
+            userUuid: user.userUuid,
+            fullname: user.fullname,
+            phone: user.phone,
+            createdAt: user.createdAt,
+          },
+        },
+        { status: 201 }
+      );
+    }
+
+    const code = String(Math.floor(100000 + Math.random() * 900000));
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    await prisma.oTP.create({
+      data: { phone, code, expiresAt },
+    });
+
+    console.log(`OTP for ${phone}: ${code}`);
+
+    return NextResponse.json(
+      { message: "کد تأیید ارسال شد", expiresIn: 300, code },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Signup error:", error);
+    return NextResponse.json(
+      { error: "خطای داخلی سرور" },
+      { status: 500 }
+    );
+  }
+}

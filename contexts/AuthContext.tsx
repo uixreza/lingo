@@ -15,8 +15,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ isOpen, open: () => setIsOpen(true), close: () => setIsOpen(false) }}
-    >
+      value={{
+        isOpen,
+        open: () => setIsOpen(true),
+        close: () => setIsOpen(false),
+      }}>
       {children}
     </AuthContext.Provider>
   );

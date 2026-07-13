@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { signIn } from "next-auth/react";
 import toast from "react-hot-toast";
 
 type Tab = "login" | "signup";
@@ -81,11 +82,13 @@ function LoginForm({ close }: { close: () => void }) {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loginMode, setLoginMode] = useState<"password" | "otp">("password");
-  const [phoneError, setPhoneError] = useState(false);
+  const [phoneError, setPhoneError] = useState("");
+  const [loginError, setLoginError] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const resetTimer = useCallback(() => {
@@ -124,21 +127,55 @@ function LoginForm({ close }: { close: () => void }) {
     const next = [...otp];
     for (let i = 0; i < 6; i++) next[i] = data[i] || "";
     setOtp(next);
-    inputsRef.current[Math.min(data.length, 5)]?.focus();
+    const nextFocus = Math.min(data.length, 5);
+    inputsRef.current[nextFocus]?.focus();
   };
 
   const handleSwitchToOtp = () => {
     if (phone.length !== 11) {
-      setPhoneError(true);
+      setPhoneError("لطفاً ابتدا شماره موبایل خود را وارد کنید");
       return;
     }
-    setPhoneError(false);
+    setPhoneError("");
     setLoginMode("otp");
     setShowOtp(true);
     setTimer(60);
     setCanResend(false);
     setOtp(Array(6).fill(""));
     setTimeout(() => inputsRef.current[0]?.focus(), 100);
+  };
+
+  const handleRequestOtp = async () => {
+    if (phone.length !== 11) {
+      setPhoneError("لطفاً ابتدا شماره موبایل خود را وارد کنید");
+      return;
+    }
+    setPhoneError("");
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPhoneError(data.error);
+        toast.error(data.error);
+        return;
+      }
+      if (data.code) console.log("Login OTP:", data.code);
+      setShowOtp(true);
+      setTimer(60);
+      setCanResend(false);
+      setOtp(Array(6).fill(""));
+      setTimeout(() => inputsRef.current[0]?.focus(), 100);
+      toast.success(data.message);
+    } catch {
+      toast.error("خطا در ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const allOtpFilled = otp.every((d) => d !== "");
@@ -156,13 +193,42 @@ function LoginForm({ close }: { close: () => void }) {
   const inputStyle =
     "w-10 sm:w-11 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold text-white bg-white/5 border border-white/10 rounded-xl outline-none focus:border-green-500/50 transition-colors";
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!canSubmit) return;
+    setLoginError("");
+    setLoading(true);
+    try {
+      const result = await signIn("credentials", {
+        phone,
+        ...(loginMode === "password"
+          ? { password, mode: "password" }
+          : { otp: otp.join(""), mode: "otp" }),
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setLoginError("شماره موبایل یا رمز عبور اشتباه است");
+        toast.error("شماره موبایل یا رمز عبور اشتباه است");
+        return;
+      }
+
+      toast.success("با موفقیت وارد شدید");
+      close();
+    } catch {
+      toast.error("خطا در ارتباط با سرور");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <motion.form
       initial="hidden"
       animate="show"
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
       className="flex flex-col gap-5"
-      onSubmit={(e) => e.preventDefault()}>
+      onSubmit={handleSubmit}>
       <Field label="شماره موبایل">
         <input
           type="tel"
@@ -171,7 +237,7 @@ function LoginForm({ close }: { close: () => void }) {
           value={phone}
           onChange={(e) => {
             setPhone(e.target.value.replace(/\D/g, "").slice(0, 11));
-            setPhoneError(false);
+            setPhoneError("");
           }}
           className={`w-full px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-[#555] text-sm outline-none transition-colors ${
             phoneError
@@ -184,7 +250,7 @@ function LoginForm({ close }: { close: () => void }) {
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             className="text-red-400 text-xs mt-1.5 pr-1">
-            لطفاً ابتدا شماره موبایل خود را وارد کنید
+            {phoneError}
           </motion.p>
         )}
       </Field>
@@ -193,7 +259,7 @@ function LoginForm({ close }: { close: () => void }) {
         <Field label="رمز عبور">
           <input
             type="password"
-            autoComplete="new-password"
+            autoComplete="current-password"
             placeholder="رمز عبور خود را وارد کنید"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -212,9 +278,7 @@ function LoginForm({ close }: { close: () => void }) {
                 {otp.map((d, i) => (
                   <input
                     key={i}
-                    ref={(el) => {
-                      inputsRef.current[i] = el;
-                    }}
+                    ref={(el) => { inputsRef.current[i] = el; }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -229,9 +293,10 @@ function LoginForm({ close }: { close: () => void }) {
                 {canResend ? (
                   <button
                     type="button"
-                    onClick={resetTimer}
+                    onClick={handleRequestOtp}
+                    disabled={loading}
                     className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors">
-                    <RefreshCw size={13} />
+                    {loading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
                     ارسال مجدد کد
                   </button>
                 ) : (
@@ -240,9 +305,26 @@ function LoginForm({ close }: { close: () => void }) {
                   </span>
                 )}
               </div>
+              {loginError && (
+                <motion.p
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-red-400 text-xs mt-1.5 pr-1">
+                  {loginError}
+                </motion.p>
+              )}
             </Field>
           </motion.div>
         )
+      )}
+
+      {loginError && loginMode === "password" && (
+        <motion.p
+          initial={{ opacity: 0, y: -4 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-red-400 text-xs pr-1">
+          {loginError}
+        </motion.p>
       )}
 
       <div className="flex gap-3 items-center">
@@ -251,16 +333,17 @@ function LoginForm({ close }: { close: () => void }) {
             hidden: { opacity: 0, y: 12 },
             show: { opacity: 1, y: 0 },
           }}
-          whileHover={canSubmit ? { scale: 1.02 } : undefined}
-          whileTap={canSubmit ? { scale: 0.98 } : undefined}
+          whileHover={canSubmit && !loading ? { scale: 1.02 } : undefined}
+          whileTap={canSubmit && !loading ? { scale: 0.98 } : undefined}
           type="submit"
-          disabled={!canSubmit}
-          className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-200 ${
-            canSubmit
+          disabled={!canSubmit || loading}
+          className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
+            canSubmit && !loading
               ? "bg-green-500 hover:bg-green-400 text-black cursor-pointer"
               : "bg-green-500/30 text-black/40 cursor-not-allowed"
           }`}>
-          ورود
+          {loading ? <Loader2 size={16} className="animate-spin" /> : null}
+          {loading ? "در حال ورود" : "ورود"}
         </motion.button>
         <motion.button
           variants={{

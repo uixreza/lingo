@@ -1,8 +1,9 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { House, LayoutDashboard, LifeBuoy, LogIn } from "lucide-react";
+import { House, LayoutDashboard, LifeBuoy, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 
 const links = [
@@ -31,6 +32,7 @@ const item = {
 
 export default function Navbar() {
   const { open } = useAuth();
+  const { data: session } = useSession();
 
   return (
     <motion.nav
@@ -56,15 +58,28 @@ export default function Navbar() {
         className="w-px h-5 sm:h-6 bg-white/10 mx-0.5 sm:mx-1"
       />
 
-      <motion.button
-        variants={item}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={open}
-        className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
-        <LogIn size={16} />
-        ورود
-      </motion.button>
+      {session?.user ? (
+        <Link href="/dashboard">
+          <motion.button
+            variants={item}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
+            <User size={16} />
+            داشبورد
+          </motion.button>
+        </Link>
+      ) : (
+        <motion.button
+          variants={item}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={open}
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
+          <User size={16} />
+          ورود
+        </motion.button>
+      )}
     </motion.nav>
   );
 }

@@ -5,6 +5,7 @@ import { RefreshCw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
 type Tab = "login" | "signup";
@@ -79,6 +80,7 @@ export default function Auth() {
 }
 
 function LoginForm({ close }: { close: () => void }) {
+  const router = useRouter();
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [loginMode, setLoginMode] = useState<"password" | "otp">("password");
@@ -215,6 +217,7 @@ function LoginForm({ close }: { close: () => void }) {
 
       toast.success("با موفقیت وارد شدید");
       close();
+      setTimeout(() => router.push("/dashboard"), 300);
     } catch {
       toast.error("خطا در ارتباط با سرور");
     } finally {

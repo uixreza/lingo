@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import data from "@/data.json";
 import { Calendar, FileText } from "lucide-react";
-
+import { useSession } from "next-auth/react";
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
   id: `kid-${i}`,
@@ -21,7 +21,10 @@ const etcBooks = data.etc.items.map((item, i) => ({
 }));
 
 export default function DashboardPage() {
-  const [activeGroup, setActiveGroup] = useState<"kids" | "adults" | "etc">("kids");
+  const [activeGroup, setActiveGroup] = useState<"kids" | "adults" | "etc">(
+    "kids",
+  );
+  const session = useSession();
 
   const student = {
     name: "علی محمدی",
@@ -32,7 +35,12 @@ export default function DashboardPage() {
     privateSessionsRequested: 0,
   };
 
-  const books = activeGroup === "kids" ? kidsBooks : activeGroup === "adults" ? adultBooks : etcBooks;
+  const books =
+    activeGroup === "kids"
+      ? kidsBooks
+      : activeGroup === "adults"
+        ? adultBooks
+        : etcBooks;
 
   return (
     <div className="space-y-6">
@@ -44,7 +52,7 @@ export default function DashboardPage() {
               داشبورد شما
             </div>
             <h1 className="text-2xl font-bold text-[var(--dash-text)]">
-              خوش آمدید، {student.name}!
+              خوش آمدید، {session.data?.user.fullname}!
             </h1>
             <p className="text-[var(--dash-muted)] mt-2 text-sm sm:text-base">
               این‌جا می‌توانید کتاب‌های دوره خود را دانلود کنید.

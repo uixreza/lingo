@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
 import {
   Home,
   User,
@@ -202,19 +203,20 @@ export default function Sidebar() {
           )}
 
           {/* Logout */}
-          <button className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
+          <button
+            onClick={() => signOut()}
+            className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
             <LogOut className="h-5 w-5 shrink-0" />
             <span
               className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
-              <Link
-                href="/"
+              <div
                 className={`whitespace-nowrap font-medium transition-all duration-150 ${
                   isHovered
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-4"
                 }`}>
                 خروج از حساب
-              </Link>
+              </div>
             </span>
           </button>
         </div>
@@ -323,7 +325,10 @@ export default function Sidebar() {
 
           {/* Logout */}
           <button
-            onClick={() => setIsMobileOpen(false)}
+            onClick={() => {
+              setIsMobileOpen(false);
+              signOut();
+            }}
             className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
             <LogOut className="h-6 w-6" />
             <Link href="/" className="font-medium">

@@ -202,7 +202,7 @@ export default function Sidebar() {
             </button>
           )}
 
-          {/* Logout */}
+          {/* Logout /*/}
           <button
             onClick={() => signOut()}
             className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">

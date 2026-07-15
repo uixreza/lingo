@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
     if (!phone || !/^09\d{9}$/.test(phone)) {
       return NextResponse.json(
         { error: "شماره موبایل نامعتبر است" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { error: "کاربری با این شماره یافت نشد" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -37,13 +37,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       { message: "کد تأیید ارسال شد", expiresIn: 300, code },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("OTP error:", error);
-    return NextResponse.json(
-      { error: "خطای داخلی سرور" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "خطای داخلی سرور" }, { status: 500 });
   }
 }

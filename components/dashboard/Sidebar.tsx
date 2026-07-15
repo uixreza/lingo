@@ -204,7 +204,7 @@ export default function Sidebar() {
 
           {/* Logout /*/}
           <button
-            onClick={() => signOut()}
+            onClick={() => signOut({ callbackUrl: "/" })}
             className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
             <LogOut className="h-5 w-5 shrink-0" />
             <span
@@ -327,13 +327,11 @@ export default function Sidebar() {
           <button
             onClick={() => {
               setIsMobileOpen(false);
-              signOut();
+              signOut({ callbackUrl: "/" });
             }}
             className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
             <LogOut className="h-6 w-6" />
-            <Link href="/" className="font-medium">
-              خروج از حساب کاربری
-            </Link>
+            خروج از حساب کاربری
           </button>
         </div>
       </aside>

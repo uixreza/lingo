@@ -16,6 +16,8 @@ function createPrisma() {
 const prisma = globalForPrisma.prisma ?? createPrisma();
 globalForPrisma.prisma = prisma;
 
+export { prisma };
+
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({

@@ -5,28 +5,38 @@ import {
   CreditCard,
   Shield,
   Zap,
-  ArrowLeft,
   CheckCircle2,
   Loader2,
 } from "lucide-react";
 
+type WalletData = {
+  balance: number;
+  lastCharge: number;
+  isActive: boolean;
+  transactionCount: number;
+};
+
 export default function WalletPage() {
-  const [currentBalance, setCurrentBalance] = useState(0);
+  const [walletData, setWalletData] = useState<WalletData | null>(null);
   const [chargeAmount, setChargeAmount] = useState("");
   const [isLoading, setIsLoading] = useState(true);
   const [formattedAmount, setFormattedAmount] = useState("");
   const [isCharging, setIsCharging] = useState(false);
 
-  // Mock balance fetch
   useEffect(() => {
-    const fetchBalance = () => {
-      setIsLoading(true);
-      setTimeout(() => {
-        setCurrentBalance(1250000);
+    const fetchWallet = async () => {
+      try {
+        const res = await fetch("/api/wallet");
+        if (!res.ok) throw new Error("Failed to fetch wallet");
+        const data: WalletData = await res.json();
+        setWalletData(data);
+      } catch (err) {
+        console.error("Error fetching wallet:", err);
+      } finally {
         setIsLoading(false);
-      }, 1000);
+      }
     };
-    fetchBalance();
+    fetchWallet();
   }, []);
 
   // Format number with Persian commas
@@ -115,7 +125,7 @@ export default function WalletPage() {
 
                 <div className="text-center mb-6">
                   <div className="text-4xl font-bold mb-2">
-                    {formatNumber(currentBalance)}
+                    {formatNumber(walletData?.balance ?? 0)}
                   </div>
                   <div className="text-white/80 text-lg">تومان</div>
                 </div>
@@ -138,7 +148,7 @@ export default function WalletPage() {
                     آخرین شارژ
                   </span>
                   <span className="text-[var(--dash-text)] font-medium">
-                    ۵۰۰,۰۰۰ تومان
+                    {formatNumber(walletData?.lastCharge ?? 0)} تومان
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-[var(--dash-muted)]/20">
@@ -146,16 +156,16 @@ export default function WalletPage() {
                     تعداد تراکنش‌ها
                   </span>
                   <span className="text-[var(--dash-text)] font-medium">
-                    ۱۲ مورد
+                    {walletData?.transactionCount ?? 0} مورد
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-2">
                   <span className="text-[var(--dash-muted)] text-sm">
                     وضعیت حساب
                   </span>
-                  <span className="text-green-500 font-medium flex items-center gap-1">
+                  <span className={`font-medium flex items-center gap-1 ${walletData?.isActive ? "text-green-500" : "text-red-500"}`}>
                     <CheckCircle2 className="h-4 w-4" />
-                    فعال
+                    {walletData?.isActive ? "فعال" : "غیرفعال"}
                   </span>
                 </div>
               </div>

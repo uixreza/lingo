@@ -39,6 +39,7 @@ model User {
   @@map("users")
 }
 
+
 model OTP {
   id          Int    @id @default(autoincrement())
   phone       String

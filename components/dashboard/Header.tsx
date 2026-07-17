@@ -11,7 +11,8 @@ import {
   Menu,
 } from "lucide-react";
 import Link from "next/link";
-import { JSX, useState } from "react";
+import { JSX, useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 
 type User = {
   name: string;
@@ -24,8 +25,11 @@ type User = {
 };
 
 export default function Header({ user }: { user: User }) {
+  const { data: session } = useSession();
+  const displayName = session?.user?.fullname || user.name;
+
   const {
-    name,
+    name: _name,
     image,
     balance,
     level = 1,
@@ -34,7 +38,23 @@ export default function Header({ user }: { user: User }) {
     badges = ["quick_learner", "consistent"],
   } = user;
 
+  const [realBalance, setRealBalance] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const res = await fetch("/api/wallet");
+        if (res.ok) {
+          const data = await res.json();
+          setRealBalance(data.balance);
+        }
+      } catch {
+        // fallback to prop balance
+      }
+    };
+    fetchBalance();
+  }, []);
 
   // Calculate XP progress
   const xpForNextLevel = 1000;
@@ -71,7 +91,7 @@ export default function Header({ user }: { user: User }) {
               {image ? (
                 <Image
                   src={image}
-                  alt={name}
+                  alt={displayName}
                   width={48}
                   height={48}
                   className="rounded-2xl object-cover shadow-lg transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14"
@@ -79,7 +99,7 @@ export default function Header({ user }: { user: User }) {
               ) : (
                 <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-[var(--hover-bg-strong)]  flex items-center justify-center shadow-lg">
                   <span className="text-[var(--header-text)] font-bold text-lg sm:text-xl">
-                    {name.charAt(0)}
+                    {displayName.charAt(0)}
                   </span>
                 </div>
               )}
@@ -93,7 +113,7 @@ export default function Header({ user }: { user: User }) {
           <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
               <h3 className="text-base sm:text-xl font-bold text-[var(--header-text)] truncate max-w-[120px] xs:max-w-[150px] sm:max-w-none">
-                {name}
+                {displayName}
               </h3>
 
               {/* Streak Badge - Important, keep green */}
@@ -167,7 +187,7 @@ export default function Header({ user }: { user: User }) {
                 موجودی
               </div>
               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate">
-                {balance.toLocaleString("en-US")}
+                {(realBalance ?? 0).toLocaleString("en-US")}
               </div>
             </div>
 

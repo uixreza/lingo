@@ -31,43 +31,16 @@ const languages = [
   { id: "de", label: "German", flag: "🇩🇪", available: false },
 ];
 
-const initialRequests = [
-  {
-    id: 1,
-    date: "1404/10/22",
-    time: "10:00",
-    language: "English",
-    type: "Public",
-    status: "approved" as const,
-    meetLink: "https://meet.google.com/abc-defg-hij",
-  },
-  {
-    id: 4,
-    date: "1404/11/10",
-    time: "17:00",
-    language: "English",
-    type: "Private",
-    reason: "تقویت مهارت رایتینگ",
-    status: "approved" as const,
-  },
-  {
-    id: 2,
-    date: "1404/10/25",
-    time: "12:30",
-    language: "English",
-    type: "Private",
-    reason: "آمادگی برای آزمون آیلتس",
-    status: "pending" as const,
-  },
-  {
-    id: 3,
-    date: "1404/09/15",
-    time: "15:00",
-    language: "English",
-    type: "Public",
-    status: "canceled" as const,
-  },
-];
+type SessionItem = {
+  id: number;
+  date: string;
+  time: string;
+  language: string;
+  type: string;
+  status: "approved" | "pending" | "canceled";
+  meetLink?: string | null;
+  reason?: string | null;
+};
 
 type RequestStatus = "approved" | "pending" | "canceled";
 
@@ -79,9 +52,11 @@ export default function SessionsPage() {
   const [reason, setReason] = useState("");
 
   const [mounted, setMounted] = useState(false);
-  const [requests] = useState(initialRequests);
+  const [requests, setRequests] = useState<SessionItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
   const [copiedId, setCopiedId] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -91,6 +66,20 @@ export default function SessionsPage() {
 
   useEffect(() => {
     setMounted(true);
+    const fetchSessions = async () => {
+      try {
+        const res = await fetch("/api/sessions");
+        if (res.ok) {
+          const data: SessionItem[] = await res.json();
+          setRequests(data);
+        }
+      } catch (err) {
+        console.error("Error fetching sessions:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSessions();
   }, []);
 
   const canSubmit =
@@ -98,6 +87,35 @@ export default function SessionsPage() {
     language &&
     classType &&
     (classType === "Public" || (date && time.length > 0));
+
+  const handleSubmit = async () => {
+    if (!canSubmit || submitting) return;
+    setSubmitting(true);
+    try {
+      const sessionDate = date?.format?.("YYYY/MM/DD") ?? "";
+      const res = await fetch("/api/sessions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionDate,
+          startTime: time[0],
+          language: languages.find((l) => l.id === language)?.label || "English",
+          sessionType: classType,
+          reasonForLearning: reason || null,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to create session");
+      const created = await res.json();
+      setRequests((prev) => [created, ...prev]);
+      setDate(null);
+      setTime([]);
+      setReason("");
+    } catch (err) {
+      console.error("Error creating session:", err);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
@@ -370,13 +388,21 @@ export default function SessionsPage() {
 
           {/* Submit */}
           <button
-            disabled={!canSubmit}
+            onClick={handleSubmit}
+            disabled={!canSubmit || submitting}
             className={`w-full py-3 rounded-xl font-bold transition-all duration-300 shadow-xl ${
-              canSubmit
+              canSubmit && !submitting
                 ? "bg-green-500 text-black hover:bg-green-400 hover:scale-[1.02]"
                 : "bg-[var(--hover-bg)] text-[var(--dash-muted)] cursor-not-allowed"
             }`}>
-            ثبت درخواست
+            {submitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                در حال ثبت...
+              </span>
+            ) : (
+              "ثبت درخواست"
+            )}
           </button>
         </div>
       </div>
@@ -404,11 +430,15 @@ export default function SessionsPage() {
         </div>
 
         <div className="space-y-4">
-          {filteredRequests.length === 0 && (
+          {isLoading ? (
+            <div className="flex justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin text-[var(--dash-muted)]" />
+            </div>
+          ) : filteredRequests.length === 0 ? (
             <p className="text-[var(--dash-muted)] text-center py-12">
               درخواستی یافت نشد
             </p>
-          )}
+          ) : null}
           {filteredRequests.map((req) => {
             const StatusIcon = statusIcons[req.status];
             return (

@@ -5,6 +5,7 @@ import DatePicker from "react-multi-date-picker";
 import "react-multi-date-picker/styles/layouts/prime.css";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
+import DateObject from "react-date-object";
 import {
   User,
   Mail,
@@ -23,11 +24,11 @@ export default function AccountPage() {
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  const [birthDate, setBirthDate] = useState<DateObject | null>(null);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
     phone: "",
-    birthDate: "",
   });
 
   const [passwordData, setPasswordData] = useState({
@@ -43,15 +44,26 @@ export default function AccountPage() {
   } | null>(null);
 
   useEffect(() => {
-    setTimeout(() => {
-      setUserData({
-        name: "محمد احمدی",
-        email: "mohammad@example.com",
-        phone: "۰۹۱۲۳۴۵۶۷۸۹",
-        birthDate: "۱۳۷۵-۰۳-۱۵",
-      });
-      setIsLoading(false);
-    }, 800);
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch("/api/account");
+        if (res.ok) {
+          const data = await res.json();
+          setUserData({
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+          });
+          if (data.birthDate) setBirthDate(new DateObject(data.birthDate).convert(persian, persian_fa));
+          setLevel(data.fluencyLevel ?? "");
+        }
+      } catch (err) {
+        console.error("Error fetching profile:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProfile();
   }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,12 +76,35 @@ export default function AccountPage() {
     setPasswordData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSaveProfile = () => {
-    setSaveMessage({ type: "success", text: "اطلاعات با موفقیت ذخیره شد" });
+  const handleSaveProfile = async () => {
+    try {
+      const res = await fetch("/api/account", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          birthDate: birthDate?.format?.("YYYY/MM/DD") ?? null,
+          ...(level ? { fluencyLevel: level } : {}),
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      const data = await res.json();
+      setUserData({
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+      });
+      if (data.birthDate) setBirthDate(new DateObject(data.birthDate).convert(persian, persian_fa));
+      setLevel(data.fluencyLevel ?? "");
+      setSaveMessage({ type: "success", text: "اطلاعات با موفقیت ذخیره شد" });
+    } catch {
+      setSaveMessage({ type: "error", text: "خطا در ذخیره اطلاعات" });
+    }
     setTimeout(() => setSaveMessage(null), 3000);
   };
 
-  const handleChangePassword = () => {
+  const handleChangePassword = async () => {
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       setSaveMessage({
         type: "error",
@@ -88,12 +123,30 @@ export default function AccountPage() {
       return;
     }
 
-    setSaveMessage({ type: "success", text: "رمز عبور با موفقیت تغییر کرد" });
-    setPasswordData({
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
+    try {
+      const res = await fetch("/api/account/password", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error);
+      }
+      setSaveMessage({ type: "success", text: "رمز عبور با موفقیت تغییر کرد" });
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "خطا در تغییر رمز عبور";
+      setSaveMessage({ type: "error", text: message });
+    }
     setTimeout(() => setSaveMessage(null), 3000);
   };
 
@@ -234,8 +287,8 @@ export default function AccountPage() {
                         type="tel"
                         name="phone"
                         value={userData.phone}
-                        onChange={handleProfileChange}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
+                        disabled
+                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm opacity-60 cursor-not-allowed shadow-xl"
                         placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                       />
                     </div>
@@ -246,19 +299,14 @@ export default function AccountPage() {
                         تاریخ تولد
                       </label>
                       <DatePicker
-                        value={userData.birthDate}
-                        onChange={(val: any) => {
-                          const formatted = val?.format?.("YYYY/MM/DD") ?? "";
-                          setUserData((prev) => ({
-                            ...prev,
-                            birthDate: formatted,
-                          }));
-                        }}
+                        value={birthDate}
+                        onChange={(v) => setBirthDate(v)}
                         calendar={persian}
                         locale={persian_fa}
                         format="YYYY/MM/DD"
+                        placeholder="انتخاب تاریخ تولد"
                         containerClassName="w-full"
-                        inputClass="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
+                        inputClass="w-full outline-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all"
                         calendarPosition="bottom-right"
                       />
                     </div>

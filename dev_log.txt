@@ -1,0 +1,12 @@
+
+> lingofam@0.1.0 dev
+> next dev --port 3458
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3458
+- Network:       http://10.235.175.35:3458
+- Environments: .env
+✓ Ready in 762ms
+
+ GET /api/auth/session 200 in 2.7s (next.js: 2.6s, application-code: 73ms)
+[?25h

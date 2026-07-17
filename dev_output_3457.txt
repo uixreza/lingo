@@ -1,0 +1,19 @@
+﻿
+> lingofam@0.1.0 dev
+> next dev --port 3457
+
+ظû▓ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3457
+- Network:       http://10.235.175.35:3457
+- Environments: .env
+ظ£ô Ready in 683ms
+node.exe : ظأب Slow filesystem detected. The benchmark took 247ms. If F:\personal\lingofam\.next/dev is a network drive
+, consider moving it to a local folder.
+At D:\Apps\Node js\npm.ps1:30 char:3
++   & $NODE_EXE $NPM_CLI_JS $args
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ظأب Slow filesy...a local folder.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+See more: https://nextjs.org/docs/app/guides/local-development
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   CheckCircle,
   Hourglass,
@@ -14,6 +14,7 @@ import {
   MessageSquare,
   Copy,
   ExternalLink,
+  Loader2,
 } from "lucide-react";
 
 type SessionStatus = "approved" | "pending" | "canceled";
@@ -32,74 +33,10 @@ interface SessionRequest {
   meetLink: string;
 }
 
-const initialSessions: SessionRequest[] = [
-  {
-    id: 1,
-    studentName: "علی محمدی",
-    studentEmail: "ali@example.com",
-    date: "۱۴۰۴/۱۰/۲۸",
-    time: "۱۰:۰۰",
-    language: "English",
-    level: "B2",
-    type: "Public",
-    status: "approved",
-    meetLink: "https://meet.google.com/abc-defg-hij",
-  },
-  {
-    id: 2,
-    studentName: "سارا حسینی",
-    studentEmail: "sara@example.com",
-    date: "۱۴۰۴/۱۰/۳۰",
-    time: "۱۲:۳۰",
-    language: "English",
-    level: "C1",
-    type: "Private",
-    reason: "آمادگی برای آزمون آیلتس",
-    status: "pending",
-    meetLink: "",
-  },
-  {
-    id: 3,
-    studentName: "رضا کریمی",
-    studentEmail: "reza@example.com",
-    date: "۱۴۰۴/۰۹/۱۵",
-    time: "۱۵:۰۰",
-    language: "English",
-    level: "A2",
-    type: "Public",
-    status: "canceled",
-    meetLink: "",
-  },
-  {
-    id: 4,
-    studentName: "مریم احمدی",
-    studentEmail: "maryam@example.com",
-    date: "۱۴۰۴/۱۱/۰۵",
-    time: "۱۷:۰۰",
-    language: "English",
-    level: "B1",
-    type: "Private",
-    reason: "تقویت مهارت مکالمه",
-    status: "pending",
-    meetLink: "",
-  },
-  {
-    id: 5,
-    studentName: "امیر رضایی",
-    studentEmail: "amir@example.com",
-    date: "۱۴۰۴/۱۱/۰۸",
-    time: "۰۸:۳۰",
-    language: "English",
-    level: "C1",
-    type: "Private",
-    reason: "دوره فشرده GRE",
-    status: "approved",
-    meetLink: "https://zoom.us/j/1234567890",
-  },
-];
-
 export default function AdminSessionsPage() {
-  const [sessions, setSessions] = useState<SessionRequest[]>(initialSessions);
+  const [sessions, setSessions] = useState<SessionRequest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionRequest | null>(
     null,
   );
@@ -107,6 +44,23 @@ export default function AdminSessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<SessionStatus | "all">("all");
+
+  useEffect(() => {
+    const fetchSessions = async () => {
+      try {
+        const res = await fetch("/api/admin/sessions");
+        if (res.ok) {
+          const data: SessionRequest[] = await res.json();
+          setSessions(data);
+        }
+      } catch (err) {
+        console.error("Error fetching sessions:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSessions();
+  }, []);
 
   const filteredSessions = sessions.filter((s) => {
     const matchesFilter = filter === "all" || s.status === filter;
@@ -118,6 +72,26 @@ export default function AdminSessionsPage() {
     return matchesFilter && matchesSearch;
   });
 
+  const updateSession = async (id: number, data: Record<string, unknown>) => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/sessions", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...data }),
+      });
+      if (res.ok) {
+        const updated: SessionRequest = await res.json();
+        setSessions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+        setSelectedSession(updated);
+      }
+    } catch (err) {
+      console.error("Error updating session:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSelectSession = (session: SessionRequest) => {
     setSelectedSession(session);
     setMeetLinkInput(session.meetLink);
@@ -125,17 +99,11 @@ export default function AdminSessionsPage() {
 
   const handleSaveMeetLink = () => {
     if (!selectedSession) return;
-    const updated = sessions.map((s) =>
-      s.id === selectedSession.id ? { ...s, meetLink: meetLinkInput } : s,
-    );
-    setSessions(updated);
-    setSelectedSession({ ...selectedSession, meetLink: meetLinkInput });
+    updateSession(selectedSession.id, { meetUrl: meetLinkInput });
   };
 
   const handleStatusChange = (id: number, status: SessionStatus) => {
-    const updated = sessions.map((s) => (s.id === id ? { ...s, status } : s));
-    setSessions(updated);
-    setSelectedSession(updated.find((s) => s.id === id) || null);
+    updateSession(id, { status });
   };
 
   const handleCopyLink = (id: number, link: string) => {
@@ -267,7 +235,14 @@ export default function AdminSessionsPage() {
 
               {/* List */}
               <div className="max-h-[600px] overflow-y-auto">
-                {filteredSessions.length === 0 ? (
+                {loading ? (
+                  <div className="flex justify-center py-12">
+                    <Loader2
+                      className="h-6 w-6 animate-spin"
+                      style={{ color: "var(--dash-muted)" }}
+                    />
+                  </div>
+                ) : filteredSessions.length === 0 ? (
                   <div
                     className="text-center py-12"
                     style={{ color: "var(--dash-muted)" }}>
@@ -431,7 +406,7 @@ export default function AdminSessionsPage() {
                         value={meetLinkInput}
                         onChange={(e) => setMeetLinkInput(e.target.value)}
                         placeholder="https://meet.google.com/... یا https://zoom.us/j/..."
-                        className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-offset-2 text-left text-sm"
+                        className="w-full px-4 py-3 rounded-xl border outline-none  text-left text-sm"
                         style={{
                           backgroundColor: "var(--dash-bg)",
                           borderColor: "var(--dash-border)",
@@ -443,6 +418,7 @@ export default function AdminSessionsPage() {
                     <button
                       onClick={handleSaveMeetLink}
                       disabled={
+                        saving ||
                         !meetLinkInput.trim() ||
                         meetLinkInput === selectedSession.meetLink
                       }
@@ -451,7 +427,7 @@ export default function AdminSessionsPage() {
                         backgroundColor: "#22c55e",
                         color: "black",
                       }}>
-                      ذخیره
+                      {saving ? "در حال ذخیره..." : "ذخیره"}
                     </button>
                   </div>
 
@@ -501,30 +477,33 @@ export default function AdminSessionsPage() {
                 {/* Status Management */}
                 <div className="p-6 flex flex-col sm:flex-row gap-3">
                   {(["approved", "pending", "canceled"] as const).map(
-                    (status) => (
-                      <button
-                        key={status}
-                        onClick={() =>
-                          handleStatusChange(selectedSession.id, status)
-                        }
-                        disabled={selectedSession.status === status}
-                        className={`flex-1 py-3 rounded-xl font-medium transition-all duration-200 text-sm flex items-center justify-center gap-2 disabled:opacity-100 ${
-                          selectedSession.status === status
-                            ? `${statusConfig[status].bg} ${statusConfig[status].color} border-2 ${statusConfig[status].border} cursor-default`
-                            : "border-2 border-transparent hover:bg-white/5"
-                        }`}
-                        style={{
-                          color:
-                            selectedSession.status === status
-                              ? undefined
-                              : "var(--dash-muted)",
-                        }}>
-                        {selectedSession.status === status && (
-                          <CheckCircle className="h-4 w-4" />
-                        )}
-                        {statusConfig[status].label}
-                      </button>
-                    ),
+                    (status) => {
+                      const isActive = selectedSession.status === status;
+                      return (
+                        <button
+                          key={status}
+                          onClick={() =>
+                            !isActive &&
+                            handleStatusChange(selectedSession.id, status)
+                          }
+                          disabled={isActive || saving}
+                          className={`flex-1 py-3 rounded-xl font-medium transition-all duration-200 text-sm flex items-center justify-center gap-2 ${
+                            isActive
+                              ? `${statusConfig[status].bg} ${statusConfig[status].color} border-2 ${statusConfig[status].border} cursor-default`
+                              : "border-2 border-transparent hover:bg-white/5 disabled:opacity-50"
+                          }`}
+                          style={{
+                            color: isActive ? undefined : "var(--dash-muted)",
+                          }}>
+                          {saving && !isActive ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : isActive ? (
+                            <CheckCircle className="h-4 w-4" />
+                          ) : null}
+                          {statusConfig[status].label}
+                        </button>
+                      );
+                    },
                   )}
                 </div>
               </div>

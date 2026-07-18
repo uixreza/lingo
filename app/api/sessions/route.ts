@@ -14,12 +14,16 @@ function g2d(gy: number, gm: number, gd: number): number {
 }
 
 function d2g(jdn: number) {
-  let j = 4 * jdn + 139361631;
-  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-  const i = div(mod(j, 1461), 4) * 5 + 308;
-  const gd = div(mod(i, 153), 5) + 1;
-  const gm = mod(div(i, 153), 12) + 1;
-  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+  let l = jdn + 68569;
+  let n = div(4 * l, 146097);
+  l = l - div(146097 * n + 3, 4);
+  let i = div(4000 * (l + 1), 1461001);
+  l = l - div(1461 * i, 4) + 31;
+  let j = div(80 * l, 2447);
+  const gd = l - div(2447 * j, 80);
+  l = div(j, 11);
+  const gm = j + 2 - 12 * l;
+  const gy = 100 * (n - 49) + i + l;
   return { gy, gm, gd };
 }
 
@@ -89,10 +93,16 @@ function gregToJalaliStr(date: Date): string {
   return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
 }
 
+function toEnglishDigits(str: string) {
+  return str.replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)));
+}
+
 function jalaliStrToDate(jalaliStr: string): Date {
-  const parts = jalaliStr.split("/");
+  const normalized = toEnglishDigits(jalaliStr);
+  const parts = normalized.split("/");
   if (parts.length !== 3) return new Date(NaN);
   const [jy, jm, jd] = parts.map(Number);
+  if (isNaN(jy) || isNaN(jm) || isNaN(jd)) return new Date(NaN);
   const g = d2g(j2d(jy, jm, jd));
   return new Date(g.gy, g.gm - 1, g.gd);
 }
@@ -167,27 +177,67 @@ export async function POST(request: Request) {
 
   const amountPaid = sessionType === "Private" ? 400000 : 150000;
 
-  const created = await prisma.session.create({
-    data: {
-      userUuid,
-      sessionDate: gregDate,
-      startTime: timeDate,
-      language: language || "English",
-      sessionType: sessionType === "Private" ? "Private" : "Public",
-      reasonForLearning: reasonForLearning || null,
-      amountPaid,
-      status: "pending",
-      paymentStatus: "pending",
-    },
-  });
+  const wallet = await prisma.wallet.findUnique({ where: { userId } });
+  if (!wallet) {
+    return NextResponse.json({ error: "کیف پولی برای شما یافت نشد" }, { status: 404 });
+  }
 
-  return NextResponse.json({
-    id: created.id,
-    date: gregToJalaliStr(created.sessionDate),
-    time: `${String(created.startTime.getHours()).padStart(2, "0")}:${String(created.startTime.getMinutes()).padStart(2, "0")}`,
-    language: created.language,
-    type: created.sessionType,
-    status: created.status,
-    reason: created.reasonForLearning,
-  }, { status: 201 });
+  const currentBalance = Number(wallet.balance);
+  if (currentBalance < amountPaid) {
+    return NextResponse.json({
+      error: "موجودی کیف پول کافی نیست",
+      balance: currentBalance,
+      required: amountPaid,
+    }, { status: 402 });
+  }
+
+  try {
+    await prisma.wallet.update({
+      where: { userId },
+      data: { balance: { decrement: amountPaid } },
+    });
+
+    const newBalance = currentBalance - amountPaid;
+
+    await prisma.transaction.create({
+      data: {
+        userId,
+        amount: -amountPaid,
+        balanceBefore: currentBalance,
+        balanceAfter: newBalance,
+        description: sessionType === "Private" ? "رزرو جلسه خصوصی" : "رزرو جلسه عمومی",
+        status: "completed",
+      },
+    });
+
+    const created = await prisma.session.create({
+      data: {
+        userUuid,
+        sessionDate: gregDate,
+        startTime: timeDate,
+        language: language || "English",
+        sessionType: sessionType === "Private" ? "Private" : "Public",
+        reasonForLearning: reasonForLearning || null,
+        amountPaid,
+        status: "pending",
+        paymentStatus: "paid",
+      },
+    });
+
+    return NextResponse.json({
+      id: created.id,
+      date: gregToJalaliStr(created.sessionDate),
+      time: `${String(created.startTime.getHours()).padStart(2, "0")}:${String(created.startTime.getMinutes()).padStart(2, "0")}`,
+      language: created.language,
+      type: created.sessionType,
+      status: created.status,
+      reason: created.reasonForLearning,
+    }, { status: 201 });
+  } catch (err) {
+    console.error("Session creation error:", err);
+    return NextResponse.json({
+      error: "خطا در ثبت جلسه",
+      detail: err instanceof Error ? err.message : "Unknown error",
+    }, { status: 500 });
+  }
 }

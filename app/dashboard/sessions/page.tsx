@@ -57,6 +57,20 @@ export default function SessionsPage() {
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [walletBalance, setWalletBalance] = useState<number | null>(null);
+
+  const fetchWallet = async () => {
+    try {
+      const res = await fetch("/api/wallet");
+      if (res.ok) {
+        const data = await res.json();
+        setWalletBalance(data.balance);
+      }
+    } catch {
+      // ignore
+    }
+  };
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -80,6 +94,7 @@ export default function SessionsPage() {
       }
     };
     fetchSessions();
+    fetchWallet();
   }, []);
 
   const canSubmit =
@@ -91,6 +106,7 @@ export default function SessionsPage() {
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
+    setErrorMsg(null);
     try {
       const sessionDate = date?.format?.("YYYY/MM/DD") ?? "";
       const res = await fetch("/api/sessions", {
@@ -104,14 +120,23 @@ export default function SessionsPage() {
           reasonForLearning: reason || null,
         }),
       });
-      if (!res.ok) throw new Error("Failed to create session");
+      if (res.status === 402) {
+        window.location.href = "/dashboard/wallet";
+        return;
+      }
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setErrorMsg(data.error || `خطا (کد ${res.status})`);
+        return;
+      }
       const created = await res.json();
       setRequests((prev) => [created, ...prev]);
       setDate(null);
       setTime([]);
       setReason("");
+      fetchWallet();
     } catch (err) {
-      console.error("Error creating session:", err);
+      setErrorMsg("خطا در برقراری ارتباط");
     } finally {
       setSubmitting(false);
     }
@@ -353,6 +378,20 @@ export default function SessionsPage() {
             </div>
           </div>
 
+          {/* Wallet Balance */}
+          <div className="bg-[var(--hover-bg)] rounded-xl p-4 shadow-lg">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-[var(--dash-muted)]">
+                موجودی کیف پول
+              </span>
+              <span className={`text-sm font-bold ${walletBalance !== null && walletBalance > 0 ? "text-green-500" : "text-red-400"}`}>
+                {walletBalance !== null
+                  ? `${walletBalance.toLocaleString()} تومان`
+                  : "در حال بارگذاری..."}
+              </span>
+            </div>
+          </div>
+
           {/* Price */}
           <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
             <div className="flex items-center justify-between">
@@ -404,6 +443,10 @@ export default function SessionsPage() {
               "ثبت درخواست"
             )}
           </button>
+
+          {errorMsg && (
+            <p className="text-red-400 text-sm text-center">{errorMsg}</p>
+          )}
         </div>
       </div>
 

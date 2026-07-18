@@ -2,7 +2,7 @@
 import Image from "next/image";
 import { Wallet, ChevronLeft, Bell, Menu } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 type User = {
   name: string;
@@ -11,8 +11,24 @@ type User = {
 };
 
 export default function Header({ user }: { user: User }) {
-  const { name, image, balance } = user;
+  const { name, image } = user;
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [realBalance, setRealBalance] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchBalance = async () => {
+      try {
+        const res = await fetch("/api/wallet");
+        if (res.ok) {
+          const data = await res.json();
+          setRealBalance(data.balance);
+        }
+      } catch {
+        // fallback to prop balance
+      }
+    };
+    fetchBalance();
+  }, []);
 
   return (
     <header className="bg-[var(--header-bg)] backdrop-blur-2xl shadow-sm px-4 sm:px-6 py-3 sm:py-4">
@@ -58,10 +74,12 @@ export default function Header({ user }: { user: User }) {
 
         {/* Right: Balance and Notifications */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Notifications - Disabled */}
-          <div className="relative p-2 rounded-xl bg-[var(--hover-bg)] opacity-40 cursor-not-allowed shadow-lg">
+          {/* Notifications */}
+          <Link
+            href="/admin/notification"
+            className="relative p-2 rounded-xl bg-[var(--hover-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 shadow-lg">
             <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
-          </div>
+          </Link>
 
           {/* Balance Card */}
           <Link
@@ -76,7 +94,7 @@ export default function Header({ user }: { user: User }) {
                 موجودی
               </div>
               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate">
-                {balance.toLocaleString("en-US")}
+                {(realBalance ?? 0).toLocaleString("en-US")}
               </div>
             </div>
 

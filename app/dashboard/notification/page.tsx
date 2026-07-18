@@ -1,6 +1,5 @@
-// components/dashboard/NotificationPage.tsx
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Bell,
   BellOff,
@@ -10,9 +9,9 @@ import {
   Info,
   Star,
   MessageCircle,
-  Trash2,
   CheckCheck,
   Clock,
+  Loader2,
 } from "lucide-react";
 
 type Notification = {
@@ -22,70 +21,87 @@ type Notification = {
   message: string;
   time: string;
   read: boolean;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
 };
 
-export default function NotificationPage() {
-  const [notifications, setNotifications] = useState<Notification[]>([
-    {
-      id: "1",
-      type: "achievement",
-      title: "سطح جدید! 🎉",
-      message: "تبریک! شما به سطح ۳ رسیدید. به همین منوال ادامه دهید.",
-      time: "۵ دقیقه پیش",
-      read: false,
-    },
-    {
-      id: "2",
-      type: "message",
-      title: "پیام جدید از استاد",
-      message: "استاد علی محمدی برای شما پیام جدیدی ارسال کرده است.",
-      time: "۱ ساعت پیش",
-      read: false,
-      action: {
-        label: "مشاهده پیام",
-        onClick: () => console.log("View message"),
-      },
-    },
-    {
-      id: "3",
-      type: "success",
-      title: "پرداخت موفق",
-      message: "پرداخت شما به مبلغ ۱۵۰,۰۰۰ تومان با موفقیت انجام شد.",
-      time: "۲ ساعت پیش",
-      read: true,
-    },
-    {
-      id: "4",
-      type: "warning",
-      title: "یادآوری جلسه",
-      message: "جلسه فردا با استاد فاطمه کریمی را فراموش نکنید.",
-      time: "۱ روز پیش",
-      read: true,
-    },
-    {
-      id: "5",
-      type: "info",
-      title: "بروزرسانی سیستم",
-      message: "سیستم جدیدی برای بهبود تجربه کاربری اضافه شده است.",
-      time: "۲ روز پیش",
-      read: true,
-    },
-    {
-      id: "6",
-      type: "achievement",
-      title: "مدال جدید! 🏆",
-      message: 'شما مدال "یادگیرنده سریع" را کسب کردید.',
-      time: "۳ روز پیش",
-      read: true,
-    },
-  ]);
+const typeStyles: Record<
+  Notification["type"],
+  { border: string; text: string; bg: string; glow: string }
+> = {
+  success: {
+    border: "border-r-green-500",
+    text: "text-green-500",
+    bg: "bg-green-500/10",
+    glow: "shadow-green-500/20",
+  },
+  warning: {
+    border: "border-r-red-500",
+    text: "text-red-500",
+    bg: "bg-red-500/10",
+    glow: "shadow-red-500/20",
+  },
+  info: {
+    border: "border-r-blue-500",
+    text: "text-blue-500",
+    bg: "bg-blue-500/10",
+    glow: "shadow-blue-500/20",
+  },
+  achievement: {
+    border: "border-r-purple-500",
+    text: "text-purple-500",
+    bg: "bg-purple-500/10",
+    glow: "shadow-purple-500/20",
+  },
+  message: {
+    border: "border-r-cyan-500",
+    text: "text-cyan-500",
+    bg: "bg-cyan-500/10",
+    glow: "shadow-cyan-500/20",
+  },
+};
 
+const typeIcons: Record<Notification["type"], typeof Bell> = {
+  success: CheckCircle,
+  warning: AlertCircle,
+  info: Info,
+  achievement: Star,
+  message: MessageCircle,
+};
+
+function relativeTime(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return "چند لحظه پیش";
+  if (minutes < 60) return `${minutes} دقیقه پیش`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} ساعت پیش`;
+  const days = Math.floor(hours / 24);
+  if (days < 30) return `${days} روز پیش`;
+  const months = Math.floor(days / 30);
+  return `${months} ماه پیش`;
+}
+
+export default function NotificationPage() {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
-  const [showActions, setShowActions] = useState<string | null>(null);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data: Notification[] = await res.json();
+        setNotifications(data);
+      }
+    } catch {
+      // ignore
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
 
   const filteredNotifications = notifications.filter((notification) => {
     if (filter === "all") return true;
@@ -96,75 +112,36 @@ export default function NotificationPage() {
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
-  const markAsRead = (id: string) => {
+  const markAsRead = async (id: string) => {
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id }),
+    });
     setNotifications(
-      notifications.map((notification) =>
-        notification.id === id ? { ...notification, read: true } : notification,
-      ),
-    );
-    setShowActions(null);
-  };
-
-  const markAllAsRead = () => {
-    setNotifications(
-      notifications.map((notification) => ({
-        ...notification,
-        read: true,
-      })),
+      notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
   };
 
-  const deleteNotification = (id: string) => {
-    setNotifications(
-      notifications.filter((notification) => notification.id !== id),
+  const markAllAsRead = async () => {
+    await fetch("/api/notifications", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+    });
+    setNotifications(notifications.map((n) => ({ ...n, read: true })));
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[var(--dash-muted)]" />
+      </div>
     );
-    setShowActions(null);
-  };
-
-  const clearAllRead = () => {
-    setNotifications(
-      notifications.filter((notification) => !notification.read),
-    );
-  };
-
-  const getNotificationIcon = (type: Notification["type"]) => {
-    switch (type) {
-      case "success":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "warning":
-        return <AlertCircle className="h-5 w-5 text-yellow-500" />;
-      case "info":
-        return <Info className="h-5 w-5 text-blue-500" />;
-      case "achievement":
-        return <Star className="h-5 w-5 text-purple-500" />;
-      case "message":
-        return <MessageCircle className="h-5 w-5 text-cyan-500" />;
-      default:
-        return <Bell className="h-5 w-5 text-gray-500" />;
-    }
-  };
-
-  const getNotificationColor = (type: Notification["type"]) => {
-    switch (type) {
-      case "success":
-        return "border-r-4 border-r-green-500";
-      case "warning":
-        return "border-r-4 border-r-yellow-500";
-      case "info":
-        return "border-r-4 border-r-blue-500";
-      case "achievement":
-        return "border-r-4 border-r-purple-500";
-      case "message":
-        return "border-r-4 border-r-cyan-500";
-      default:
-        return "border-r-4 border-r-gray-500";
-    }
-  };
+  }
 
   return (
-    <div className="min-h-screen  py-6">
+    <div className="min-h-screen py-6">
       <div className="max-w-4xl mx-auto">
-        {/* Header */}
         <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-6 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div className="flex items-center gap-3">
@@ -189,19 +166,11 @@ export default function NotificationPage() {
                 <CheckCheck className="h-4 w-4" />
                 <span className="text-sm font-medium">خواندن همه</span>
               </button>
-
-              <button
-                onClick={clearAllRead}
-                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500/10 to-red-600/10 border border-red-500/20 dark:border-white/30 rounded-xl text-red-600 dark:text-red-400 hover:from-red-500/20 hover:to-red-600/20 transition-all duration-200 shadow-lg">
-                <Trash2 className="h-4 w-4" />
-                <span className="text-sm font-medium">پاک کردن خوانده‌ها</span>
-              </button>
             </div>
           </div>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="rounded-2xl shadow-lg  mb-6 ">
+        <div className="rounded-2xl shadow-lg mb-6">
           <div className="flex items-center gap-2">
             <Filter className="h-5 w-5 text-[var(--dash-muted)] max-sm:hidden" />
             <div className="flex flex-wrap gap-1 bg-[var(--dash-bg)] rounded-xl p-1 border border-[var(--dash-muted)]/20 dark:border-white/20">
@@ -239,7 +208,6 @@ export default function NotificationPage() {
           </div>
         </div>
 
-        {/* Notifications List */}
         <div className="space-y-3">
           {filteredNotifications.length === 0 ? (
             <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-12 text-center border border-[var(--dash-muted)]/20 dark:border-white/20">
@@ -256,105 +224,58 @@ export default function NotificationPage() {
               </p>
             </div>
           ) : (
-            filteredNotifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 border border-[var(--dash-muted)]/20 dark:border-white/20 transition-all duration-200 hover:shadow-xl ${
-                  !notification.read
-                    ? "shadow-lg shadow-[var(--light-purple)]/30"
-                    : ""
-                }`}>
-                <div className="flex gap-4">
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3
-                          className={`font-semibold text-[var(--dash-text)] ${
-                            !notification.read
-                              ? "text-[var(--dark-purple)] dark:text-white"
-                              : ""
-                          }`}>
-                          {notification.title}
-                        </h3>
-                        <p className="text-[var(--dash-muted)] mt-1 text-sm leading-relaxed">
-                          {notification.message}
-                        </p>
-                        <div className="flex items-center gap-4 mt-3">
-                          <div className="flex items-center gap-1 text-xs text-[var(--dash-muted)]">
-                            <Clock className="h-3 w-3" />
-                            <span>{notification.time}</span>
+            filteredNotifications.map((notification) => {
+              const style = typeStyles[notification.type];
+              const Icon = typeIcons[notification.type];
+              return (
+                <div
+                  key={notification.id}
+                  className={`bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 border border-[var(--dash-muted)]/20 dark:border-white/20 border-r-4 transition-all duration-200 hover:shadow-xl ${
+                    style.border
+                  } ${!notification.read ? `shadow-lg ${style.glow}` : ""}`}>
+                  <div className="flex gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2.5 mb-1.5">
+                            <Icon className={`h-5 w-5 ${style.text}`} />
+                            <h3
+                              className={`font-semibold text-base ${style.text}`}>
+                              {notification.title}
+                            </h3>
                           </div>
-                          {!notification.read && (
-                            <span className="inline-block w-2 h-2 bg-[var(--light-purple)] rounded-full"></span>
-                          )}
+                          <p className="text-[var(--dash-muted)] text-sm leading-relaxed">
+                            {notification.message}
+                          </p>
+                          <div className="flex items-center gap-4 mt-3">
+                            <div className="flex items-center gap-1 text-xs text-[var(--dash-muted)]">
+                              <Clock className="h-3 w-3" />
+                              <span>{relativeTime(notification.time)}</span>
+                            </div>
+                            {!notification.read && (
+                              <span
+                                className={`inline-block w-2 h-2 rounded-full ${style.text}`}></span>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Actions */}
-                      <div className="flex items-center gap-2">
                         {!notification.read && (
                           <button
                             onClick={() => markAsRead(notification.id)}
-                            className="p-2 text-green-600 hover:bg-green-500/10 rounded-xl transition-colors duration-200"
+                            className="p-2 text-green-600 hover:bg-green-500/10 rounded-xl transition-colors duration-200 shrink-0"
                             title="علامت به عنوان خوانده شده">
                             <CheckCircle className="h-4 w-4" />
                           </button>
                         )}
-
-                        <button
-                          onClick={() =>
-                            setShowActions(
-                              showActions === notification.id
-                                ? null
-                                : notification.id,
-                            )
-                          }
-                          className="p-2 text-[var(--dash-muted)] hover:bg-[var(--dash-muted)]/10 rounded-xl transition-colors duration-200">
-                          <Trash2 className="h-4 w-4" />
-                        </button>
                       </div>
                     </div>
-
-                    {/* Action Button */}
-                    {notification.action && (
-                      <div className="mt-3">
-                        <button
-                          onClick={notification.action.onClick}
-                          className="px-4 py-2 bg-gradient-to-r from-[var(--light-purple)]/10 to-[var(--dark-purple)]/10 border border-[var(--light-purple)]/20 dark:border-white/30 rounded-xl text-[var(--dark-purple)] dark:text-white text-sm font-medium hover:from-[var(--light-purple)]/20 hover:to-[var(--dark-purple)]/20 transition-all duration-200 shadow-lg">
-                          {notification.action.label}
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Delete Confirmation */}
-                    {showActions === notification.id && (
-                      <div className="mt-3 p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
-                        <p className="text-red-600 dark:text-red-400 text-sm mb-2">
-                          آیا از حذف این اعلان مطمئن هستید؟
-                        </p>
-                        <div className="flex gap-2">
-                          <button
-                            onClick={() => deleteNotification(notification.id)}
-                            className="px-3 py-1 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors duration-200">
-                            بله، حذف شود
-                          </button>
-                          <button
-                            onClick={() => setShowActions(null)}
-                            className="px-3 py-1 bg-[var(--dash-muted)]/20 text-[var(--dash-text)] text-sm rounded-lg hover:bg-[var(--dash-muted)]/30 transition-colors duration-200">
-                            انصراف
-                          </button>
-                        </div>
-                      </div>
-                    )}
                   </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
 
-        {/* Load More Button */}
         {filteredNotifications.length > 0 && (
           <div className="text-center mt-8">
             <button className="px-6 py-3 bg-gradient-to-r from-[var(--light-purple)]/10 to-[var(--dark-purple)]/10 border border-[var(--light-purple)]/20 dark:border-white/30 rounded-xl text-[var(--dash-text)] hover:from-[var(--light-purple)]/20 hover:to-[var(--dark-purple)]/20 transition-all duration-200 shadow-lg font-medium">

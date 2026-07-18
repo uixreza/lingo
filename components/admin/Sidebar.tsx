@@ -21,6 +21,7 @@ import Image from "next/image";
 const menuItems = [
   { label: "خانه", href: "/admin", icon: Home },
   { label: "جلسات", href: "/admin/sessions", icon: GraduationCap },
+  { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];

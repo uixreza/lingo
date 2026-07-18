@@ -98,7 +98,6 @@ export default function SessionsPage() {
   }, []);
 
   const canSubmit =
-    mounted &&
     language &&
     classType &&
     (classType === "Public" || (date && time.length > 0));
@@ -429,6 +428,7 @@ export default function SessionsPage() {
           <button
             onClick={handleSubmit}
             disabled={!canSubmit || submitting}
+            suppressHydrationWarning
             className={`w-full py-3 rounded-xl font-bold transition-all duration-300 shadow-xl ${
               canSubmit && !submitting
                 ? "bg-green-500 text-black hover:bg-green-400 hover:scale-[1.02]"

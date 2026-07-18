@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 const container = {
@@ -65,12 +66,14 @@ export default function Home() {
               className="px-8 py-3.5 bg-green-500 hover:bg-green-400 text-black font-semibold rounded-2xl shadow-lg shadow-green-500/25">
               شروع کن
             </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="px-8 py-3.5 border border-green-500/30 text-green-400 hover:bg-green-500/10 rounded-2xl">
-              پشتیبانی
-            </motion.button>
+            <Link href="/about">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-8 py-3.5 border border-green-500/30 text-green-400 hover:bg-green-500/10 rounded-2xl">
+                درباره من
+              </motion.button>
+            </Link>
           </motion.div>
         </div>
 

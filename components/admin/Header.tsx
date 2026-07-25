@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { Wallet, ChevronLeft, Bell, Menu } from "lucide-react";
+import { Wallet, ChevronLeft, Bell } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 
@@ -12,7 +12,6 @@ type User = {
 
 export default function Header({ user }: { user: User }) {
   const { name, image } = user;
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [realBalance, setRealBalance] = useState<number | null>(null);
 
   useEffect(() => {
@@ -35,13 +34,6 @@ export default function Header({ user }: { user: User }) {
       <div className="flex items-center justify-between">
         {/* Left: Profile */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Mobile Menu Button */}
-          <button
-            className="lg:hidden p-2 rounded-xl bg-[var(--hover-bg)] shadow-lg"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <Menu className="h-5 w-5 text-[var(--header-text)]" />
-          </button>
-
           {/* Profile Image */}
           <div className="relative">
             {image ? (
@@ -61,15 +53,6 @@ export default function Header({ user }: { user: User }) {
             )}
           </div>
 
-          {/* User Info */}
-          <div className="space-y-0.5 min-w-0 flex-1">
-            <h3 className="text-base sm:text-xl font-bold text-[var(--header-text)] truncate max-w-[120px] xs:max-w-[150px] sm:max-w-none">
-              {name}
-            </h3>
-            <div className="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-medium w-fit">
-              Admin Panel
-            </div>
-          </div>
         </div>
 
         {/* Right: Balance and Notifications */}

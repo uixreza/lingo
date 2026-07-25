@@ -147,9 +147,7 @@ export default function NotificationPage() {
       body: JSON.stringify({ id }),
     });
     setNotifications(
-      notifications.map((n) =>
-        n.id === id ? { ...n, read: true } : n,
-      ),
+      notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
     setShowActions(null);
   };
@@ -159,9 +157,7 @@ export default function NotificationPage() {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
     });
-    setNotifications(
-      notifications.map((n) => ({ ...n, read: true })),
-    );
+    setNotifications(notifications.map((n) => ({ ...n, read: true })));
   };
 
   const deleteNotification = async (id: string) => {
@@ -213,7 +209,7 @@ export default function NotificationPage() {
       <div className="max-w-4xl mx-auto">
         <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-6 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 ">
               <div className="p-3 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] hidden md:block rounded-xl shadow-lg">
                 <Bell className="h-6 w-6 text-white" />
               </div>
@@ -231,7 +227,11 @@ export default function NotificationPage() {
               <button
                 onClick={() => setShowForm(!showForm)}
                 className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:from-green-400 hover:to-emerald-500 transition-all duration-200 shadow-lg">
-                {showForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                {showForm ? (
+                  <X className="h-4 w-4" />
+                ) : (
+                  <Plus className="h-4 w-4" />
+                )}
                 <span className="text-sm font-medium">اعلان جدید</span>
               </button>
               <button
@@ -336,9 +336,8 @@ export default function NotificationPage() {
           </div>
         )}
 
-        <div className="rounded-2xl shadow-lg mb-6">
-          <div className="flex items-center gap-2">
-            <Filter className="h-5 w-5 text-[var(--dash-muted)] max-sm:hidden" />
+        <div className="rounded-2xl  mb-6">
+          <div className="flex items-center gap-2 ">
             <div className="flex flex-wrap gap-1 bg-[var(--dash-bg)] rounded-xl p-1 border border-[var(--dash-muted)]/20 dark:border-white/20">
               {[
                 { key: "all", label: "همه", count: notifications.length },
@@ -476,7 +475,7 @@ export default function NotificationPage() {
 
         {filteredNotifications.length > 0 && (
           <div className="text-center mt-8">
-            <button className="px-6 py-3 bg-gradient-to-r from-[var(--light-purple)]/10 to-[var(--dark-purple)]/10 border border-[var(--light-purple)]/20 dark:border-white/30 rounded-xl text-[var(--dash-text)] hover:from-[var(--light-purple)]/20 hover:to-[var(--dark-purple)]/20 transition-all duration-200 shadow-lg font-medium">
+            <button className="px-6 py-3 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] border border-[var(--light-purple)] dark:border-white/30 rounded-xl text-[var(--dash-text)] hover:from-[var(--light-purple)] hover:to-[var(--dark-purple)] transition-all duration-200 shadow-lg font-medium">
               بارگذاری اعلان‌های بیشتر
             </button>
           </div>

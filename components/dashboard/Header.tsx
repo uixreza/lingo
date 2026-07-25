@@ -41,19 +41,23 @@ export default function Header({ user }: { user: User }) {
   const [realBalance, setRealBalance] = useState<number | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchBalance = async () => {
-      try {
-        const res = await fetch("/api/wallet");
-        if (res.ok) {
-          const data = await res.json();
-          setRealBalance(data.balance);
-        }
-      } catch {
-        // fallback to prop balance
+  const fetchBalance = async () => {
+    try {
+      const res = await fetch("/api/wallet");
+      if (res.ok) {
+        const data = await res.json();
+        setRealBalance(data.balance);
       }
-    };
+    } catch {
+      // fallback to prop balance
+    }
+  };
+
+  useEffect(() => {
     fetchBalance();
+    const handler = () => fetchBalance();
+    window.addEventListener("balance-update", handler);
+    return () => window.removeEventListener("balance-update", handler);
   }, []);
 
   // Calculate XP progress
@@ -71,6 +75,12 @@ export default function Header({ user }: { user: User }) {
     quick_learner: "یادگیرنده سریع",
     consistent: "منظم",
     star_student: "ستاره درخشان",
+  };
+
+  const badgeColors: { [key: string]: string } = {
+    quick_learner: "bg-purple-500/20 text-purple-400",
+    consistent: "bg-blue-500/20 text-blue-400",
+    star_student: "bg-yellow-500/20 text-yellow-400",
   };
 
   return (
@@ -144,8 +154,8 @@ export default function Header({ user }: { user: User }) {
               <div className="hidden sm:flex items-center gap-2">
                 {badges.slice(0, 3).map((badge, index) => (
                   <div key={badge} className="group relative">
-                    <div className="bg-[var(--hover-bg-strong)] rounded-lg p-1.5  shadow-lg hover:scale-110 transition-transform duration-200">
-                      <div className="text-[var(--icon-muted)]">
+                    <div className={`${badgeColors[badge] || "bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"} rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200`}>
+                      <div>
                         {badgeIcons[badge] || <Star className="h-3 w-3" />}
                       </div>
                     </div>
@@ -220,8 +230,8 @@ export default function Header({ user }: { user: User }) {
               </span>
               {badges.slice(0, 4).map((badge, index) => (
                 <div key={badge} className="group relative">
-                  <div className="bg-[var(--hover-bg-strong)] rounded-lg p-1.5  shadow-lg">
-                    <div className="text-[var(--icon-muted)]">
+                  <div className={`${badgeColors[badge] || "bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"} rounded-lg p-1.5 shadow-lg`}>
+                    <div>
                       {badgeIcons[badge] || <Star className="h-3 w-3" />}
                     </div>
                   </div>

@@ -30,17 +30,24 @@ model User {
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   lastLoginAt   DateTime? @map("last_login_at")
-  userId        Int       @unique
+  certifications   Certifications[]
   wallet        Wallet?
   otp           OTP?
   sessions          Session[]
   transactions      Transaction[]
   sessionAuditLog   SessionAuditLog[]
   notifications     Notification[]
+  tickets           Ticket[]
 
   @@map("users")
 }
 
+enum Certifications {
+        TTC
+        TOEFL
+        IELTS
+        Duolingo
+}
 
 model OTP {
   id          Int    @id @default(autoincrement())
@@ -80,10 +87,69 @@ enum FluencyLevel {
   C2
 }
 
+
+
 enum Role {
   Admin
   Teacher
   Client
+}
+
+enum TicketStatus {
+  Open
+  InProgress
+  Resolved
+  Closed
+}
+
+enum TicketPriority {
+  Low
+  Medium
+  High
+  Urgent
+}
+
+enum TicketCategory {
+  Technical
+  Payment
+  Content
+  Certificate
+  General
+}
+
+model Ticket {
+  id          Int             @id @default(autoincrement())
+  title       String          @db.VarChar(200)
+  message     String          @db.Text
+  status      TicketStatus    @default(Open)
+  priority    TicketPriority  @default(Medium)
+  category    TicketCategory  @default(General)
+  attachment  String?         @db.VarChar(500)
+  userId      Int             @map("user_id")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt   DateTime        @updatedAt @map("updated_at") @db.Timestamp(3)
+
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  replies     TicketReply[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("tickets")
+}
+
+model TicketReply {
+  id        Int       @id @default(autoincrement())
+  message   String    @db.Text
+  isAdmin   Boolean   @default(false) @map("is_admin")
+  userName  String    @map("user_name") @db.VarChar(100)
+  ticketId  Int       @map("ticket_id")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(3)
+
+  ticket    Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@index([ticketId])
+  @@map("ticket_replies")
 }
 
 

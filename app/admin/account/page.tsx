@@ -19,7 +19,6 @@ import {
   Award,
   Briefcase,
   GraduationCap,
-  Hash,
 } from "lucide-react";
 
 export default function AccountPage() {
@@ -35,8 +34,12 @@ export default function AccountPage() {
     email: "",
     phone: "",
     birthDate: "",
-    age: "",
-    certifications: "",
+    certifications: {
+      TTC: false,
+      TOEFL: false,
+      IELTS: false,
+      Duolingo: false,
+    },
     teachingExperience: "",
     universityCertificates: "",
   });
@@ -62,8 +65,7 @@ export default function AccountPage() {
         email: "mohammad@example.com",
         phone: "۰۹۱۲۳۴۵۶۷۸۹",
         birthDate: "۱۳۷۵-۰۳-۱۵",
-        age: "۳۰",
-        certifications: "TOEFL iBT: 112\nIELTS: 8.0\nTESOL Certificate",
+        certifications: { TTC: true, TOEFL: true, IELTS: true, Duolingo: false },
         teachingExperience:
           "۵ سال تدریس زبان انگلیسی\nمدرس دوره‌های آیلتس و تافل\nتدریس در آموزشگاه‌های معتبر تهران",
         universityCertificates:
@@ -78,6 +80,16 @@ export default function AccountPage() {
   ) => {
     const { name, value } = e.target;
     setUserData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCertificationToggle = (cert: string) => {
+    setUserData((prev) => ({
+      ...prev,
+      certifications: {
+        ...prev.certifications,
+        [cert]: !prev.certifications[cert as keyof typeof prev.certifications],
+      },
+    }));
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -289,21 +301,6 @@ export default function AccountPage() {
 
                     <div>
                       <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        <Hash className="h-4 w-4 inline ml-1" />
-                        سن
-                      </label>
-                      <input
-                        type="text"
-                        name="age"
-                        value={userData.age}
-                        onChange={handleProfileChange}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
-                        placeholder="مثال: ۳۰"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
                         <Calendar className="h-4 w-4 inline ml-1" />
                         تاریخ تولد
                       </label>
@@ -333,14 +330,62 @@ export default function AccountPage() {
                         <Award className="h-4 w-4 inline ml-1" />
                         مدارک و گواهینامه‌ها
                       </label>
-                      <textarea
-                        name="certifications"
-                        value={userData.certifications}
-                        onChange={handleProfileChange}
-                        rows={4}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl resize-none"
-                        placeholder="مدارک خود را وارد کنید (مثال: TOEFL iBT: 112, IELTS: 8.0, ...)"
-                      />
+                      <div className="grid grid-cols-2 gap-3">
+                        {["TTC", "TOEFL", "IELTS", "Duolingo"].map(
+                          (cert) => (
+                            <label
+                              key={cert}
+                              className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer transition-all duration-200 ${
+                                userData.certifications[
+                                  cert as keyof typeof userData.certifications
+                                ]
+                                  ? "bg-green-500/20 text-green-500 border border-green-500/40"
+                                  : "bg-[var(--hover-bg)] text-[var(--dash-text)] border border-transparent hover:border-[var(--dash-muted)]/30"
+                              }`}>
+                              <input
+                                type="checkbox"
+                                checked={
+                                  userData.certifications[
+                                    cert as keyof typeof userData.certifications
+                                  ]
+                                }
+                                onChange={() =>
+                                  handleCertificationToggle(cert)
+                                }
+                                className="sr-only"
+                              />
+                              <div
+                                className={`w-5 h-5 rounded-md flex items-center justify-center transition-all duration-200 ${
+                                  userData.certifications[
+                                    cert as keyof typeof userData.certifications
+                                  ]
+                                    ? "bg-green-500 text-black"
+                                    : "bg-[var(--dash-sides)] border border-[var(--dash-muted)]/40"
+                                }`}>
+                                {userData.certifications[
+                                  cert as keyof typeof userData.certifications
+                                ] && (
+                                  <svg
+                                    className="w-3.5 h-3.5"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      strokeWidth={3}
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                )}
+                              </div>
+                              <span className="text-sm font-medium">
+                                {cert}
+                              </span>
+                            </label>
+                          ),
+                        )}
+                      </div>
                     </div>
 
                     <div>

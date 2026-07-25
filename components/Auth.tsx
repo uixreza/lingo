@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import toast from "react-hot-toast";
 
 type Tab = "login" | "signup";
@@ -262,7 +263,7 @@ function LoginForm({ close }: { close: () => void }) {
         <Field label="رمز عبور">
           <input
             type="password"
-            autoComplete="current-password"
+            autoComplete="new-password"
             placeholder="رمز عبور خود را وارد کنید"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -281,7 +282,9 @@ function LoginForm({ close }: { close: () => void }) {
                 {otp.map((d, i) => (
                   <input
                     key={i}
-                    ref={(el) => { inputsRef.current[i] = el; }}
+                    ref={(el) => {
+                      inputsRef.current[i] = el;
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -299,7 +302,11 @@ function LoginForm({ close }: { close: () => void }) {
                     onClick={handleRequestOtp}
                     disabled={loading}
                     className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors">
-                    {loading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                    {loading ? (
+                      <Loader2 size={13} className="animate-spin" />
+                    ) : (
+                      <RefreshCw size={13} />
+                    )}
                     ارسال مجدد کد
                   </button>
                 ) : (
@@ -367,9 +374,7 @@ function LoginForm({ close }: { close: () => void }) {
           <div className="w-full border-t border-white/5" />
         </div>
         <div className="relative flex justify-center">
-          <span className="bg-[#050505] px-3 text-xs text-[#555]">
-            سایر روش‌ها
-          </span>
+          <span className=" px-3 text-xs text-[#555]">سایر روش‌ها</span>
         </div>
       </div>
 
@@ -502,7 +507,12 @@ function SignupForm({ close }: { close: () => void }) {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fullname: fullName, password, phone, otp: code }),
+        body: JSON.stringify({
+          fullname: fullName,
+          password,
+          phone,
+          otp: code,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -558,7 +568,9 @@ function SignupForm({ close }: { close: () => void }) {
               setPhoneError("");
             }}
             className={`flex-1 px-4 py-3 rounded-xl bg-white/5 border text-white placeholder-[#555] text-sm outline-none transition-colors ${
-              phoneError ? "border-red-500/60" : "border-white/10 focus:border-green-500/50"
+              phoneError
+                ? "border-red-500/60"
+                : "border-white/10 focus:border-green-500/50"
             }`}
           />
           <button
@@ -574,8 +586,7 @@ function SignupForm({ close }: { close: () => void }) {
           <motion.p
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-red-400 text-xs mt-1.5 pr-1"
-          >
+            className="text-red-400 text-xs mt-1.5 pr-1">
             {phoneError}
           </motion.p>
         )}
@@ -613,7 +624,11 @@ function SignupForm({ close }: { close: () => void }) {
                   onClick={handleRequestCode}
                   disabled={loading}
                   className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors">
-                  {loading ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />}
+                  {loading ? (
+                    <Loader2 size={13} className="animate-spin" />
+                  ) : (
+                    <RefreshCw size={13} />
+                  )}
                   ارسال مجدد کد
                 </button>
               ) : (
@@ -643,7 +658,12 @@ function SignupForm({ close }: { close: () => void }) {
           onChange={(e) => setAgreed(e.target.checked)}
           className="w-4 h-4 rounded border-white/20 bg-white/5 text-green-500 accent-green-500 cursor-pointer"
         />
-        <span>قوانین و مقررات را می‌پذیرم</span>
+        <span>
+          <Link href="/policy" target="_blank" className="underline underline-offset-2 hover:text-green-400 transition-colors">
+            قوانین و مقررات
+          </Link>
+          {" را می‌پذیرم"}
+        </span>
       </motion.label>
 
       <div className="flex gap-3 items-center">

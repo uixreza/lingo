@@ -95,7 +95,7 @@ export default function Sidebar() {
         <div className="py-6 px-4">
           <div className="flex items-center gap-3 transition-all duration-150">
             <div className="relative">
-              <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center ">
                 <Image
                   src="/assets/img/sideIcon.png"
                   alt="Logo"

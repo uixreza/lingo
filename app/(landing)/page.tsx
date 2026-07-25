@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { Loader2 } from "lucide-react";
 
 const container = {
   hidden: {},
@@ -19,8 +21,29 @@ const item = {
 };
 
 export default function Home() {
+  const [downloadClicked, setDownloadClicked] = useState(false);
+
+  const handleDownloadClick = () => {
+    setDownloadClicked(true);
+    setTimeout(() => setDownloadClicked(false), 2000);
+  };
+
   return (
     <main className="relative min-h-screen bg-[#050505] overflow-hidden">
+      {/* Mobile App Download Button */}
+      <button
+        onClick={handleDownloadClick}
+        className="fixed top-4 left-4 z-50 sm:hidden flex items-center gap-1.5 px-3 py-1.5 bg-green-800 text-green-200 font-semibold text-[10px] rounded-lg shadow-lg hover:bg-green-700 transition-all duration-200"
+      >
+        {downloadClicked ? (
+          <Loader2 className="w-3 h-3 animate-spin" />
+        ) : (
+          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l8 8 8-8M12 2v22" />
+          </svg>
+        )}
+        {downloadClicked ? "در حال دریافت..." : "اپلیکیشن"}
+      </button>
       <div className="absolute top-[-200px] left-[-10%] w-[800px] h-[800px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
       <div className="absolute top-[30%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />
       <div className="absolute top-[60%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#22c55e]/10 blur-[100px] pointer-events-none" />
@@ -60,12 +83,14 @@ export default function Home() {
           <motion.div
             variants={item}
             className="mt-10 flex gap-4 justify-center lg:justify-start">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.97 }}
-              className="px-8 py-3.5 bg-green-500 hover:bg-green-400 text-black font-semibold rounded-2xl shadow-lg shadow-green-500/25">
-              شروع کن
-            </motion.button>
+            <Link href="/admin">
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                className="px-8 py-3.5 bg-green-500 hover:bg-green-400 text-black font-semibold rounded-2xl shadow-lg shadow-green-500/25">
+                شروع کن
+              </motion.button>
+            </Link>
             <Link href="/about">
               <motion.button
                 whileHover={{ scale: 1.03 }}

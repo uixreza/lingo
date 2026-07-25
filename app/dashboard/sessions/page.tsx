@@ -1,11 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import DatePicker from "react-multi-date-picker";
-import "react-multi-date-picker/styles/layouts/prime.css";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import DateObject from "react-date-object";
 import {
   Lock,
   Globe,
@@ -21,9 +16,17 @@ import {
   Copy,
   ExternalLink,
   Video,
+  ChevronDown,
 } from "lucide-react";
 
 const timeSlots = ["08:30", "10:00", "12:30", "15:00", "17:00", "19:00"];
+
+const persianMonths = [
+  "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
+];
+
+const days = Array.from({ length: 31 }, (_, i) => i + 1);
 
 const languages = [
   { id: "en", label: "English", flag: "🇬🇧", available: true },
@@ -45,8 +48,9 @@ type SessionItem = {
 type RequestStatus = "approved" | "pending" | "canceled";
 
 export default function SessionsPage() {
-  const [date, setDate] = useState<DateObject | null>(null);
-  const [time, setTime] = useState<string[]>([]);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [selectedMonth, setSelectedMonth] = useState("");
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [language, setLanguage] = useState("en");
   const [classType, setClassType] = useState<"Public" | "Private">("Private");
   const [reason, setReason] = useState("");
@@ -58,19 +62,6 @@ export default function SessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [walletBalance, setWalletBalance] = useState<number | null>(null);
-
-  const fetchWallet = async () => {
-    try {
-      const res = await fetch("/api/wallet");
-      if (res.ok) {
-        const data = await res.json();
-        setWalletBalance(data.balance);
-      }
-    } catch {
-      // ignore
-    }
-  };
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -94,26 +85,25 @@ export default function SessionsPage() {
       }
     };
     fetchSessions();
-    fetchWallet();
   }, []);
 
   const canSubmit =
     language &&
     classType &&
-    (classType === "Public" || (date && time.length > 0));
+    (classType === "Public" || (selectedDay && selectedMonth && selectedTimeSlot));
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      const sessionDate = date?.format?.("YYYY/MM/DD") ?? "";
+      const sessionDate = `${new Date().getFullYear()}/${String(selectedMonth).padStart(2, "0")}/${String(selectedDay).padStart(2, "0")}`;
       const res = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sessionDate,
-          startTime: time[0],
+          startTime: selectedTimeSlot,
           language: languages.find((l) => l.id === language)?.label || "English",
           sessionType: classType,
           reasonForLearning: reason || null,
@@ -130,10 +120,11 @@ export default function SessionsPage() {
       }
       const created = await res.json();
       setRequests((prev) => [created, ...prev]);
-      setDate(null);
-      setTime([]);
+      setSelectedDay("");
+      setSelectedMonth("");
+      setSelectedTimeSlot("");
       setReason("");
-      fetchWallet();
+      window.dispatchEvent(new Event("balance-update"));
     } catch (err) {
       setErrorMsg("خطا در برقراری ارتباط");
     } finally {
@@ -271,54 +262,48 @@ export default function SessionsPage() {
                 <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
                   تاریخ
                 </label>
-                <DatePicker
-                  value={date}
-                  onChange={(v) => setDate(v)}
-                  calendar={persian}
-                  locale={persian_fa}
-                  format="YYYY/MM/DD"
-                  placeholder="انتخاب تاریخ کلاس"
-                  containerClassName="w-full"
-                  inputClass="w-full outline-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all"
-                  calendarPosition="bottom-right"
-                />
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <select
+                      value={selectedDay}
+                      onChange={(e) => setSelectedDay(e.target.value)}
+                      className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all cursor-pointer">
+                      <option value="">روز</option>
+                      {days.map((d) => (
+                        <option key={d} value={d}>{d}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
+                  </div>
+                  <div className="relative flex-[2]">
+                    <select
+                      value={selectedMonth}
+                      onChange={(e) => setSelectedMonth(e.target.value)}
+                      className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all cursor-pointer">
+                      <option value="">ماه</option>
+                      {persianMonths.map((m, i) => (
+                        <option key={i} value={i + 1}>{m}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
                   ساعت پیشنهادی کلاس
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {timeSlots.map((t) => {
-                    const isSelected = time.includes(t);
-                    return (
-                      <button
-                        key={t}
-                        onClick={() =>
-                          setTime(
-                            isSelected
-                              ? time.filter((s) => s !== t)
-                              : [...time, t],
-                          )
-                        }
-                        className={`flex items-center justify-center gap-2 px-2 py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border-2 ${
-                          isSelected
-                            ? "border-green-500 text-green-600 dark:text-green-400 shadow-lg shadow-green-500/20 bg-transparent"
-                            : "border-[var(--dash-muted)]/20 text-[var(--dash-text)] hover:border-green-500/30 bg-transparent"
-                        }`}>
-                        <span
-                          className={`w-3.5 h-3.5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                            isSelected
-                              ? "border-green-500 bg-green-500"
-                              : "border-[var(--dash-muted)]"
-                          }`}>
-                          {isSelected && (
-                            <span className="w-1.5 h-1.5 rounded-full bg-white"></span>
-                          )}
-                        </span>
-                        {t}
-                      </button>
-                    );
-                  })}
+                <div className="relative">
+                  <select
+                    value={selectedTimeSlot}
+                    onChange={(e) => setSelectedTimeSlot(e.target.value)}
+                    className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all cursor-pointer">
+                    <option value="">انتخاب ساعت</option>
+                    {timeSlots.map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
+                  <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -377,39 +362,25 @@ export default function SessionsPage() {
             </div>
           </div>
 
-          {/* Wallet Balance */}
-          <div className="bg-[var(--hover-bg)] rounded-xl p-4 shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-[var(--dash-muted)]">
-                موجودی کیف پول
-              </span>
-              <span className={`text-sm font-bold ${walletBalance !== null && walletBalance > 0 ? "text-green-500" : "text-red-400"}`}>
-                {walletBalance !== null
-                  ? `${walletBalance.toLocaleString()} تومان`
-                  : "در حال بارگذاری..."}
-              </span>
-            </div>
-          </div>
-
           {/* Price */}
-          <div className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-lg">
+          <div className="bg-gradient-to-r from-green-500/15 to-emerald-500/10 border border-green-500/25 rounded-xl p-5 shadow-lg">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-[var(--dash-muted)]">
+              <span className="text-sm font-bold text-green-500">
                 قیمت هر جلسه
               </span>
               <div className="text-left">
                 {classType ? (
                   <div>
-                    <span className="text-sm font-medium text-[var(--dash-text)]">
+                    <span className="text-xl font-black text-[var(--dash-text)]">
                       {classType === "Private" ? "۴۰۰,۰۰۰" : "۱۵۰,۰۰۰"}
-                      <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
+                      <span className="text-sm font-bold text-[var(--dash-muted)] mr-1">
                         تومان
                       </span>
                     </span>
                     {classType === "Public" && (
-                      <div className="text-base font-bold text-[var(--dash-text)] mt-0.5">
+                      <div className="text-lg font-black text-[var(--dash-text)] mt-1">
                         {"۲,۲۵۰,۰۰۰"}
-                        <span className="text-xs font-medium text-[var(--dash-muted)] mr-1">
+                        <span className="text-sm font-bold text-[var(--dash-muted)] mr-1">
                           تومان / ۱۵ جلسه
                         </span>
                       </div>

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import data from "@/data.json";
-import { Calendar, FileText } from "lucide-react";
+import { FileText, BookOpen, Calendar } from "lucide-react";
 import { useSession } from "next-auth/react";
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
@@ -105,6 +105,11 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <WordOfTheDay />
+        <PhrasalVerbOfTheDay />
+      </div>
+
       {/* Download Books Section */}
       <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
         <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
@@ -150,6 +155,103 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function WordCard({
+  title,
+  word,
+  partOfSpeech,
+  meaning,
+  example,
+  gradient,
+  accentColor,
+  iconColor,
+}: {
+  title: string;
+  word: string;
+  partOfSpeech: string;
+  meaning: string;
+  example: string;
+  gradient: string;
+  accentColor: string;
+  iconColor: string;
+}) {
+  return (
+    <div
+      dir="ltr"
+      className={`relative ${gradient} rounded-2xl p-5 shadow-xl overflow-hidden group hover:${accentColor}/40 transition-all duration-300`}>
+      <div
+        className={`absolute top-0 right-0 w-32 h-32 ${accentColor}/5 rounded-full blur-3xl pointer-events-none`}
+      />
+      <div
+        className={`absolute bottom-0 left-0 w-24 h-24 ${accentColor}/5 rounded-full blur-2xl pointer-events-none`}
+      />
+
+      <div className="flex items-center gap-2 mb-3">
+        <BookOpen className={`w-4 h-4 ${iconColor}`} />
+        <span
+          className={`${iconColor} text-xs font-bold tracking-wider uppercase`}>
+          {title}
+        </span>
+      </div>
+
+      <div className="relative z-10">
+        <h3 className="text-white text-xl font-bold">{word}</h3>
+        <span
+          className={`inline-block px-2.5 py-0.5 rounded-full ${accentColor}/15 ${iconColor} text-xs font-medium mt-1.5 mb-3`}>
+          {partOfSpeech}
+        </span>
+
+        <div className="bg-white/5 rounded-xl p-3 mb-3">
+          <p className={`${iconColor} text-sm font-medium`}>{meaning}</p>
+        </div>
+
+        <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-3">
+          <p className="text-[#aaa] text-sm italic leading-relaxed">
+            &ldquo;{example}&rdquo;
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WordOfTheDay() {
+  const word = {
+    word: "Perseverance",
+    partOfSpeech: "noun",
+    meaning: "استقامت، پایداری",
+    example: "Her perseverance led her to success despite many challenges.",
+  };
+
+  return (
+    <WordCard
+      title="Word of Today"
+      gradient="bg-gradient-to-br from-[#1a2e1a] to-[#0d1f0d]"
+      accentColor="border-green-500"
+      iconColor="text-green-400"
+      {...word}
+    />
+  );
+}
+
+function PhrasalVerbOfTheDay() {
+  const phrase = {
+    word: "Carry On",
+    partOfSpeech: "phrasal verb",
+    meaning: "ادامه دادن",
+    example: "Even when things get tough, you have to carry on.",
+  };
+
+  return (
+    <WordCard
+      title="Phrasal Verb of Today"
+      gradient="bg-gradient-to-br from-[#2a1a2e] to-[#1a0d1f]"
+      accentColor="border-purple-500"
+      iconColor="text-purple-400"
+      {...phrase}
+    />
   );
 }
 

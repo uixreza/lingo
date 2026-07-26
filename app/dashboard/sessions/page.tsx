@@ -441,123 +441,138 @@ export default function SessionsPage() {
 
       {/* Left: Requests List (narrower) */}
       <div className="lg:col-span-2 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
-        <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
-          درخواست‌های من
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-[var(--dash-text)]">
+            درخواست‌های من
+          </h2>
+          <span className="text-xs bg-[var(--hover-bg)] text-[var(--dash-muted)] px-3 py-1 rounded-full">
+            {requests.length} مورد
+          </span>
+        </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 mb-6 flex-wrap">
+        <div className="flex gap-1.5 mb-6 p-1 bg-[var(--hover-bg)] rounded-xl">
           {(["all", "approved", "pending", "canceled"] as const).map((key) => (
             <button
               key={key}
               onClick={() => setFilter(key)}
-              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
                 filter === key
-                  ? "bg-green-500 text-black shadow-lg"
-                  : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                  ? "bg-green-500 text-black shadow-lg shadow-green-500/25"
+                  : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
               }`}>
               {key === "all" ? "همه" : statusLabel[key]}
             </button>
           ))}
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-3">
           {isLoading ? (
-            <div className="flex justify-center py-12">
+            <div className="flex justify-center py-16">
               <Loader2 className="h-6 w-6 animate-spin text-[var(--dash-muted)]" />
             </div>
           ) : filteredRequests.length === 0 ? (
-            <p className="text-[var(--dash-muted)] text-center py-12">
-              درخواستی یافت نشد
-            </p>
+            <div className="text-center py-16">
+              <CalendarDays className="h-10 w-10 mx-auto text-[var(--dash-muted)]/40 mb-3" />
+              <p className="text-[var(--dash-muted)] text-sm">
+                درخواستی یافت نشد
+              </p>
+            </div>
           ) : null}
           {filteredRequests.map((req) => {
             const StatusIcon = statusIcons[req.status];
             return (
               <div
                 key={req.id}
-                className="bg-[var(--hover-bg)] rounded-xl p-5 shadow-xl transition-all duration-200 hover:scale-[1.02]">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`p-2.5 rounded-xl ${statusBg[req.status]}`}>
-                      <StatusIcon
-                        className={`h-5 w-5 ${statusColors[req.status]}`}
-                      />
-                    </div>
-                    <div>
-                      <p className="font-bold text-[var(--dash-text)]">
-                        {req.language}
-                      </p>
-                      <p className="text-xs text-[var(--dash-muted)] mt-0.5">
-                        {req.type}
-                      </p>
-                    </div>
-                  </div>
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${statusBg[req.status]} ${statusColors[req.status]}`}>
-                    {statusLabel[req.status]}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-[var(--dash-muted)]">
-                  <span className="flex items-center gap-1.5">
-                    <CalendarDays className="h-3.5 w-3.5" />
-                    {req.date}
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <Clock className="h-3.5 w-3.5" />
-                    {req.time}
-                  </span>
-                </div>
-                {req.reason && (
-                  <p className="text-xs text-[var(--dash-muted)] mt-3 pr-1 border-r-2 border-[var(--dash-muted)]/30">
-                    {req.reason}
-                  </p>
-                )}
-
-                {req.status === "approved" && (
-                  <div className="mt-4 pt-4 border-t border-[var(--dash-muted)]/20 space-y-3">
-                    {"meetLink" in req && req.meetLink ? (
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                        <span className="text-xs truncate text-left font-mono flex-1" style={{ color: "var(--dash-text)", direction: "ltr" }}>
-                          {req.meetLink}
-                        </span>
-                        <button
-                          onClick={() => handleCopyLink(req.id, req.meetLink!)}
-                          className="p-1.5 rounded-lg hover:bg-white/10 transition-colors shrink-0">
-                          {copiedId === req.id ? (
-                            <span className="text-xs text-green-500 font-medium">کپی شد</span>
-                          ) : (
-                            <Copy className="h-3.5 w-3.5" style={{ color: "var(--dash-muted)" }} />
-                          )}
-                        </button>
+                className="bg-[var(--hover-bg)] rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+                <div className="p-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`p-1.5 rounded-lg ${statusBg[req.status]}`}>
+                        <StatusIcon className={`h-3.5 w-3.5 ${statusColors[req.status]}`} />
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 text-green-500 animate-spin shrink-0" />
-                        <span className="text-xs" style={{ color: "var(--dash-muted)" }}>
-                          لینک در تاریخ جلسه قرار داده می‌شود
-                        </span>
+                      <div className="min-w-0">
+                        <p className="font-bold text-sm text-[var(--dash-text)]">
+                          {req.language}
+                        </p>
+                        <p className="text-[10px] text-[var(--dash-muted)]">
+                          {req.type}
+                        </p>
                       </div>
-                    )}
-
-                    <a
-                      href={"meetLink" in req && req.meetLink ? req.meetLink : "#"}
-                      target={"meetLink" in req && req.meetLink ? "_blank" : "_self"}
-                      rel="noopener noreferrer"
-                      className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-sm font-bold transition-all duration-200 ${
-                        "meetLink" in req && req.meetLink
-                          ? "bg-green-500 text-black hover:bg-green-400 shadow-lg"
-                          : "bg-[var(--hover-bg)] text-[var(--dash-muted)] cursor-not-allowed opacity-60"
-                      }`}
-                      onClick={(e) => {
-                        if (!("meetLink" in req && req.meetLink)) e.preventDefault();
-                      }}>
-                      <Video className="h-4 w-4" />
-                      شرکت در کلاس
-                    </a>
+                    </div>
+                    <span className={`shrink-0 px-2.5 py-1 rounded-lg text-[10px] font-semibold ${statusBg[req.status]} ${statusColors[req.status]}`}>
+                      {statusLabel[req.status]}
+                    </span>
                   </div>
-                )}
+
+                  <div className="flex items-center gap-3 mt-3 text-[11px] text-[var(--dash-muted)]">
+                    <span className="flex items-center gap-1">
+                      <CalendarDays className="h-3 w-3" />
+                      {req.date}
+                    </span>
+                    <span className="w-1 h-1 rounded-full bg-[var(--dash-muted)]/20" />
+                    <span className="flex items-center gap-1">
+                      <Clock className="h-3 w-3" />
+                      {req.time}
+                    </span>
+                  </div>
+
+                  {req.reason && (
+                    <div className="mt-2.5 py-2 pr-2.5 border-r-2 border-[var(--dash-muted)]/10">
+                      <p className="text-[11px] text-[var(--dash-muted)]/60 leading-relaxed line-clamp-2">
+                        {req.reason}
+                      </p>
+                    </div>
+                  )}
+
+                  {req.status === "approved" && (
+                    <div className="mt-3 pt-3 border-t border-[var(--dash-muted)]/8 space-y-2.5">
+                      {"meetLink" in req && req.meetLink ? (
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 flex items-center gap-2 bg-black/20 rounded-lg px-3 py-2 min-w-0">
+                            <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                            <span className="text-[11px] font-mono truncate text-left" style={{ color: "var(--dash-text)", direction: "ltr" }}>
+                              {req.meetLink}
+                            </span>
+                          </div>
+                          <button
+                            onClick={() => handleCopyLink(req.id, req.meetLink!)}
+                            className="shrink-0 px-2.5 py-2 rounded-lg text-[11px] font-medium bg-[var(--hover-bg-strong)] hover:bg-white/10 transition-colors"
+                            style={{ color: "var(--dash-muted)" }}>
+                            {copiedId === req.id ? (
+                              <span className="text-green-500">کپی شد</span>
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 bg-black/20 rounded-lg px-3 py-2">
+                          <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin shrink-0" />
+                          <span className="text-[11px] text-[var(--dash-muted)]">
+                            لینک در تاریخ جلسه قرار داده می‌شود
+                          </span>
+                        </div>
+                      )}
+
+                      <a
+                        href={"meetLink" in req && req.meetLink ? req.meetLink : "#"}
+                        target={"meetLink" in req && req.meetLink ? "_blank" : "_self"}
+                        rel="noopener noreferrer"
+                        className={`flex items-center justify-center gap-1.5 w-full py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+                          "meetLink" in req && req.meetLink
+                            ? "bg-green-500 text-black hover:bg-green-400"
+                            : "bg-black/30 text-[var(--dash-muted)] cursor-not-allowed"
+                        }`}
+                        onClick={(e) => {
+                          if (!("meetLink" in req && req.meetLink)) e.preventDefault();
+                        }}>
+                        <Video className="h-3.5 w-3.5" />
+                        شرکت در کلاس
+                      </a>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })}

@@ -201,9 +201,9 @@ export async function POST(request: Request) {
     await prisma.transaction.create({
       data: {
         userId,
-        amount: -amountPaid,
-        balanceBefore: currentBalance,
-        balanceAfter: newBalance,
+        amount: BigInt(-amountPaid),
+        balanceBefore: BigInt(currentBalance),
+        balanceAfter: BigInt(newBalance),
         description: sessionType === "Private" ? "رزرو جلسه خصوصی" : "رزرو جلسه عمومی",
         status: "completed",
       },

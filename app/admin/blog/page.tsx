@@ -272,7 +272,7 @@ export default function BlogPage() {
                 محتوای پست
               </label>
               <div className="rounded-2xl border border-[var(--dash-muted)]/20 bg-[var(--dash-bg)] overflow-hidden focus-within:ring-2 focus-within:ring-green-500/50">
-                {editorReady && <Toolbar editor={editor} />}
+                {editorReady && <Toolbar editor={editor!} />}
                 <EditorContent
                   editor={editor}
                   className="min-h-[400px] prose prose-invert max-w-none px-4 py-3 [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[400px] [&_.ProseMirror_p]:my-1"

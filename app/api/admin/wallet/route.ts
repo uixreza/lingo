@@ -38,9 +38,6 @@ export async function GET() {
       where: { paymentStatus: "paid" },
       orderBy: { requestedAt: "desc" },
       take: 50,
-      include: {
-        user: { select: { fullname: true } },
-      },
       select: {
         id: true,
         user: { select: { fullname: true } },

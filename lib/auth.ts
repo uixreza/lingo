@@ -48,7 +48,6 @@ export const authOptions: NextAuthOptions = {
             if (!user || !user.isActive) return null;
             return {
               id: String(user.id),
-              userUuid: user.userUuid,
               phone: user.phone,
               fullname: user.fullname,
               role: user.role,
@@ -62,7 +61,6 @@ export const authOptions: NextAuthOptions = {
           if (!isValid) return null;
           return {
             id: String(user.id),
-            userUuid: user.userUuid,
             phone: user.phone,
             fullname: user.fullname,
             role: user.role,
@@ -79,7 +77,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id!;
-        token.userUuid = user.userUuid!;
         token.phone = user.phone!;
         token.fullname = user.fullname!;
         token.role = user.role!;
@@ -91,7 +88,6 @@ export const authOptions: NextAuthOptions = {
         ...session,
         user: {
           id: token.id as string,
-          userUuid: token.userUuid as string,
           phone: token.phone as string,
           fullname: token.fullname as string,
           role: token.role as string,

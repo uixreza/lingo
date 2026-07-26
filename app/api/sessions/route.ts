@@ -113,10 +113,10 @@ export async function GET() {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userUuid = session.user.userUuid;
+  const userId = parseInt(session.user.id, 10);
 
   const sessions = await prisma.session.findMany({
-    where: { userUuid },
+    where: { userId },
     orderBy: { requestedAt: "desc" },
     select: {
       id: true,
@@ -157,7 +157,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userUuid = sess.user.userUuid;
   const userId = parseInt(sess.user.id, 10);
   const body = await request.json();
   const { sessionDate, startTime, language, sessionType, reasonForLearning } = body;
@@ -212,7 +211,7 @@ export async function POST(request: Request) {
 
     const created = await prisma.session.create({
       data: {
-        userUuid,
+        userId,
         sessionDate: gregDate,
         startTime: timeDate,
         language: language || "English",

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@/app/generated/prisma";
+import { PrismaClient, FluencyLevel } from "@/app/generated/prisma";
 import { PrismaPg } from "@prisma/adapter-pg";
 import pg from "pg";
 import bcrypt from "bcryptjs";
@@ -72,15 +72,9 @@ export async function POST(req: NextRequest) {
             phone,
             email: `${phone}@lingofam.ir`,
             dateOfBirth: new Date("2000-01-01"),
-            fluencyLevel: "A1",
+            fluencyLevel: FluencyLevel.A1,
             passwordHash,
-            userId: Math.floor(Date.now() / 1000),
           },
-        });
-
-        await tx.user.update({
-          where: { id: newUser.id },
-          data: { userId: newUser.id },
         });
 
         await tx.wallet.create({
@@ -95,7 +89,6 @@ export async function POST(req: NextRequest) {
           message: "ثبت‌نام با موفقیت انجام شد",
           user: {
             id: user.id,
-            userUuid: user.userUuid,
             fullname: user.fullname,
             phone: user.phone,
             createdAt: user.createdAt,

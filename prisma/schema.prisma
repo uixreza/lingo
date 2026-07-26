@@ -16,7 +16,6 @@ datasource db {
 
 model User {
   id            Int       @id @default(autoincrement())
-  userUuid      String    @map("user_uuid") @unique @default(uuid())
   fullname      String    @db.VarChar(100)
   email         String    @unique @db.VarChar(100)
   phone         String    @unique @db.VarChar(11)
@@ -156,7 +155,7 @@ model TicketReply {
 
 model Session {
   id                Int       @id @default(autoincrement())
-  userUuid          String    @map("user_uuid")
+  userId            Int       @map("user_id")
   sessionDate       DateTime  @map("session_date") @db.Date
   startTime         DateTime  @map("start_time") @db.Time(0)
   language          String    @default("English") @db.VarChar(50)
@@ -171,12 +170,12 @@ model Session {
   approvedAt        DateTime? @map("approved_at") @db.Timestamp(3)
   cancelledAt       DateTime? @map("cancelled_at") @db.Timestamp(3)
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
-  sessionType       SessionType
-  user              User              @relation(fields: [userUuid], references: [userUuid], onDelete: Cascade)
+  sessionType       SessionType @map("session_type")  @default(Private)
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   sessionAuditLog   SessionAuditLog[]
 
-  @@index([userUuid, status])
+  @@index([userId, status])
   @@index([sessionDate])
   @@index([status])
   @@map("sessions")

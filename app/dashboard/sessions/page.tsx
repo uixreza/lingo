@@ -18,6 +18,8 @@ import {
   Video,
   ChevronDown,
 } from "lucide-react";
+import moment from "moment-jalaali";
+import toast, { Toaster } from "react-hot-toast";
 
 const timeSlots = ["08:30", "10:00", "12:30", "15:00", "17:00", "19:00"];
 
@@ -27,6 +29,10 @@ const persianMonths = [
 ];
 
 const days = Array.from({ length: 31 }, (_, i) => i + 1);
+
+function getCurrentJalaliYear() {
+  return parseInt(moment().format("jYYYY"));
+}
 
 const languages = [
   { id: "en", label: "English", flag: "🇬🇧", available: true },
@@ -62,6 +68,11 @@ export default function SessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [currentMonth, setCurrentMonth] = useState(0);
+
+  const availableMonths = mounted
+    ? persianMonths.slice(currentMonth - 1)
+    : persianMonths;
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -71,6 +82,7 @@ export default function SessionsPage() {
 
   useEffect(() => {
     setMounted(true);
+    setCurrentMonth(parseInt(moment().format("jM")));
     const fetchSessions = async () => {
       try {
         const res = await fetch("/api/sessions");
@@ -97,7 +109,7 @@ export default function SessionsPage() {
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      const sessionDate = `${new Date().getFullYear()}/${String(selectedMonth).padStart(2, "0")}/${String(selectedDay).padStart(2, "0")}`;
+      const sessionDate = `${getCurrentJalaliYear()}/${String(selectedMonth).padStart(2, "0")}/${String(selectedDay).padStart(2, "0")}`;
       const res = await fetch("/api/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -110,12 +122,15 @@ export default function SessionsPage() {
         }),
       });
       if (res.status === 402) {
-        window.location.href = "/dashboard/wallet";
+        toast.error("موجودی کیف پول کافی نیست");
+        setTimeout(() => { window.location.href = "/dashboard/wallet"; }, 1500);
         return;
       }
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        setErrorMsg(data.error || `خطا (کد ${res.status})`);
+        const msg = data.error || `خطا (کد ${res.status})`;
+        setErrorMsg(msg);
+        toast.error(msg);
         return;
       }
       const created = await res.json();
@@ -124,6 +139,7 @@ export default function SessionsPage() {
       setSelectedMonth("");
       setSelectedTimeSlot("");
       setReason("");
+      toast.success("درخواست جلسه شما با موفقیت ثبت شد");
       window.dispatchEvent(new Event("balance-update"));
     } catch (err) {
       setErrorMsg("خطا در برقراری ارتباط");
@@ -157,7 +173,9 @@ export default function SessionsPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+    <>
+      <Toaster position="top-center" toastOptions={{ style: { direction: "rtl", fontFamily: "inherit" } }} />
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
       {/* Right: Request Form (wider) */}
       <div className="lg:col-span-3 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
         <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
@@ -276,14 +294,14 @@ export default function SessionsPage() {
                     <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
                   </div>
                   <div className="relative flex-[2]">
-                    <select
-                      value={selectedMonth}
-                      onChange={(e) => setSelectedMonth(e.target.value)}
-                      className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all cursor-pointer">
-                      <option value="">ماه</option>
-                      {persianMonths.map((m, i) => (
-                        <option key={i} value={i + 1}>{m}</option>
-                      ))}
+                      <select
+                        value={selectedMonth}
+                        onChange={(e) => setSelectedMonth(e.target.value)}
+                        className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all cursor-pointer">
+                        <option value="">ماه</option>
+                        {availableMonths.map((m, i) => (
+                          <option key={i} value={i + currentMonth}>{m}</option>
+                        ))}
                     </select>
                     <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
                   </div>
@@ -546,5 +564,6 @@ export default function SessionsPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

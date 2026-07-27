@@ -38,7 +38,7 @@ export async function GET() {
       time: `${pad(timeHours)}:${pad(timeMinutes)}`,
       language: s.language,
       type: s.sessionType,
-      status: s.status.toLowerCase(),
+      status: s.status,
       meetLink: s.meetUrl,
       reason: s.reasonForLearning,
     };
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
         sessionType: sessionType === "Private" ? "Private" : "Public",
         reasonForLearning: reasonForLearning || null,
         amountPaid,
-        status: "pending",
+        status: "Pending",
         paymentStatus: "paid",
       },
     });

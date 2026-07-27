@@ -110,14 +110,14 @@ export async function GET() {
     return {
       id: s.id,
       studentName: s.user.fullname,
-      studentEmail: s.user.email,
+      studentEmail: s.user.email ?? "",
       date: gregToJalaliStr(s.sessionDate),
       time: `${pad(timeHours)}:${pad(timeMinutes)}`,
       language: s.language,
       level: s.user.fluencyLevel || "A1",
       type: s.sessionType,
       reason: s.reasonForLearning,
-      status: s.status.toLowerCase(),
+      status: s.status,
       meetLink: s.meetUrl || "",
     };
   });
@@ -144,10 +144,10 @@ export async function PATCH(request: Request) {
   }
 
   const updateData: Record<string, unknown> = {};
-  if (status && status !== existing.status.toLowerCase()) {
+  if (status && status !== existing.status) {
     updateData.status = status;
-    if (status === "approved") updateData.approvedAt = new Date();
-    if (status === "canceled") updateData.cancelledAt = new Date();
+    if (status === "Approved") updateData.approvedAt = new Date();
+    if (status === "Canceled") updateData.cancelledAt = new Date();
   }
   if (meetUrl !== undefined) {
     updateData.meetUrl = meetUrl || null;
@@ -161,7 +161,7 @@ export async function PATCH(request: Request) {
     const oldStatus = existing.status;
     const newStatus = updateData.status as string | undefined;
 
-    if (newStatus && newStatus !== oldStatus.toLowerCase()) {
+    if (newStatus && newStatus !== oldStatus) {
       await tx.sessionAuditLog.create({
         data: {
           sessionId: id,
@@ -201,7 +201,7 @@ export async function PATCH(request: Request) {
     level: updated.user.fluencyLevel || "A1",
     type: updated.sessionType,
     reason: updated.reasonForLearning,
-    status: updated.status.toLowerCase(),
+    status: updated.status,
     meetLink: updated.meetUrl || "",
   });
 }

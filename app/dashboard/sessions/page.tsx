@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import {
   Lock,
   Globe,
@@ -56,12 +57,12 @@ type SessionItem = {
   time: string;
   language: string;
   type: string;
-  status: "approved" | "pending" | "canceled";
+  status: "Approved" | "Pending" | "Canceled";
   meetLink?: string | null;
   reason?: string | null;
 };
 
-type RequestStatus = "approved" | "pending" | "canceled";
+type RequestStatus = "Approved" | "Pending" | "Canceled";
 
 export default function SessionsPage() {
   const [selectedDay, setSelectedDay] = useState("");
@@ -166,24 +167,24 @@ export default function SessionsPage() {
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
 
   const statusIcons = {
-    approved: CheckCircle,
-    pending: Hourglass,
-    canceled: XCircle,
+    Approved: CheckCircle,
+    Pending: Hourglass,
+    Canceled: XCircle,
   };
   const statusColors = {
-    approved: "text-green-500",
-    pending: "text-orange-500",
-    canceled: "text-red-500",
+    Approved: "text-green-500",
+    Pending: "text-orange-500",
+    Canceled: "text-red-500",
   };
   const statusBg = {
-    approved: "bg-green-500/10",
-    pending: "bg-orange-500/10",
-    canceled: "bg-red-500/10",
+    Approved: "bg-green-500/10",
+    Pending: "bg-orange-500/10",
+    Canceled: "bg-red-500/10",
   };
   const statusLabel = {
-    approved: "تأیید شده",
-    pending: "در انتظار",
-    canceled: "لغو شده",
+    Approved: "تأیید شده",
+    Pending: "در انتظار",
+    Canceled: "لغو شده",
   };
 
   return (
@@ -447,8 +448,14 @@ export default function SessionsPage() {
                 </span>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center text-white font-black text-lg shrink-0 shadow-lg shadow-purple-500/20">
-                  RK
+                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 shadow-lg shadow-purple-500/20">
+                  <Image
+                    src="/me.png"
+                    alt="رضا کمالی"
+                    width={56}
+                    height={56}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <div className="flex-1 min-w-0 space-y-1">
                   <p className="text-sm font-bold text-[var(--dash-text)]">
@@ -561,7 +568,7 @@ export default function SessionsPage() {
 
           {/* Filter Tabs */}
           <div className="flex gap-1.5 mb-6 p-1 bg-[var(--hover-bg)] rounded-xl">
-            {(["all", "approved", "pending", "canceled"] as const).map(
+            {(["all", "Approved", "Pending", "Canceled"] as const).map(
               (key) => (
                 <button
                   key={key}
@@ -640,7 +647,7 @@ export default function SessionsPage() {
                       </div>
                     )}
 
-                        {req.status === "approved" && (
+                        {req.status === "Approved" && (
                       <div className="mt-4 pt-4 border-t border-[var(--dash-muted)]/8 space-y-3">
                         {"meetLink" in req && req.meetLink ? (
                           <div className="flex items-center gap-2">

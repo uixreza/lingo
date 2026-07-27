@@ -30,7 +30,7 @@ type Notification = {
 type UserOption = {
   id: number;
   fullname: string;
-  email: string;
+  email: string | null;
 };
 
 const types = [
@@ -269,7 +269,7 @@ export default function NotificationPage() {
                   <option value="all">همه کاربران</option>
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
-                      {u.fullname} ({u.email})
+                      {u.fullname} ({u.email ?? "---"})
                     </option>
                   ))}
                 </select>

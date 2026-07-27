@@ -17,6 +17,7 @@ import {
   Calendar,
   Award,
 } from "lucide-react";
+import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 
 export default function AccountPage() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -52,7 +53,7 @@ export default function AccountPage() {
           const data = await res.json();
           setUserData({
             name: data.name,
-            email: data.email,
+            email: data.email ?? "",
             phone: data.phone,
           });
           if (data.birthDate)
@@ -164,14 +165,7 @@ export default function AccountPage() {
   ];
 
   if (isLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-          <p className="text-[var(--dash-text)]">در حال بارگذاری...</p>
-        </div>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (

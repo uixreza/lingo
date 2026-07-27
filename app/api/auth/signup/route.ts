@@ -70,8 +70,8 @@ export async function POST(req: NextRequest) {
           data: {
             fullname,
             phone,
-            email: `${phone}@lingofam.ir`,
-            dateOfBirth: new Date("2000-01-01"),
+            email: null,
+            dateOfBirth: null,
             fluencyLevel: FluencyLevel.A1,
             passwordHash,
           },

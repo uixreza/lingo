@@ -17,12 +17,12 @@ import {
   Loader2,
 } from "lucide-react";
 
-type SessionStatus = "approved" | "pending" | "canceled";
+type SessionStatus = "Approved" | "Pending" | "Canceled";
 
 interface SessionRequest {
   id: number;
   studentName: string;
-  studentEmail: string;
+  studentEmail: string | null;
   date: string;
   time: string;
   language: string;
@@ -67,7 +67,7 @@ export default function AdminSessionsPage() {
     const matchesSearch =
       searchQuery === "" ||
       s.studentName.includes(searchQuery) ||
-      s.studentEmail.includes(searchQuery) ||
+      (s.studentEmail ?? "").includes(searchQuery) ||
       s.language.includes(searchQuery);
     return matchesFilter && matchesSearch;
   });
@@ -113,21 +113,21 @@ export default function AdminSessionsPage() {
   };
 
   const statusConfig = {
-    approved: {
+    Approved: {
       label: "تأیید شده",
       color: "text-green-500",
       bg: "bg-green-500/10",
       border: "border-green-500/20",
       icon: CheckCircle,
     },
-    pending: {
+    Pending: {
       label: "در انتظار",
       color: "text-orange-500",
       bg: "bg-orange-500/10",
       border: "border-orange-500/20",
       icon: Hourglass,
     },
-    canceled: {
+    Canceled: {
       label: "لغو شده",
       color: "text-red-500",
       bg: "bg-red-500/10",
@@ -152,19 +152,19 @@ export default function AdminSessionsPage() {
             },
             {
               label: "تأیید شده",
-              value: sessions.filter((s) => s.status === "approved").length,
+              value: sessions.filter((s) => s.status === "Approved").length,
               color: "text-green-500",
               bg: "bg-green-500/10",
             },
             {
               label: "در انتظار",
-              value: sessions.filter((s) => s.status === "pending").length,
+              value: sessions.filter((s) => s.status === "Pending").length,
               color: "text-orange-500",
               bg: "bg-orange-500/10",
             },
             {
               label: "لغو شده",
-              value: sessions.filter((s) => s.status === "canceled").length,
+              value: sessions.filter((s) => s.status === "Canceled").length,
               color: "text-red-500",
               bg: "bg-red-500/10",
             },
@@ -214,7 +214,7 @@ export default function AdminSessionsPage() {
               <div
                 className="flex border-b"
                 style={{ borderColor: "var(--dash-bg)" }}>
-                {(["all", "pending", "approved", "canceled"] as const).map(
+                {(["all", "Pending", "Approved", "Canceled"] as const).map(
                   (key) => (
                     <button
                       key={key}
@@ -333,7 +333,7 @@ export default function AdminSessionsPage() {
                       <p
                         className="text-sm mt-1"
                         style={{ color: "var(--dash-muted)" }}>
-                        {selectedSession.studentEmail}
+                        {selectedSession.studentEmail ?? "---"}
                       </p>
                     </div>
                     <span
@@ -476,7 +476,7 @@ export default function AdminSessionsPage() {
 
                 {/* Status Management */}
                 <div className="p-6 flex flex-col sm:flex-row gap-3">
-                  {(["approved", "pending", "canceled"] as const).map(
+                  {(["Approved", "Pending", "Canceled"] as const).map(
                     (status) => {
                       const isActive = selectedSession.status === status;
                       return (

@@ -124,7 +124,7 @@ export async function GET() {
     name: user.fullname,
     email: user.email,
     phone: user.phone,
-    birthDate: gregToJalaliStr(user.dateOfBirth),
+    birthDate: user.dateOfBirth ? gregToJalaliStr(user.dateOfBirth) : null,
     fluencyLevel: user.fluencyLevel,
   });
 }
@@ -166,7 +166,7 @@ export async function PUT(request: Request) {
     name: updated.fullname,
     email: updated.email,
     phone: updated.phone,
-    birthDate: gregToJalaliStr(updated.dateOfBirth),
+    birthDate: updated.dateOfBirth ? gregToJalaliStr(updated.dateOfBirth) : null,
     fluencyLevel: updated.fluencyLevel,
   });
 }

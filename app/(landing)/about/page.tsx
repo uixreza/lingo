@@ -82,7 +82,7 @@ export default function About() {
           <div className="relative">
             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-[#050505] shadow-xl">
               <Image
-                src="/rez.jpg"
+                src="/me.png"
                 alt="رضا کمالی"
                 width={128}
                 height={128}

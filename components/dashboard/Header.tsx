@@ -8,7 +8,6 @@ import {
   Zap,
   ChevronLeft,
   Bell,
-  Menu,
 } from "lucide-react";
 import Link from "next/link";
 import { JSX, useState, useEffect } from "react";
@@ -39,7 +38,6 @@ export default function Header({ user }: { user: User }) {
   } = user;
 
   const [realBalance, setRealBalance] = useState<number | null>(null);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const fetchBalance = async () => {
     try {
@@ -88,13 +86,6 @@ export default function Header({ user }: { user: User }) {
       <div className="flex items-center justify-between">
         {/* Left: Profile with Gamification */}
         <div className="flex items-center gap-3 sm:gap-4">
-          {/* Mobile Menu Button - Hidden on desktop */}
-          <button
-            className="lg:hidden p-2 rounded-xl bg-[var(--hover-bg)] shadow-lg"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            <Menu className="h-5 w-5 text-[var(--header-text)]" />
-          </button>
-
           {/* Profile Image with Level Badge */}
           <div className="relative group">
             <div className="relative">
@@ -151,7 +142,7 @@ export default function Header({ user }: { user: User }) {
 
             {/* Badges */}
             {badges.length > 0 && (
-              <div className="hidden sm:flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 {badges.slice(0, 3).map((badge, index) => (
                   <div key={badge} className="group relative">
                     <div className={`${badgeColors[badge] || "bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"} rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200`}>
@@ -206,49 +197,6 @@ export default function Header({ user }: { user: User }) {
         </div>
       </div>
 
-      {/* Mobile Menu - Shows on small screens */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden mt-4 pt-4 ">
-          {/* Mobile XP Progress Bar */}
-          <div className="flex items-center gap-3 mb-3">
-            <div className="flex-1 bg-[var(--hover-bg-strong)] rounded-full h-2 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] h-full rounded-full transition-all duration-500 ease-out shadow-lg"
-                style={{ width: `${Math.min(xpProgress, 100)}%` }}
-              />
-            </div>
-            <span className="text-[var(--text-muted)] text-sm font-medium min-w-[60px]">
-              {xp} XP
-            </span>
-          </div>
-
-          {/* Mobile Badges */}
-          {badges.length > 0 && (
-            <div className="flex items-center gap-2 mb-3">
-              <span className="text-[var(--text-muted)] text-sm mr-2">
-                مدال‌ها:
-              </span>
-              {badges.slice(0, 4).map((badge, index) => (
-                <div key={badge} className="group relative">
-                  <div className={`${badgeColors[badge] || "bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"} rounded-lg p-1.5 shadow-lg`}>
-                    <div>
-                      {badgeIcons[badge] || <Star className="h-3 w-3" />}
-                    </div>
-                  </div>
-                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10 ">
-                    {badgeNames[badge] || badge}
-                  </div>
-                </div>
-              ))}
-              {badges.length > 4 && (
-                <div className="bg-[var(--hover-bg-strong)] rounded-lg px-2 py-1  text-[var(--icon-muted)] text-xs font-medium shadow-lg">
-                  +{badges.length - 4}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
     </header>
   );
 }

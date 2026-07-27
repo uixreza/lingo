@@ -45,7 +45,16 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
+      <div className="relative bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 overflow-hidden">
+        <div
+          className="absolute inset-0 opacity-[0.04]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='3' cy='3' r='1.5' fill='white' fill-opacity='0.8'/%3E%3Ccircle cx='13' cy='3' r='1.5' fill='white' fill-opacity='0.8'/%3E%3Ccircle cx='3' cy='13' r='1.5' fill='white' fill-opacity='0.8'/%3E%3Ccircle cx='13' cy='13' r='1.5' fill='white' fill-opacity='0.8'/%3E%3C/svg%3E")`,
+            backgroundSize: "20px 20px",
+            backgroundRepeat: "repeat",
+          }}
+        />
+        <div className="relative z-10">
         <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
           <div>
             <div className="inline-block px-4 py-1.5 rounded-full bg-green-500 text-black text-xs font-bold mb-3">
@@ -103,6 +112,7 @@ export default function DashboardPage() {
             icon={FileText}
           />
         </div>
+      </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

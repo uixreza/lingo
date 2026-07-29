@@ -113,7 +113,6 @@ export async function GET() {
       phone: true,
       dateOfBirth: true,
       fluencyLevel: true,
-      gender: true,
       avatarSeed: true,
     },
   });
@@ -163,7 +162,6 @@ export async function PUT(request: Request) {
       phone: true,
       dateOfBirth: true,
       fluencyLevel: true,
-      gender: true,
       avatarSeed: true,
     },
   });

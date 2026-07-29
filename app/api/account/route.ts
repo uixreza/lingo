@@ -113,6 +113,8 @@ export async function GET() {
       phone: true,
       dateOfBirth: true,
       fluencyLevel: true,
+      gender: true,
+      avatarSeed: true,
     },
   });
 
@@ -126,6 +128,7 @@ export async function GET() {
     phone: user.phone,
     birthDate: user.dateOfBirth ? gregToJalaliStr(user.dateOfBirth) : null,
     fluencyLevel: user.fluencyLevel,
+    avatarSeed: user.avatarSeed,
   });
 }
 
@@ -137,7 +140,7 @@ export async function PUT(request: Request) {
 
   const userId = parseInt(session.user.id, 10);
   const body = await request.json();
-  const { name, email, phone, birthDate, fluencyLevel } = body;
+  const { name, email, phone, birthDate, fluencyLevel, avatarSeed } = body;
 
   const updateData: Record<string, unknown> = {};
   if (name !== undefined) updateData.fullname = name;
@@ -145,6 +148,7 @@ export async function PUT(request: Request) {
   if (phone !== undefined) updateData.phone = phone;
   if (birthDate !== undefined) updateData.dateOfBirth = jalaliStrToDate(birthDate);
   if (fluencyLevel !== undefined && fluencyLevel !== null) updateData.fluencyLevel = fluencyLevel;
+  if (avatarSeed !== undefined) updateData.avatarSeed = avatarSeed;
 
   if (Object.keys(updateData).length === 0) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
@@ -159,6 +163,8 @@ export async function PUT(request: Request) {
       phone: true,
       dateOfBirth: true,
       fluencyLevel: true,
+      gender: true,
+      avatarSeed: true,
     },
   });
 
@@ -168,5 +174,6 @@ export async function PUT(request: Request) {
     phone: updated.phone,
     birthDate: updated.dateOfBirth ? gregToJalaliStr(updated.dateOfBirth) : null,
     fluencyLevel: updated.fluencyLevel,
+    avatarSeed: updated.avatarSeed,
   });
 }

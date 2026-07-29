@@ -81,16 +81,16 @@
 :root {
   --light-purple: #b1d3b9;
   --dark-purple: #9abfa3;
-  --dash-sides: #f5faf2;
+  --dash-sides: #EAECF0;
   --dash-accent: #b1d3b9;
   --dash-text: #1a2e24;
   --dash-muted: #6b8f7a;
-  --dash-bg: #e9f0e3;
-  --sidebar-bg: #e6f2dd;
+  --dash-bg: #EAECF0;
+  --sidebar-bg: #EAECF0;
   --sidebar-text: #2d4a3e;
   --sidebar-text-hover: #1a2e24;
   --sidebar-heading: #1a2e24;
-  --header-bg: #e6f2dd;
+  --header-bg: #EAECF0;
   --header-text: #1a2e24;
   --danger: #e57373;
   --danger-hover-bg: rgba(229, 115, 115, 0.1);

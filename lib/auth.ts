@@ -51,6 +51,8 @@ export const authOptions: NextAuthOptions = {
               phone: user.phone,
               fullname: user.fullname,
               role: user.role,
+              gender: user.gender,
+              avatarSeed: user.avatarSeed,
             };
           }
 
@@ -64,7 +66,9 @@ export const authOptions: NextAuthOptions = {
             phone: user.phone,
             fullname: user.fullname,
             role: user.role,
-          };
+            gender: user.gender,
+            avatarSeed: user.avatarSeed,
+            };
         } catch (error) {
           console.error("Authorize error:", error);
           return null;
@@ -80,6 +84,8 @@ export const authOptions: NextAuthOptions = {
         token.phone = user.phone!;
         token.fullname = user.fullname!;
         token.role = user.role!;
+        token.gender = user.gender as "Male" | "Female";
+        token.avatarSeed = user.avatarSeed as string | undefined;
       }
       return token;
     },
@@ -91,6 +97,8 @@ export const authOptions: NextAuthOptions = {
           phone: token.phone as string,
           fullname: token.fullname as string,
           role: token.role as string,
+          gender: token.gender as "Male" | "Female",
+          avatarSeed: token.avatarSeed as string | undefined,
         },
       };
     },

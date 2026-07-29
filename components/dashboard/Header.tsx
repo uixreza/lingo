@@ -1,17 +1,17 @@
 // components/dashboard/Header.tsx
 "use client";
-import Image from "next/image";
 import {
   Wallet,
   Star,
-  Trophy,
+  Gem,
   Zap,
   ChevronLeft,
   Bell,
 } from "lucide-react";
 import Link from "next/link";
-import { JSX, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Avatar from "./Avatar";
 
 type User = {
   name: string;
@@ -29,12 +29,10 @@ export default function Header({ user }: { user: User }) {
 
   const {
     name: _name,
-    image,
     balance,
     level = 1,
     xp = 0,
     streak = 0,
-    badges = ["quick_learner", "consistent"],
   } = user;
 
   const [realBalance, setRealBalance] = useState<number | null>(null);
@@ -62,25 +60,6 @@ export default function Header({ user }: { user: User }) {
   const xpForNextLevel = 1000;
   const xpProgress = (xp / xpForNextLevel) * 100;
 
-  // Badge icons mapping
-  const badgeIcons: { [key: string]: JSX.Element } = {
-    quick_learner: <Zap className="h-3 w-3" />,
-    consistent: <Trophy className="h-3 w-3" />,
-    star_student: <Star className="h-3 w-3" />,
-  };
-
-  const badgeNames: { [key: string]: string } = {
-    quick_learner: "یادگیرنده سریع",
-    consistent: "منظم",
-    star_student: "ستاره درخشان",
-  };
-
-  const badgeColors: { [key: string]: string } = {
-    quick_learner: "bg-purple-500/20 text-purple-400",
-    consistent: "bg-blue-500/20 text-blue-400",
-    star_student: "bg-yellow-500/20 text-yellow-400",
-  };
-
   return (
     <header className="bg-[var(--header-bg)] backdrop-blur-2xl shadow-sm px-4 sm:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
@@ -88,22 +67,12 @@ export default function Header({ user }: { user: User }) {
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Profile Image with Level Badge */}
           <div className="relative group">
-            <div className="relative">
-              {image ? (
-                <Image
-                  src={image}
-                  alt={displayName}
-                  width={48}
-                  height={48}
-                  className="rounded-2xl object-cover shadow-lg transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14"
-                />
-              ) : (
-                <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-[var(--hover-bg-strong)]  flex items-center justify-center shadow-lg">
-                  <span className="text-[var(--header-text)] font-bold text-lg sm:text-xl">
-                    {displayName.charAt(0)}
-                  </span>
-                </div>
-              )}
+            <div className="relative bg-[var(--hover-bg-strong)] rounded-2xl p-0.5">
+              <Avatar
+                seed={session?.user?.avatarSeed || displayName}
+                size={56}
+                className="rounded-xl w-12 h-12 sm:w-14 sm:h-14"
+              />
               <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
                 {level}
               </div>
@@ -140,28 +109,25 @@ export default function Header({ user }: { user: User }) {
               </span>
             </div>
 
-            {/* Badges */}
-            {badges.length > 0 && (
-              <div className="flex items-center gap-2">
-                {badges.slice(0, 3).map((badge, index) => (
-                  <div key={badge} className="group relative">
-                    <div className={`${badgeColors[badge] || "bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"} rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200`}>
-                      <div>
-                        {badgeIcons[badge] || <Star className="h-3 w-3" />}
-                      </div>
-                    </div>
-                    <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10 ">
-                      {badgeNames[badge] || badge}
-                    </div>
-                  </div>
-                ))}
-                {badges.length > 3 && (
-                  <div className="bg-[var(--hover-bg-strong)] rounded-lg px-2 py-1  text-[var(--icon-muted)] text-xs font-medium shadow-lg">
-                    +{badges.length - 3}
-                  </div>
-                )}
+            {/* Pro & Loyalty Badges */}
+            <div className="flex items-center gap-2">
+              <div className="group relative">
+                <div className="bg-purple-500/15 text-purple-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                  <Star className="h-3 w-3 fill-purple-400" />
+                </div>
+                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                  کاربر ویژه (Pro)
+                </div>
               </div>
-            )}
+              <div className="group relative">
+                <div className="bg-amber-500/15 text-amber-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                  <Gem className="h-3 w-3" />
+                </div>
+                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                  کاربر وفادار
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -187,8 +153,16 @@ export default function Header({ user }: { user: User }) {
               <div className="text-[var(--text-muted)] text-[10px] xs:text-xs">
                 موجودی
               </div>
-              <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate">
-                {(realBalance ?? 0).toLocaleString("fa-IR")}
+               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate min-h-[1.25em]">
+                {realBalance === null ? (
+                  <span className="flex items-end gap-1 mt-1" dir="ltr">
+                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </span>
+                ) : (
+                  realBalance.toLocaleString("fa-IR")
+                )}
               </div>
             </div>
 

@@ -20,6 +20,7 @@ model User {
   email         String?    @unique @db.VarChar(100)
   phone         String    @unique @db.VarChar(11)
   dateOfBirth   DateTime?  @map("date_of_birth") @db.Date
+  avatarSeed    String?   @map("avatar_seed")
   fluencyLevel  FluencyLevel    @map("fluency_level") 
   passwordHash  String    @map("password_hash") @db.VarChar(255)
   isVerified    Boolean   @default(false) @map("is_verified")

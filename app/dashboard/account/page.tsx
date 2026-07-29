@@ -16,8 +16,10 @@ import {
   Phone,
   Calendar,
   Award,
+  RefreshCw,
 } from "lucide-react";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
+import Avatar from "@/components/dashboard/Avatar";
 
 export default function AccountPage() {
   const [activeTab, setActiveTab] = useState("profile");
@@ -40,6 +42,7 @@ export default function AccountPage() {
   });
 
   const [level, setLevel] = useState("");
+  const [avatarSeed, setAvatarSeed] = useState("");
   const [saveMessage, setSaveMessage] = useState<{
     type: "success" | "error";
     text: string;
@@ -61,6 +64,7 @@ export default function AccountPage() {
               new DateObject(data.birthDate).convert(persian, persian_fa),
             );
           setLevel(data.fluencyLevel ?? "");
+          setAvatarSeed(data.avatarSeed ?? data.phone);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -110,6 +114,20 @@ export default function AccountPage() {
       setSaveMessage({ type: "error", text: "خطا در ذخیره اطلاعات" });
     }
     setTimeout(() => setSaveMessage(null), 3000);
+  };
+
+  const handleRotateAvatar = async () => {
+    const newSeed = Math.random().toString(36).substring(2, 10);
+    setAvatarSeed(newSeed);
+    try {
+      await fetch("/api/account", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ avatarSeed: newSeed }),
+      });
+    } catch {
+      // background save, revert not needed
+    }
   };
 
   const handleChangePassword = async () => {
@@ -187,8 +205,20 @@ export default function AccountPage() {
             <div className="sticky top-8 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 space-y-6">
               {/* User Card */}
               <div className="text-center">
-                <div className="w-20 h-20 rounded-2xl bg-green-500 flex items-center justify-center mx-auto shadow-xl">
-                  <User className="h-8 w-8 text-black" />
+                <div className="relative inline-flex">
+                  <div className="bg-[var(--hover-bg-strong)] rounded-2xl p-1">
+                    <Avatar
+                      seed={avatarSeed}
+                      size={80}
+                      className="rounded-xl"
+                    />
+                  </div>
+                  <button
+                    onClick={handleRotateAvatar}
+                    className="absolute -bottom-1 -left-1 bg-[var(--dash-sides)] hover:bg-[var(--hover-bg-strong)] rounded-full p-1.5 shadow-lg transition-all duration-200 border border-[var(--hover-bg-strong)]"
+                    title="تغییر تصویر پروفایل">
+                    <RefreshCw className="h-4 w-4 text-[var(--dash-text)]" />
+                  </button>
                 </div>
                 <p className="font-bold text-[var(--dash-text)] mt-4 text-lg">
                   {userData.name || "کاربر"}
@@ -359,6 +389,7 @@ export default function AccountPage() {
                       درخواست رایگان تعیین سطح (تلگرام)
                     </a>
                   </div>
+
                 </div>
               )}
 

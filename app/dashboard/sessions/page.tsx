@@ -19,6 +19,8 @@ import {
   ExternalLink,
   Video,
   ChevronDown,
+  RefreshCw,
+  Check,
 } from "lucide-react";
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
@@ -33,24 +35,23 @@ const languages = [
 ];
 
 const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
-const persianMonthNames = [
+const jMonthNames = [
   "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
   "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
 ];
 
-function generateMonthCells(year: number, month: number) {
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-  const daysInMonth = lastDay.getDate();
-  const startWeekday = firstDay.getDay();
+function generateJalaaliMonthCells(jYear: number, jMonth: number) {
+  const firstDay = moment(`${jYear}/${jMonth + 1}/1`, "jYYYY/jM/jD");
+  const daysInMonth = firstDay.daysInMonth();
+  const startWeekday = (firstDay.day() + 1) % 7;
   const cells: (number | null)[] = [];
   for (let i = 0; i < startWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) cells.push(d);
   return cells;
 }
 
-function toDateStr(year: number, month: number, day: number) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+function jToDateStr(jYear: number, jMonth: number, jDay: number) {
+  return `${jYear}/${String(jMonth + 1).padStart(2, "0")}/${String(jDay).padStart(2, "0")}`;
 }
 
 function toPersianDigits(n: string) {
@@ -126,13 +127,11 @@ export default function SessionsPage() {
     try {
       let successCount = 0;
       for (const dateStr of selectedDates) {
-        const gregDate = new Date(dateStr);
-        const jalali = moment(gregDate).format("jYYYY/jMM/jDD");
         const res = await fetch("/api/sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            sessionDate: jalali,
+            sessionDate: dateStr,
             startTime: selectedTimeSlot,
             language:
               languages.find((l) => l.id === language)?.label || "English",
@@ -196,6 +195,40 @@ export default function SessionsPage() {
 
   return (
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+        {/* Pro Section (mobile only - above form) */}
+        <div className="lg:hidden bg-purple-500/10 backdrop-blur-xl rounded-xl p-4 ring-1 ring-purple-500/30 shadow-sm">
+          <div className="flex items-start gap-3 mb-3">
+            <div className="p-2 rounded-lg bg-purple-500/15 shrink-0">
+              <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-sm font-bold text-[var(--dash-text)]">
+                  کاربر ویژه (Pro)
+                </span>
+                <span className="text-[10px] bg-purple-500/15 text-purple-500 px-1.5 py-0.5 rounded font-medium">
+                  اشتراک فعال
+                </span>
+              </div>
+              <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+                کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس رضا کمالی
+              </p>
+            </div>
+          </div>
+          <button
+            className="w-full py-2.5 rounded-lg text-sm font-bold transition-all duration-200 bg-purple-500/15 text-purple-500 hover:bg-purple-500/25"
+            onClick={() => toast.error("لینک جلسه جمعه هنوز قرار داده نشده است")}>
+            <span className="flex items-center justify-center gap-2">
+              <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              لینک جلسه جمعه قرار داده می‌شود
+            </span>
+          </button>
+        </div>
+
         {/* Right: Request Form (wider) */}
         <div className="lg:col-span-3 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
           <div className="flex items-center gap-3 mb-8">
@@ -275,18 +308,21 @@ export default function SessionsPage() {
                   {mounted && (
                     <div className="flex gap-6 overflow-x-auto pb-2" style={{ direction: "ltr" }}>
                       {(() => {
-                        const now = new Date();
+                        const now = moment();
+                        const jNowYear = now.jYear();
+                        const jNowMonth = now.jMonth();
+                        const todayStr = now.format("jYYYY/jMM/jDD");
                         return [0, 1, 2].map((offset) => {
-                          const m = now.getMonth() + offset;
-                          const y = now.getFullYear() + Math.floor(m / 12);
-                          const monthIdx = m % 12;
-                          const cells = generateMonthCells(y, monthIdx);
+                          const jm = jNowMonth + offset;
+                          const jy = jNowYear + Math.floor(jm / 12);
+                          const jMonthIdx = jm % 12;
+                          const cells = generateJalaaliMonthCells(jy, jMonthIdx);
                           const weeks: (number | null)[][] = [];
                           for (let i = 0; i < cells.length; i += 7) {
                             weeks.push(cells.slice(i, i + 7));
                           }
                           return (
-                            <div key={`${y}-${monthIdx}`} className="flex flex-col items-center shrink-0">
+                            <div key={`${jy}-${jMonthIdx}`} className="flex flex-col items-center shrink-0">
                               <div className="grid grid-cols-7 gap-0.5">
                                 {weekDays.map((wd) => (
                                   <div key={wd} className="w-9 h-6 flex items-center justify-center text-[10px] font-bold text-[var(--dash-muted)]">
@@ -296,21 +332,18 @@ export default function SessionsPage() {
                                 {weeks.map((week, wi) =>
                                   week.map((day, di) => {
                                     if (day === null) return <div key={`e-${wi}-${di}`} className="w-9 h-9" />;
-                                    const dateStr = toDateStr(y, monthIdx, day);
-                                    const today = new Date();
-                                    today.setHours(0, 0, 0, 0);
-                                    const cellDate = new Date(y, monthIdx, day);
-                                    const isPast = cellDate < today;
-                                    const isToday = cellDate.getTime() === today.getTime();
+                                    const dateStr = jToDateStr(jy, jMonthIdx, day);
+                                    const isPast = dateStr < todayStr;
+                                    const isToday = dateStr === todayStr;
                                     const isSelected = selectedDates.has(dateStr);
-                                    const isAvailable = !isPast;
+                                    const isAvailable = dateStr > todayStr;
                                     return (
                                       <div
                                         key={dateStr}
                                         onClick={() => isAvailable && toggleDate(dateStr)}
-                                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
+                                        className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
                                           isSelected
-                                            ? "ring-2 ring-green-500 bg-green-500/10 text-green-500 font-bold"
+                                            ? "bg-green-500/10 text-green-500 font-bold"
                                             : isToday
                                               ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
                                               : isPast
@@ -318,13 +351,18 @@ export default function SessionsPage() {
                                                 : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
                                         }`}>
                                         {day}
+                                        {isSelected && (
+                                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                                            <Check className="h-2 w-2 text-black" strokeWidth={3} />
+                                          </div>
+                                        )}
                                       </div>
                                     );
                                   })
                                 )}
                               </div>
                               <span className="text-[10px] font-bold text-[var(--dash-muted)] mt-1.5">
-                                {persianMonthNames[monthIdx]}
+                                {jMonthNames[jMonthIdx]}
                               </span>
                             </div>
                           );
@@ -333,11 +371,11 @@ export default function SessionsPage() {
                     </div>
                   )}
 
-                  <div className="flex items-start gap-2.5 bg-[var(--hover-bg)]/50 rounded-xl p-3">
-                    <svg className="h-4 w-4 text-[var(--dash-muted)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  <div className="flex items-start gap-2.5 bg-blue-500/10 rounded-xl p-3 ring-1 ring-blue-500/20">
+                    <svg className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
-                    <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+                    <p className="text-xs text-blue-400 leading-relaxed font-medium">
                       تمام جلسات ساعت ۸:۳۰ صبح برگزار می‌شوند. اگر نیاز به زمان دیگری دارید، لطفاً در بخش "توضیحات" ذکر کنید.
                     </p>
                   </div>
@@ -367,7 +405,10 @@ export default function SessionsPage() {
             </div>
 
             {/* Teacher Introduction */}
-            <div className="bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
+            <div className="relative bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
+              <div className="absolute -top-1 -left-1 w-8 h-8 bg-purple-500/15 rounded-full flex items-center justify-center">
+                <RefreshCw className="h-4 w-4 text-purple-500" />
+              </div>
               <div className="flex items-center gap-2 mb-5">
                 <div className="h-5 w-1 rounded-full bg-purple-500" />
                 <span className="text-xs font-bold text-purple-400">
@@ -511,8 +552,8 @@ export default function SessionsPage() {
             </span>
           </div>
 
-          {/* Pro Section */}
-          <div className="bg-[var(--hover-bg)] rounded-xl p-4 mb-5 ring-1 ring-purple-500/30 shadow-sm">
+          {/* Pro Section (desktop only) */}
+          <div className="hidden lg:block bg-[var(--hover-bg)] rounded-xl p-4 mb-5 ring-1 ring-purple-500/30 shadow-sm">
             <div className="flex items-start gap-3 mb-3">
               <div className="p-2 rounded-lg bg-purple-500/15 shrink-0">
                 <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">

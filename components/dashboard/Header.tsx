@@ -188,7 +188,7 @@ export default function Header({ user }: { user: User }) {
                 موجودی
               </div>
               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate">
-                {(realBalance ?? 0).toLocaleString("en-US")}
+                {(realBalance ?? 0).toLocaleString("fa-IR")}
               </div>
             </div>
 

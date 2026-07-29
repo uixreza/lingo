@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Lock,
   Globe,
@@ -275,7 +276,7 @@ export default function SessionsPage() {
                     label: "عمومی",
                     desc: "۱۵ جلسه گروهی",
                     icon: Users,
-                    available: false,
+                    available: true,
                   },
                   {
                     value: "Private" as const,
@@ -432,48 +433,72 @@ export default function SessionsPage() {
                       />
                     </svg>
                   </div>
-                  <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-                    تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
-                    اطلاع داده خواهد شد.
-                  </p>
+                  <div className="text-xs text-[var(--dash-muted)] leading-relaxed space-y-1">
+                    <p>
+                      تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
+                      اطلاع داده خواهد شد.
+                    </p>
+                    <p>
+                      کلاس شما بر اساس سطح انتخابی در{" "}
+                      <Link
+                        href="/dashboard/account"
+                        className="underline underline-offset-2 text-purple-400 hover:text-purple-300 transition-colors font-medium">
+                        حساب کاربری
+                      </Link>
+                      {" "}شما تعیین می‌شود.
+                    </p>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Teacher Introduction */}
-            <div className="bg-gradient-to-br from-[var(--hover-bg)] to-[var(--hover-bg)]/50 rounded-xl p-5 ring-1 ring-white/5">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md">
-                  مدرس
+            <div className="bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
+              <div className="flex items-center gap-2 mb-5">
+                <div className="h-5 w-1 rounded-full bg-purple-500" />
+                <span className="text-xs font-bold text-purple-400">
+                  مدرس شما
                 </span>
               </div>
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl overflow-hidden shrink-0 shadow-lg shadow-purple-500/20">
-                  <Image
-                    src="/me.png"
-                    alt="رضا کمالی"
-                    width={56}
-                    height={56}
-                    className="w-full h-full object-cover"
-                  />
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg ring-2 ring-purple-500/20">
+                    <Image
+                      src="/me.png"
+                      alt="رضا کمالی"
+                      width={64}
+                      height={64}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-[var(--dash-sides)] flex items-center justify-center">
+                    <svg className="h-2.5 w-2.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0 space-y-1">
-                  <p className="text-sm font-bold text-[var(--dash-text)]">
-                    رضا کمالی
-                  </p>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                    <p className="text-[11px] text-[var(--dash-muted)]">
-                      سن: ۲۶ سال
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-bold text-[var(--dash-text)]">
+                      رضا کمالی
                     </p>
-                    <p className="text-[11px] text-[var(--dash-muted)]">
-                      سابقه: ۳ سال
-                    </p>
-                    <p className="text-[11px] text-[var(--dash-muted)]">
-                      مدرک: TTC Holder
-                    </p>
-                    <p className="text-[11px] text-[var(--dash-muted)]">
-                      فارغ‌التحصیل: دانشگاه بجنورد
-                    </p>
+                    <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-medium">
+                      TTC
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                      <span className="text-[11px] text-[var(--dash-muted)]">۲۶ سال</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                      <span className="text-[11px] text-[var(--dash-muted)]">۳ سال سابقه</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                      <span className="text-[11px] text-[var(--dash-muted)]">دانشگاه بجنورد</span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -481,38 +506,51 @@ export default function SessionsPage() {
 
             {/* Price */}
             <div className="bg-gradient-to-r from-green-500/8 to-emerald-500/5 rounded-xl p-5 ring-1 ring-green-500/10">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    قیمت هر جلسه
-                  </span>
-                </div>
-                <div className="text-left">
-                  {classType ? (
-                    <div>
-                      <span className="text-2xl font-black text-[var(--dash-text)]">
-                        {classType === "Private" ? "۴۰۰,۰۰۰" : "۱۵۰,۰۰۰"}
+              {classType ? (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                      <span className="text-sm font-medium text-[var(--dash-muted)]">
+                        قیمت هر جلسه
+                      </span>
+                    </div>
+                    <span className="text-2xl font-black text-[var(--dash-text)] text-left">
+                      {classType === "Private" ? "۴۰۰,۰۰۰" : "۱۵۰,۰۰۰"}
+                      <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                        تومان
+                      </span>
+                    </span>
+                  </div>
+                  {classType === "Public" && (
+                    <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[var(--dash-muted)]">
+                          قیمت کل (۱۵ جلسه)
+                        </span>
+                      </div>
+                      <span className="text-lg font-black text-[var(--dash-text)] text-left">
+                        {"۲,۲۵۰,۰۰۰"}
                         <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
                           تومان
                         </span>
                       </span>
-                      {classType === "Public" && (
-                        <div className="text-base font-black text-[var(--dash-text)] mt-0.5">
-                          {"۲,۲۵۰,۰۰۰"}
-                          <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                            تومان / ۱۵ جلسه
-                          </span>
-                        </div>
-                      )}
                     </div>
-                  ) : (
-                    <span className="text-sm text-[var(--dash-muted)]">
-                      نوع کلاس را انتخاب کنید
-                    </span>
                   )}
                 </div>
-              </div>
+              ) : (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      قیمت هر جلسه
+                    </span>
+                  </div>
+                  <span className="text-sm text-[var(--dash-muted)]">
+                    نوع کلاس را انتخاب کنید
+                  </span>
+                </div>
+              )}
             </div>
 
             {/* Submit */}

@@ -137,7 +137,7 @@ export default function NotificationPage() {
   }
 
   return (
-    <div className="min-h-screen py-6">
+    <div className="py-6">
       <div className="max-w-4xl mx-auto">
         <div className="bg-[var(--dash-sides)] rounded-2xl shadow-lg p-6 mb-6 border border-[var(--dash-muted)]/20 dark:border-white/20">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

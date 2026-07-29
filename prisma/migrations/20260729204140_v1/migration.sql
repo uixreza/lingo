@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "Badges" AS ENUM ('Loyalty', 'Pro');
+
+-- CreateEnum
 CREATE TYPE "Certifications" AS ENUM ('TTC', 'TOEFL', 'IELTS', 'Duolingo');
 
 -- CreateEnum
@@ -17,27 +20,64 @@ CREATE TYPE "TicketPriority" AS ENUM ('Low', 'Medium', 'High', 'Urgent');
 CREATE TYPE "TicketCategory" AS ENUM ('Technical', 'Payment', 'Content', 'Certificate', 'General');
 
 -- CreateEnum
+CREATE TYPE "SessionStatus" AS ENUM ('Pending', 'Approved', 'Canceled');
+
+-- CreateEnum
 CREATE TYPE "SessionType" AS ENUM ('Private', 'Public');
 
 -- CreateTable
 CREATE TABLE "users" (
     "id" SERIAL NOT NULL,
     "fullname" VARCHAR(100) NOT NULL,
-    "email" VARCHAR(100) NOT NULL,
+    "email" VARCHAR(100),
     "phone" VARCHAR(11) NOT NULL,
-    "date_of_birth" DATE NOT NULL,
+    "date_of_birth" DATE,
+    "avatar_seed" TEXT,
+    "is_pro" BOOLEAN NOT NULL DEFAULT true,
     "fluency_level" "FluencyLevel" NOT NULL,
     "password_hash" VARCHAR(255) NOT NULL,
     "is_verified" BOOLEAN NOT NULL DEFAULT false,
     "is_active" BOOLEAN NOT NULL DEFAULT true,
     "progress" INTEGER NOT NULL DEFAULT 0,
     "role" "Role" NOT NULL DEFAULT 'Client',
+    "badges" "Badges"[] DEFAULT ARRAY['Pro']::"Badges"[],
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL,
     "last_login_at" TIMESTAMP(3),
     "certifications" "Certifications"[],
 
     CONSTRAINT "users_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "panelDiscussion" (
+    "id" SERIAL NOT NULL,
+    "link" TEXT,
+
+    CONSTRAINT "panelDiscussion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "words_of_day" (
+    "id" SERIAL NOT NULL,
+    "word" VARCHAR(255) NOT NULL,
+    "definition" TEXT NOT NULL,
+    "example" TEXT NOT NULL,
+    "partOfSpeech" VARCHAR(50),
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "words_of_day_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "phrasal_verbs_of_day" (
+    "id" SERIAL NOT NULL,
+    "phrasalVerb" VARCHAR(255) NOT NULL,
+    "definition" TEXT NOT NULL,
+    "example" TEXT NOT NULL,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "phrasal_verbs_of_day_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -102,7 +142,7 @@ CREATE TABLE "sessions" (
     "start_time" TIME(0) NOT NULL,
     "language" VARCHAR(50) NOT NULL DEFAULT 'English',
     "reason_for_learning" TEXT,
-    "status" VARCHAR(20) NOT NULL DEFAULT 'pending',
+    "session_status" "SessionStatus" NOT NULL DEFAULT 'Pending',
     "meet_url" VARCHAR(500),
     "meeting_id" VARCHAR(100),
     "session_note" VARCHAR(255),
@@ -115,6 +155,15 @@ CREATE TABLE "sessions" (
     "session_type" "SessionType" NOT NULL DEFAULT 'Private',
 
     CONSTRAINT "sessions_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SessionPrice" (
+    "id" SERIAL NOT NULL,
+    "private_price" BIGINT NOT NULL DEFAULT 350000,
+    "subscription_price" BIGINT NOT NULL DEFAULT 50000,
+
+    CONSTRAINT "SessionPrice_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -193,13 +242,13 @@ CREATE INDEX "tickets_created_at_idx" ON "tickets"("created_at");
 CREATE INDEX "ticket_replies_ticket_id_idx" ON "ticket_replies"("ticket_id");
 
 -- CreateIndex
-CREATE INDEX "sessions_user_id_status_idx" ON "sessions"("user_id", "status");
+CREATE INDEX "sessions_user_id_session_status_idx" ON "sessions"("user_id", "session_status");
 
 -- CreateIndex
 CREATE INDEX "sessions_session_date_idx" ON "sessions"("session_date");
 
 -- CreateIndex
-CREATE INDEX "sessions_status_idx" ON "sessions"("status");
+CREATE INDEX "sessions_session_status_idx" ON "sessions"("session_status");
 
 -- CreateIndex
 CREATE INDEX "transactions_user_id_idx" ON "transactions"("user_id");

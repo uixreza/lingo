@@ -274,7 +274,7 @@ export default function TicketsPage() {
   };
 
   return (
-    <div dir="rtl" className="min-h-screen py-8">
+    <div dir="rtl" className="py-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         {/* <div className="mb-8">

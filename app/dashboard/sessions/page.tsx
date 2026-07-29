@@ -21,36 +21,41 @@ import {
   ChevronDown,
 } from "lucide-react";
 import moment from "moment-jalaali";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
-const timeSlots = ["08:30", "10:00", "12:30", "15:00", "17:00", "19:00"];
+const timeSlots = ["08:30", "09:30", "10:30"];
 
-const persianMonths = [
-  "فروردین",
-  "اردیبهشت",
-  "خرداد",
-  "تیر",
-  "مرداد",
-  "شهریور",
-  "مهر",
-  "آبان",
-  "آذر",
-  "دی",
-  "بهمن",
-  "اسفند",
-];
-
-const days = Array.from({ length: 31 }, (_, i) => i + 1);
-
-function getCurrentJalaliYear() {
-  return parseInt(moment().format("jYYYY"));
-}
 
 const languages = [
   { id: "en", label: "English", flag: "🇬🇧", available: true },
   { id: "tr", label: "Turkish", flag: "🇹🇷", available: false },
   { id: "de", label: "German", flag: "🇩🇪", available: false },
 ];
+
+const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
+const persianMonthNames = [
+  "فروردین", "اردیبهشت", "خرداد", "تیر", "مرداد", "شهریور",
+  "مهر", "آبان", "آذر", "دی", "بهمن", "اسفند",
+];
+
+function generateMonthCells(year: number, month: number) {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const daysInMonth = lastDay.getDate();
+  const startWeekday = firstDay.getDay();
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < startWeekday; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+  return cells;
+}
+
+function toDateStr(year: number, month: number, day: number) {
+  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function toPersianDigits(n: string) {
+  return n.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
+}
 
 type SessionItem = {
   id: number;
@@ -66,12 +71,10 @@ type SessionItem = {
 type RequestStatus = "Approved" | "Pending" | "Canceled";
 
 export default function SessionsPage() {
-  const [selectedDay, setSelectedDay] = useState("");
-  const [selectedMonth, setSelectedMonth] = useState("");
   const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [language, setLanguage] = useState("en");
-  const [classType, setClassType] = useState<"Public" | "Private">("Private");
   const [reason, setReason] = useState("");
+  const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
 
   const [mounted, setMounted] = useState(false);
   const [requests, setRequests] = useState<SessionItem[]>([]);
@@ -80,11 +83,6 @@ export default function SessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [currentMonth, setCurrentMonth] = useState(0);
-
-  const availableMonths = mounted
-    ? persianMonths.slice(currentMonth - 1)
-    : persianMonths;
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -94,7 +92,6 @@ export default function SessionsPage() {
 
   useEffect(() => {
     setMounted(true);
-    setCurrentMonth(parseInt(moment().format("jM")));
     const fetchSessions = async () => {
       try {
         const res = await fetch("/api/sessions");
@@ -111,51 +108,60 @@ export default function SessionsPage() {
     fetchSessions();
   }, []);
 
-  const canSubmit =
-    language &&
-    classType &&
-    (classType === "Public" ||
-      (selectedDay && selectedMonth && selectedTimeSlot));
+  const canSubmit = language && selectedDates.size > 0;
+
+  const toggleDate = (dateStr: string) => {
+    setSelectedDates((prev) => {
+      const next = new Set(prev);
+      if (next.has(dateStr)) next.delete(dateStr);
+      else next.add(dateStr);
+      return next;
+    });
+  };
 
   const handleSubmit = async () => {
     if (!canSubmit || submitting) return;
     setSubmitting(true);
     setErrorMsg(null);
     try {
-      const sessionDate = `${getCurrentJalaliYear()}/${String(selectedMonth).padStart(2, "0")}/${String(selectedDay).padStart(2, "0")}`;
-      const res = await fetch("/api/sessions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sessionDate,
-          startTime: selectedTimeSlot,
-          language:
-            languages.find((l) => l.id === language)?.label || "English",
-          sessionType: classType,
-          reasonForLearning: reason || null,
-        }),
-      });
-      if (res.status === 402) {
-        toast.error("موجودی کیف پول کافی نیست");
-        setTimeout(() => {
-          window.location.href = "/dashboard/wallet";
-        }, 1500);
-        return;
+      let successCount = 0;
+      for (const dateStr of selectedDates) {
+        const gregDate = new Date(dateStr);
+        const jalali = moment(gregDate).format("jYYYY/jMM/jDD");
+        const res = await fetch("/api/sessions", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sessionDate: jalali,
+            startTime: selectedTimeSlot,
+            language:
+              languages.find((l) => l.id === language)?.label || "English",
+            sessionType: "Private",
+            reasonForLearning: reason || null,
+          }),
+        });
+        if (res.status === 402) {
+          toast.error("موجودی کیف پول کافی نیست");
+          setTimeout(() => {
+            window.location.href = "/dashboard/wallet";
+          }, 1500);
+          return;
+        }
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          const msg = data.error || `خطا (کد ${res.status})`;
+          setErrorMsg(msg);
+          toast.error(msg);
+          return;
+        }
+        const created = await res.json();
+        setRequests((prev) => [created, ...prev]);
+        successCount++;
       }
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        const msg = data.error || `خطا (کد ${res.status})`;
-        setErrorMsg(msg);
-        toast.error(msg);
-        return;
-      }
-      const created = await res.json();
-      setRequests((prev) => [created, ...prev]);
-      setSelectedDay("");
-      setSelectedMonth("");
+      setSelectedDates(new Set());
       setSelectedTimeSlot("");
       setReason("");
-      toast.success("درخواست جلسه شما با موفقیت ثبت شد");
+      toast.success(`درخواست ${successCount} جلسه با موفقیت ثبت شد`);
       window.dispatchEvent(new Event("balance-update"));
     } catch (err) {
       setErrorMsg("خطا در برقراری ارتباط");
@@ -189,18 +195,13 @@ export default function SessionsPage() {
   };
 
   return (
-    <>
-      <Toaster
-        position="top-center"
-        toastOptions={{ style: { direction: "rtl", fontFamily: "inherit" } }}
-      />
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         {/* Right: Request Form (wider) */}
         <div className="lg:col-span-3 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
           <div className="flex items-center gap-3 mb-8">
             <div className="h-8 w-1 rounded-full bg-green-500" />
             <h2 className="text-xl font-bold text-[var(--dash-text)]">
-              درخواست کلاس زبان
+              درخواست جلسه خصوصی
             </h2>
           </div>
 
@@ -259,198 +260,111 @@ export default function SessionsPage() {
               </div>
             </div>
 
-            {/* Class Type */}
+            {/* Date & Time */}
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md">
+                    ۲
+                  </span>
+                  <label className="text-sm font-medium text-[var(--dash-muted)]">
+                    تاریخ جلسه
+                  </label>
+                </div>
+                <div className="space-y-4">
+                  {/* Month Grids */}
+                  {mounted && (
+                    <div className="flex gap-6 overflow-x-auto pb-2" style={{ direction: "ltr" }}>
+                      {(() => {
+                        const now = new Date();
+                        return [0, 1, 2].map((offset) => {
+                          const m = now.getMonth() + offset;
+                          const y = now.getFullYear() + Math.floor(m / 12);
+                          const monthIdx = m % 12;
+                          const cells = generateMonthCells(y, monthIdx);
+                          const weeks: (number | null)[][] = [];
+                          for (let i = 0; i < cells.length; i += 7) {
+                            weeks.push(cells.slice(i, i + 7));
+                          }
+                          return (
+                            <div key={`${y}-${monthIdx}`} className="flex flex-col items-center shrink-0">
+                              <div className="grid grid-cols-7 gap-0.5">
+                                {weekDays.map((wd) => (
+                                  <div key={wd} className="w-9 h-6 flex items-center justify-center text-[10px] font-bold text-[var(--dash-muted)]">
+                                    {wd}
+                                  </div>
+                                ))}
+                                {weeks.map((week, wi) =>
+                                  week.map((day, di) => {
+                                    if (day === null) return <div key={`e-${wi}-${di}`} className="w-9 h-9" />;
+                                    const dateStr = toDateStr(y, monthIdx, day);
+                                    const today = new Date();
+                                    today.setHours(0, 0, 0, 0);
+                                    const cellDate = new Date(y, monthIdx, day);
+                                    const isPast = cellDate < today;
+                                    const isToday = cellDate.getTime() === today.getTime();
+                                    const isSelected = selectedDates.has(dateStr);
+                                    const isAvailable = !isPast;
+                                    return (
+                                      <div
+                                        key={dateStr}
+                                        onClick={() => isAvailable && toggleDate(dateStr)}
+                                        className={`w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
+                                          isSelected
+                                            ? "ring-2 ring-green-500 bg-green-500/10 text-green-500 font-bold"
+                                            : isToday
+                                              ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
+                                              : isPast
+                                                ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
+                                                : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
+                                        }`}>
+                                        {day}
+                                      </div>
+                                    );
+                                  })
+                                )}
+                              </div>
+                              <span className="text-[10px] font-bold text-[var(--dash-muted)] mt-1.5">
+                                {persianMonthNames[monthIdx]}
+                              </span>
+                            </div>
+                          );
+                        });
+                      })()}
+                    </div>
+                  )}
+
+                  <div className="flex items-start gap-2.5 bg-[var(--hover-bg)]/50 rounded-xl p-3">
+                    <svg className="h-4 w-4 text-[var(--dash-muted)] shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+                      تمام جلسات ساعت ۸:۳۰ صبح برگزار می‌شوند. اگر نیاز به زمان دیگری دارید، لطفاً در بخش "توضیحات" ذکر کنید.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+            {/* Reason */}
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md">
-                  ۲
+                  ۳
                 </span>
                 <label className="text-sm font-medium text-[var(--dash-muted)]">
-                  نوع کلاس
+                  توضیحات
                 </label>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  {
-                    value: "Public" as const,
-                    label: "عمومی",
-                    desc: "۱۵ جلسه گروهی",
-                    icon: Users,
-                    available: true,
-                  },
-                  {
-                    value: "Private" as const,
-                    label: "خصوصی",
-                    desc: "۱.۵ ساعته",
-                    icon: User,
-                    available: true,
-                  },
-                ].map(({ value, label, desc, icon: Icon, available }) => (
-                  <button
-                    key={value}
-                    onClick={() => available && setClassType(value)}
-                    disabled={!available}
-                    className={`relative flex items-center gap-3 p-4 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      !available
-                        ? "opacity-30 cursor-not-allowed bg-[var(--hover-bg)]"
-                        : classType === value
-                          ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-400"
-                          : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
-                    }`}>
-                    <div
-                      className={`p-2 rounded-lg ${classType === value && available ? "bg-green-500/20" : "bg-[var(--dash-sides)]/40"}`}>
-                      <Icon className="h-5 w-5" />
-                    </div>
-                    <div className="text-right">
-                      <div className="font-bold">{label}</div>
-                      <div className="text-[10px] opacity-60 mt-0.5">
-                        {desc}
-                      </div>
-                    </div>
-                    {!available && (
-                      <Lock className="absolute top-2 left-2 h-3.5 w-3.5 text-[var(--dash-muted)]" />
-                    )}
-                    {classType === value && available && (
-                      <div className="absolute -top-1 -left-1 h-4 w-4 bg-green-500 rounded-full flex items-center justify-center">
-                        <svg
-                          className="h-2.5 w-2.5 text-black"
-                          fill="none"
-                          stroke="currentColor"
-                          viewBox="0 0 24 24">
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={3}
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  </button>
-                ))}
+              <div className="relative">
+                <FileText className="absolute top-3 right-3 h-4 w-4 text-[var(--dash-muted)]/40 pointer-events-none" />
+                <textarea
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="دلیل خود را برای یادگیری این زبان بنویسید..."
+                  rows={3}
+                  className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 pr-10 text-sm resize-none focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all"
+                />
               </div>
             </div>
-
-            {/* Reason (conditional) */}
-            {classType === "Private" && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md">
-                    ۳
-                  </span>
-                  <label className="text-sm font-medium text-[var(--dash-muted)]">
-                    دلیل یادگیری
-                  </label>
-                </div>
-                <div className="relative">
-                  <FileText className="absolute top-3 right-3 h-4 w-4 text-[var(--dash-muted)]/40 pointer-events-none" />
-                  <textarea
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    placeholder="دلیل خود را برای یادگیری این زبان بنویسید..."
-                    rows={3}
-                    className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 pr-10 text-sm resize-none focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Date & Time (only for Private) */}
-            {classType === "Private" && (
-              <div>
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-[10px] font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md">
-                    {reason ? "۴" : "۳"}
-                  </span>
-                  <label className="text-sm font-medium text-[var(--dash-muted)]">
-                    تاریخ و ساعت
-                  </label>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <div className="flex gap-2">
-                    <div className="relative flex-1">
-                      <select
-                        value={selectedDay}
-                        onChange={(e) => setSelectedDay(e.target.value)}
-                        className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all cursor-pointer">
-                        <option value="">روز</option>
-                        {days.map((d) => (
-                          <option key={d} value={d}>
-                            {d}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
-                    </div>
-                    <div className="relative flex-[2]">
-                      <select
-                        value={selectedMonth}
-                        onChange={(e) => setSelectedMonth(e.target.value)}
-                        className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all cursor-pointer">
-                        <option value="">ماه</option>
-                        {availableMonths.map((m, i) => (
-                          <option key={i} value={i + currentMonth}>
-                            {m}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
-                    </div>
-                  </div>
-                  <div className="relative">
-                    <select
-                      value={selectedTimeSlot}
-                      onChange={(e) => setSelectedTimeSlot(e.target.value)}
-                      className="w-full appearance-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all cursor-pointer">
-                      <option value="">ساعت پیشنهادی</option>
-                      {timeSlots.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)] pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Public notification */}
-            {classType === "Public" && (
-              <div className="bg-[var(--hover-bg)]/50 rounded-xl p-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-green-500/10">
-                    <svg
-                      className="h-4 w-4 text-green-500"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                      />
-                    </svg>
-                  </div>
-                  <div className="text-xs text-[var(--dash-muted)] leading-relaxed space-y-1">
-                    <p>
-                      تاریخ و ساعت کلاس‌های عمومی از طریق پیامک یا ایمیل به شما
-                      اطلاع داده خواهد شد.
-                    </p>
-                    <p>
-                      کلاس شما بر اساس سطح انتخابی در{" "}
-                      <Link
-                        href="/dashboard/account"
-                        className="underline underline-offset-2 text-purple-400 hover:text-purple-300 transition-colors font-medium">
-                        حساب کاربری
-                      </Link>
-                      {" "}شما تعیین می‌شود.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Teacher Introduction */}
             <div className="bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
@@ -506,37 +420,27 @@ export default function SessionsPage() {
 
             {/* Price */}
             <div className="bg-gradient-to-r from-green-500/8 to-emerald-500/5 rounded-xl p-5 ring-1 ring-green-500/10">
-              {classType ? (
+              {selectedDates.size > 0 ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                      <span className="text-sm font-medium text-[var(--dash-muted)]">
-                        قیمت هر جلسه
-                      </span>
-                    </div>
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      تعداد جلسات
+                    </span>
+                    <span className="text-sm font-bold text-[var(--dash-text)]">
+                      {selectedDates.size} جلسه
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      قیمت کل
+                    </span>
                     <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                      {classType === "Private" ? "۴۰۰,۰۰۰" : "۱۵۰,۰۰۰"}
+                      {(selectedDates.size * 400000).toLocaleString("fa-IR")}
                       <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
                         تومان
                       </span>
                     </span>
                   </div>
-                  {classType === "Public" && (
-                    <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-[var(--dash-muted)]">
-                          قیمت کل (۱۵ جلسه)
-                        </span>
-                      </div>
-                      <span className="text-lg font-black text-[var(--dash-text)] text-left">
-                        {"۲,۲۵۰,۰۰۰"}
-                        <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                          تومان
-                        </span>
-                      </span>
-                    </div>
-                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-between">
@@ -546,8 +450,11 @@ export default function SessionsPage() {
                       قیمت هر جلسه
                     </span>
                   </div>
-                  <span className="text-sm text-[var(--dash-muted)]">
-                    نوع کلاس را انتخاب کنید
+                  <span className="text-2xl font-black text-[var(--dash-text)] text-left">
+                    ۴۰۰,۰۰۰
+                    <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                      تومان
+                    </span>
                   </span>
                 </div>
               )}
@@ -602,6 +509,40 @@ export default function SessionsPage() {
             <span className="text-xs bg-[var(--hover-bg)] text-[var(--dash-muted)] px-3 py-1 rounded-full">
               {requests.length} مورد
             </span>
+          </div>
+
+          {/* Pro Section */}
+          <div className="bg-[var(--hover-bg)] rounded-xl p-4 mb-5 ring-1 ring-purple-500/30 shadow-sm">
+            <div className="flex items-start gap-3 mb-3">
+              <div className="p-2 rounded-lg bg-purple-500/15 shrink-0">
+                <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-sm font-bold text-[var(--dash-text)]">
+                    کاربر ویژه (Pro)
+                  </span>
+                  <span className="text-[10px] bg-purple-500/15 text-purple-500 px-1.5 py-0.5 rounded font-medium">
+                    اشتراک فعال
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+                  کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس رضا کمالی
+                </p>
+              </div>
+            </div>
+            <button
+              className="w-full py-2.5 rounded-lg text-sm font-bold transition-all duration-200 bg-purple-500/15 text-purple-500 hover:bg-purple-500/25"
+              onClick={() => toast.error("لینک جلسه جمعه هنوز قرار داده نشده است")}>
+              <span className="flex items-center justify-center gap-2">
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                لینک جلسه جمعه قرار داده می‌شود
+              </span>
+            </button>
           </div>
 
           {/* Filter Tabs */}
@@ -668,12 +609,12 @@ export default function SessionsPage() {
                     <div className="flex items-center gap-4 mt-4 text-sm text-[var(--dash-muted)]">
                       <span className="flex items-center gap-1.5">
                         <CalendarDays className="h-4 w-4" />
-                        {req.date}
+                        {toPersianDigits(req.date)}
                       </span>
                       <span className="w-1 h-1 rounded-full bg-[var(--dash-muted)]/20" />
                       <span className="flex items-center gap-1.5">
                         <Clock className="h-4 w-4" />
-                        {req.time}
+                        {toPersianDigits(req.time)}
                       </span>
                     </div>
 
@@ -755,6 +696,5 @@ export default function SessionsPage() {
           </div>
         </div>
       </div>
-    </>
   );
 }

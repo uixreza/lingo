@@ -5,7 +5,6 @@ declare module "next-auth" {
     phone?: string;
     fullname?: string;
     role?: string;
-    gender?: "Male" | "Female";
     avatarSeed?: string | null;
   }
   interface Session {
@@ -14,7 +13,6 @@ declare module "next-auth" {
       phone: string;
       fullname: string;
       role: string;
-      gender: "Male" | "Female";
       avatarSeed?: string | null;
     };
   }
@@ -26,7 +24,6 @@ declare module "next-auth/jwt" {
     phone: string;
     fullname: string;
     role: string;
-    gender: "Male" | "Female";
     avatarSeed?: string | null;
   }
 }

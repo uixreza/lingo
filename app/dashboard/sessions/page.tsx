@@ -84,6 +84,7 @@ export default function SessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [privatePrice, setPrivatePrice] = useState(400000);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -95,13 +96,20 @@ export default function SessionsPage() {
     setMounted(true);
     const fetchSessions = async () => {
       try {
-        const res = await fetch("/api/sessions");
-        if (res.ok) {
-          const data: SessionItem[] = await res.json();
+        const [sessionsRes, priceRes] = await Promise.all([
+          fetch("/api/sessions"),
+          fetch("/api/sessions/price"),
+        ]);
+        if (sessionsRes.ok) {
+          const data: SessionItem[] = await sessionsRes.json();
           setRequests(data);
         }
+        if (priceRes.ok) {
+          const { privatePrice } = await priceRes.json();
+          setPrivatePrice(privatePrice);
+        }
       } catch (err) {
-        console.error("Error fetching sessions:", err);
+        console.error("Error fetching data:", err);
       } finally {
         setIsLoading(false);
       }
@@ -476,7 +484,7 @@ export default function SessionsPage() {
                       قیمت کل
                     </span>
                     <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                      {(selectedDates.size * 400000).toLocaleString("fa-IR")}
+                      {(selectedDates.size * privatePrice).toLocaleString("fa-IR")}
                       <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
                         تومان
                       </span>
@@ -492,7 +500,7 @@ export default function SessionsPage() {
                     </span>
                   </div>
                   <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                    ۴۰۰,۰۰۰
+                    {privatePrice.toLocaleString("fa-IR")}
                     <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
                       تومان
                     </span>

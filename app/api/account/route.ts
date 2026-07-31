@@ -89,10 +89,18 @@ function gregToJalaliStr(date: Date): string {
   return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
 }
 
-function jalaliStrToDate(jalaliStr: string): Date {
-  const parts = jalaliStr.split("/");
-  if (parts.length !== 3) return new Date(NaN);
+function normalizeDigits(input: string): string {
+  return input
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+}
+
+function jalaliStrToDate(jalaliStr: string | null | undefined): Date | null {
+  if (!jalaliStr || typeof jalaliStr !== "string") return null;
+  const parts = normalizeDigits(jalaliStr).split("/");
+  if (parts.length !== 3) return null;
   const [jy, jm, jd] = parts.map(Number);
+  if (!jy || !jm || !jd || jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
   const g = d2g(j2d(jy, jm, jd));
   return new Date(g.gy, g.gm - 1, g.gd);
 }
@@ -114,6 +122,7 @@ export async function GET() {
       dateOfBirth: true,
       fluencyLevel: true,
       avatarSeed: true,
+      IsPro: true,
     },
   });
 
@@ -128,6 +137,7 @@ export async function GET() {
     birthDate: user.dateOfBirth ? gregToJalaliStr(user.dateOfBirth) : null,
     fluencyLevel: user.fluencyLevel,
     avatarSeed: user.avatarSeed,
+    isPro: user.IsPro,
   });
 }
 
@@ -142,10 +152,24 @@ export async function PUT(request: Request) {
   const { name, email, phone, birthDate, fluencyLevel, avatarSeed } = body;
 
   const updateData: Record<string, unknown> = {};
-  if (name !== undefined) updateData.fullname = name;
+  if (name !== undefined) {
+    if (typeof name !== "string" || !name.trim()) {
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    }
+    updateData.fullname = name.trim();
+  }
   if (email !== undefined) updateData.email = email;
   if (phone !== undefined) updateData.phone = phone;
-  if (birthDate !== undefined) updateData.dateOfBirth = jalaliStrToDate(birthDate);
+  if (birthDate !== undefined && birthDate !== null) {
+    const parsed = jalaliStrToDate(birthDate);
+    if (!parsed) {
+      return NextResponse.json(
+        { error: "Invalid birthDate" },
+        { status: 400 },
+      );
+    }
+    updateData.dateOfBirth = parsed;
+  }
   if (fluencyLevel !== undefined && fluencyLevel !== null) updateData.fluencyLevel = fluencyLevel;
   if (avatarSeed !== undefined) updateData.avatarSeed = avatarSeed;
 
@@ -153,25 +177,32 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "No fields to update" }, { status: 400 });
   }
 
-  const updated = await prisma.user.update({
-    where: { id: userId },
-    data: updateData,
-    select: {
-      fullname: true,
-      email: true,
-      phone: true,
-      dateOfBirth: true,
-      fluencyLevel: true,
-      avatarSeed: true,
-    },
-  });
+  try {
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        fullname: true,
+        email: true,
+        phone: true,
+        dateOfBirth: true,
+        fluencyLevel: true,
+        avatarSeed: true,
+        IsPro: true,
+      },
+    });
 
-  return NextResponse.json({
-    name: updated.fullname,
-    email: updated.email,
-    phone: updated.phone,
-    birthDate: updated.dateOfBirth ? gregToJalaliStr(updated.dateOfBirth) : null,
-    fluencyLevel: updated.fluencyLevel,
-    avatarSeed: updated.avatarSeed,
-  });
+    return NextResponse.json({
+      name: updated.fullname,
+      email: updated.email,
+      phone: updated.phone,
+      birthDate: updated.dateOfBirth ? gregToJalaliStr(updated.dateOfBirth) : null,
+      fluencyLevel: updated.fluencyLevel,
+      avatarSeed: updated.avatarSeed,
+      isPro: updated.IsPro,
+    });
+  } catch (error) {
+    console.error("Account update error:", error);
+    return NextResponse.json({ error: "Failed to save" }, { status: 500 });
+  }
 }

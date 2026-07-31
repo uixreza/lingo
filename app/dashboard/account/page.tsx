@@ -17,18 +17,26 @@ import {
   Calendar,
   Award,
   RefreshCw,
+  Loader2,
+  Send,
+  Star,
 } from "lucide-react";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
+import { useSession } from "next-auth/react";
+import toast from "react-hot-toast";
 
 export default function AccountPage() {
+  const { update: updateSession } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
   const [isLoading, setIsLoading] = useState(true);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const [birthDate, setBirthDate] = useState<DateObject | null>(null);
+  const [birthDate, setBirthDate] = useState<DateObject | null>(
+    () => new DateObject().convert(persian, persian_fa),
+  );
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -43,10 +51,9 @@ export default function AccountPage() {
 
   const [level, setLevel] = useState("");
   const [avatarSeed, setAvatarSeed] = useState("");
-  const [saveMessage, setSaveMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
+  const [isPro, setIsPro] = useState(false);
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -65,6 +72,7 @@ export default function AccountPage() {
             );
           setLevel(data.fluencyLevel ?? "");
           setAvatarSeed(data.avatarSeed ?? data.phone);
+          setIsPro(data.isPro ?? false);
         }
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -86,6 +94,8 @@ export default function AccountPage() {
   };
 
   const handleSaveProfile = async () => {
+    if (savingProfile) return;
+    setSavingProfile(true);
     try {
       const res = await fetch("/api/account", {
         method: "PUT",
@@ -93,7 +103,13 @@ export default function AccountPage() {
         body: JSON.stringify({
           name: userData.name,
           email: userData.email,
-          birthDate: birthDate?.format?.("YYYY/MM/DD") ?? null,
+          ...(birthDate
+            ? {
+                birthDate: new DateObject(birthDate)
+                  .setDigits("0123456789".split(""))
+                  .format("YYYY/MM/DD"),
+              }
+            : {}),
           ...(level ? { fluencyLevel: level } : {}),
         }),
       });
@@ -109,11 +125,23 @@ export default function AccountPage() {
           new DateObject(data.birthDate).convert(persian, persian_fa),
         );
       setLevel(data.fluencyLevel ?? "");
-      setSaveMessage({ type: "success", text: "اطلاعات با موفقیت ذخیره شد" });
+      setIsPro(data.isPro ?? false);
+      toast.success("اطلاعات با موفقیت ذخیره شد");
+      try {
+        await updateSession({
+          user: {
+            fullname: data.name,
+            avatarSeed: data.avatarSeed ?? null,
+          },
+        });
+      } catch {
+        // session refresh failure shouldn't fail the save
+      }
     } catch {
-      setSaveMessage({ type: "error", text: "خطا در ذخیره اطلاعات" });
+      toast.error("خطا در ذخیره اطلاعات");
+    } finally {
+      setSavingProfile(false);
     }
-    setTimeout(() => setSaveMessage(null), 3000);
   };
 
   const handleRotateAvatar = async () => {
@@ -125,30 +153,29 @@ export default function AccountPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ avatarSeed: newSeed }),
       });
+      try {
+        await updateSession({ user: { avatarSeed: newSeed } });
+      } catch {
+        // session refresh failure shouldn't fail the save
+      }
     } catch {
       // background save, revert not needed
     }
   };
 
   const handleChangePassword = async () => {
+    if (savingPassword) return;
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setSaveMessage({
-        type: "error",
-        text: "رمز عبور جدید و تکرار آن مطابقت ندارند",
-      });
-      setTimeout(() => setSaveMessage(null), 3000);
+      toast.error("رمز عبور جدید و تکرار آن مطابقت ندارند");
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      setSaveMessage({
-        type: "error",
-        text: "رمز عبور باید حداقل ۶ کاراکتر باشد",
-      });
-      setTimeout(() => setSaveMessage(null), 3000);
+      toast.error("رمز عبور باید حداقل ۶ کاراکتر باشد");
       return;
     }
 
+    setSavingPassword(true);
     try {
       const res = await fetch("/api/account/password", {
         method: "PUT",
@@ -162,7 +189,7 @@ export default function AccountPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      setSaveMessage({ type: "success", text: "رمز عبور با موفقیت تغییر کرد" });
+      toast.success("رمز عبور با موفقیت تغییر کرد");
       setPasswordData({
         currentPassword: "",
         newPassword: "",
@@ -171,9 +198,10 @@ export default function AccountPage() {
     } catch (err: unknown) {
       const message =
         err instanceof Error ? err.message : "خطا در تغییر رمز عبور";
-      setSaveMessage({ type: "error", text: message });
+      toast.error(message);
+    } finally {
+      setSavingPassword(false);
     }
-    setTimeout(() => setSaveMessage(null), 3000);
   };
 
   const tabs = [
@@ -216,13 +244,25 @@ export default function AccountPage() {
               {/* User Card */}
               <div className="text-center">
                 <div className="relative inline-flex">
-                  <div className="bg-[var(--hover-bg-strong)] rounded-2xl p-1">
-                    <Avatar
-                      seed={avatarSeed}
-                      size={80}
-                      className="rounded-xl"
-                    />
-                  </div>
+                  {isPro ? (
+                    <div className="pro-border rounded-2xl p-[2px]">
+                      <div className="bg-[var(--hover-bg-strong)] rounded-[14px] p-1">
+                        <Avatar
+                          seed={avatarSeed}
+                          size={80}
+                          className="rounded-xl"
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-[var(--hover-bg-strong)] rounded-2xl p-1">
+                      <Avatar
+                        seed={avatarSeed}
+                        size={80}
+                        className="rounded-xl"
+                      />
+                    </div>
+                  )}
                   <button
                     onClick={handleRotateAvatar}
                     className="absolute -bottom-1 -left-1 bg-[var(--dash-sides)] hover:bg-[var(--hover-bg-strong)] rounded-full p-1.5 shadow-lg transition-all duration-200 border border-[var(--hover-bg-strong)]"
@@ -233,7 +273,16 @@ export default function AccountPage() {
                 <p className="font-bold text-[var(--dash-text)] mt-4 text-lg">
                   {userData.name || "کاربر"}
                 </p>
-                <p className="text-[var(--dash-muted)] text-sm">کاربر عادی</p>
+                {isPro ? (
+                  <p className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 mt-1">
+                    <Star className="h-4 w-4 fill-purple-400" />
+                    کاربر ویژه
+                  </p>
+                ) : (
+                  <p className="text-[var(--dash-muted)] text-sm mt-1">
+                    کاربر عادی
+                  </p>
+                )}
               </div>
 
               {/* Divider */}
@@ -262,36 +311,42 @@ export default function AccountPage() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1">
-            <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-8">
-              {/* Success/Error Message */}
-              {saveMessage && (
-                <div
-                  className={`mb-6 p-4 rounded-xl text-center font-medium ${
-                    saveMessage.type === "success"
-                      ? "bg-green-500 text-black"
-                      : "bg-red-500/20 text-red-500"
-                  }`}>
-                  {saveMessage.text}
-                </div>
-              )}
+          <div className="flex-1 min-w-0">
+            <div className="relative overflow-hidden bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl">
+              <div className="pointer-events-none absolute -top-32 -left-32 h-72 w-72 rounded-full bg-green-500/10 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-green-500/5 blur-3xl" />
 
+              <div className="relative p-8">
               {/* Profile Tab */}
               {activeTab === "profile" && (
                 <div className="space-y-8">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                      اطلاعات پروفایل
-                    </h2>
+                  <div className="flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-1.5 rounded-full bg-green-500" />
+                      <div>
+                        <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                          اطلاعات پروفایل
+                        </h2>
+                        <p className="text-xs text-[var(--dash-muted)] mt-1">
+                          مشخصات خود را ویرایش و به‌روزرسانی کنید
+                        </p>
+                      </div>
+                    </div>
                     <button
                       onClick={handleSaveProfile}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300">
-                      <Save className="h-4 w-4" />
-                      ذخیره
+                      disabled={savingProfile}
+                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg shadow-green-500/25 hover:bg-green-400 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-green-500">
+                      {savingProfile ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Save className="h-4 w-4" />
+                      )}
+                      {savingProfile ? "در حال ذخیره..." : "ذخیره"}
                     </button>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
                         <User className="h-4 w-4 inline ml-1" />
@@ -302,7 +357,7 @@ export default function AccountPage() {
                         name="name"
                         value={userData.name}
                         onChange={handleProfileChange}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
+                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
                       />
                     </div>
 
@@ -316,7 +371,7 @@ export default function AccountPage() {
                         name="email"
                         value={userData.email}
                         onChange={handleProfileChange}
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl"
+                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
                       />
                     </div>
 
@@ -330,7 +385,7 @@ export default function AccountPage() {
                         name="phone"
                         value={userData.phone}
                         disabled
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm opacity-60 cursor-not-allowed shadow-xl"
+                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm opacity-60 cursor-not-allowed"
                         placeholder="۰۹۱۲۳۴۵۶۷۸۹"
                       />
                     </div>
@@ -348,15 +403,16 @@ export default function AccountPage() {
                         format="YYYY/MM/DD"
                         placeholder="انتخاب تاریخ تولد"
                         containerClassName="w-full"
-                        inputClass="w-full outline-none bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/50 transition-all"
+                        inputClass="w-full outline-none bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/60 transition-all"
                         calendarPosition="bottom-right"
                       />
+                    </div>
                     </div>
                   </div>
 
                   {/* Level Selection */}
-                  <div>
-                    <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
+                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
+                    <label className="block text-sm font-medium text-[var(--dash-muted)] mb-3">
                       سطح زبان
                     </label>
                     <div className="flex flex-wrap gap-2">
@@ -395,7 +451,8 @@ export default function AccountPage() {
                       href="https://t.me/lingofam_support"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-block mt-3 text-xs text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors underline">
+                      className="inline-flex items-center gap-2 mt-3 px-3.5 py-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25 hover:bg-sky-500/20 hover:ring-sky-500/40 transition-colors text-xs font-medium">
+                      <Send className="h-3.5 w-3.5" />
                       درخواست رایگان تعیین سطح (تلگرام)
                     </a>
                   </div>
@@ -406,13 +463,19 @@ export default function AccountPage() {
               {/* Certification Request Tab */}
               {activeTab === "certification" && (
                 <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                      درخواست گواهی
-                    </h2>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-1.5 rounded-full bg-green-500" />
+                    <div>
+                      <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                        درخواست گواهی
+                      </h2>
+                      <p className="text-xs text-[var(--dash-muted)] mt-1">
+                        گواهی‌های معتبر دوره‌ها
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="bg-[var(--hover-bg)] rounded-xl p-6 text-center">
+                  <div className="bg-[var(--hover-bg)] rounded-2xl p-8 text-center">
                     <Award className="w-16 h-16 text-green-500 mx-auto mb-4" />
                     <p className="text-[var(--dash-text)] font-medium mb-2">
                       گواهی شرکت در دوره‌ها
@@ -435,11 +498,20 @@ export default function AccountPage() {
               {/* Security Tab */}
               {activeTab === "security" && (
                 <div className="space-y-8">
-                  <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                    تغییر رمز عبور
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-1.5 rounded-full bg-green-500" />
+                    <div>
+                      <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                        تغییر رمز عبور
+                      </h2>
+                      <p className="text-xs text-[var(--dash-muted)] mt-1">
+                        رمز عبور خود را به‌صورت دوره‌ای تغییر دهید
+                      </p>
+                    </div>
+                  </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
                       <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
                         رمز عبور فعلی
@@ -450,7 +522,7 @@ export default function AccountPage() {
                           name="currentPassword"
                           value={passwordData.currentPassword}
                           onChange={handlePasswordChange}
-                          className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl pl-11"
+                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
                           placeholder="رمز عبور فعلی را وارد کنید"
                         />
                         <button
@@ -478,7 +550,7 @@ export default function AccountPage() {
                           name="newPassword"
                           value={passwordData.newPassword}
                           onChange={handlePasswordChange}
-                          className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl pl-11"
+                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
                           placeholder="رمز عبور جدید را وارد کنید"
                         />
                         <button
@@ -504,7 +576,7 @@ export default function AccountPage() {
                           name="confirmPassword"
                           value={passwordData.confirmPassword}
                           onChange={handlePasswordChange}
-                          className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/50 transition-all shadow-xl pl-11"
+                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
                           placeholder="رمز عبور جدید را مجدد وارد کنید"
                         />
                         <button
@@ -521,15 +593,21 @@ export default function AccountPage() {
                         </button>
                       </div>
                     </div>
+                    </div>
                   </div>
 
                   <button
                     onClick={handleChangePassword}
-                    className="w-full py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300">
-                    تغییر رمز عبور
+                    disabled={savingPassword}
+                    className="w-full py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg shadow-green-500/25 hover:bg-green-400 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-green-500 inline-flex items-center justify-center gap-2">
+                    {savingPassword ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : null}
+                    {savingPassword ? "در حال تغییر..." : "تغییر رمز عبور"}
                   </button>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>

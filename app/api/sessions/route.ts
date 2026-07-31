@@ -11,21 +11,27 @@ export async function GET() {
 
   const userId = parseInt(session.user.id, 10);
 
-  const sessions = await prisma.session.findMany({
-    where: { userId },
-    orderBy: { requestedAt: "desc" },
-    select: {
-      id: true,
-      sessionDate: true,
-      startTime: true,
-      language: true,
-      sessionType: true,
-      status: true,
-      meetUrl: true,
-      reasonForLearning: true,
-      sessionNote: true,
-    },
-  });
+  const [sessions, reserved] = await Promise.all([
+    prisma.session.findMany({
+      where: { userId },
+      orderBy: { requestedAt: "desc" },
+      select: {
+        id: true,
+        sessionDate: true,
+        startTime: true,
+        language: true,
+        sessionType: true,
+        status: true,
+        meetUrl: true,
+        reasonForLearning: true,
+        sessionNote: true,
+      },
+    }),
+    prisma.session.findMany({
+      where: { userId: { not: userId }, status: { not: "Canceled" } },
+      select: { sessionDate: true },
+    }),
+  ]);
 
   const mapped = sessions.map((s) => {
     const pad = (n: number) => String(n).padStart(2, "0");
@@ -44,7 +50,13 @@ export async function GET() {
     };
   });
 
-  return NextResponse.json(mapped);
+  const reservedDates = [
+    ...new Set(
+      reserved.map((s) => moment(s.sessionDate).format("jYYYY/jMM/jDD")),
+    ),
+  ];
+
+  return NextResponse.json({ sessions: mapped, reservedDates });
 }
 
 export async function POST(request: Request) {
@@ -82,6 +94,22 @@ export async function POST(request: Request) {
     const timeParts = startTime.split(":");
     timeDate = new Date();
     timeDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
+  }
+
+  // Block dates already reserved by another client
+  const conflict = await prisma.session.findFirst({
+    where: {
+      sessionDate: gregDate,
+      userId: { not: userId },
+      status: { not: "Canceled" },
+    },
+    select: { id: true },
+  });
+  if (conflict) {
+    return NextResponse.json(
+      { error: "این تاریخ قبلاً توسط کاربر دیگری رزرو شده است" },
+      { status: 409 },
+    );
   }
 
   // Price from DB — single source of truth, matches what the UI displays.

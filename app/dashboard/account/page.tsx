@@ -189,6 +189,16 @@ export default function AccountPage() {
   return (
     <div dir="rtl">
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+        {/* Save notice */}
+        <div className="flex items-center backdrop-blur-3xl gap-2.5 bg-blue-500/10 rounded-xl px-4 py-3 ring-1 ring-blue-500/20">
+          <svg className="h-4 w-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p className="text-xs text-blue-400 leading-relaxed font-medium">
+            لطفاً برای ثبت تغییرات روی دکمه ذخیره کلیک کنید
+          </p>
+        </div>
+
         {/* Header */}
         {/* <div>
           <h1 className="text-3xl font-bold text-[var(--dash-text)] mb-2">
@@ -412,7 +422,9 @@ export default function AccountPage() {
                       دریافت کنید. برای مشاهده گواهی‌های خود روی دکمه زیر کلیک
                       کنید.
                     </p>
-                    <button className="px-6 py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300 inline-flex items-center gap-2">
+                    <button
+                      disabled
+                      className="px-6 py-3 bg-[var(--hover-bg)] text-[var(--dash-muted)] rounded-xl font-bold cursor-not-allowed transition-all duration-300 inline-flex items-center gap-2">
                       <Award className="w-5 h-5" />
                       مشاهده گواهی‌ها
                     </button>

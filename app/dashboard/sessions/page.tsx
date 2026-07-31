@@ -6,7 +6,6 @@ import Link from "next/link";
 import {
   Lock,
   Globe,
-  Clock,
   CalendarDays,
   Users,
   User,
@@ -19,13 +18,17 @@ import {
   ExternalLink,
   Video,
   ChevronDown,
+  BookOpen,
   RefreshCw,
   Check,
+  X,
 } from "lucide-react";
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
 
 const timeSlots = ["08:30", "09:30", "10:30"];
+
+const TEACHER_NAME = "رضا کمالی";
 
 
 const languages = [
@@ -79,12 +82,15 @@ export default function SessionsPage() {
 
   const [mounted, setMounted] = useState(false);
   const [requests, setRequests] = useState<SessionItem[]>([]);
+  const [reservedDates, setReservedDates] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [privatePrice, setPrivatePrice] = useState<number | null>(null);
+  const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
+  const [isCanceling, setIsCanceling] = useState(false);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -101,8 +107,9 @@ export default function SessionsPage() {
           fetch("/api/sessions/price"),
         ]);
         if (sessionsRes.ok) {
-          const data: SessionItem[] = await sessionsRes.json();
-          setRequests(data);
+          const data = await sessionsRes.json();
+          setRequests(data.sessions);
+          setReservedDates(new Set(data.reservedDates ?? []));
         }
         if (priceRes.ok) {
           const { privatePrice } = await priceRes.json();
@@ -134,7 +141,12 @@ export default function SessionsPage() {
     setErrorMsg(null);
     try {
       let successCount = 0;
+      let conflictCount = 0;
       for (const dateStr of selectedDates) {
+        if (reservedDates.has(dateStr)) {
+          conflictCount++;
+          continue;
+        }
         const res = await fetch("/api/sessions", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -154,6 +166,11 @@ export default function SessionsPage() {
           }, 1500);
           return;
         }
+        if (res.status === 409) {
+          setReservedDates((prev) => new Set(prev).add(dateStr));
+          conflictCount++;
+          continue;
+        }
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           const msg = data.error || `خطا (کد ${res.status})`;
@@ -165,10 +182,18 @@ export default function SessionsPage() {
         setRequests((prev) => [created, ...prev]);
         successCount++;
       }
+      if (successCount === 0) {
+        setErrorMsg("تاریخ انتخاب‌شده قبلاً رزرو شده است");
+        toast.error("تاریخ انتخاب‌شده قبلاً رزرو شده است");
+        return;
+      }
       setSelectedDates(new Set());
       setSelectedTimeSlot("");
       setReason("");
       toast.success(`درخواست ${successCount} جلسه با موفقیت ثبت شد`);
+      if (conflictCount > 0) {
+        toast.error(`${conflictCount} تاریخ به دلیل رزرو قبلی ثبت نشد`);
+      }
       window.dispatchEvent(new Event("balance-update"));
     } catch (err) {
       setErrorMsg("خطا در برقراری ارتباط");
@@ -179,6 +204,41 @@ export default function SessionsPage() {
 
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
+
+  const handleCancelClick = (req: SessionItem) => {
+    if (req.status === "Approved") {
+      toast.error("این جلسه توسط استاد تأیید شده است و امکان لغو آن وجود ندارد");
+      return;
+    }
+    setCancelTarget(req);
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelTarget || isCanceling) return;
+    setIsCanceling(true);
+    try {
+      const res = await fetch(`/api/sessions/${cancelTarget.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در لغو جلسه");
+        return;
+      }
+      setRequests((prev) =>
+        prev.map((r) =>
+          r.id === cancelTarget.id ? { ...r, status: "Canceled" } : r,
+        ),
+      );
+      setCancelTarget(null);
+      toast.success("جلسه لغو شد و مبلغ به کیف پول شما بازگشت");
+      window.dispatchEvent(new Event("balance-update"));
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setIsCanceling(false);
+    }
+  };
 
   const pendingDates = new Set(
     requests.filter((r) => r.status === "Pending").map((r) => r.date),
@@ -212,7 +272,8 @@ export default function SessionsPage() {
   return (
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         {/* Pro Section (mobile only - above form) */}
-        <div className="lg:hidden bg-purple-500/10 backdrop-blur-xl rounded-xl p-4 ring-1 ring-purple-500/30 shadow-sm">
+        <div className="lg:hidden pro-border rounded-xl p-[2px]">
+          <div className="bg-purple-500/10 backdrop-blur-xl rounded-[10px] p-4">
           <div className="flex items-start gap-3 mb-3">
             <div className="p-2 rounded-lg bg-purple-500/15 shrink-0">
               <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -229,7 +290,7 @@ export default function SessionsPage() {
                 </span>
               </div>
               <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-                کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس رضا کمالی
+                کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰
               </p>
             </div>
           </div>
@@ -243,6 +304,7 @@ export default function SessionsPage() {
               لینک جلسه جمعه قرار داده می‌شود
             </span>
           </button>
+          </div>
         </div>
 
         {/* Right: Request Form (wider) */}
@@ -322,6 +384,15 @@ export default function SessionsPage() {
                 <div className="space-y-4">
                   {/* Month Grids */}
                   {mounted && (
+                    <div className="relative">
+                      {isLoading && (
+                        <div className="absolute inset-0 z-10 backdrop-blur-sm bg-(--dash-sides)/50 rounded-xl flex items-center justify-center">
+                          <span className="flex items-center gap-2 text-sm font-medium text-[var(--dash-text)] bg-[var(--dash-sides)]/80 px-4 py-2.5 rounded-full shadow-lg">
+                            <Loader2 className="h-4 w-4 animate-spin text-green-500" />
+                           درحال بررسی تاریخ های موجود
+                          </span>
+                        </div>
+                      )}
                     <div className="flex gap-6 overflow-x-auto pb-2" style={{ direction: "ltr" }}>
                       {(() => {
                         const now = moment();
@@ -354,23 +425,26 @@ export default function SessionsPage() {
                                     const isSelected = selectedDates.has(dateStr);
                                     const isPending = pendingDates.has(dateStr);
                                     const isApproved = approvedDates.has(dateStr);
+                                    const isReserved = reservedDates.has(dateStr);
                                     const isAvailable = dateStr > todayStr;
                                     return (
                                       <div
                                         key={dateStr}
-                                        onClick={() => isAvailable && !isPending && !isApproved && toggleDate(dateStr)}
+                                        onClick={() => isAvailable && !isPending && !isApproved && !isReserved && toggleDate(dateStr)}
                                         className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
                                           isApproved
                                             ? "bg-green-500 text-black font-bold ring-1 ring-green-500/60 cursor-not-allowed"
                                             : isPending
                                               ? "bg-amber-500/10 text-amber-500 font-bold ring-1 ring-amber-500/40 cursor-not-allowed"
-                                              : isSelected
-                                                ? "bg-green-500/10 text-green-500 font-bold"
-                                                : isToday
-                                                  ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
-                                                  : isPast
-                                                    ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
-                                                    : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
+                                              : isReserved
+                                                ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30 cursor-not-allowed"
+                                                : isSelected
+                                                  ? "bg-green-500/10 text-green-500 font-bold"
+                                                  : isToday
+                                                    ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
+                                                    : isPast
+                                                      ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
+                                                      : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
                                         }`}>
                                         {day}
                                         {isApproved ? (
@@ -380,6 +454,10 @@ export default function SessionsPage() {
                                         ) : isPending ? (
                                           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center">
                                             <Loader2 className="h-2 w-2 text-black animate-spin" strokeWidth={3} />
+                                          </div>
+                                        ) : isReserved ? (
+                                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full flex items-center justify-center">
+                                            <Lock className="h-2 w-2 text-black" strokeWidth={3} />
                                           </div>
                                         ) : (
                                           isSelected && (
@@ -400,6 +478,7 @@ export default function SessionsPage() {
                           );
                         });
                       })()}
+                    </div>
                     </div>
                   )}
 
@@ -605,7 +684,8 @@ export default function SessionsPage() {
           </div>
 
           {/* Pro Section (desktop only) */}
-          <div className="hidden lg:block bg-[var(--hover-bg)] rounded-xl p-4 mb-5 ring-1 ring-purple-500/30 shadow-sm">
+          <div className="hidden lg:block pro-border rounded-xl p-[2px] mb-5">
+            <div className="bg-[var(--hover-bg)] rounded-[10px] p-4">
             <div className="flex items-start gap-3 mb-3">
               <div className="p-2 rounded-lg bg-purple-500/15 shrink-0">
                 <svg className="h-4 w-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,6 +716,7 @@ export default function SessionsPage() {
                 لینک جلسه جمعه قرار داده می‌شود
               </span>
             </button>
+            </div>
           </div>
 
           {/* Filter Tabs */}
@@ -674,42 +755,101 @@ export default function SessionsPage() {
               return (
                 <div
                   key={req.id}
-                  className="bg-[var(--hover-bg)] rounded-xl shadow-lg transition-all duration-200 hover:-translate-y-0.5">
-                  <div className="p-5">
+                  className="relative bg-[var(--hover-bg)] rounded-2xl shadow-lg transition-all duration-200 hover:-translate-y-0.5">
+                  <div className="px-5 pt-5 pb-5">
                     <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div
-                          className={`p-2 rounded-lg ${statusBg[req.status]}`}>
-                          <StatusIcon
-                            className={`h-4 w-4 ${statusColors[req.status]}`}
-                          />
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div
+                            className={`p-2 rounded-lg ${statusBg[req.status]}`}>
+                            <StatusIcon
+                              className={`h-4 w-4 ${statusColors[req.status]}`}
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-bold text-[15px] text-[var(--dash-text)]">
+                              {req.language}
+                            </p>
+                            <p className="text-xs text-[var(--dash-muted)] mt-0.5">
+                              {req.type}
+                            </p>
+                          </div>
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-[15px] text-[var(--dash-text)]">
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span
+                            className={`px-3 py-1 rounded-lg text-xs font-semibold ${statusBg[req.status]} ${statusColors[req.status]}`}>
+                            {statusLabel[req.status]}
+                          </span>
+                          {req.status !== "Canceled" && (
+                            <button
+                              onClick={() => handleCancelClick(req)}
+                              title={
+                                req.status === "Approved"
+                                  ? "جلسه تأیید شده قابل لغو نیست"
+                                  : "لغو جلسه"
+                              }
+                              className={`p-1.5 rounded-full transition-all duration-200 ${
+                                req.status === "Approved"
+                                  ? "bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]/40 cursor-not-allowed"
+                                  : "bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:scale-110"
+                              }`}>
+                              {req.status === "Approved" ? (
+                                <Lock className="h-3.5 w-3.5" />
+                              ) : (
+                                <X className="h-3.5 w-3.5" />
+                              )}
+                            </button>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Language → Teacher */}
+                      <div className="mt-4 flex items-center justify-between gap-2 bg-[var(--hover-bg)] rounded-xl px-4 py-3">
+                        <div className="min-w-0 text-center flex-1">
+                          <p className="text-[10px] text-[var(--dash-muted)]">
+                            زبان
+                          </p>
+                          <p className="text-sm font-bold text-[var(--dash-text)] truncate mt-0.5">
                             {req.language}
                           </p>
-                          <p className="text-xs text-[var(--dash-muted)] mt-0.5">
-                            {req.type}
+                        </div>
+                        <BookOpen className="h-4 w-4 text-[var(--dash-muted)] shrink-0" />
+                        <div className="min-w-0 text-center flex-1">
+                          <p className="text-[10px] text-[var(--dash-muted)]">
+                            مدرس
+                          </p>
+                          <p className="text-sm font-bold text-[var(--dash-text)] truncate mt-0.5">
+                            {TEACHER_NAME}
                           </p>
                         </div>
                       </div>
-                      <span
-                        className={`shrink-0 px-3 py-1 rounded-lg text-xs font-semibold ${statusBg[req.status]} ${statusColors[req.status]}`}>
-                        {statusLabel[req.status]}
-                      </span>
-                    </div>
 
-                    <div className="flex items-center gap-4 mt-4 text-sm text-[var(--dash-muted)]">
-                      <span className="flex items-center gap-1.5">
-                        <CalendarDays className="h-4 w-4" />
-                        {toPersianDigits(req.date)}
-                      </span>
-                      <span className="w-1 h-1 rounded-full bg-[var(--dash-muted)]/20" />
-                      <span className="flex items-center gap-1.5">
-                        <Clock className="h-4 w-4" />
-                        {toPersianDigits(req.time)}
-                      </span>
-                    </div>
+                      {/* Info grid */}
+                      <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                        <div>
+                          <p className="text-[10px] text-[var(--dash-muted)]">
+                            تاریخ
+                          </p>
+                          <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
+                            {toPersianDigits(req.date)}
+                          </p>
+                        </div>
+                        <div className="border-x border-dashed border-[var(--dash-muted)]/15">
+                          <p className="text-[10px] text-[var(--dash-muted)]">
+                            ساعت
+                          </p>
+                          <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
+                            {toPersianDigits(req.time)}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-[10px] text-[var(--dash-muted)]">
+                            نوع
+                          </p>
+                          <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
+                            {req.type === "Private" ? "خصوصی" : "عمومی"}
+                          </p>
+                        </div>
+                      </div>
 
                     {req.reason && (
                       <div className="mt-3 py-2.5 pr-3 border-r-2 border-[var(--dash-muted)]/10">
@@ -788,6 +928,51 @@ export default function SessionsPage() {
             })}
           </div>
         </div>
+
+        {/* Cancel confirmation modal */}
+        {cancelTarget && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setCancelTarget(null)}
+            />
+            <div className="relative w-full max-w-sm bg-[var(--dash-sides)] rounded-2xl shadow-2xl p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2.5 rounded-xl bg-red-500/15 shrink-0">
+                  <XCircle className="h-5 w-5 text-red-500" />
+                </div>
+                <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                  لغو جلسه
+                </h3>
+              </div>
+              <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-4">
+                آیا از لغو جلسه خود در تاریخ{" "}
+                <span className="font-bold text-[var(--dash-text)]">
+                  {toPersianDigits(cancelTarget.date)}
+                </span>{" "}
+                مطمئن هستید؟
+              </p>
+              <p className="text-[11px] text-[var(--dash-muted)] leading-relaxed mb-6">
+                «مبلغ این جلسه به کیف پول شما بازگردانده خواهد شد»
+              </p>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setCancelTarget(null)}
+                  disabled={isCanceling}
+                  className="flex-[2] py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition-all duration-200 disabled:opacity-60 shadow-lg shadow-green-500/20">
+                  نه، منصرف شدم
+                </button>
+                <button
+                  onClick={confirmCancel}
+                  disabled={isCanceling}
+                  className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold ring-1 ring-red-500/20 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2">
+                  {isCanceling && <Loader2 className="h-4 w-4 animate-spin" />}
+                  بله، لغو کن
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
   );
 }

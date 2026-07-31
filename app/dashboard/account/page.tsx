@@ -68,7 +68,11 @@ export default function AccountPage() {
           });
           if (data.birthDate)
             setBirthDate(
-              new DateObject(data.birthDate).convert(persian, persian_fa),
+              new DateObject({
+                date: data.birthDate,
+                calendar: persian,
+                locale: persian_fa,
+              }),
             );
           setLevel(data.fluencyLevel ?? "");
           setAvatarSeed(data.avatarSeed ?? data.phone);
@@ -122,7 +126,11 @@ export default function AccountPage() {
       });
       if (data.birthDate)
         setBirthDate(
-          new DateObject(data.birthDate).convert(persian, persian_fa),
+          new DateObject({
+            date: data.birthDate,
+            calendar: persian,
+            locale: persian_fa,
+          }),
         );
       setLevel(data.fluencyLevel ?? "");
       setIsPro(data.isPro ?? false);

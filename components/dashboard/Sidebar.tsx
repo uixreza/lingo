@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import {
   Home,
   User,
@@ -13,11 +13,12 @@ import {
   GraduationCap,
   Menu,
   X,
-  BookOpen,
   ShieldCheck,
+  ChevronLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Avatar from "./Avatar";
 
 const menuItems = [
   { label: "خانه", href: "/dashboard", icon: Home },
@@ -29,6 +30,7 @@ const menuItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
@@ -37,7 +39,9 @@ export default function Sidebar() {
     setMounted(true);
   }, []);
 
-  // Close sidebar when route changes on mobile
+  const closeMobileSheet = () => setIsMobileOpen(false);
+
+  // Close sheet when route changes on mobile
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
@@ -55,11 +59,11 @@ export default function Sidebar() {
     };
   }, [isMobileOpen]);
 
-  // Mobile Menu Button (to be used in your layout/header)
+  // Mobile Menu Button (bottom-left, away from the radio button on the right)
   const MobileMenuButton = () => (
     <button
       onClick={() => setIsMobileOpen(true)}
-      className="lg:hidden fixed bottom-6 right-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
+      className="lg:hidden fixed bottom-6 left-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
       aria-label="باز کردن منو">
       <Menu className="h-6 w-6" />
     </button>
@@ -225,37 +229,39 @@ export default function Sidebar() {
       {/* Mobile Sidebar - Bottom Sheet */}
       <aside
         className={`
-          lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--sidebar-bg)] shadow-2xl rounded-t-3xl flex flex-col transition-all duration-200 z-50 backdrop-blur-lg
-          ${isMobileOpen ? "translate-y-0" : "translate-y-full"}
-          max-h-[85vh]
+          lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-[var(--sidebar-bg)]/95 backdrop-blur-2xl shadow-2xl rounded-t-3xl flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0.28,1)] max-h-[85dvh]
+          ${isMobileOpen ? "translate-y-0" : "translate-y-full pointer-events-none"}
         `}
-        dir="rtl">
+        dir="rtl"
+        aria-hidden={!isMobileOpen}>
         {/* Drag Handle */}
-        <div className="flex justify-center p-4 pb-2">
-          <div className="w-16 h-1.5 bg-white/20 rounded-full"></div>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 bg-white/25 rounded-full" />
         </div>
 
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between p-6">
+        {/* User Header */}
+        <div className="flex items-center gap-3 px-5 py-4">
+          <Avatar
+            seed={session?.user?.avatarSeed || session?.user?.fullname || "lingofam"}
+            size={44}
+            className="w-11 h-11 rounded-2xl shrink-0 bg-[var(--hover-bg-strong)]"
+          />
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-[var(--sidebar-heading)] truncate">
+              {session?.user?.fullname || "کاربر لینگوفم"}
+            </p>
+            <p className="text-xs text-[var(--sidebar-text)]">پنل کاربری شما</p>
+          </div>
           <button
-            onClick={() => setIsMobileOpen(false)}
-            className="p-3 rounded-2xl text-[var(--sidebar-heading)] hover:bg-[var(--hover-bg)] transition-all duration-150 hover:scale-110"
+            onClick={closeMobileSheet}
+            className="p-2.5 rounded-xl bg-[var(--hover-bg)] text-[var(--sidebar-text)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 hover:scale-105"
             aria-label="بستن منو">
             <X className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center shadow-lg">
-              <BookOpen className="h-5 w-5 text-white" />
-            </div>
-            <h3 className="text-xl font-bold text-[var(--sidebar-heading)]">
-              منو
-            </h3>
-          </div>
-          <div className="w-10"></div> {/* Spacer for balance */}
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 p-6 space-y-3 overflow-y-auto">
+        <nav className="flex-1 overflow-y-auto px-4 pb-2 space-y-1.5">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -263,61 +269,56 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsMobileOpen(false)}
-                className={`group flex items-center gap-4 px-4 py-4 rounded-2xl font-medium text-lg relative overflow-hidden transition-all duration-150
-                  ${
+                onClick={closeMobileSheet}
+                className={`group flex items-center gap-3.5 px-3 py-3 rounded-2xl transition-all duration-150 ${
+                  isActive
+                    ? "bg-green-500 text-white shadow-lg"
+                    : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                }`}>
+                <span
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-150 ${
                     isActive
-                      ? "bg-green-500 text-white shadow-lg scale-105"
-                      : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                      ? "bg-white/20 text-white"
+                      : "bg-[var(--hover-bg)] text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
                   }`}>
-                <div className="relative">
-                  <Icon
-                    className={`h-6 w-6 transition-colors duration-100 ${
-                      isActive
-                        ? "text-white"
-                        : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
-                    }`}
-                  />
-                </div>
-
-                <span className={`${isActive ? "font-bold" : "font-medium"}`}>
+                  <Icon className="w-5 h-5" />
+                </span>
+                <span
+                  className={`flex-1 text-base ${isActive ? "font-bold" : "font-medium"}`}>
                   {item.label}
                 </span>
+                <ChevronLeft
+                  className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
+                    isActive
+                      ? "text-white/70"
+                      : "text-[var(--sidebar-text)] opacity-40"
+                  }`}
+                />
               </Link>
             );
           })}
         </nav>
 
         {/* Bottom Actions - Theme Toggle & Logout */}
-        <div className="p-6 space-y-4 bg-[var(--sidebar-bg)]/90 rounded-t-3xl">
+        <div
+          className="px-4 pt-2 space-y-1.5 border-t border-white/5"
+          style={{
+            paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))",
+          }}>
           {/* Theme Toggle */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`
-                w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-lg font-medium transition-all duration-150
-                text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]
-                backdrop-blur-sm
-              `}
+              className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150"
               aria-label="تغییر تم">
-              <div className="relative w-6 h-6">
-                <Sun
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
-                    theme === "dark"
-                      ? "opacity-0 scale-0 rotate-90"
-                      : "opacity-100 scale-100 rotate-0"
-                  } group-hover:text-[var(--sidebar-text-hover)]`}
-                />
-                <Moon
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
-                    theme === "dark"
-                      ? "opacity-100 scale-100 rotate-0"
-                      : "opacity-0 scale-0 -rotate-90"
-                  } group-hover:text-[var(--sidebar-text-hover)]`}
-                />
-              </div>
-
-              <span>
+              <span className="w-10 h-10 rounded-xl bg-[var(--hover-bg)] flex items-center justify-center group-hover:bg-[var(--hover-bg-strong)] transition-colors duration-150">
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </span>
+              <span className="text-base font-medium">
                 {theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}
               </span>
             </button>
@@ -326,12 +327,14 @@ export default function Sidebar() {
           {/* Logout */}
           <button
             onClick={() => {
-              setIsMobileOpen(false);
+              closeMobileSheet();
               signOut({ callbackUrl: "/" });
             }}
-            className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
-            <LogOut className="h-6 w-6" />
-            خروج از حساب کاربری
+            className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] transition-all duration-150">
+            <span className="w-10 h-10 rounded-xl bg-[var(--danger-hover-bg)] flex items-center justify-center group-hover:bg-[var(--danger)] group-hover:text-white transition-colors duration-150">
+              <LogOut className="w-5 h-5" />
+            </span>
+            <span className="text-base font-medium">خروج از حساب کاربری</span>
           </button>
         </div>
       </aside>

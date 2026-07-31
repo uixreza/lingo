@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import data from "@/data.json";
-import { FileText, BookOpen, Calendar } from "lucide-react";
+import {
+  BookOpen,
+  Calendar,
+  Clock,
+  Globe,
+  Play,
+  Pause,
+  Radio,
+  Volume2,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useRadio } from "@/components/RadioProvider";
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
   id: `kid-${i}`,
@@ -25,15 +35,29 @@ export default function DashboardPage() {
     "kids",
   );
   const session = useSession();
+  const [stats, setStats] = useState<{
+    upcomingCount: number;
+    upcomingSessions: {
+      id: number;
+      date: string;
+      time: string;
+      language: string;
+      meetLink: string | null;
+    }[];
+    privateSessions: number;
+  } | null>(null);
 
-  const student = {
-    name: "علی محمدی",
-    enrolledCourses: 3,
-    upcomingClasses: 2,
-    pendingAssignments: 1,
-    publicClassesAttended: 0,
-    privateSessionsRequested: 0,
-  };
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch("/api/dashboard/stats");
+        if (res.ok) setStats(await res.json());
+      } catch {
+        // stats are decorative; keep cards hidden on failure
+      }
+    };
+    fetchStats();
+  }, []);
 
   const books =
     activeGroup === "kids"
@@ -69,7 +93,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 max-sm:[&>:first-child]:col-span-full">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Link
             href="/dashboard/sessions"
             className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden">
@@ -101,16 +125,8 @@ export default function DashboardPage() {
 
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           </Link>
-          <StatCard
-            title="کلاس‌های عمومی"
-            value={student.publicClassesAttended.toString()}
-            icon={Calendar}
-          />
-          <StatCard
-            title="جلسات خصوصی"
-            value={student.privateSessionsRequested.toString()}
-            icon={FileText}
-          />
+          <UpcomingSessionsCard stats={stats} />
+          <RadioCard />
         </div>
       </div>
       </div>
@@ -158,7 +174,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Books Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
           {books.map((book) => (
             <BookCard key={book.id} book={book} />
           ))}
@@ -265,50 +281,146 @@ function PhrasalVerbOfTheDay() {
   );
 }
 
-function StatCard({
-  title,
-  value,
-  href,
-  className,
-  icon: Icon,
+function UpcomingSessionsCard({
+  stats,
 }: {
-  title: string;
-  value: string;
-  href?: string;
-  className?: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  stats: {
+    upcomingCount: number;
+    upcomingSessions: {
+      id: number;
+      date: string;
+      time: string;
+      language: string;
+      meetLink: string | null;
+    }[];
+    privateSessions: number;
+  } | null;
 }) {
-  const content = (
-    <div className="flex items-center gap-3">
-      <div>
-        <p className="text-sm font-medium text-[var(--dash-muted)]">{title}</p>
-        <p className="text-2xl font-bold text-[var(--dash-text)] mt-0.5">
-          {value}
-        </p>
-      </div>
-    </div>
-  );
-
-  const baseClasses = "rounded-xl p-4 shadow-xl relative overflow-hidden";
-  const allClasses = `${baseClasses} ${href ? "block cursor-pointer transition-transform duration-200 hover:scale-[1.02]" : ""} ${className || "bg-[var(--hover-bg)]"}`;
-
-  const iconElement = Icon && (
-    <Icon className="absolute top-1/2 -translate-y-1/2 -left-2 w-16 h-16 -rotate-12 text-background opacity-10" />
-  );
-
-  if (href) {
-    return (
-      <Link href={href} className={allClasses}>
-        {content}
-        {iconElement}
-      </Link>
-    );
-  }
+  const upcoming = stats?.upcomingSessions ?? [];
+  const next = upcoming[0];
+  const moreCount = stats ? stats.upcomingCount - upcoming.length : 0;
 
   return (
-    <div className={allClasses}>
-      {content}
-      {iconElement}
+    <Link
+      href="/dashboard/sessions"
+      className="group relative flex flex-col rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-2xl shadow-2xl p-4 transition-all duration-300 hover:shadow-2xl hover:scale-[1.02] overflow-hidden">
+      <div className="absolute -top-10 -left-10 w-32 h-32 bg-green-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <span className="w-8 h-8 rounded-xl bg-green-500/15 flex items-center justify-center">
+            <Calendar className="w-4 h-4 text-green-500" />
+          </span>
+          <h3 className="font-bold text-sm text-[var(--dash-text)]">
+            جلسات پیش رو
+          </h3>
+        </div>
+        {stats && (
+          <span className="px-2.5 py-1 rounded-full bg-green-500/15 text-green-500 text-xs font-bold">
+            {stats.upcomingCount.toLocaleString("fa-IR")}
+          </span>
+        )}
+      </div>
+
+      {!stats ? (
+        <p className="text-sm text-[var(--dash-muted)] py-1">
+          در حال بارگذاری...
+        </p>
+      ) : next ? (
+        <>
+          <div className="bg-[var(--hover-bg)] rounded-xl p-3 space-y-2">
+            <div className="flex items-center gap-2 text-sm">
+              <Calendar className="w-4 h-4 text-green-500 shrink-0" />
+              <span className="font-bold text-[var(--dash-text)]" dir="rtl">
+                {next.date.replaceAll("/", " / ")}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="w-4 h-4 text-green-500 shrink-0" />
+              <span className="font-medium text-[var(--dash-muted)]">
+                ساعت {next.time}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-sm">
+              <Globe className="w-4 h-4 text-green-500 shrink-0" />
+              <span className="font-medium text-[var(--dash-muted)]">
+                {next.language}
+              </span>
+            </div>
+          </div>
+          {moreCount > 0 && (
+            <p className="text-xs text-[var(--dash-muted)] mt-2">
+              و {moreCount.toLocaleString("fa-IR")} جلسه دیگر...
+            </p>
+          )}
+        </>
+      ) : (
+        <div className="bg-[var(--hover-bg)] rounded-xl p-3">
+          <p className="text-sm text-[var(--dash-muted)]">
+            جلسه پیش رویی ندارید.
+          </p>
+        </div>
+      )}
+    </Link>
+  );
+}
+
+function RadioCard() {
+  const { playing, failed, toggle } = useRadio();
+
+  return (
+    <div className="relative flex flex-col justify-between rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-2xl shadow-2xl p-4 overflow-hidden">
+      <div className="absolute -top-10 -right-10 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="flex items-center gap-2 mb-3">
+        <span className="w-8 h-8 rounded-xl bg-purple-500/15 flex items-center justify-center">
+          <Radio className="w-4 h-4 text-purple-400" />
+        </span>
+        <div>
+          <h3 className="font-bold text-sm text-[var(--dash-text)]">
+            رادیو انگلیسی
+          </h3>
+          <p className="text-xs text-[var(--dash-muted)]">
+            تقویت مهارت شنیداری
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <button
+          onClick={toggle}
+          aria-label={playing ? "توقف پخش" : "پخش رادیو"}
+          className="w-11 h-11 shrink-0 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 text-white flex items-center justify-center shadow-lg transition-all duration-200 hover:scale-105 active:scale-95">
+          {playing ? (
+            <Pause className="w-5 h-5" />
+          ) : (
+            <Play className="w-5 h-5 mr-0.5" />
+          )}
+        </button>
+
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-[var(--dash-text)] truncate">
+            LBC UK
+          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs text-[var(--dash-muted)]">
+              {failed
+                ? "پخش در دسترس نیست"
+                : playing
+                  ? "در حال پخش زنده..."
+                  : "ایستگاه زنده — گفتگو و اخبار"}
+            </p>
+            {playing && (
+              <span className="flex items-end gap-0.5 h-3" aria-hidden>
+                <span className="eq-bar" style={{ animationDelay: "0s" }} />
+                <span className="eq-bar" style={{ animationDelay: "0.2s" }} />
+                <span className="eq-bar" style={{ animationDelay: "0.4s" }} />
+                <span className="eq-bar" style={{ animationDelay: "0.1s" }} />
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -326,7 +438,7 @@ function BookCard({
   };
 }) {
   return (
-    <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
+    <div className="relative group rounded-none sm:rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
       {/* Background Image with Fallback */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]"
@@ -342,12 +454,12 @@ function BookCard({
         </h3>
         <p className="text-white/80 text-sm mt-1 mb-4">{book.author}</p>
 
-        <div className="flex flex-col gap-2">
+        <div className="flex items-center gap-2">
           <a
             href={book.bookUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="w-full px-3 py-2.5 bg-green-500 text-black text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
+            className="flex-[3] px-2 sm:px-3 py-2 sm:py-2.5 bg-green-500 text-black text-xs sm:text-sm font-medium rounded-none sm:rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
             دانلود کتاب
           </a>
           {book.audioUrl && (
@@ -355,8 +467,10 @@ function BookCard({
               href={book.audioUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full px-3 py-2.5 bg-white/20 text-white text-sm font-medium rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 text-center block">
-              دانلود فایل صوتی
+              aria-label="دانلود فایل صوتی"
+              title="دانلود فایل صوتی"
+              className="flex-1 h-9 sm:h-[42px] bg-white/20 text-white rounded-none sm:rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
+              <Volume2 className="w-4 h-4" />
             </a>
           )}
         </div>

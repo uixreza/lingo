@@ -5,6 +5,8 @@ import { authOptions } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
+import { RadioProvider } from "@/components/RadioProvider";
+import RadioButton from "@/components/dashboard/RadioButton";
 
 export const metadata: Metadata = {
   title: "داشبورد",
@@ -27,7 +29,7 @@ export default async function RootLayout({
     balance: 20000,
   };
   return (
-    <>
+    <RadioProvider>
       <div
         className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
         dir="rtl">
@@ -45,6 +47,7 @@ export default async function RootLayout({
         {/* Sidebar */}
         <Sidebar />
       </div>
-    </>
+      <RadioButton />
+    </RadioProvider>
   );
 }

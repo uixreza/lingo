@@ -85,7 +85,13 @@ function jalCalShort(jy: number) {
 }
 
 function gregToJalaliStr(date: Date): string {
-  const { jy, jm, jd } = d2j(g2d(date.getFullYear(), date.getMonth() + 1, date.getDate()));
+  const { jy, jm, jd } = d2j(
+    g2d(
+      date.getUTCFullYear(),
+      date.getUTCMonth() + 1,
+      date.getUTCDate(),
+    ),
+  );
   return `${jy}/${String(jm).padStart(2, "0")}/${String(jd).padStart(2, "0")}`;
 }
 
@@ -102,7 +108,7 @@ function jalaliStrToDate(jalaliStr: string | null | undefined): Date | null {
   const [jy, jm, jd] = parts.map(Number);
   if (!jy || !jm || !jd || jm < 1 || jm > 12 || jd < 1 || jd > 31) return null;
   const g = d2g(j2d(jy, jm, jd));
-  return new Date(g.gy, g.gm - 1, g.gd);
+  return new Date(Date.UTC(g.gy, g.gm - 1, g.gd));
 }
 
 export async function GET() {

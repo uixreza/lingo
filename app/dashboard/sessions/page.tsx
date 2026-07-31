@@ -84,7 +84,7 @@ export default function SessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [privatePrice, setPrivatePrice] = useState(400000);
+  const [privatePrice, setPrivatePrice] = useState<number | null>(null);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -140,7 +140,7 @@ export default function SessionsPage() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             sessionDate: dateStr,
-            startTime: selectedTimeSlot,
+            startTime: selectedTimeSlot || "08:30",
             language:
               languages.find((l) => l.id === language)?.label || "English",
             sessionType: "Private",
@@ -179,6 +179,14 @@ export default function SessionsPage() {
 
   const filteredRequests =
     filter === "all" ? requests : requests.filter((r) => r.status === filter);
+
+  const pendingDates = new Set(
+    requests.filter((r) => r.status === "Pending").map((r) => r.date),
+  );
+
+  const approvedDates = new Set(
+    requests.filter((r) => r.status === "Approved").map((r) => r.date),
+  );
 
   const statusIcons = {
     Approved: CheckCircle,
@@ -344,25 +352,41 @@ export default function SessionsPage() {
                                     const isPast = dateStr < todayStr;
                                     const isToday = dateStr === todayStr;
                                     const isSelected = selectedDates.has(dateStr);
+                                    const isPending = pendingDates.has(dateStr);
+                                    const isApproved = approvedDates.has(dateStr);
                                     const isAvailable = dateStr > todayStr;
                                     return (
                                       <div
                                         key={dateStr}
-                                        onClick={() => isAvailable && toggleDate(dateStr)}
+                                        onClick={() => isAvailable && !isPending && !isApproved && toggleDate(dateStr)}
                                         className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
-                                          isSelected
-                                            ? "bg-green-500/10 text-green-500 font-bold"
-                                            : isToday
-                                              ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
-                                              : isPast
-                                                ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
-                                                : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
+                                          isApproved
+                                            ? "bg-green-500 text-black font-bold ring-1 ring-green-500/60 cursor-not-allowed"
+                                            : isPending
+                                              ? "bg-amber-500/10 text-amber-500 font-bold ring-1 ring-amber-500/40 cursor-not-allowed"
+                                              : isSelected
+                                                ? "bg-green-500/10 text-green-500 font-bold"
+                                                : isToday
+                                                  ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
+                                                  : isPast
+                                                    ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
+                                                    : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
                                         }`}>
                                         {day}
-                                        {isSelected && (
-                                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                                            <Check className="h-2 w-2 text-black" strokeWidth={3} />
+                                        {isApproved ? (
+                                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center">
+                                            <Check className="h-2 w-2 text-green-600" strokeWidth={3} />
                                           </div>
+                                        ) : isPending ? (
+                                          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center">
+                                            <Loader2 className="h-2 w-2 text-black animate-spin" strokeWidth={3} />
+                                          </div>
+                                        ) : (
+                                          isSelected && (
+                                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
+                                              <Check className="h-2 w-2 text-black" strokeWidth={3} />
+                                            </div>
+                                          )
                                         )}
                                       </div>
                                     );
@@ -484,10 +508,20 @@ export default function SessionsPage() {
                       قیمت کل
                     </span>
                     <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                      {(selectedDates.size * privatePrice).toLocaleString("fa-IR")}
-                      <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                        تومان
-                      </span>
+                      {privatePrice === null ? (
+                        <span className="flex items-end gap-1" dir="ltr">
+                          <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                          <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                          <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        </span>
+                      ) : (
+                        (selectedDates.size * privatePrice).toLocaleString("fa-IR")
+                      )}
+                      {privatePrice !== null && (
+                        <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                          تومان
+                        </span>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -500,10 +534,20 @@ export default function SessionsPage() {
                     </span>
                   </div>
                   <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                    {privatePrice.toLocaleString("fa-IR")}
-                    <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                      تومان
-                    </span>
+                    {privatePrice === null ? (
+                      <span className="flex items-end gap-1" dir="ltr">
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    ) : (
+                      privatePrice.toLocaleString("fa-IR")
+                    )}
+                    {privatePrice !== null && (
+                      <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                        تومان
+                      </span>
+                    )}
                   </span>
                 </div>
               )}

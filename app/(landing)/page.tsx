@@ -83,7 +83,7 @@ export default function Home() {
           <motion.div
             variants={item}
             className="mt-10 flex gap-4 justify-center lg:justify-start">
-            <Link href="/admin">
+            <Link href="/dashboard/sessions">
               <motion.button
                 whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.97 }}

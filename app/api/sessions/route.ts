@@ -84,55 +84,117 @@ export async function POST(request: Request) {
     timeDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
   }
 
-  const amountPaid = sessionType === "Private" ? 400000 : 150000;
+  // Price from DB — single source of truth, matches what the UI displays.
+  // Fallbacks mirror the price GET route so they can never diverge.
+  const sessionPrice = await prisma.sessionPrice.findFirst();
+  const amountPaid =
+    sessionType === "Private"
+      ? Number(sessionPrice?.privatePrice ?? 350000)
+      : Number(sessionPrice?.subscriptionPrice ?? 150000);
 
-  const wallet = await prisma.wallet.findUnique({ where: { userId } });
-  if (!wallet) {
-    return NextResponse.json({ error: "کیف پولی برای شما یافت نشد" }, { status: 404 });
-  }
+  // Free session (admin set price to 0): no wallet interaction
+  if (amountPaid <= 0) {
+    try {
+      const created = await prisma.session.create({
+        data: {
+          userId,
+          sessionDate: gregDate,
+          startTime: timeDate,
+          language: language || "English",
+          sessionType: sessionType === "Private" ? "Private" : "Public",
+          reasonForLearning: reasonForLearning || null,
+          amountPaid: 0,
+          status: "Pending",
+          paymentStatus: "paid",
+        },
+      });
 
-  const currentBalance = Number(wallet.balance);
-  if (currentBalance < amountPaid) {
-    return NextResponse.json({
-      error: "موجودی کیف پول کافی نیست",
-      balance: currentBalance,
-      required: amountPaid,
-    }, { status: 402 });
+      return NextResponse.json({
+        id: created.id,
+        date: moment(created.sessionDate).format("jYYYY/jMM/jDD"),
+        time: `${String(created.startTime.getHours()).padStart(2, "0")}:${String(created.startTime.getMinutes()).padStart(2, "0")}`,
+        language: created.language,
+        type: created.sessionType,
+        status: created.status,
+        reason: created.reasonForLearning,
+      }, { status: 201 });
+    } catch (err) {
+      console.error("Session creation error:", err);
+      return NextResponse.json({
+        error: "خطا در ثبت جلسه",
+        detail: err instanceof Error ? err.message : "Unknown error",
+      }, { status: 500 });
+    }
   }
 
   try {
-    await prisma.wallet.update({
-      where: { userId },
-      data: { balance: { decrement: amountPaid } },
+    // Atomic debit + transaction record + session creation, all-or-nothing
+    const result = await prisma.$transaction(async (tx) => {
+      const update = await tx.wallet.updateMany({
+        where: { userId, isActive: true, balance: { gte: amountPaid } },
+        data: { balance: { decrement: amountPaid } },
+      });
+
+      if (update.count === 0) {
+        const wallet = await tx.wallet.findUnique({ where: { userId } });
+        if (!wallet) {
+          return { kind: "error", error: "کیف پولی برای شما یافت نشد", status: 404 } as const;
+        }
+        if (!wallet.isActive) {
+          return { kind: "error", error: "کیف پول شما غیرفعال است", status: 403 } as const;
+        }
+        return {
+          kind: "error",
+          error: "موجودی کیف پول کافی نیست",
+          status: 402,
+          balance: Number(wallet.balance),
+          required: amountPaid,
+        } as const;
+      }
+
+      const wallet = await tx.wallet.findUnique({ where: { userId } });
+      if (!wallet) throw new Error("Wallet missing after debit");
+
+      const newBalance = Number(wallet.balance);
+
+      await tx.transaction.create({
+        data: {
+          userId,
+          walletId: wallet.id,
+          amount: BigInt(-amountPaid),
+          balanceBefore: BigInt(newBalance + amountPaid),
+          balanceAfter: BigInt(newBalance),
+          description: sessionType === "Private" ? "رزرو جلسه خصوصی" : "رزرو جلسه عمومی",
+          status: "completed",
+        },
+      });
+
+      const created = await tx.session.create({
+        data: {
+          userId,
+          sessionDate: gregDate,
+          startTime: timeDate,
+          language: language || "English",
+          sessionType: sessionType === "Private" ? "Private" : "Public",
+          reasonForLearning: reasonForLearning || null,
+          amountPaid,
+          status: "Pending",
+          paymentStatus: "paid",
+        },
+      });
+
+      return { kind: "success", created } as const;
     });
 
-    const newBalance = currentBalance - amountPaid;
+    if (result.kind === "error") {
+      return NextResponse.json({
+        error: result.error,
+        balance: result.balance,
+        required: result.required,
+      }, { status: result.status });
+    }
 
-    await prisma.transaction.create({
-      data: {
-        userId,
-        amount: BigInt(-amountPaid),
-        balanceBefore: BigInt(currentBalance),
-        balanceAfter: BigInt(newBalance),
-        description: sessionType === "Private" ? "رزرو جلسه خصوصی" : "رزرو جلسه عمومی",
-        status: "completed",
-      },
-    });
-
-    const created = await prisma.session.create({
-      data: {
-        userId,
-        sessionDate: gregDate,
-        startTime: timeDate,
-        language: language || "English",
-        sessionType: sessionType === "Private" ? "Private" : "Public",
-        reasonForLearning: reasonForLearning || null,
-        amountPaid,
-        status: "Pending",
-        paymentStatus: "paid",
-      },
-    });
-
+    const created = result.created;
     return NextResponse.json({
       id: created.id,
       date: moment(created.sessionDate).format("jYYYY/jMM/jDD"),

@@ -23,7 +23,7 @@ export default function Auth() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          className="fixed inset-0 z-[100] lg:flex lg:items-center lg:justify-center lg:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -32,12 +32,12 @@ export default function Auth() {
             onClick={close}
           />
 
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="relative w-full max-w-md rounded-3xl bg-white/5 backdrop-blur-2xl border border-white/10 p-5 sm:p-8 shadow-2xl mx-2 sm:mx-0">
+          <div className="fixed bottom-0 inset-x-0 z-[100] max-h-[92dvh] overflow-y-auto bg-white/5 backdrop-blur-2xl border border-white/10 rounded-t-3xl p-5 sm:p-8 shadow-2xl animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-3xl lg:w-full lg:max-w-md">
+            {/* Drag Handle (mobile only) */}
+            <div className="flex justify-center pt-0 pb-3 lg:hidden">
+              <div className="w-12 h-1.5 bg-white/25 rounded-full" />
+            </div>
+
             <div className="flex mb-8 rounded-xl bg-white/5 p-1">
               <motion.button
                 onClick={() => setTab("login")}
@@ -73,7 +73,7 @@ export default function Auth() {
                 )}
               </motion.div>
             </AnimatePresence>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

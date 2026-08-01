@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   MessageSquare,
   Send,
@@ -45,82 +46,6 @@ interface Reply {
   userName: string;
   createdAt: string;
 }
-
-// Mock data
-const mockTickets: Ticket[] = [
-  {
-    id: 1,
-    title: "مشکل در دسترسی به دوره Next.js",
-    message:
-      "سلام، من دوره Next.js رو خریداری کردم ولی به بخش تمرین‌ها دسترسی ندارم. لطفاً راهنمایی کنید.",
-    status: "open",
-    priority: "high",
-    category: "technical",
-    createdAt: "2024-01-15T10:30:00",
-    updatedAt: "2024-01-15T10:30:00",
-    user: {
-      name: "علی محمدی",
-      email: "ali@example.com",
-    },
-    replies: [],
-  },
-  {
-    id: 2,
-    title: "سوال درباره مدرک دوره",
-    message: "بعد از اتمام دوره، مدرک معتبر ارائه می‌شود؟",
-    status: "in-progress",
-    priority: "medium",
-    category: "general",
-    createdAt: "2024-01-14T15:20:00",
-    updatedAt: "2024-01-14T16:45:00",
-    user: {
-      name: "سارا حسینی",
-      email: "sara@example.com",
-    },
-    replies: [
-      {
-        id: 1,
-        message:
-          "سلام سارا جان، بله بعد از اتمام موفقیت‌آمیز دوره، مدرک معتبر با قابلیت استعلام دریافت خواهید کرد.",
-        isAdmin: true,
-        userName: "پشتیبانی لینگوفم",
-        createdAt: "2024-01-14T16:45:00",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "مشکل در پرداخت",
-    message:
-      "هنگام پرداخت برای دوره Tailwind CSS، خطا دریافت می‌کنم. کارت بانکی من مشکلی نداره.",
-    status: "resolved",
-    priority: "urgent",
-    category: "payment",
-    createdAt: "2024-01-13T09:15:00",
-    updatedAt: "2024-01-13T14:30:00",
-    user: {
-      name: "رضا کریمی",
-      email: "reza@example.com",
-    },
-    replies: [
-      {
-        id: 1,
-        message:
-          "مشکل بررسی شد. لطفاً از مرورگر دیگری استفاده کنید یا کش مرورگر را پاک کنید.",
-        isAdmin: true,
-        userName: "پشتیبانی لینگوفم",
-        createdAt: "2024-01-13T11:20:00",
-      },
-      {
-        id: 2,
-        message: "ممنون، مشکل حل شد. مرورگر رو عوض کردم و پرداخت انجام شد.",
-        isAdmin: false,
-        userName: "رضا کریمی",
-        createdAt: "2024-01-13T14:30:00",
-      },
-    ],
-  },
-];
 
 // Helper functions
 const getStatusBadge = (status: TicketStatus) => {
@@ -183,27 +108,38 @@ const formatDate = (dateString: string) => {
 };
 
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [replyMessage, setReplyMessage] = useState("");
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "all" | "open" | "in-progress" | "resolved"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const res = await fetch("/api/admin/tickets");
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setTickets(data);
+      } catch {
+        toast.error("خطا در دریافت تیکت‌ها");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTickets();
+  }, []);
+
   const categories = [
     { value: "technical", label: "مشکل فنی", icon: "🔧" },
     { value: "payment", label: "مشکل پرداخت", icon: "💰" },
     { value: "content", label: "محتوا", icon: "📚" },
-    { value: "certificate", label: "گواهی و مدرک", icon: "🎓" },
     { value: "general", label: "سایر موارد", icon: "📝" },
-  ];
-
-  const priorities: { value: TicketPriority; label: string }[] = [
-    { value: "low", label: "کم" },
-    { value: "medium", label: "متوسط" },
-    { value: "high", label: "بالا" },
-    { value: "urgent", label: "فوری" },
   ];
 
   const filteredTickets = tickets.filter((ticket) => {
@@ -216,40 +152,63 @@ export default function TicketsPage() {
     return matchesTab && matchesSearch;
   });
 
-  const handleSendReply = () => {
-    if (!replyMessage.trim() || !selectedTicket) return;
+  const handleSendReply = async () => {
+    if (!replyMessage.trim() || !selectedTicket || isSendingReply) return;
 
-    const newReply: Reply = {
-      id: selectedTicket.replies.length + 1,
-      message: replyMessage,
-      isAdmin: true,
-      userName: "پشتیبانی لینگوفم",
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedTicket = {
-      ...selectedTicket,
-      replies: [...selectedTicket.replies, newReply],
-      updatedAt: new Date().toISOString(),
-      status:
-        selectedTicket.status === "resolved" ? "open" : selectedTicket.status,
-    };
-
-    setTickets(
-      tickets.map((t) => (t.id === selectedTicket.id ? updatedTicket : t)),
-    );
-    setSelectedTicket(updatedTicket);
-    setReplyMessage("");
+    setIsSendingReply(true);
+    try {
+      const res = await fetch(`/api/admin/tickets/${selectedTicket.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: replyMessage }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در ارسال پاسخ");
+        return;
+      }
+      const updated = data.ticket as Ticket;
+      setTickets((prev) =>
+        prev.map((t) => (t.id === updated.id ? updated : t)),
+      );
+      setSelectedTicket(updated);
+      setReplyMessage("");
+      toast.success("پاسخ با موفقیت ارسال شد");
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setIsSendingReply(false);
+    }
   };
 
-  const handleStatusChange = (ticketId: number, newStatus: TicketStatus) => {
-    const updatedTickets = tickets.map((t) =>
-      t.id === ticketId
-        ? { ...t, status: newStatus, updatedAt: new Date().toISOString() }
-        : t,
-    );
-    setTickets(updatedTickets);
-    setSelectedTicket(updatedTickets.find((t) => t.id === ticketId) || null);
+  const handleStatusChange = async (
+    ticketId: number,
+    newStatus: TicketStatus,
+  ) => {
+    if (isUpdatingStatus) return;
+    setIsUpdatingStatus(true);
+    try {
+      const res = await fetch(`/api/admin/tickets/${ticketId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: newStatus }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در تغییر وضعیت");
+        return;
+      }
+      const updated = data as Ticket;
+      setTickets((prev) =>
+        prev.map((t) => (t.id === ticketId ? updated : t)),
+      );
+      setSelectedTicket(updated);
+      toast.success("وضعیت تیکت به‌روزرسانی شد");
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setIsUpdatingStatus(false);
+    }
   };
 
   return (
@@ -299,33 +258,45 @@ export default function TicketsPage() {
               <div
                 className="flex border-b"
                 style={{ borderColor: "var(--dash-bg)" }}>
-                {["all", "open", "in-progress", "resolved"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
-                    className="flex-1 py-3 text-sm font-medium transition-colors relative"
-                    style={{
-                      color:
-                        activeTab === tab ? "#22c55e" : "var(--dash-muted)",
-                    }}>
-                    {tab === "all" && "همه"}
-                    {tab === "open" && "باز"}
-                    {tab === "in-progress" && "در حال بررسی"}
-                    {tab === "resolved" && "حل شده"}
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5"
-                        style={{ backgroundColor: "#22c55e" }}
-                      />
-                    )}
-                  </button>
-                ))}
+                {(["all", "open", "in-progress", "resolved"] as const).map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className="flex-1 py-3 text-sm font-medium transition-colors relative"
+                      style={{
+                        color:
+                          activeTab === tab ? "#22c55e" : "var(--dash-muted)",
+                      }}>
+                      {tab === "all" && "همه"}
+                      {tab === "open" && "باز"}
+                      {tab === "in-progress" && "در حال بررسی"}
+                      {tab === "resolved" && "حل شده"}
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute bottom-0 left-0 right-0 h-0.5"
+                          style={{ backgroundColor: "#22c55e" }}
+                        />
+                      )}
+                    </button>
+                  ),
+                )}
               </div>
 
               {/* Tickets List */}
               <div className="max-h-[600px] overflow-y-auto">
-                {filteredTickets.length === 0 ? (
+                {isLoading ? (
+                  <div
+                    className="text-center py-12"
+                    style={{ color: "var(--dash-muted)" }}>
+                    <Loader2
+                      size={48}
+                      className="mx-auto mb-3 animate-spin opacity-30"
+                    />
+                    <p>در حال بارگذاری...</p>
+                  </div>
+                ) : filteredTickets.length === 0 ? (
                   <div
                     className="text-center py-12"
                     style={{ color: "var(--dash-muted)" }}>
@@ -389,7 +360,10 @@ export default function TicketsPage() {
           </div>
 
           {/* Ticket Detail Panel */}
-          <div className="lg:col-span-2 min-w-0">
+          <div
+            className={`lg:col-span-2 min-w-0 ${
+              !selectedTicket ? "hidden lg:block" : ""
+            }`}>
             {selectedTicket ? (
               <motion.div
                 key={selectedTicket.id}
@@ -424,7 +398,8 @@ export default function TicketsPage() {
                               onClick={() =>
                                 handleStatusChange(selectedTicket.id, status)
                               }
-                              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all ${
+                              disabled={isUpdatingStatus}
+                              className={`px-2.5 py-1 rounded-full text-xs font-medium border transition-all disabled:opacity-60 ${
                                 selectedTicket.status === status
                                   ? getStatusBadge(status).color + " shadow-sm"
                                   : "border-transparent text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:border-[var(--dash-muted)]/30"
@@ -563,13 +538,17 @@ export default function TicketsPage() {
                         />
                         <button
                           onClick={handleSendReply}
-                          disabled={!replyMessage.trim()}
+                          disabled={!replyMessage.trim() || isSendingReply}
                           className="px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg sm:self-start"
                           style={{
                             backgroundColor: "#22c55e",
                             color: "black",
                           }}>
-                          <Send size={18} />
+                          {isSendingReply ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : (
+                            <Send size={18} />
+                          )}
                           ارسال
                         </button>
                       </div>

@@ -399,6 +399,53 @@ export default function SessionsPage() {
               </div>
             </div>
 
+            {/* Teacher Introduction */}
+            <div className="relative bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
+              <div className="absolute top-2.5 left-2.5 w-8 h-8 bg-purple-500/15 rounded-lg flex items-center justify-center">
+                <RefreshCw className="h-4 w-4 text-purple-500" />
+              </div>
+              <div className="flex items-center gap-2 mb-5">
+                <div className="h-5 w-1 rounded-full bg-purple-500" />
+                <span className="text-xs font-bold text-purple-400">
+                  مدرس شما
+                </span>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="relative shrink-0">
+                  <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg ring-2 ring-purple-500/20">
+                    <Image
+                      src="/me.png"
+                      alt="رضا کمالی"
+                      width={256}
+                      height={256}
+                      quality={100}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <p className="text-sm font-bold text-[var(--dash-text)]">
+                      رضا کمالی
+                    </p>
+                    <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-medium">
+                      TTC
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                      <span className="text-[11px] text-[var(--dash-muted)]">۳ سال سابقه</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                      <span className="text-[11px] text-[var(--dash-muted)]">دانشگاه بجنورد</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Date & Time */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
@@ -537,61 +584,6 @@ export default function SessionsPage() {
                   rows={3}
                   className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 pr-10 text-sm resize-none focus:outline-none ring-1 ring-transparent focus:ring-green-500/30 transition-all"
                 />
-              </div>
-            </div>
-
-            {/* Teacher Introduction */}
-            <div className="relative bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
-              <div className="absolute -top-1 -left-1 w-8 h-8 bg-purple-500/15 rounded-full flex items-center justify-center">
-                <RefreshCw className="h-4 w-4 text-purple-500" />
-              </div>
-              <div className="flex items-center gap-2 mb-5">
-                <div className="h-5 w-1 rounded-full bg-purple-500" />
-                <span className="text-xs font-bold text-purple-400">
-                  مدرس شما
-                </span>
-              </div>
-              <div className="flex items-start gap-4">
-                <div className="relative shrink-0">
-                  <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg ring-2 ring-purple-500/20">
-                    <Image
-                      src="/me.png"
-                      alt="رضا کمالی"
-                      width={64}
-                      height={64}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-green-500 rounded-full border-2 border-[var(--dash-sides)] flex items-center justify-center">
-                    <svg className="h-2.5 w-2.5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <p className="text-sm font-bold text-[var(--dash-text)]">
-                      رضا کمالی
-                    </p>
-                    <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-medium">
-                      TTC
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">۲۶ سال</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">۳ سال سابقه</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">دانشگاه بجنورد</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -956,12 +948,12 @@ export default function SessionsPage() {
 
         {/* Slot picker modal */}
         {slotPickerDate && (
-          <div className="fixed inset-0 z-50 lg:flex lg:items-center lg:justify-center lg:p-4">
+          <div className="fixed inset-0 z-[60] lg:flex lg:items-center lg:justify-center lg:p-4">
             <div
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setSlotPickerDate(null)}
             />
-            <div className="fixed bottom-0 inset-x-0 z-50 bg-[var(--dash-sides)] shadow-2xl rounded-t-3xl p-6 pb-8 max-h-[85dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-2xl lg:pb-6 lg:w-full lg:max-w-sm">
+            <div className="fixed bottom-0 inset-x-0 z-[60] bg-[var(--dash-sides)] shadow-2xl rounded-t-3xl p-6 pb-8 max-h-[85dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-2xl lg:pb-6 lg:w-full lg:max-w-sm">
               <div className="flex justify-center pt-0 pb-3 lg:hidden">
                 <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
               </div>

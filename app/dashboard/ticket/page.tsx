@@ -1,6 +1,7 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   MessageSquare,
   Send,
@@ -14,6 +15,7 @@ import {
   Calendar,
   Tag,
   Loader2,
+  X,
 } from "lucide-react";
 
 // Types
@@ -45,82 +47,6 @@ interface Reply {
   userName: string;
   createdAt: string;
 }
-
-// Mock data
-const mockTickets: Ticket[] = [
-  {
-    id: 1,
-    title: "مشکل در دسترسی به دوره Next.js",
-    message:
-      "سلام، من دوره Next.js رو خریداری کردم ولی به بخش تمرین‌ها دسترسی ندارم. لطفاً راهنمایی کنید.",
-    status: "open",
-    priority: "high",
-    category: "technical",
-    createdAt: "2024-01-15T10:30:00",
-    updatedAt: "2024-01-15T10:30:00",
-    user: {
-      name: "علی محمدی",
-      email: "ali@example.com",
-    },
-    replies: [],
-  },
-  {
-    id: 2,
-    title: "سوال درباره مدرک دوره",
-    message: "بعد از اتمام دوره، مدرک معتبر ارائه می‌شود؟",
-    status: "in-progress",
-    priority: "medium",
-    category: "general",
-    createdAt: "2024-01-14T15:20:00",
-    updatedAt: "2024-01-14T16:45:00",
-    user: {
-      name: "سارا حسینی",
-      email: "sara@example.com",
-    },
-    replies: [
-      {
-        id: 1,
-        message:
-          "سلام سارا جان، بله بعد از اتمام موفقیت‌آمیز دوره، مدرک معتبر با قابلیت استعلام دریافت خواهید کرد.",
-        isAdmin: true,
-        userName: "پشتیبانی لینگوفم",
-        createdAt: "2024-01-14T16:45:00",
-      },
-    ],
-  },
-  {
-    id: 3,
-    title: "مشکل در پرداخت",
-    message:
-      "هنگام پرداخت برای دوره Tailwind CSS، خطا دریافت می‌کنم. کارت بانکی من مشکلی نداره.",
-    status: "resolved",
-    priority: "urgent",
-    category: "payment",
-    createdAt: "2024-01-13T09:15:00",
-    updatedAt: "2024-01-13T14:30:00",
-    user: {
-      name: "رضا کریمی",
-      email: "reza@example.com",
-    },
-    replies: [
-      {
-        id: 1,
-        message:
-          "مشکل بررسی شد. لطفاً از مرورگر دیگری استفاده کنید یا کش مرورگر را پاک کنید.",
-        isAdmin: true,
-        userName: "پشتیبانی لینگوفم",
-        createdAt: "2024-01-13T11:20:00",
-      },
-      {
-        id: 2,
-        message: "ممنون، مشکل حل شد. مرورگر رو عوض کردم و پرداخت انجام شد.",
-        isAdmin: false,
-        userName: "رضا کریمی",
-        createdAt: "2024-01-13T14:30:00",
-      },
-    ],
-  },
-];
 
 // Helper functions
 const getStatusBadge = (status: TicketStatus) => {
@@ -182,8 +108,15 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
+const priorityColors: Record<TicketPriority, string> = {
+  low: "bg-gray-500/10 text-gray-400",
+  medium: "bg-blue-500/10 text-blue-400",
+  high: "bg-orange-500/10 text-orange-400",
+  urgent: "bg-red-500/10 text-red-400",
+};
+
 export default function TicketsPage() {
-  const [tickets, setTickets] = useState<Ticket[]>(mockTickets);
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [newTicketTitle, setNewTicketTitle] = useState("");
   const [newTicketMessage, setNewTicketMessage] = useState("");
@@ -192,16 +125,35 @@ export default function TicketsPage() {
     useState<TicketPriority>("medium");
   const [replyMessage, setReplyMessage] = useState("");
   const [isCreatingTicket, setIsCreatingTicket] = useState(false);
+  const [ticketStep, setTicketStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSendingReply, setIsSendingReply] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "all" | "open" | "in-progress" | "resolved"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        const res = await fetch("/api/tickets");
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setTickets(data);
+      } catch {
+        toast.error("خطا در دریافت تیکت‌ها");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchTickets();
+  }, []);
+
   const categories = [
     { value: "technical", label: "مشکل فنی", icon: "🔧" },
     { value: "payment", label: "مشکل پرداخت", icon: "💰" },
     { value: "content", label: "محتوا", icon: "📚" },
-    { value: "certificate", label: "گواهی و مدرک", icon: "🎓" },
     { value: "general", label: "سایر موارد", icon: "📝" },
   ];
 
@@ -209,7 +161,6 @@ export default function TicketsPage() {
     { value: "low", label: "کم" },
     { value: "medium", label: "متوسط" },
     { value: "high", label: "بالا" },
-    { value: "urgent", label: "فوری" },
   ];
 
   const filteredTickets = tickets.filter((ticket) => {
@@ -222,55 +173,69 @@ export default function TicketsPage() {
     return matchesTab && matchesSearch;
   });
 
-  const handleCreateTicket = () => {
-    if (!newTicketTitle.trim() || !newTicketMessage.trim()) return;
+  const handleCreateTicket = async () => {
+    if (!newTicketTitle.trim() || !newTicketMessage.trim() || isSubmitting)
+      return;
 
-    const newTicket: Ticket = {
-      id: tickets.length + 1,
-      title: newTicketTitle,
-      message: newTicketMessage,
-      status: "open",
-      priority: newTicketPriority,
-      category: newTicketCategory,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      user: {
-        name: "کاربر لینگوفم",
-        email: "user@example.com",
-      },
-      replies: [],
-    };
-
-    setTickets([newTicket, ...tickets]);
-    setNewTicketTitle("");
-    setNewTicketMessage("");
-    setIsCreatingTicket(false);
+    setIsSubmitting(true);
+    try {
+      const res = await fetch("/api/tickets", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTicketTitle,
+          message: newTicketMessage,
+          category: newTicketCategory,
+          priority: newTicketPriority,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در ثبت تیکت");
+        return;
+      }
+      setTickets((prev) => [data, ...prev]);
+      setSelectedTicket(data);
+      setNewTicketTitle("");
+      setNewTicketMessage("");
+      setNewTicketCategory("general");
+      setNewTicketPriority("medium");
+      setTicketStep(1);
+      setIsCreatingTicket(false);
+      toast.success("تیکت با موفقیت ثبت شد");
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleSendReply = () => {
-    if (!replyMessage.trim() || !selectedTicket) return;
+  const handleSendReply = async () => {
+    if (!replyMessage.trim() || !selectedTicket || isSendingReply) return;
 
-    const newReply: Reply = {
-      id: selectedTicket.replies.length + 1,
-      message: replyMessage,
-      isAdmin: false,
-      userName: "کاربر لینگوفم",
-      createdAt: new Date().toISOString(),
-    };
-
-    const updatedTicket = {
-      ...selectedTicket,
-      replies: [...selectedTicket.replies, newReply],
-      updatedAt: new Date().toISOString(),
-      status:
-        selectedTicket.status === "resolved" ? "open" : selectedTicket.status,
-    };
-
-    setTickets(
-      tickets.map((t) => (t.id === selectedTicket.id ? updatedTicket : t)),
-    );
-    setSelectedTicket(updatedTicket);
-    setReplyMessage("");
+    setIsSendingReply(true);
+    try {
+      const res = await fetch(`/api/tickets/${selectedTicket.id}/replies`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: replyMessage }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در ارسال پاسخ");
+        return;
+      }
+      const updated = data.ticket as Ticket;
+      setTickets((prev) =>
+        prev.map((t) => (t.id === updated.id ? updated : t)),
+      );
+      setSelectedTicket(updated);
+      setReplyMessage("");
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setIsSendingReply(false);
+    }
   };
 
   return (
@@ -302,7 +267,10 @@ export default function TicketsPage() {
                 className="p-4 border-b"
                 style={{ borderColor: "var(--dash-bg)" }}>
                 <button
-                  onClick={() => setIsCreatingTicket(true)}
+                  onClick={() => {
+                    setTicketStep(1);
+                    setIsCreatingTicket(true);
+                  }}
                   className="w-full py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
                   style={{
                     backgroundColor: "#22c55e",
@@ -335,33 +303,45 @@ export default function TicketsPage() {
               <div
                 className="flex border-b"
                 style={{ borderColor: "var(--dash-bg)" }}>
-                {["all", "open", "in-progress", "resolved"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab as any)}
-                    className="flex-1 py-3 text-sm font-medium transition-colors relative"
-                    style={{
-                      color:
-                        activeTab === tab ? "#22c55e" : "var(--dash-muted)",
-                    }}>
-                    {tab === "all" && "همه"}
-                    {tab === "open" && "باز"}
-                    {tab === "in-progress" && "در حال بررسی"}
-                    {tab === "resolved" && "حل شده"}
-                    {activeTab === tab && (
-                      <motion.div
-                        layoutId="activeTab"
-                        className="absolute bottom-0 left-0 right-0 h-0.5"
-                        style={{ backgroundColor: "#22c55e" }}
-                      />
-                    )}
-                  </button>
-                ))}
+                {(["all", "open", "in-progress", "resolved"] as const).map(
+                  (tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className="flex-1 py-3 text-sm font-medium transition-colors relative"
+                      style={{
+                        color:
+                          activeTab === tab ? "#22c55e" : "var(--dash-muted)",
+                      }}>
+                      {tab === "all" && "همه"}
+                      {tab === "open" && "باز"}
+                      {tab === "in-progress" && "در حال بررسی"}
+                      {tab === "resolved" && "حل شده"}
+                      {activeTab === tab && (
+                        <motion.div
+                          layoutId="activeTab"
+                          className="absolute bottom-0 left-0 right-0 h-0.5"
+                          style={{ backgroundColor: "#22c55e" }}
+                        />
+                      )}
+                    </button>
+                  ),
+                )}
               </div>
 
               {/* Tickets List */}
               <div className="max-h-[600px] overflow-y-auto">
-                {filteredTickets.length === 0 ? (
+                {isLoading ? (
+                  <div
+                    className="text-center py-12"
+                    style={{ color: "var(--dash-muted)" }}>
+                    <Loader2
+                      size={48}
+                      className="mx-auto mb-3 animate-spin opacity-30"
+                    />
+                    <p>در حال بارگذاری...</p>
+                  </div>
+                ) : filteredTickets.length === 0 ? (
                   <div
                     className="text-center py-12"
                     style={{ color: "var(--dash-muted)" }}>
@@ -425,7 +405,10 @@ export default function TicketsPage() {
           </div>
 
           {/* Ticket Detail Panel */}
-          <div className="lg:col-span-2 min-w-0">
+          <div
+            className={`lg:col-span-2 min-w-0 ${
+              !selectedTicket ? "hidden lg:block" : ""
+            }`}>
             {selectedTicket ? (
               <motion.div
                 key={selectedTicket.id}
@@ -585,13 +568,17 @@ export default function TicketsPage() {
                         />
                         <button
                           onClick={handleSendReply}
-                          disabled={!replyMessage.trim()}
+                          disabled={!replyMessage.trim() || isSendingReply}
                           className="px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg sm:self-start"
                           style={{
                             backgroundColor: "#22c55e",
                             color: "black",
                           }}>
-                          <Send size={18} />
+                          {isSendingReply ? (
+                            <Loader2 size={18} className="animate-spin" />
+                          ) : (
+                            <Send size={18} />
+                          )}
                           ارسال
                         </button>
                       </div>
@@ -625,74 +612,130 @@ export default function TicketsPage() {
         </div>
 
         {/* Create Ticket Modal */}
-        <AnimatePresence>
-          {isCreatingTicket && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-              onClick={() => setIsCreatingTicket(false)}>
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                className="max-w-lg w-full rounded-xl overflow-hidden"
-                style={{ backgroundColor: "var(--dash-sides)" }}
-                onClick={(e) => e.stopPropagation()}>
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
+        {isCreatingTicket && (
+          <div className="fixed inset-0 z-[60] lg:flex lg:items-center lg:justify-center lg:p-4">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setIsCreatingTicket(false)}
+            />
+            <div className="fixed bottom-0 inset-x-0 z-[60] bg-[var(--dash-sides)] shadow-2xl rounded-t-3xl max-h-[92dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-2xl lg:max-w-lg lg:w-full">
+              {/* Drag Handle (mobile only) */}
+              <div className="flex justify-center pt-3 pb-1 lg:hidden">
+                <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+              </div>
+
+              {/* Header */}
+              <div
+                className="px-6 pt-2 pb-4 border-b flex items-center gap-3"
+                style={{ borderColor: "var(--dash-bg)" }}>
+                <div className="p-2.5 rounded-xl bg-green-500/15 shrink-0">
+                  <MessageSquare className="h-5 w-5 text-green-500" />
+                </div>
+                <div className="min-w-0 flex-1">
                   <h2
-                    className="text-xl font-bold"
+                    className="text-lg font-bold"
                     style={{ color: "var(--dash-text)" }}>
                     تیکت جدید
                   </h2>
+                  <p
+                    className="text-xs mt-0.5"
+                    style={{ color: "var(--dash-muted)" }}>
+                    مشکل یا سوال خود را مطرح کنید؛ در کوتاه‌ترین زمان پاسخ می‌دهیم.
+                  </p>
                 </div>
+                <button
+                  onClick={() => setIsCreatingTicket(false)}
+                  className="p-2 rounded-xl transition-all duration-200 hover:bg-[var(--dash-bg)] shrink-0"
+                  style={{ color: "var(--dash-muted)" }}
+                  aria-label="بستن">
+                  <X size={18} />
+                </button>
+              </div>
 
-                <div className="p-6 space-y-4">
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--dash-text)" }}>
-                      عنوان
-                    </label>
-                    <input
-                      type="text"
-                      value={newTicketTitle}
-                      onChange={(e) => setNewTicketTitle(e.target.value)}
-                      placeholder="مشکل در دسترسی به دوره..."
-                      className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-                      style={{
-                        backgroundColor: "var(--dash-bg)",
-                        borderColor: "var(--dash-border)",
-                        color: "var(--dash-text)",
-                      }}
+              {/* Step Indicator */}
+              <div className="px-6 pt-3 pb-1">
+                <div className="flex items-center gap-2 mb-2">
+                  {[1, 2].map((step) => (
+                    <div
+                      key={step}
+                      className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
+                        ticketStep >= step
+                          ? "bg-green-500"
+                          : "bg-[var(--dash-border)]"
+                      }`}
                     />
-                  </div>
+                  ))}
+                </div>
+                <div className="flex justify-between">
+                  <span
+                    className={`text-[11px] font-bold ${
+                      ticketStep === 1 ? "text-green-500" : "text-[var(--dash-muted)]"
+                    }`}>
+                    ۱. اطلاعات اولیه
+                  </span>
+                  <span
+                    className={`text-[11px] font-bold ${
+                      ticketStep === 2 ? "text-green-500" : "text-[var(--dash-muted)]"
+                    }`}>
+                    ۲. متن تیکت
+                  </span>
+                </div>
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+              <AnimatePresence mode="wait" initial={false}>
+                {ticketStep === 1 ? (
+                  <motion.div
+                    key="step1"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="p-6 space-y-5">
+                    <div>
+                      <label
+                        className="block text-sm font-medium mb-2"
+                        style={{ color: "var(--dash-text)" }}>
+                        عنوان تیکت
+                      </label>
+                      <input
+                        type="text"
+                        value={newTicketTitle}
+                        onChange={(e) => setNewTicketTitle(e.target.value)}
+                        placeholder="مثال: مشکل در دسترسی به دوره..."
+                        className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all"
+                        style={{
+                          backgroundColor: "var(--dash-bg)",
+                          borderColor: "var(--dash-border)",
+                          color: "var(--dash-text)",
+                        }}
+                      />
+                    </div>
+
                     <div>
                       <label
                         className="block text-sm font-medium mb-2"
                         style={{ color: "var(--dash-text)" }}>
                         دسته‌بندی
                       </label>
-                      <select
-                        value={newTicketCategory}
-                        onChange={(e) => setNewTicketCategory(e.target.value)}
-                        className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
-                        style={{
-                          backgroundColor: "var(--dash-bg)",
-                          borderColor: "var(--dash-border)",
-                          color: "var(--dash-text)",
-                        }}>
-                        {categories.map((cat) => (
-                          <option key={cat.value} value={cat.value}>
-                            {cat.icon} {cat.label}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {categories.map((cat) => {
+                          const selected = newTicketCategory === cat.value;
+                          return (
+                            <button
+                              key={cat.value}
+                              type="button"
+                              onClick={() => setNewTicketCategory(cat.value)}
+                              className={`flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                selected
+                                  ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-500"
+                                  : "bg-[var(--dash-bg)] text-[var(--dash-muted)] hover:bg-[var(--dash-border)] hover:text-[var(--dash-text)]"
+                              }`}>
+                              <span className="text-lg leading-none">{cat.icon}</span>
+                              <span className="truncate">{cat.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <div>
@@ -701,76 +744,130 @@ export default function TicketsPage() {
                         style={{ color: "var(--dash-text)" }}>
                         اولویت
                       </label>
-                      <select
-                        value={newTicketPriority}
-                        onChange={(e) =>
-                          setNewTicketPriority(e.target.value as TicketPriority)
-                        }
-                        className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2"
+                      <div className="grid grid-cols-3 gap-2">
+                        {priorities.map((p) => {
+                          const selected = newTicketPriority === p.value;
+                          return (
+                            <button
+                              key={p.value}
+                              type="button"
+                              onClick={() => setNewTicketPriority(p.value)}
+                              className={`py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                selected
+                                  ? priorityColors[p.value] + " ring-1 ring-current"
+                                  : "bg-[var(--dash-bg)] text-[var(--dash-muted)] hover:bg-[var(--dash-border)] hover:text-[var(--dash-text)]"
+                              }`}>
+                              {p.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="step2"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="p-6 space-y-5">
+                    {/* Summary recap */}
+                    <div
+                      className="flex items-center gap-2.5 bg-[var(--dash-bg)] rounded-xl px-4 py-3 border"
+                      style={{ borderColor: "var(--dash-border)" }}>
+                      <span className="text-lg leading-none">
+                        {categories.find((c) => c.value === newTicketCategory)?.icon}
+                      </span>
+                      <span
+                        className="text-sm font-medium truncate flex-1"
+                        style={{ color: "var(--dash-text)" }}>
+                        {newTicketTitle.trim() || "بدون عنوان"}
+                      </span>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 ${priorityColors[newTicketPriority]}`}>
+                        {priorities.find((p) => p.value === newTicketPriority)?.label}
+                      </span>
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-sm font-medium mb-2"
+                        style={{ color: "var(--dash-text)" }}>
+                        توضیحات
+                      </label>
+                      <textarea
+                        value={newTicketMessage}
+                        onChange={(e) => setNewTicketMessage(e.target.value)}
+                        placeholder="مشکل خود را به طور کامل توضیح دهید..."
+                        rows={5}
+                        className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all resize-none"
                         style={{
                           backgroundColor: "var(--dash-bg)",
                           borderColor: "var(--dash-border)",
                           color: "var(--dash-text)",
-                        }}>
-                        {priorities.map((p) => (
-                          <option key={p.value} value={p.value}>
-                            {p.label}
-                          </option>
-                        ))}
-                      </select>
+                        }}
+                      />
                     </div>
-                  </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-                  <div>
-                    <label
-                      className="block text-sm font-medium mb-2"
-                      style={{ color: "var(--dash-text)" }}>
-                      توضیحات
-                    </label>
-                    <textarea
-                      value={newTicketMessage}
-                      onChange={(e) => setNewTicketMessage(e.target.value)}
-                      placeholder="مشکل خود را به طور کامل توضیح دهید..."
-                      rows={5}
-                      className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 resize-none"
-                      style={{
-                        backgroundColor: "var(--dash-bg)",
-                        borderColor: "var(--dash-border)",
-                        color: "var(--dash-text)",
-                      }}
-                    />
-                  </div>
-                </div>
-
+              {/* Footer (sticky on mobile sheet) */}
+              {ticketStep === 1 ? (
                 <div
-                  className="p-6 border-t flex gap-3"
+                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)]"
+                  style={{ borderColor: "var(--dash-bg)" }}>
+                  <button
+                    onClick={() => setTicketStep(2)}
+                    disabled={!newTicketTitle.trim()}
+                    className="w-full py-3 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-green-400"
+                    style={{
+                      backgroundColor: "#22c55e",
+                      color: "black",
+                      boxShadow: "0 8px 24px -8px rgba(34,197,94,0.45)",
+                    }}>
+                    ادامه
+                    <ChevronLeft size={18} />
+                  </button>
+                </div>
+              ) : (
+                <div
+                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)] flex gap-3"
                   style={{ borderColor: "var(--dash-bg)" }}>
                   <button
                     onClick={handleCreateTicket}
                     disabled={
-                      !newTicketTitle.trim() || !newTicketMessage.trim()
+                      !newTicketTitle.trim() ||
+                      !newTicketMessage.trim() ||
+                      isSubmitting
                     }
-                    className="flex-1 py-3 rounded-lg font-medium transition-all disabled:opacity-50"
+                    className="flex-1 py-3 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-green-400"
                     style={{
                       backgroundColor: "#22c55e",
                       color: "black",
+                      boxShadow: "0 8px 24px -8px rgba(34,197,94,0.45)",
                     }}>
+                    {isSubmitting && (
+                      <Loader2 size={18} className="animate-spin" />
+                    )}
                     ارسال تیکت
                   </button>
                   <button
-                    onClick={() => setIsCreatingTicket(false)}
-                    className="px-6 py-3 rounded-lg font-medium transition-all"
+                    onClick={() => setTicketStep(1)}
+                    className="px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-1.5 hover:opacity-80"
                     style={{
                       backgroundColor: "var(--dash-bg)",
                       color: "var(--dash-muted)",
                     }}>
-                    انصراف
+                    <ChevronRight size={16} />
+                    بازگشت
                   </button>
                 </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

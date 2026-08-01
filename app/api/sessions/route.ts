@@ -29,12 +29,13 @@ export async function GET() {
     }),
     prisma.session.findMany({
       where: { userId: { not: userId }, status: { not: "Canceled" } },
-      select: { sessionDate: true },
+      select: { sessionDate: true, startTime: true },
     }),
   ]);
 
+  const pad = (n: number) => String(n).padStart(2, "0");
+
   const mapped = sessions.map((s) => {
-    const pad = (n: number) => String(n).padStart(2, "0");
     const timeHours = s.startTime.getHours();
     const timeMinutes = s.startTime.getMinutes();
 
@@ -50,13 +51,12 @@ export async function GET() {
     };
   });
 
-  const reservedDates = [
-    ...new Set(
-      reserved.map((s) => moment(s.sessionDate).format("jYYYY/jMM/jDD")),
-    ),
-  ];
+  const reservedSlots = reserved.map((s) => ({
+    date: moment(s.sessionDate).format("jYYYY/jMM/jDD"),
+    time: `${pad(s.startTime.getHours())}:${pad(s.startTime.getMinutes())}`,
+  }));
 
-  return NextResponse.json({ sessions: mapped, reservedDates });
+  return NextResponse.json({ sessions: mapped, reservedSlots });
 }
 
 export async function POST(request: Request) {
@@ -96,10 +96,11 @@ export async function POST(request: Request) {
     timeDate.setHours(parseInt(timeParts[0]), parseInt(timeParts[1]), 0, 0);
   }
 
-  // Block dates already reserved by another client
+  // Block slots already reserved by another client
   const conflict = await prisma.session.findFirst({
     where: {
       sessionDate: gregDate,
+      startTime: timeDate,
       userId: { not: userId },
       status: { not: "Canceled" },
     },
@@ -107,7 +108,7 @@ export async function POST(request: Request) {
   });
   if (conflict) {
     return NextResponse.json(
-      { error: "این تاریخ قبلاً توسط کاربر دیگری رزرو شده است" },
+      { error: "این بازه زمانی قبلاً توسط کاربر دیگری رزرو شده است" },
       { status: 409 },
     );
   }

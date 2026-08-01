@@ -192,6 +192,15 @@
   }
 }
 
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 .pro-border {
   position: relative;
   animation: pro-glow-pulse 3s ease-in-out infinite;

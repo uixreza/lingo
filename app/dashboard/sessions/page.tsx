@@ -26,7 +26,11 @@ import {
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
 
-const timeSlots = ["08:30", "09:30", "10:30"];
+const timeSlots = [
+  { value: "08:30", label: "۰۸:۳۰ تا ۱۰:۰۰" },
+  { value: "10:30", label: "۱۰:۳۰ تا ۱۲:۰۰" },
+  { value: "12:30", label: "۱۲:۳۰ تا ۱۴:۰۰" },
+];
 
 const TEACHER_NAME = "رضا کمالی";
 
@@ -75,14 +79,18 @@ type SessionItem = {
 type RequestStatus = "Approved" | "Pending" | "Canceled";
 
 export default function SessionsPage() {
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState("");
   const [language, setLanguage] = useState("en");
   const [reason, setReason] = useState("");
-  const [selectedDates, setSelectedDates] = useState<Set<string>>(new Set());
+  const [selectedSlots, setSelectedSlots] = useState<Record<string, string[]>>(
+    {},
+  );
+  const [slotPickerDate, setSlotPickerDate] = useState<string | null>(null);
 
   const [mounted, setMounted] = useState(false);
   const [requests, setRequests] = useState<SessionItem[]>([]);
-  const [reservedDates, setReservedDates] = useState<Set<string>>(new Set());
+  const [reservedSlots, setReservedSlots] = useState<
+    { date: string; time: string }[]
+  >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<RequestStatus | "all">("all");
   const [copiedId, setCopiedId] = useState<number | null>(null);
@@ -109,7 +117,7 @@ export default function SessionsPage() {
         if (sessionsRes.ok) {
           const data = await sessionsRes.json();
           setRequests(data.sessions);
-          setReservedDates(new Set(data.reservedDates ?? []));
+          setReservedSlots(data.reservedSlots ?? []);
         }
         if (priceRes.ok) {
           const { privatePrice } = await priceRes.json();
@@ -124,15 +132,29 @@ export default function SessionsPage() {
     fetchSessions();
   }, []);
 
-  const canSubmit = language && selectedDates.size > 0;
+  const totalSlots = Object.values(selectedSlots).reduce(
+    (sum, times) => sum + times.length,
+    0,
+  );
 
-  const toggleDate = (dateStr: string) => {
-    setSelectedDates((prev) => {
-      const next = new Set(prev);
-      if (next.has(dateStr)) next.delete(dateStr);
-      else next.add(dateStr);
-      return next;
+  const canSubmit = language && totalSlots > 0;
+
+  const toggleSlot = (dateStr: string, time: string) => {
+    setSelectedSlots((prev) => {
+      const current = prev[dateStr] ?? [];
+      const next = current.includes(time)
+        ? current.filter((t) => t !== time)
+        : [...current, time];
+      const updated = { ...prev };
+      if (next.length === 0) delete updated[dateStr];
+      else updated[dateStr] = next;
+      return updated;
     });
+  };
+
+  const formatJalaliDate = (dateStr: string) => {
+    const [y, m, d] = dateStr.split("/").map(Number);
+    return `${toPersianDigits(String(d))} ${jMonthNames[m - 1]} ${toPersianDigits(String(y))}`;
   };
 
   const handleSubmit = async () => {
@@ -142,57 +164,58 @@ export default function SessionsPage() {
     try {
       let successCount = 0;
       let conflictCount = 0;
-      for (const dateStr of selectedDates) {
-        if (reservedDates.has(dateStr)) {
-          conflictCount++;
-          continue;
+      for (const [dateStr, times] of Object.entries(selectedSlots)) {
+        for (const time of times) {
+          if (reservedByDate[dateStr]?.has(time)) {
+            conflictCount++;
+            continue;
+          }
+          const res = await fetch("/api/sessions", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              sessionDate: dateStr,
+              startTime: time,
+              language:
+                languages.find((l) => l.id === language)?.label || "English",
+              sessionType: "Private",
+              reasonForLearning: reason || null,
+            }),
+          });
+          if (res.status === 402) {
+            toast.error("موجودی کیف پول کافی نیست");
+            setTimeout(() => {
+              window.location.href = "/dashboard/wallet";
+            }, 1500);
+            return;
+          }
+          if (res.status === 409) {
+            setReservedSlots((prev) => [...prev, { date: dateStr, time }]);
+            conflictCount++;
+            continue;
+          }
+          if (!res.ok) {
+            const data = await res.json().catch(() => ({}));
+            const msg = data.error || `خطا (کد ${res.status})`;
+            setErrorMsg(msg);
+            toast.error(msg);
+            return;
+          }
+          const created = await res.json();
+          setRequests((prev) => [created, ...prev]);
+          successCount++;
         }
-        const res = await fetch("/api/sessions", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            sessionDate: dateStr,
-            startTime: selectedTimeSlot || "08:30",
-            language:
-              languages.find((l) => l.id === language)?.label || "English",
-            sessionType: "Private",
-            reasonForLearning: reason || null,
-          }),
-        });
-        if (res.status === 402) {
-          toast.error("موجودی کیف پول کافی نیست");
-          setTimeout(() => {
-            window.location.href = "/dashboard/wallet";
-          }, 1500);
-          return;
-        }
-        if (res.status === 409) {
-          setReservedDates((prev) => new Set(prev).add(dateStr));
-          conflictCount++;
-          continue;
-        }
-        if (!res.ok) {
-          const data = await res.json().catch(() => ({}));
-          const msg = data.error || `خطا (کد ${res.status})`;
-          setErrorMsg(msg);
-          toast.error(msg);
-          return;
-        }
-        const created = await res.json();
-        setRequests((prev) => [created, ...prev]);
-        successCount++;
       }
       if (successCount === 0) {
-        setErrorMsg("تاریخ انتخاب‌شده قبلاً رزرو شده است");
-        toast.error("تاریخ انتخاب‌شده قبلاً رزرو شده است");
+        setErrorMsg("بازه انتخابی قبلاً رزرو شده است");
+        toast.error("بازه انتخابی قبلاً رزرو شده است");
         return;
       }
-      setSelectedDates(new Set());
-      setSelectedTimeSlot("");
+      setSelectedSlots({});
       setReason("");
       toast.success(`درخواست ${successCount} جلسه با موفقیت ثبت شد`);
       if (conflictCount > 0) {
-        toast.error(`${conflictCount} تاریخ به دلیل رزرو قبلی ثبت نشد`);
+        toast.error(`${conflictCount} بازه به دلیل رزرو قبلی ثبت نشد`);
       }
       window.dispatchEvent(new Event("balance-update"));
     } catch (err) {
@@ -247,6 +270,11 @@ export default function SessionsPage() {
   const approvedDates = new Set(
     requests.filter((r) => r.status === "Approved").map((r) => r.date),
   );
+
+  const reservedByDate: Record<string, Set<string>> = {};
+  for (const s of reservedSlots) {
+    (reservedByDate[s.date] ??= new Set()).add(s.time);
+  }
 
   const statusIcons = {
     Approved: CheckCircle,
@@ -378,7 +406,7 @@ export default function SessionsPage() {
                     ۲
                   </span>
                   <label className="text-sm font-medium text-[var(--dash-muted)]">
-                    تاریخ جلسه
+                    تاریخ و ساعت جلسه
                   </label>
                 </div>
                 <div className="space-y-4">
@@ -422,15 +450,19 @@ export default function SessionsPage() {
                                     const dateStr = jToDateStr(jy, jMonthIdx, day);
                                     const isPast = dateStr < todayStr;
                                     const isToday = dateStr === todayStr;
-                                    const isSelected = selectedDates.has(dateStr);
+                                    const selectedTimes = selectedSlots[dateStr] ?? [];
+                                    const isSelected = selectedTimes.length > 0;
                                     const isPending = pendingDates.has(dateStr);
                                     const isApproved = approvedDates.has(dateStr);
-                                    const isReserved = reservedDates.has(dateStr);
+                                    const dateReservedTimes = reservedByDate[dateStr];
+                                    const isFullyReserved = dateReservedTimes
+                                      ? timeSlots.every((t) => dateReservedTimes.has(t.value))
+                                      : false;
                                     const isAvailable = dateStr > todayStr;
                                     return (
                                       <div
                                         key={dateStr}
-                                        onClick={() => isAvailable && !isPending && !isApproved && !isReserved && toggleDate(dateStr)}
+                                        onClick={() => isAvailable && !isPending && !isApproved && !isFullyReserved && setSlotPickerDate(dateStr)}
                                         className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
                                           isToday
                                             ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
@@ -438,7 +470,7 @@ export default function SessionsPage() {
                                               ? "bg-green-500 text-black font-bold ring-1 ring-green-500/60 cursor-not-allowed"
                                               : isPending
                                                 ? "bg-amber-500/10 text-amber-500 font-bold ring-1 ring-amber-500/40 cursor-not-allowed"
-                                                : isReserved
+                                                : isFullyReserved
                                                   ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30 cursor-not-allowed"
                                                   : isSelected
                                                     ? "bg-green-500/10 text-green-500 font-bold"
@@ -455,14 +487,16 @@ export default function SessionsPage() {
                                           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-500 rounded-full flex items-center justify-center">
                                             <Loader2 className="h-2 w-2 text-black animate-spin" strokeWidth={3} />
                                           </div>
-                                        ) : isReserved ? (
+                                        ) : isFullyReserved ? (
                                           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-red-500 rounded-full flex items-center justify-center">
                                             <Lock className="h-2 w-2 text-black" strokeWidth={3} />
                                           </div>
                                         ) : (
                                           isSelected && (
-                                            <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center">
-                                              <Check className="h-2 w-2 text-black" strokeWidth={3} />
+                                            <div className="absolute -bottom-0.5 -right-0.5 h-3.5 min-w-3.5 px-0.5 bg-green-500 rounded-full flex items-center justify-center">
+                                              <span className="text-[8px] font-black text-black leading-none">
+                                                {toPersianDigits(String(selectedTimes.length))}
+                                              </span>
                                             </div>
                                           )
                                         )}
@@ -481,15 +515,6 @@ export default function SessionsPage() {
                     </div>
                     </div>
                   )}
-
-                  <div className="flex items-start gap-2.5 bg-blue-500/10 rounded-xl p-3 ring-1 ring-blue-500/20">
-                    <svg className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <p className="text-xs text-blue-400 leading-relaxed font-medium">
-                      تمام جلسات ساعت ۸:۳۰ صبح برگزار می‌شوند. اگر نیاز به زمان دیگری دارید، لطفاً در بخش "توضیحات" ذکر کنید.
-                    </p>
-                  </div>
                 </div>
               </div>
 
@@ -572,14 +597,14 @@ export default function SessionsPage() {
 
             {/* Price */}
             <div className="bg-gradient-to-r from-green-500/8 to-emerald-500/5 rounded-xl p-5 ring-1 ring-green-500/10">
-              {selectedDates.size > 0 ? (
+              {totalSlots > 0 ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[var(--dash-muted)]">
                       تعداد جلسات
                     </span>
                     <span className="text-sm font-bold text-[var(--dash-text)]">
-                      {selectedDates.size} جلسه
+                      {totalSlots} جلسه
                     </span>
                   </div>
                   <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
@@ -594,7 +619,7 @@ export default function SessionsPage() {
                           <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                         </span>
                       ) : (
-                        (selectedDates.size * privatePrice).toLocaleString("fa-IR")
+                        (totalSlots * privatePrice).toLocaleString("fa-IR")
                       )}
                       {privatePrice !== null && (
                         <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
@@ -928,6 +953,76 @@ export default function SessionsPage() {
             })}
           </div>
         </div>
+
+        {/* Slot picker modal */}
+        {slotPickerDate && (
+          <div className="fixed inset-0 z-50 lg:flex lg:items-center lg:justify-center lg:p-4">
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setSlotPickerDate(null)}
+            />
+            <div className="fixed bottom-0 inset-x-0 z-50 bg-[var(--dash-sides)] shadow-2xl rounded-t-3xl p-6 pb-8 max-h-[85dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-2xl lg:pb-6 lg:w-full lg:max-w-sm">
+              <div className="flex justify-center pt-0 pb-3 lg:hidden">
+                <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+              </div>
+              <div className="flex items-center gap-3 mb-5">
+                <div className="p-2.5 rounded-xl bg-green-500/15 shrink-0">
+                  <CalendarDays className="h-5 w-5 text-green-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                    انتخاب ساعت جلسه
+                  </h3>
+                  <p className="text-sm text-[var(--dash-muted)] mt-0.5">
+                    {formatJalaliDate(slotPickerDate)}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-2.5">
+                {timeSlots.map((slot) => {
+                  const reserved =
+                    reservedByDate[slotPickerDate]?.has(slot.value) ?? false;
+                  const selected =
+                    selectedSlots[slotPickerDate]?.includes(slot.value) ?? false;
+                  return (
+                    <button
+                      key={slot.value}
+                      onClick={() => toggleSlot(slotPickerDate, slot.value)}
+                      disabled={reserved}
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
+                        reserved
+                          ? "bg-red-500/10 text-red-500/70 ring-1 ring-red-500/20 cursor-not-allowed"
+                          : selected
+                            ? "bg-green-500 text-black shadow-lg shadow-green-500/25"
+                            : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                      }`}>
+                      <span className="flex items-center gap-2.5">
+                        {reserved ? (
+                          <Lock className="h-4 w-4" />
+                        ) : selected ? (
+                          <Check className="h-4 w-4" strokeWidth={3} />
+                        ) : (
+                          <span className="h-2 w-2 rounded-full bg-[var(--dash-muted)]/50" />
+                        )}
+                        {slot.label}
+                      </span>
+                      {selected && !reserved && (
+                        <span className="text-[10px] opacity-80">
+                          انتخاب شد
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                onClick={() => setSlotPickerDate(null)}
+                className="w-full mt-6 py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition-all duration-200 shadow-lg shadow-green-500/25">
+                تأیید
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Cancel confirmation modal */}
         {cancelTarget && (

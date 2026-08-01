@@ -432,22 +432,22 @@ export default function SessionsPage() {
                                         key={dateStr}
                                         onClick={() => isAvailable && !isPending && !isApproved && !isReserved && toggleDate(dateStr)}
                                         className={`relative w-9 h-9 rounded-lg flex items-center justify-center text-xs font-medium transition-all duration-150 ${
-                                          isApproved
-                                            ? "bg-green-500 text-black font-bold ring-1 ring-green-500/60 cursor-not-allowed"
-                                            : isPending
-                                              ? "bg-amber-500/10 text-amber-500 font-bold ring-1 ring-amber-500/40 cursor-not-allowed"
-                                              : isReserved
-                                                ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30 cursor-not-allowed"
-                                                : isSelected
-                                                  ? "bg-green-500/10 text-green-500 font-bold"
-                                                  : isToday
-                                                    ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
+                                          isToday
+                                            ? "bg-purple-500/15 text-purple-500 dark:text-purple-400 ring-1 ring-purple-500/30 font-bold"
+                                            : isApproved
+                                              ? "bg-green-500 text-black font-bold ring-1 ring-green-500/60 cursor-not-allowed"
+                                              : isPending
+                                                ? "bg-amber-500/10 text-amber-500 font-bold ring-1 ring-amber-500/40 cursor-not-allowed"
+                                                : isReserved
+                                                  ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30 cursor-not-allowed"
+                                                  : isSelected
+                                                    ? "bg-green-500/10 text-green-500 font-bold"
                                                     : isPast
                                                       ? "bg-[var(--hover-bg)]/50 text-[var(--dash-muted)]/40"
                                                       : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-green-500/15 hover:text-green-500 cursor-pointer"
                                         }`}>
                                         {day}
-                                        {isApproved ? (
+                                        {!isToday && isApproved ? (
                                           <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-white rounded-full flex items-center justify-center">
                                             <Check className="h-2 w-2 text-green-600" strokeWidth={3} />
                                           </div>

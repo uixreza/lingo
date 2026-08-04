@@ -15,7 +15,7 @@ import {
   EyeOff,
   Phone,
   Calendar,
-  Award,
+  Trophy,
   RefreshCw,
   Loader2,
   Send,
@@ -25,6 +25,16 @@ import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+
+type RankingUser = {
+  id: number;
+  fullname: string;
+  avatarSeed: string | null;
+  isPro: boolean;
+  progress: number;
+  joinDate: string;
+  rank: number;
+};
 
 export default function AccountPage() {
   const { update: updateSession } = useSession();
@@ -54,6 +64,8 @@ export default function AccountPage() {
   const [isPro, setIsPro] = useState(false);
   const [savingProfile, setSavingProfile] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
+  const [ranking, setRanking] = useState<RankingUser[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -85,6 +97,22 @@ export default function AccountPage() {
       }
     };
     fetchProfile();
+  }, []);
+
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const res = await fetch("/api/ranking");
+        if (res.ok) {
+          const data = await res.json();
+          setRanking(data.ranking ?? []);
+          setCurrentUserId(data.currentUserId ?? null);
+        }
+      } catch (err) {
+        console.error("Error fetching ranking:", err);
+      }
+    };
+    fetchRanking();
   }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -215,7 +243,7 @@ export default function AccountPage() {
   const tabs = [
     { id: "profile", label: "پروفایل", icon: User },
     { id: "security", label: "امنیت", icon: Lock },
-    { id: "certification", label: "درخواست گواهی", icon: Award },
+    { id: "ranking", label: "رتبه‌بندی", icon: Trophy },
   ];
 
   if (isLoading) {
@@ -468,37 +496,88 @@ export default function AccountPage() {
                 </div>
               )}
 
-              {/* Certification Request Tab */}
-              {activeTab === "certification" && (
+              {/* Ranking Tab */}
+              {activeTab === "ranking" && (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-1.5 rounded-full bg-green-500" />
                     <div>
                       <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                        درخواست گواهی
+                        رتبه‌بندی کاربران
                       </h2>
                       <p className="text-xs text-[var(--dash-muted)] mt-1">
-                        گواهی‌های معتبر دوره‌ها
+                        بر اساس میزان پیشرفت در یادگیری
                       </p>
                     </div>
                   </div>
 
-                  <div className="bg-[var(--hover-bg)] rounded-2xl p-8 text-center">
-                    <Award className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <p className="text-[var(--dash-text)] font-medium mb-2">
-                      گواهی شرکت در دوره‌ها
-                    </p>
-                    <p className="text-[var(--dash-muted)] text-sm mb-6 max-w-md mx-auto">
-                      پس از اتمام موفقیت‌آمیز هر دوره، می‌توانید گواهی معتبر
-                      دریافت کنید. برای مشاهده گواهی‌های خود روی دکمه زیر کلیک
-                      کنید.
-                    </p>
-                    <button
-                      disabled
-                      className="px-6 py-3 bg-[var(--hover-bg)] text-[var(--dash-muted)] rounded-xl font-bold cursor-not-allowed transition-all duration-300 inline-flex items-center gap-2">
-                      <Award className="w-5 h-5" />
-                      مشاهده گواهی‌ها
-                    </button>
+                  <div className="space-y-3">
+                    {ranking.map((user) => {
+                      const isTopThree = user.rank <= 3;
+                      const isCurrentUser = user.id === currentUserId;
+                      const rankColors = [
+                        "bg-yellow-400",
+                        "bg-gray-300",
+                        "bg-amber-600",
+                      ];
+                      return (
+                        <div
+                          key={user.id}
+                          className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 ${
+                            isCurrentUser
+                              ? "bg-green-500/10 ring-1 ring-green-500/30"
+                              : "bg-[var(--hover-bg)]"
+                          }`}>
+                          <div
+                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0 ${
+                              user.rank === 1
+                                ? "trophy-shine bg-purple-600 text-white"
+                                : isTopThree
+                                  ? `${rankColors[user.rank - 1]} text-black`
+                                  : "bg-[var(--hover-bg-strong)] text-[var(--dash-text)]"
+                            }`}>
+                            {user.rank === 1 ? (
+                              <Trophy className="h-5 w-5 relative z-10" />
+                            ) : (
+                              user.rank
+                            )}
+                          </div>
+                          <Avatar
+                            seed={user.avatarSeed || user.fullname}
+                            size={44}
+                            className="w-11 h-11 rounded-xl shrink-0 bg-[var(--hover-bg-strong)]"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="font-bold text-[var(--dash-text)] truncate flex items-center gap-2">
+                              {user.fullname}
+                              {isCurrentUser && (
+                                <span className="text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
+                                  شما
+                                </span>
+                              )}
+                            </p>
+                            <p className="text-xs text-[var(--dash-muted)] mt-1">
+                              تاریخ عضویت: {user.joinDate}
+                            </p>
+                          </div>
+                          {user.isPro ? (
+                            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 shrink-0">
+                              <Star className="h-4 w-4 fill-purple-400" />
+                              کاربر ویژه
+                            </span>
+                          ) : (
+                            <span className="text-sm text-[var(--dash-muted)] shrink-0">
+                              کاربر عادی
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                    {ranking.length === 0 && (
+                      <div className="bg-[var(--hover-bg)] rounded-2xl p-8 text-center text-[var(--dash-muted)]">
+                        کاربری برای نمایش وجود ندارد
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

@@ -1,7 +1,7 @@
 // components/dashboard/Sidebar.tsx
 "use client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { signOut, useSession } from "next-auth/react";
 import {
@@ -15,6 +15,9 @@ import {
   X,
   ShieldCheck,
   ChevronLeft,
+  LayoutDashboard,
+  Users,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -29,11 +32,14 @@ const menuItems = [
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { data: session } = useSession();
   const [mounted, setMounted] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+
+  const isMentors = pathname.startsWith("/mentors");
 
   useEffect(() => {
     setMounted(true);
@@ -205,7 +211,26 @@ export default function Sidebar() {
               </span>
             </button>
           )}
-
+          {/* Teacher Panel (mentors) */}
+          {session?.user?.role === "Teacher" && (
+            <Link
+              href="/mentors"
+              className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] backdrop-blur-sm"
+              aria-label="پنل مدرس">
+              <BookOpen className="h-5 w-5 shrink-0" />
+              <span
+                className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+                <span
+                  className={`whitespace-nowrap font-medium transition-all duration-150 ${
+                    isHovered
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-4"
+                  }`}>
+                  پنل مدرس
+                </span>
+              </span>
+            </Link>
+          )}
           {/* Logout /*/}
           <button
             onClick={() => signOut({ callbackUrl: "/" })}
@@ -322,6 +347,20 @@ export default function Sidebar() {
                 {theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}
               </span>
             </button>
+          )}
+
+          {/* Teacher Panel (mentors) */}
+          {session?.user?.role === "Teacher" && (
+            <Link
+              href="/mentors"
+              onClick={closeMobileSheet}
+              className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150"
+              aria-label="پنل مدرس">
+              <span className="w-10 h-10 rounded-xl bg-[var(--hover-bg)] flex items-center justify-center group-hover:bg-[var(--hover-bg-strong)] transition-colors duration-150">
+                <BookOpen className="w-5 h-5" />
+              </span>
+              <span className="text-base font-medium">پنل مدرس</span>
+            </Link>
           )}
 
           {/* Logout */}

@@ -144,7 +144,6 @@ export default function AccountPage() {
   const tabs = [
     { id: "profile", label: "پروفایل", icon: User },
     { id: "security", label: "امنیت", icon: Lock },
-    { id: "certification", label: "درخواست گواهی", icon: Award },
   ];
 
   if (isLoading) {
@@ -418,33 +417,6 @@ export default function AccountPage() {
                         placeholder="مدارک دانشگاهی خود را وارد کنید"
                       />
                     </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Certification Request Tab */}
-              {activeTab === "certification" && (
-                <div className="space-y-6">
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                      درخواست گواهی
-                    </h2>
-                  </div>
-
-                  <div className="bg-[var(--hover-bg)] rounded-xl p-6 text-center">
-                    <Award className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <p className="text-[var(--dash-text)] font-medium mb-2">
-                      گواهی شرکت در دوره‌ها
-                    </p>
-                    <p className="text-[var(--dash-muted)] text-sm mb-6 max-w-md mx-auto">
-                      پس از اتمام موفقیت‌آمیز هر دوره، می‌توانید گواهی معتبر
-                      دریافت کنید. برای مشاهده گواهی‌های خود روی دکمه زیر کلیک
-                      کنید.
-                    </p>
-                    <button className="px-6 py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg hover:bg-green-400 transition-all duration-300 inline-flex items-center gap-2">
-                      <Award className="w-5 h-5" />
-                      مشاهده گواهی‌ها
-                    </button>
                   </div>
                 </div>
               )}

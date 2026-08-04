@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import DatePicker from "react-multi-date-picker";
 import "react-multi-date-picker/styles/layouts/prime.css";
 import persian from "react-date-object/calendars/persian";
@@ -20,6 +21,9 @@ import {
   Loader2,
   Send,
   Star,
+  Search,
+  UserPlus,
+  Unplug,
 } from "lucide-react";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
@@ -34,6 +38,18 @@ type RankingUser = {
   progress: number;
   joinDate: string;
   rank: number;
+  friendStatus: "none" | "pending" | "friends";
+  friendIncoming: boolean;
+};
+
+type FriendRequest = {
+  id: number;
+  sender: {
+    id: number;
+    fullname: string;
+    avatarSeed: string | null;
+    isPro: boolean;
+  };
 };
 
 export default function AccountPage() {
@@ -66,6 +82,15 @@ export default function AccountPage() {
   const [savingPassword, setSavingPassword] = useState(false);
   const [ranking, setRanking] = useState<RankingUser[]>([]);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showOnlyFriends, setShowOnlyFriends] = useState(false);
+  const [friendAction, setFriendAction] = useState<{
+    id: number;
+    type: "add" | "accept" | "remove" | "disconnect";
+  } | null>(null);
+  const [disconnectTarget, setDisconnectTarget] =
+    useState<RankingUser | null>(null);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -113,6 +138,21 @@ export default function AccountPage() {
       }
     };
     fetchRanking();
+  }, []);
+
+  useEffect(() => {
+    const fetchFriendRequests = async () => {
+      try {
+        const res = await fetch("/api/friends");
+        if (res.ok) {
+          const data = await res.json();
+          setFriendRequests(data.requests ?? []);
+        }
+      } catch (err) {
+        console.error("Error fetching friend requests:", err);
+      }
+    };
+    fetchFriendRequests();
   }, []);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -239,6 +279,77 @@ export default function AccountPage() {
       setSavingPassword(false);
     }
   };
+
+  const runFriendAction = async (
+    userId: number,
+    type: "add" | "accept" | "remove" | "disconnect",
+  ) => {
+    if (friendAction !== null) return;
+    setFriendAction({ id: userId, type });
+    try {
+      let res: Response;
+      if (type === "add") {
+        res = await fetch("/api/friends", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ receiverId: userId }),
+        });
+      } else if (type === "accept") {
+        res = await fetch("/api/friends/accept", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+      } else {
+        res = await fetch("/api/friends", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId }),
+        });
+      }
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Friend action failed");
+      setRanking((prev) =>
+        prev.map((u) =>
+          u.id === userId
+            ? {
+                ...u,
+                friendStatus: data.friendStatus,
+                friendIncoming: data.friendIncoming ?? false,
+              }
+            : u,
+        ),
+      );
+      if (type === "accept" || type === "remove") {
+        setFriendRequests((prev) =>
+          prev.filter((r) => r.sender.id !== userId),
+        );
+      }
+      if (type === "add") toast.success("درخواست دوستی ارسال شد");
+      else if (type === "accept") toast.success("درخواست دوستی پذیرفته شد");
+      else if (type === "disconnect") toast.success("ارتباط قطع شد");
+      else toast.success("درخواست حذف شد");
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : "خطا در ارسال درخواست دوستی";
+      toast.error(message);
+    } finally {
+      setFriendAction(null);
+    }
+  };
+
+  const confirmDisconnect = async () => {
+    if (!disconnectTarget) return;
+    const target = disconnectTarget;
+    await runFriendAction(target.id, "disconnect");
+    setDisconnectTarget(null);
+  };
+
+  const filteredRanking = ranking.filter(
+    (user) =>
+      (!showOnlyFriends || user.friendStatus === "friends") &&
+      user.fullname.toLowerCase().includes(searchQuery.trim().toLowerCase()),
+  );
 
   const tabs = [
     { id: "profile", label: "پروفایل", icon: User },
@@ -511,8 +622,111 @@ export default function AccountPage() {
                     </div>
                   </div>
 
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <div className="relative flex-1 min-w-[200px]">
+                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)]" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="جستجوی کاربر..."
+                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl py-3 pl-4 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
+                      />
+                    </div>
+                    <label className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--hover-bg)] cursor-pointer select-none hover:bg-[var(--hover-bg-strong)] transition-colors duration-200">
+                      <input
+                        type="checkbox"
+                        checked={showOnlyFriends}
+                        onChange={(e) => setShowOnlyFriends(e.target.checked)}
+                        className="w-4 h-4 accent-green-500 cursor-pointer"
+                      />
+                      <span className="text-sm text-[var(--dash-text)]">
+                        فقط دوستان
+                      </span>
+                    </label>
+                  </div>
+
+                  {/* Pending Friend Requests Section */}
+                  {friendRequests.length > 0 && (
+                    <div className="bg-[var(--hover-bg)] border border-dashed border-amber-400/40 rounded-2xl p-5 space-y-3">
+                      <div className="flex items-center gap-2">
+                        <UserPlus className="h-4 w-4 text-amber-400" />
+                        <h3 className="font-bold text-[var(--dash-text)] text-sm">
+                          درخواست‌های دوستی
+                        </h3>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-400 text-xs font-bold">
+                          {friendRequests.length}
+                        </span>
+                      </div>
+
+                      {friendRequests.map((req) => {
+                        const isBusy = friendAction?.id === req.sender.id;
+                        return (
+                          <div
+                            key={req.id}
+                            className="flex items-center gap-3 p-3 rounded-xl bg-[var(--hover-bg-strong)]/60">
+                            <div className="relative shrink-0">
+                              {req.sender.isPro ? (
+                                <div className="pro-border rounded-xl p-[2px]">
+                                  <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
+                                    <Avatar
+                                      seed={req.sender.avatarSeed || req.sender.fullname}
+                                      size={36}
+                                      className="w-9 h-9 rounded-[10px]"
+                                    />
+                                  </div>
+                                </div>
+                              ) : (
+                                <Avatar
+                                  seed={req.sender.avatarSeed || req.sender.fullname}
+                                  size={36}
+                                  className="w-9 h-9 rounded-xl bg-[var(--hover-bg-strong)]"
+                                />
+                              )}
+                              {req.sender.isPro && (
+                                <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
+                                  <Star className="h-2.5 w-2.5 fill-purple-400 text-purple-400" />
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm text-[var(--dash-text)] truncate">
+                                {req.sender.fullname}
+                              </p>
+                              <p className="text-xs text-amber-500/90 font-medium flex items-center gap-1">
+                                <Loader2 className="h-3 w-3" />
+                                در انتظار تایید شما
+                              </p>
+                            </div>
+                            <button
+                              onClick={() =>
+                                runFriendAction(req.sender.id, "accept")
+                              }
+                              disabled={isBusy}
+                              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-green-500 text-black hover:bg-green-400 transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed">
+                              {isBusy && friendAction?.type === "accept" ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <UserPlus className="h-3.5 w-3.5" />
+                              )}
+                              پذیرش
+                            </button>
+                            <button
+                              onClick={() =>
+                                runFriendAction(req.sender.id, "remove")
+                              }
+                              disabled={isBusy}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-[var(--danger)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                              رد کردن
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
                   <div className="space-y-3">
-                    {ranking.map((user) => {
+                    {filteredRanking.map((user) => {
                       const isTopThree = user.rank <= 3;
                       const isCurrentUser = user.id === currentUserId;
                       const rankColors = [
@@ -542,11 +756,30 @@ export default function AccountPage() {
                               user.rank
                             )}
                           </div>
-                          <Avatar
-                            seed={user.avatarSeed || user.fullname}
-                            size={44}
-                            className="w-11 h-11 rounded-xl shrink-0 bg-[var(--hover-bg-strong)]"
-                          />
+                          <div className="relative shrink-0">
+                            {user.isPro ? (
+                              <div className="pro-border rounded-xl p-[2px]">
+                                <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
+                                  <Avatar
+                                    seed={user.avatarSeed || user.fullname}
+                                    size={40}
+                                    className="w-10 h-10 rounded-[10px] bg-[var(--hover-bg-strong)]"
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <Avatar
+                                seed={user.avatarSeed || user.fullname}
+                                size={44}
+                                className="w-11 h-11 rounded-xl shrink-0 bg-[var(--hover-bg-strong)]"
+                              />
+                            )}
+                            {user.isPro && (
+                              <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
+                                <Star className="h-3 w-3 fill-purple-400 text-purple-400" />
+                              </span>
+                            )}
+                          </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-bold text-[var(--dash-text)] truncate flex items-center gap-2">
                               {user.fullname}
@@ -560,25 +793,105 @@ export default function AccountPage() {
                               تاریخ عضویت: {user.joinDate}
                             </p>
                           </div>
-                          {user.isPro ? (
-                            <span className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 shrink-0">
-                              <Star className="h-4 w-4 fill-purple-400" />
-                              کاربر ویژه
-                            </span>
-                          ) : (
-                            <span className="text-sm text-[var(--dash-muted)] shrink-0">
-                              کاربر عادی
-                            </span>
+                          {!isCurrentUser && (
+                            <div className="flex items-center gap-2 shrink-0">
+                              {user.friendStatus === "friends" ? (
+                                <button
+                                  onClick={() => setDisconnectTarget(user)}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-green-500/15 text-green-500 hover:bg-red-500/15 hover:text-[var(--danger)] transition-all duration-200"
+                                  title="قطع ارتباط">
+                                  <Unplug className="h-3.5 w-3.5" />
+                                  قطع ارتباط
+                                </button>
+                              ) : user.friendStatus === "pending" ? (
+                                <>
+                                  <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]">
+                                    در انتظار تایید
+                                  </span>
+                                  {!user.friendIncoming && (
+                                    <button
+                                      onClick={() =>
+                                        runFriendAction(user.id, "remove")
+                                      }
+                                      disabled={friendAction?.id === user.id}
+                                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-[var(--danger)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                      لغو
+                                    </button>
+                                  )}
+                                </>
+                              ) : (
+                                <button
+                                  onClick={() => runFriendAction(user.id, "add")}
+                                  disabled={friendAction?.id === user.id}
+                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white hover:scale-105 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                  {friendAction?.id === user.id &&
+                                  friendAction?.type === "add" ? (
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                  ) : (
+                                    <UserPlus className="h-3.5 w-3.5" />
+                                  )}
+                                  افزودن
+                                </button>
+                              )}
+                            </div>
                           )}
                         </div>
                       );
                     })}
-                    {ranking.length === 0 && (
+                    {filteredRanking.length === 0 && (
                       <div className="bg-[var(--hover-bg)] rounded-2xl p-8 text-center text-[var(--dash-muted)]">
-                        کاربری برای نمایش وجود ندارد
+                        {searchQuery.trim()
+                          ? "کاربری با این نام پیدا نشد"
+                          : "کاربری برای نمایش وجود ندارد"}
                       </div>
                     )}
                   </div>
+
+                  {/* Disconnect confirmation modal */}
+                  {disconnectTarget &&
+                    createPortal(
+                      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                        <div
+                          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                          onClick={() => setDisconnectTarget(null)}
+                        />
+                        <div className="relative w-full max-w-sm bg-[var(--dash-sides)] rounded-2xl shadow-2xl p-6">
+                          <div className="flex items-center gap-3 mb-4">
+                            <div className="p-2.5 rounded-xl bg-red-500/15 shrink-0">
+                              <Unplug className="h-5 w-5 text-red-500" />
+                            </div>
+                            <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                              قطع ارتباط
+                            </h3>
+                          </div>
+                          <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-6">
+                            آیا از قطع ارتباط با{" "}
+                            <span className="font-bold text-[var(--dash-text)]">
+                              «{disconnectTarget.fullname}»
+                            </span>{" "}
+                            مطمئن هستید؟
+                          </p>
+                          <div className="flex gap-3">
+                            <button
+                              onClick={() => setDisconnectTarget(null)}
+                              disabled={!!friendAction}
+                              className="flex-[2] py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition-all duration-200 disabled:opacity-60 shadow-lg shadow-green-500/20">
+                              نه، منصرف شدم
+                            </button>
+                            <button
+                              onClick={confirmDisconnect}
+                              disabled={!!friendAction}
+                              className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold ring-1 ring-red-500/20 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2">
+                              {friendAction?.type === "disconnect" && (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              )}
+                              بله، قطع ارتباط
+                            </button>
+                          </div>
+                        </div>
+                      </div>,
+                      document.body,
+                    )}
                 </div>
               )}
 

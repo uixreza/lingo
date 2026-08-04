@@ -116,16 +116,43 @@ export async function GET() {
     take: 100,
   });
 
+  const friendRows = await prisma.friend.findMany({
+    where: {
+      OR: [{ senderId: currentUserId }, { receiverId: currentUserId }],
+    },
+  });
+
+  const friendStatus = new Map<
+    number,
+    { status: "none" | "pending" | "friends"; incoming: boolean }
+  >();
+  for (const row of friendRows) {
+    const otherId =
+      row.senderId === currentUserId ? row.receiverId : row.senderId;
+    const status =
+      row.status === "Accepted"
+        ? "friends"
+        : "pending";
+    const incoming =
+      row.receiverId === currentUserId && row.status === "Pending";
+    friendStatus.set(otherId, { status, incoming });
+  }
+
   return NextResponse.json({
-    ranking: users.map((user, index) => ({
-      id: user.id,
-      fullname: user.fullname,
-      avatarSeed: user.avatarSeed,
-      isPro: user.IsPro,
-      progress: user.progress,
-      joinDate: gregToJalaliStr(user.createdAt),
-      rank: index + 1,
-    })),
+    ranking: users.map((user, index) => {
+      const friend = friendStatus.get(user.id);
+      return {
+        id: user.id,
+        fullname: user.fullname,
+        avatarSeed: user.avatarSeed,
+        isPro: user.IsPro,
+        progress: user.progress,
+        joinDate: gregToJalaliStr(user.createdAt),
+        rank: index + 1,
+        friendStatus: friend?.status ?? "none",
+        friendIncoming: friend?.incoming ?? false,
+      };
+    }),
     currentUserId,
   });
 }

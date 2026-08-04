@@ -12,12 +12,19 @@ import {
   CheckCheck,
   Clock,
   Loader2,
+  Ticket,
 } from "lucide-react";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 
 type Notification = {
   id: string;
-  type: "success" | "warning" | "info" | "achievement" | "message";
+  type:
+    | "success"
+    | "warning"
+    | "info"
+    | "achievement"
+    | "message"
+    | "ticket";
   title: string;
   message: string;
   time: string;
@@ -58,6 +65,12 @@ const typeStyles: Record<
     bg: "bg-cyan-500/10",
     glow: "shadow-cyan-500/20",
   },
+  ticket: {
+    border: "border-r-amber-500",
+    text: "text-amber-500",
+    bg: "bg-amber-500/10",
+    glow: "shadow-amber-500/20",
+  },
 };
 
 const typeIcons: Record<Notification["type"], typeof Bell> = {
@@ -66,6 +79,7 @@ const typeIcons: Record<Notification["type"], typeof Bell> = {
   info: Info,
   achievement: Star,
   message: MessageCircle,
+  ticket: Ticket,
 };
 
 function relativeTime(iso: string) {
@@ -222,14 +236,12 @@ export default function NotificationPage() {
             </div>
           ) : (
             filteredNotifications.map((notification) => {
-              const style = typeStyles[notification.type];
-              const Icon = typeIcons[notification.type];
+              const style = typeStyles[notification.type] ?? typeStyles.info;
+              const Icon = typeIcons[notification.type] ?? Info;
               return (
                 <div
                   key={notification.id}
-                  className={`bg-[var(--dash-sides)] rounded-2xl shadow-lg p-4 border border-[var(--dash-muted)]/20 dark:border-white/20 border-r-4 transition-all duration-200 hover:shadow-xl ${
-                    style.border
-                  } ${!notification.read ? `shadow-lg ${style.glow}` : ""}`}>
+                  className="bg-[var(--dash-sides)] rounded-2xl p-4 border border-[var(--dash-muted)]/20 dark:border-white/20 transition-all duration-200">
                   <div className="flex gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-4">

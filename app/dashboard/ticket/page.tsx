@@ -290,10 +290,9 @@ export default function TicketsPage() {
                   placeholder="جستجو در تیکت‌ها..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-offset-2 text-right"
+                  className="w-full px-4 py-2 rounded-xl border border-white/5 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all text-right"
                   style={{
                     backgroundColor: "var(--dash-bg)",
-                    borderColor: "var(--dash-border)",
                     color: "var(--dash-text)",
                   }}
                 />

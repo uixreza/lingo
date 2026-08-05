@@ -42,6 +42,7 @@ model User {
   tickets           Ticket[]
   sentFriends       Friend[] @relation("SentFriendRequests")
   receivedFriends   Friend[] @relation("ReceivedFriendRequests")
+  posts             Post[]
 
   @@map("users")
 }
@@ -308,4 +309,30 @@ model Notification {
   @@index([userId, read])
   @@index([createdAt])
   @@map("notifications")
+}
+
+enum PostStatus {
+  Draft
+  Published
+}
+
+model Post {
+  id           Int        @id @default(autoincrement())
+  title        String     @db.VarChar(200)
+  slug         String     @unique @db.VarChar(240)
+  content      String     @db.Text
+  thumbnailUrl String?    @map("thumbnail_url") @db.VarChar(500)
+  tags         String[]   @default([])
+  status       PostStatus @default(Draft)
+  authorId     Int        @map("author_id")
+  createdAt    DateTime   @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt    DateTime   @updatedAt @map("updated_at") @db.Timestamp(3)
+  publishedAt  DateTime?  @map("published_at") @db.Timestamp(3)
+
+  author       User       @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([authorId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("posts")
 }

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -15,6 +15,7 @@ import {
   Calendar,
   Tag,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 
 // Types
@@ -114,26 +115,50 @@ export default function TicketsPage() {
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [isUpdatingStatus, setIsUpdatingStatus] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "all" | "open" | "in-progress" | "resolved"
   >("all");
   const [searchQuery, setSearchQuery] = useState("");
 
+  const fetchTickets = async () => {
+    const res = await fetch("/api/admin/tickets");
+    if (!res.ok) throw new Error();
+    return (await res.json()) as Ticket[];
+  };
+
+  const applyTickets = useCallback((data: Ticket[]) => {
+    setTickets(data);
+    setSelectedTicket((current) =>
+      current ? (data.find((t) => t.id === current.id) ?? current) : null,
+    );
+  }, []);
+
   useEffect(() => {
-    const fetchTickets = async () => {
+    const run = async () => {
       try {
-        const res = await fetch("/api/admin/tickets");
-        if (!res.ok) throw new Error();
-        const data = await res.json();
-        setTickets(data);
+        applyTickets(await fetchTickets());
       } catch {
         toast.error("خطا در دریافت تیکت‌ها");
       } finally {
         setIsLoading(false);
+        setIsRefreshing(false);
       }
     };
-    fetchTickets();
-  }, []);
+    void run();
+  }, [applyTickets]);
+
+  const handleRefresh = async () => {
+    if (isLoading || isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      applyTickets(await fetchTickets());
+    } catch {
+      toast.error("خطا در دریافت تیکت‌ها");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   const categories = [
     { value: "technical", label: "مشکل فنی", icon: "🔧" },
@@ -225,15 +250,25 @@ export default function TicketsPage() {
               }}>
               {/* Tickets Count */}
               <div
-                className="p-4 border-b"
+                className="p-4 border-b flex items-center justify-between"
                 style={{ borderColor: "var(--dash-bg)" }}>
-                <div className="text-center">
-                  <p
-                    className="text-sm font-medium"
-                    style={{ color: "var(--dash-text)" }}>
-                    {tickets.length} تیکت
-                  </p>
-                </div>
+                <p
+                  className="text-sm font-medium"
+                  style={{ color: "var(--dash-text)" }}>
+                  {tickets.length} تیکت
+                </p>
+                <button
+                  onClick={handleRefresh}
+                  disabled={isLoading || isRefreshing}
+                  title="به‌روزرسانی"
+                  aria-label="به‌روزرسانی"
+                  className="p-2 rounded-lg transition-colors hover:bg-white/10 disabled:opacity-50"
+                  style={{ color: "var(--dash-muted)" }}>
+                  <RefreshCw
+                    size={16}
+                    className={isRefreshing ? "animate-spin" : ""}
+                  />
+                </button>
               </div>
 
               {/* Search */}

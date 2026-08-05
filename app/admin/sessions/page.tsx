@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 import {
   CheckCircle,
   Hourglass,
@@ -15,6 +15,7 @@ import {
   Copy,
   ExternalLink,
   Loader2,
+  RefreshCw,
 } from "lucide-react";
 
 type SessionStatus = "Approved" | "Pending" | "Canceled";
@@ -36,6 +37,7 @@ interface SessionRequest {
 export default function AdminSessionsPage() {
   const [sessions, setSessions] = useState<SessionRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [selectedSession, setSelectedSession] = useState<SessionRequest | null>(
     null,
@@ -45,22 +47,44 @@ export default function AdminSessionsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<SessionStatus | "all">("all");
 
+  const fetchSessions = async () => {
+    const res = await fetch("/api/admin/sessions");
+    if (!res.ok) throw new Error();
+    return (await res.json()) as SessionRequest[];
+  };
+
+  const applySessions = useCallback((data: SessionRequest[]) => {
+    setSessions(data);
+    setSelectedSession((current) =>
+      current ? (data.find((s) => s.id === current.id) ?? current) : null,
+    );
+  }, []);
+
   useEffect(() => {
-    const fetchSessions = async () => {
+    const run = async () => {
       try {
-        const res = await fetch("/api/admin/sessions");
-        if (res.ok) {
-          const data: SessionRequest[] = await res.json();
-          setSessions(data);
-        }
+        applySessions(await fetchSessions());
       } catch (err) {
         console.error("Error fetching sessions:", err);
       } finally {
         setLoading(false);
+        setRefreshing(false);
       }
     };
-    fetchSessions();
-  }, []);
+    void run();
+  }, [applySessions]);
+
+  const handleRefresh = async () => {
+    if (loading || refreshing) return;
+    setRefreshing(true);
+    try {
+      applySessions(await fetchSessions());
+    } catch (err) {
+      console.error("Error fetching sessions:", err);
+    } finally {
+      setRefreshing(false);
+    }
+  };
 
   const filteredSessions = sessions.filter((s) => {
     const matchesFilter = filter === "all" || s.status === filter;
@@ -196,18 +220,35 @@ export default function AdminSessionsPage() {
               <div
                 className="p-4 border-b"
                 style={{ borderColor: "var(--dash-bg)" }}>
-                <input
-                  type="text"
-                  placeholder="جستجوی دانشجو، ایمیل یا زبان..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-offset-2 text-right"
-                  style={{
-                    backgroundColor: "var(--dash-bg)",
-                    borderColor: "var(--dash-border)",
-                    color: "var(--dash-text)",
-                  }}
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    placeholder="جستجوی دانشجو، ایمیل یا زبان..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 focus:ring-offset-2 text-right"
+                    style={{
+                      backgroundColor: "var(--dash-bg)",
+                      borderColor: "var(--dash-border)",
+                      color: "var(--dash-text)",
+                    }}
+                  />
+                  <button
+                    onClick={handleRefresh}
+                    disabled={loading || refreshing}
+                    title="به‌روزرسانی"
+                    aria-label="به‌روزرسانی"
+                    className="p-2.5 rounded-xl border transition-colors hover:bg-white/10 disabled:opacity-50 shrink-0"
+                    style={{
+                      borderColor: "var(--dash-border)",
+                      color: "var(--dash-muted)",
+                    }}>
+                    <RefreshCw
+                      size={16}
+                      className={refreshing ? "animate-spin" : ""}
+                    />
+                  </button>
+                </div>
               </div>
 
               {/* Filter Tabs */}

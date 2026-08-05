@@ -27,12 +27,50 @@ const menuItems = [
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];
 
+const unreadHrefs: Record<string, "sessions" | "tickets"> = {
+  "/admin/sessions": "sessions",
+  "/admin/ticket": "tickets",
+};
+
+const RedDot = () => (
+  <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-[var(--sidebar-bg)]" />
+);
+
 export default function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [unreadCounts, setUnreadCounts] = useState({
+    sessions: 0,
+    tickets: 0,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const res = await fetch("/api/admin/unread-counts");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!cancelled) {
+          setUnreadCounts((prev) => ({
+            sessions: data.sessions ?? prev.sessions,
+            tickets: data.tickets ?? prev.tickets,
+          }));
+        }
+      } catch {
+        // silent
+      }
+    };
+    void load();
+    const interval = setInterval(load, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [pathname]);
 
   useEffect(() => {
     setMounted(true);
@@ -124,6 +162,10 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
+            const unreadKey = unreadHrefs[item.href];
+            const hasUnread = unreadKey
+              ? unreadCounts[unreadKey] > 0
+              : false;
             return (
               <Link
                 key={item.href}
@@ -142,6 +184,7 @@ export default function Sidebar() {
                         : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
                     }`}
                   />
+                  {hasUnread && <RedDot />}
                 </div>
 
                 <span
@@ -278,6 +321,10 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
+            const unreadKey = unreadHrefs[item.href];
+            const hasUnread = unreadKey
+              ? unreadCounts[unreadKey] > 0
+              : false;
             return (
               <Link
                 key={item.href}
@@ -297,6 +344,7 @@ export default function Sidebar() {
                         : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
                     }`}
                   />
+                  {hasUnread && <RedDot />}
                 </div>
 
                 <span className={`${isActive ? "font-bold" : "font-medium"}`}>

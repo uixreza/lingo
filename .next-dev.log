@@ -896,3 +896,28 @@
  GET /api/sessions 200 in 1705ms (next.js: 15ms, application-code: 1689ms)
  GET /api/friends 200 in 2.0s (next.js: 89ms, application-code: 1924ms)
  GET /api/friends 200 in 484ms (next.js: 4ms, application-code: 481ms)
+ GET /dashboard 200 in 45ms (next.js: 20ms, proxy.ts: 5ms, application-code: 20ms)
+ GET /dashboard/sessions 200 in 27ms (next.js: 3ms, proxy.ts: 5ms, application-code: 18ms)
+ GET /api/dashboard/stats 200 in 1687ms (next.js: 15ms, application-code: 1672ms)
+ GET /dashboard/notebook 200 in 40ms (next.js: 5ms, proxy.ts: 12ms, application-code: 23ms)
+ GET /api/dashboard/stats 200 in 236ms (next.js: 3ms, application-code: 234ms)
+ GET /dashboard/ticket 200 in 40ms (next.js: 16ms, proxy.ts: 4ms, application-code: 20ms)
+ GET /api/sessions 200 in 1608ms (next.js: 4ms, application-code: 1604ms)
+350000n
+ GET /api/sessions/price 200 in 1620ms (next.js: 3ms, application-code: 1617ms)
+350000n
+ GET /api/sessions/price 200 in 240ms (next.js: 7ms, application-code: 233ms)
+ GET /api/tickets 200 in 511ms (next.js: 14ms, application-code: 497ms)
+ GET /api/sessions 200 in 246ms (next.js: 2ms, application-code: 244ms)
+ GET /dashboard/notebook 200 in 34ms (next.js: 5ms, proxy.ts: 4ms, application-code: 25ms)
+ GET /api/tickets 200 in 450ms (next.js: 2ms, application-code: 448ms)
+ GET /dashboard/sessions 200 in 43ms (next.js: 6ms, proxy.ts: 5ms, application-code: 32ms)
+350000n
+ GET /api/sessions/price 200 in 249ms (next.js: 9ms, application-code: 240ms)
+ GET /api/sessions 200 in 253ms (next.js: 4ms, application-code: 249ms)
+350000n
+ GET /api/sessions/price 200 in 256ms (next.js: 4ms, application-code: 252ms)
+ GET /api/sessions 200 in 275ms (next.js: 11ms, application-code: 264ms)
+ GET /dashboard 200 in 28ms (next.js: 4ms, proxy.ts: 5ms, application-code: 20ms)
+ GET /api/dashboard/stats 200 in 242ms (next.js: 2ms, application-code: 240ms)
+ GET /api/dashboard/stats 200 in 314ms (next.js: 3ms, application-code: 312ms)

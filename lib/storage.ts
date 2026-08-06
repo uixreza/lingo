@@ -62,3 +62,28 @@ export async function saveImage(file: File): Promise<string> {
   fs.writeFileSync(path.join(dir, name), buffer);
   return `/uploads/${name}`;
 }
+
+/**
+ * Deletes an image that was saved by `saveImage`.
+ * - Production (Vercel): deletes from Vercel Blob.
+ * - Development: removes the file from ./uploads.
+ * Silently ignores external URLs and already-missing files.
+ */
+export async function deleteImage(url: string): Promise<void> {
+  try {
+    if (isBlobStorageEnabled()) {
+      const { del } = await import("@vercel/blob");
+      await del(url);
+      return;
+    }
+
+    const prefix = "/uploads/";
+    if (!url.startsWith(prefix)) return;
+    const uploadsRoot = path.join(process.cwd(), "uploads");
+    const filePath = path.resolve(uploadsRoot, url.slice(prefix.length));
+    if (!filePath.startsWith(uploadsRoot + path.sep)) return;
+    await fs.promises.unlink(filePath);
+  } catch {
+    // file may already be missing or the blob URL may be stale
+  }
+}

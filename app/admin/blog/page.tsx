@@ -452,6 +452,7 @@ export default function BlogPage() {
                     src={thumbnail}
                     alt="Thumbnail"
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 ) : (
@@ -633,7 +634,7 @@ export default function BlogPage() {
                     <td className="py-4 px-3">
                       <div className="w-12 h-12 rounded-xl bg-[var(--dash-bg)] flex items-center justify-center overflow-hidden">
                         {post.thumbnailUrl ? (
-                          <Image src={post.thumbnailUrl} alt="" width={48} height={48} className="object-cover" />
+                          <Image src={post.thumbnailUrl} alt="" width={48} height={48} unoptimized className="object-cover" />
                         ) : (
                           <ImageIcon className="h-5 w-5 text-[var(--dash-muted)]" />
                         )}

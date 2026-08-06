@@ -32,17 +32,17 @@ type BlogPost = {
 };
 
 function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
     const mql = window.matchMedia(query);
     const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
     mql.addEventListener("change", onChange);
-    const t = setTimeout(() => setMatches(mql.matches), 0);
-    return () => {
-      clearTimeout(t);
-      mql.removeEventListener("change", onChange);
-    };
+    setMatches(mql.matches);
+    return () => mql.removeEventListener("change", onChange);
   }, [query]);
 
   return matches;
@@ -89,9 +89,17 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
         role="dialog"
         aria-modal="true"
         onClick={(e) => e.stopPropagation()}
-        initial={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 24 }}
-        animate={isMobile ? { y: 0 } : { opacity: 1, scale: 1, y: 0 }}
-        exit={isMobile ? { y: "100%" } : { opacity: 0, scale: 0.96, y: 24 }}
+        initial={
+          isMobile
+            ? { y: "100%", opacity: 1, scale: 1 }
+            : { opacity: 0, scale: 0.96, y: 24 }
+        }
+        animate={isMobile ? { y: 0, opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: 0 }}
+        exit={
+          isMobile
+            ? { y: "100%", opacity: 1, scale: 1 }
+            : { opacity: 0, scale: 0.96, y: 24 }
+        }
         transition={{ duration: 0.3, ease: "easeOut" }}
         className={`relative bg-[#0b0b0b] border-white/10 shadow-2xl overflow-hidden ${
           isMobile
@@ -113,6 +121,7 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
               src={post.thumbnailUrl}
               alt={post.title}
               fill
+              unoptimized
               sizes="(max-width: 640px) 100vw, 768px"
               className="object-cover"
             />
@@ -229,6 +238,7 @@ export default function BlogPage() {
                       src={post.thumbnailUrl}
                       alt={post.title}
                       fill
+                      unoptimized
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />

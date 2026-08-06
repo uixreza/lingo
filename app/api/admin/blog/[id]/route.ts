@@ -1,5 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions, prisma } from "@/lib/auth";
+import { deleteImage } from "@/lib/storage";
 import { NextResponse } from "next/server";
 
 export async function DELETE(
@@ -18,7 +19,14 @@ export async function DELETE(
   }
 
   try {
+    const post = await prisma.post.findUnique({ where: { id: postId } });
+    if (!post) {
+      return NextResponse.json({ error: "پست یافت نشد" }, { status: 404 });
+    }
     await prisma.post.delete({ where: { id: postId } });
+    if (post.thumbnailUrl) {
+      await deleteImage(post.thumbnailUrl);
+    }
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ error: "پست یافت نشد" }, { status: 404 });

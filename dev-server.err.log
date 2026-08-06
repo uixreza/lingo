@@ -1,0 +1,35 @@
+⚠ Slow filesystem detected. The benchmark took 518ms. If F:\personal\lingofam\.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+(node:16420) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[browser] Uncaught ReferenceError: error is not defined
+    at MentorTab (components/admin/MentorTab.tsx:497:12)
+    at AccountPage (app/admin/account/page.tsx:440:42)
+  495 |           </div>
+  496 |
+> 497 |           {error && (
+      |            ^
+  498 |             <p className="text-center text-sm font-medium text-red-400 bg-red-500/10 bord...
+  499 |               {error}
+  500 |             </p>
+[browser] Uncaught ReferenceError: error is not defined
+    at MentorTab (components/admin/MentorTab.tsx:490:12)
+    at AccountPage (app/admin/account/page.tsx:444:32)
+  488 |           </div>
+  489 |
+> 490 |           {error && (
+      |            ^
+  491 |             <p className="text-center text-sm font-medium text-red-400 bg-red-500/10 bord...
+  492 |               {error}
+  493 |             </p>
+[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/uploads/1786019295014-3vp3936a.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading

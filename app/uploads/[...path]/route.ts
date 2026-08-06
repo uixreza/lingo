@@ -13,18 +13,30 @@ const MIME_BY_EXT: Record<string, string> = {
   svg: "image/svg+xml",
 };
 
-export const dynamic = "force-static";
+export const dynamic = "force-dynamic";
 
 export async function GET(
   _req: Request,
   { params }: { params: Promise<{ path: string[] }> },
 ) {
-  // Production uses Vercel Blob URLs; local files only exist in development.
+  const { path: segments } = await params;
+
+  // Production stores images in Vercel Blob. Legacy /uploads/<name> URLs
+  // (saved before blob storage was enabled) fall back to the matching blob.
   if (isBlobStorageEnabled()) {
+    const name = segments.join("/");
+    try {
+      const { list } = await import("@vercel/blob");
+      const { blobs } = await list({ prefix: name, limit: 1 });
+      if (blobs.length > 0) {
+        return NextResponse.redirect(blobs[0].url);
+      }
+    } catch {
+      // fall through to 404
+    }
     return new Response("Not found", { status: 404 });
   }
 
-  const { path: segments } = await params;
   const uploadsRoot = path.join(process.cwd(), "uploads");
   const relative = path.join(...segments);
   const filePath = path.resolve(uploadsRoot, relative);

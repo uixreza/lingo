@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRadio } from "@/components/RadioProvider";
+import { PageSkeleton } from "@/components/dashboard/Skeletons";
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
   id: `kid-${i}`,
@@ -35,6 +36,7 @@ export default function DashboardPage() {
     "kids",
   );
   const session = useSession();
+  const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<{
     upcomingCount: number;
     upcomingSessions: {
@@ -54,6 +56,8 @@ export default function DashboardPage() {
         if (res.ok) setStats(await res.json());
       } catch {
         // stats are decorative; keep cards hidden on failure
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchStats();
@@ -66,7 +70,7 @@ export default function DashboardPage() {
         ? adultBooks
         : etcBooks;
 
-  return (
+  return isLoading ? <PageSkeleton /> : (
     <div className="space-y-6">
       {/* Welcome Banner */}
       <div className="relative bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 overflow-hidden">

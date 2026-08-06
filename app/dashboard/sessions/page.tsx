@@ -19,7 +19,6 @@ import {
   Video,
   ChevronDown,
   BookOpen,
-  RefreshCw,
   Check,
   X,
 } from "lucide-react";
@@ -32,7 +31,13 @@ const timeSlots = [
   { value: "12:30", label: "۱۲:۳۰ تا ۱۴:۰۰" },
 ];
 
-const TEACHER_NAME = "رضا کمالی";
+const DEFAULT_MENTOR = {
+  name: "رضا کمالی",
+  photoUrl: "/me.png",
+  certifications: [] as string[],
+  experience: "",
+  education: "",
+};
 
 
 const languages = [
@@ -99,6 +104,7 @@ export default function SessionsPage() {
   const [privatePrice, setPrivatePrice] = useState<number | null>(null);
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
+  const [mentor, setMentor] = useState(DEFAULT_MENTOR);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -110,9 +116,10 @@ export default function SessionsPage() {
     setMounted(true);
     const fetchSessions = async () => {
       try {
-        const [sessionsRes, priceRes] = await Promise.all([
+        const [sessionsRes, priceRes, mentorRes] = await Promise.all([
           fetch("/api/sessions"),
           fetch("/api/sessions/price"),
+          fetch("/api/mentor"),
         ]);
         if (sessionsRes.ok) {
           const data = await sessionsRes.json();
@@ -122,6 +129,20 @@ export default function SessionsPage() {
         if (priceRes.ok) {
           const { privatePrice } = await priceRes.json();
           setPrivatePrice(privatePrice);
+        }
+        if (mentorRes.ok) {
+          const { mentor } = await mentorRes.json();
+          if (mentor) {
+            setMentor({
+              name: mentor.name || DEFAULT_MENTOR.name,
+              photoUrl: mentor.photoUrl || DEFAULT_MENTOR.photoUrl,
+              certifications: Array.isArray(mentor.certifications)
+                ? mentor.certifications
+                : [],
+              experience: mentor.experience || "",
+              education: mentor.education || "",
+            });
+          }
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -297,8 +318,47 @@ export default function SessionsPage() {
     Canceled: "لغو شده",
   };
 
-  return (
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+  return isLoading ? (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-pulse">
+      <div className="lg:col-span-3 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
+        <div className="flex items-center gap-3 mb-8">
+          <div className="h-8 w-1 rounded-full bg-[var(--hover-bg-strong)]" />
+          <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)]" />
+        </div>
+        <div className="space-y-7">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="space-y-3">
+              <div className="h-3 w-32 rounded bg-[var(--hover-bg-strong)]" />
+              <div className="h-24 rounded-xl bg-[var(--hover-bg)]" />
+            </div>
+          ))}
+          <div className="h-14 rounded-xl bg-[var(--hover-bg)]" />
+        </div>
+      </div>
+      <div className="lg:col-span-2 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="h-5 w-36 rounded bg-[var(--hover-bg-strong)]" />
+          <div className="h-5 w-10 rounded-full bg-[var(--hover-bg-strong)]" />
+        </div>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="rounded-2xl p-5 bg-[var(--hover-bg)] space-y-3 mb-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-9 w-9 rounded-lg bg-[var(--hover-bg-strong)]" />
+                <div className="space-y-2">
+                  <div className="h-3 w-24 rounded bg-[var(--hover-bg-strong)]" />
+                  <div className="h-2.5 w-16 rounded bg-[var(--hover-bg-strong)]" />
+                </div>
+              </div>
+              <div className="h-6 w-16 rounded-full bg-[var(--hover-bg-strong)]" />
+            </div>
+            <div className="h-2.5 w-full rounded bg-[var(--hover-bg-strong)]" />
+          </div>
+        ))}
+      </div>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
         {/* Pro Section (mobile only - above form) */}
         <div className="lg:hidden pro-border rounded-xl p-[2px]">
           <div className="bg-purple-500/10 backdrop-blur-xl rounded-[10px] p-4">
@@ -401,9 +461,6 @@ export default function SessionsPage() {
 
             {/* Teacher Introduction */}
             <div className="relative bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-xl p-5 ring-1 ring-purple-500/10">
-              <div className="absolute top-2.5 left-2.5 w-8 h-8 bg-purple-500/15 rounded-lg flex items-center justify-center">
-                <RefreshCw className="h-4 w-4 text-purple-500" />
-              </div>
               <div className="flex items-center gap-2 mb-5">
                 <div className="h-5 w-1 rounded-full bg-purple-500" />
                 <span className="text-xs font-bold text-purple-400">
@@ -414,33 +471,41 @@ export default function SessionsPage() {
                 <div className="relative shrink-0">
                   <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg ring-2 ring-purple-500/20">
                     <Image
-                      src="/me.png"
-                      alt="رضا کمالی"
+                      src={mentor.photoUrl}
+                      alt={mentor.name}
                       width={256}
                       height={256}
-                      quality={100}
+                      unoptimized={mentor.photoUrl !== "/me.png"}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
                     <p className="text-sm font-bold text-[var(--dash-text)]">
-                      رضا کمالی
+                      {mentor.name}
                     </p>
-                    <span className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-medium">
-                      TTC
-                    </span>
+                    {mentor.certifications.map((c) => (
+                      <span
+                        key={c}
+                        className="text-[10px] bg-blue-500/10 text-blue-400 px-1.5 py-0.5 rounded font-medium">
+                        {c}
+                      </span>
+                    ))}
                   </div>
                   <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">۳ سال سابقه</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">دانشگاه بجنورد</span>
-                    </div>
+                    {mentor.experience && (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                        <span className="text-[11px] text-[var(--dash-muted)]">{mentor.experience}</span>
+                      </div>
+                    )}
+                    {mentor.education && (
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-1 h-1 rounded-full bg-purple-400/50" />
+                        <span className="text-[11px] text-[var(--dash-muted)]">{mentor.education}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -460,14 +525,6 @@ export default function SessionsPage() {
                   {/* Month Grids */}
                   {mounted && (
                     <div className="relative">
-                      {isLoading && (
-                        <div className="absolute inset-0 z-10 backdrop-blur-sm bg-(--dash-sides)/50 rounded-xl flex items-center justify-center">
-                          <span className="flex items-center gap-2 text-sm font-medium text-[var(--dash-text)] bg-[var(--dash-sides)]/80 px-4 py-2.5 rounded-full shadow-lg">
-                            <Loader2 className="h-4 w-4 animate-spin text-green-500" />
-                           درحال بررسی تاریخ های موجود
-                          </span>
-                        </div>
-                      )}
                     <div className="flex gap-6 overflow-x-auto pb-2" style={{ direction: "ltr" }}>
                       {(() => {
                         const now = moment();
@@ -719,7 +776,7 @@ export default function SessionsPage() {
                   </span>
                 </div>
                 <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-                  کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس رضا کمالی
+                  کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس {mentor.name}
                 </p>
               </div>
             </div>
@@ -755,11 +812,7 @@ export default function SessionsPage() {
           </div>
 
           <div className="space-y-3 flex-1 overflow-y-auto min-h-0">
-            {isLoading ? (
-              <div className="flex justify-center py-16">
-                <Loader2 className="h-6 w-6 animate-spin text-[var(--dash-muted)]" />
-              </div>
-            ) : filteredRequests.length === 0 ? (
+            {filteredRequests.length === 0 ? (
               <div className="text-center py-16">
                 <CalendarDays className="h-10 w-10 mx-auto text-[var(--dash-muted)]/40 mb-3" />
                 <p className="text-[var(--dash-muted)] text-sm">
@@ -835,7 +888,7 @@ export default function SessionsPage() {
                             مدرس
                           </p>
                           <p className="text-sm font-bold text-[var(--dash-text)] truncate mt-0.5">
-                            {TEACHER_NAME}
+                            {mentor.name}
                           </p>
                         </div>
                       </div>
@@ -1061,5 +1114,5 @@ export default function SessionsPage() {
           </div>
         )}
       </div>
-  );
+    );
 }

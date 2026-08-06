@@ -17,6 +17,7 @@ import {
   Loader2,
   RefreshCw,
 } from "lucide-react";
+import { ListSkeleton } from "@/components/dashboard/Skeletons";
 
 type SessionStatus = "Approved" | "Pending" | "Canceled";
 
@@ -277,12 +278,7 @@ export default function AdminSessionsPage() {
               {/* List */}
               <div className="max-h-[600px] overflow-y-auto">
                 {loading ? (
-                  <div className="flex justify-center py-12">
-                    <Loader2
-                      className="h-6 w-6 animate-spin"
-                      style={{ color: "var(--dash-muted)" }}
-                    />
-                  </div>
+                  <ListSkeleton count={3} />
                 ) : filteredSessions.length === 0 ? (
                   <div
                     className="text-center py-12"

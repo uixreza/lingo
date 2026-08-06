@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Wallet, ChevronLeft, Bell } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import Avatar from "@/components/dashboard/Avatar";
 
 type User = {
   name: string;
@@ -11,8 +13,11 @@ type User = {
 };
 
 export default function Header({ user }: { user: User }) {
-  const { name, image } = user;
+  const { data: session } = useSession();
+  const displayName = session?.user?.fullname || user.name;
+  const { image } = user;
   const [realBalance, setRealBalance] = useState<number | null>(null);
+  const [mentorPhoto, setMentorPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchBalance = async () => {
@@ -27,6 +32,19 @@ export default function Header({ user }: { user: User }) {
       }
     };
     fetchBalance();
+
+    const fetchMentor = async () => {
+      try {
+        const res = await fetch("/api/mentor");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.mentor?.photoUrl) setMentorPhoto(data.mentor.photoUrl);
+        }
+      } catch {
+        // silent
+      }
+    };
+    fetchMentor();
   }, []);
 
   return (
@@ -35,24 +53,38 @@ export default function Header({ user }: { user: User }) {
         {/* Left: Profile */}
         <div className="flex items-center gap-3 sm:gap-4">
           {/* Profile Image */}
-          <div className="relative">
-            {image ? (
+          <div className="relative bg-[var(--hover-bg-strong)] rounded-2xl p-0.5">
+            {mentorPhoto ? (
+              <Image
+                src={mentorPhoto}
+                alt={displayName}
+                width={56}
+                height={56}
+                unoptimized
+                className="rounded-2xl object-cover shadow-lg transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14"
+              />
+            ) : session?.user?.avatarSeed ? (
+              <Avatar
+                seed={session.user.avatarSeed}
+                size={56}
+                className="rounded-2xl w-12 h-12 sm:w-14 sm:h-14"
+              />
+            ) : image ? (
               <Image
                 src={image}
-                alt={name}
+                alt={displayName}
                 width={48}
                 height={48}
                 className="rounded-2xl object-cover shadow-lg transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14"
               />
             ) : (
-              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl bg-[var(--hover-bg-strong)] flex items-center justify-center shadow-lg">
+              <div className="w-10 h-10 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center">
                 <span className="text-[var(--header-text)] font-bold text-lg sm:text-xl">
-                  {name.charAt(0)}
+                  {displayName.charAt(0)}
                 </span>
               </div>
             )}
           </div>
-
         </div>
 
         {/* Right: Balance and Notifications */}
@@ -77,7 +109,7 @@ export default function Header({ user }: { user: User }) {
                 موجودی
               </div>
               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate">
-                {(realBalance ?? 0).toLocaleString("en-US")}
+                {(realBalance ?? 0).toLocaleString("fa-IR")}
               </div>
             </div>
 

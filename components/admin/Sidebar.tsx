@@ -1,8 +1,9 @@
-// components/dashboard/Sidebar.tsx
+// components/admin/Sidebar.tsx
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
 import {
   Home,
   User,
@@ -12,12 +13,14 @@ import {
   GraduationCap,
   Menu,
   X,
-  BookOpen,
   ShieldCheck,
+  ChevronLeft,
   LayoutDashboard,
+  BookOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import Avatar from "../dashboard/Avatar";
 
 const menuItems = [
   { label: "خانه", href: "/admin", icon: Home },
@@ -31,10 +34,6 @@ const unreadHrefs: Record<string, "sessions" | "tickets"> = {
   "/admin/sessions": "sessions",
   "/admin/ticket": "tickets",
 };
-
-const RedDot = () => (
-  <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-[var(--sidebar-bg)]" />
-);
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -76,7 +75,7 @@ export default function Sidebar() {
     setMounted(true);
   }, []);
 
-  // Close sidebar when route changes on mobile
+  // Close sheet when route changes on mobile
   useEffect(() => {
     setIsMobileOpen(false);
   }, [pathname]);
@@ -94,7 +93,13 @@ export default function Sidebar() {
     };
   }, [isMobileOpen]);
 
-  // Mobile Menu Button (to be used in your layout/header)
+  const closeMobileSheet = () => setIsMobileOpen(false);
+
+  const RedDot = () => (
+    <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-[var(--sidebar-bg)]" />
+  );
+
+  // Mobile Menu Button (bottom-right)
   const MobileMenuButton = () => (
     <button
       onClick={() => setIsMobileOpen(true)}
@@ -134,7 +139,7 @@ export default function Sidebar() {
         <div className="py-6 px-4">
           <div className="flex items-center gap-3 transition-all duration-150">
             <div className="relative">
-              <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center">
                 <Image
                   src="/assets/img/sideIcon.png"
                   alt="Logo"
@@ -151,7 +156,7 @@ export default function Sidebar() {
                 Lingo <span className="text-green-500">Fam</span>{" "}
               </h1>
               <p className="text-[var(--sidebar-text)] text-sm whitespace-nowrap">
-                پلتفرم آموزش زبان
+                پنل مدیریت
               </p>
             </div>
           </div>
@@ -266,19 +271,20 @@ export default function Sidebar() {
           </Link>
 
           {/* Logout */}
-          <button className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
+          <button
+            onClick={() => signOut({ callbackUrl: "/" })}
+            className="w-full group flex items-center px-4 py-3 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105">
             <LogOut className="h-5 w-5 shrink-0" />
             <span
               className={`overflow-hidden transition-all duration-150 ${isHovered ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
-              <Link
-                href="/"
+              <span
                 className={`whitespace-nowrap font-medium transition-all duration-150 ${
                   isHovered
                     ? "opacity-100 translate-x-0"
                     : "opacity-0 translate-x-4"
                 }`}>
                 خروج از حساب
-              </Link>
+              </span>
             </span>
           </button>
         </div>
@@ -287,37 +293,39 @@ export default function Sidebar() {
       {/* Mobile Sidebar - Bottom Sheet */}
       <aside
         className={`
-          lg:hidden fixed bottom-0 left-0 right-0 bg-[var(--sidebar-bg)] shadow-2xl rounded-t-3xl flex flex-col transition-all duration-200 z-50 backdrop-blur-lg
-          ${isMobileOpen ? "translate-y-0" : "translate-y-full"}
-          max-h-[85vh]
+          lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-[var(--sidebar-bg)]/95 backdrop-blur-2xl shadow-2xl rounded-t-3xl flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0.28,1)] max-h-[85dvh]
+          ${isMobileOpen ? "translate-y-0" : "translate-y-full pointer-events-none"}
         `}
-        dir="rtl">
+        dir="rtl"
+        aria-hidden={!isMobileOpen}>
         {/* Drag Handle */}
-        <div className="flex justify-center p-4 pb-2">
-          <div className="w-16 h-1.5 bg-white/20 rounded-full"></div>
+        <div className="flex justify-center pt-3 pb-1">
+          <div className="w-12 h-1.5 bg-white/25 rounded-full" />
         </div>
 
-        {/* Mobile Header */}
-        <div className="flex items-center justify-between p-6">
+        {/* Admin Header */}
+        <div className="flex items-center gap-3 px-5 py-4">
+          <div className="w-11 h-11 rounded-2xl shrink-0 bg-[var(--hover-bg-strong)] flex items-center justify-center">
+            <BookOpen className="w-5 h-5 text-[var(--sidebar-text)]" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-[var(--sidebar-heading)] truncate">
+              پنل مدیریت
+            </p>
+            <p className="text-xs text-[var(--sidebar-text)]">
+              دسترسی مدیر
+            </p>
+          </div>
           <button
-            onClick={() => setIsMobileOpen(false)}
-            className="p-3 rounded-2xl text-[var(--sidebar-heading)] hover:bg-[var(--hover-bg)] transition-all duration-150 hover:scale-110"
+            onClick={closeMobileSheet}
+            className="p-2.5 rounded-xl bg-[var(--hover-bg)] text-[var(--sidebar-text)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 hover:scale-105"
             aria-label="بستن منو">
             <X className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center shadow-lg">
-              <BookOpen className="h-5 w-5 text-white" />
-            </div>
-            <h3 className="text-xl font-bold text-[var(--sidebar-heading)]">
-              منو
-            </h3>
-          </div>
-          <div className="w-10"></div> {/* Spacer for balance */}
         </div>
 
         {/* Menu Items */}
-        <nav className="flex-1 p-6 space-y-3 overflow-y-auto">
+        <nav className="flex-1 overflow-y-auto px-4 pb-2 space-y-1.5">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
@@ -329,62 +337,59 @@ export default function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                onClick={() => setIsMobileOpen(false)}
-                className={`group flex items-center gap-4 px-4 py-4 rounded-2xl font-medium text-lg relative overflow-hidden transition-all duration-150
-                  ${
+                onClick={closeMobileSheet}
+                className={`group flex items-center gap-3.5 px-3 py-3 rounded-2xl transition-all duration-150 ${
+                  isActive
+                    ? "bg-green-500 text-white shadow-lg"
+                    : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                }`}>
+                <span
+                  className={`relative w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-150 ${
                     isActive
-                      ? "bg-green-500 text-white shadow-lg scale-105"
-                      : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                      ? "bg-white/20 text-white"
+                      : "bg-[var(--hover-bg)] text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
                   }`}>
-                <div className="relative">
-                  <Icon
-                    className={`h-6 w-6 transition-colors duration-100 ${
-                      isActive
-                        ? "text-white"
-                        : "text-[var(--sidebar-text)] group-hover:text-[var(--sidebar-text-hover)]"
-                    }`}
-                  />
-                  {hasUnread && <RedDot />}
-                </div>
-
-                <span className={`${isActive ? "font-bold" : "font-medium"}`}>
+                  <Icon className="w-5 h-5" />
+                  {hasUnread && (
+                    <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-[var(--sidebar-bg)]" />
+                  )}
+                </span>
+                <span
+                  className={`flex-1 text-base ${isActive ? "font-bold" : "font-medium"}`}>
                   {item.label}
                 </span>
+                <ChevronLeft
+                  className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
+                    isActive
+                      ? "text-white/70"
+                      : "text-[var(--sidebar-text)] opacity-40"
+                  }`}
+                />
               </Link>
             );
           })}
         </nav>
 
         {/* Bottom Actions - Theme Toggle & Logout */}
-        <div className="p-6 space-y-4 bg-[var(--sidebar-bg)]/90 rounded-t-3xl">
+        <div
+          className="px-4 pt-2 space-y-1.5 border-t border-white/5"
+          style={{
+            paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))",
+          }}>
           {/* Theme Toggle */}
           {mounted && (
             <button
               onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-              className={`
-                w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-lg font-medium transition-all duration-150
-                text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]
-                backdrop-blur-sm
-              `}
+              className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150"
               aria-label="تغییر تم">
-              <div className="relative w-6 h-6">
-                <Sun
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
-                    theme === "dark"
-                      ? "opacity-0 scale-0 rotate-90"
-                      : "opacity-100 scale-100 rotate-0"
-                  } group-hover:text-[var(--sidebar-text-hover)]`}
-                />
-                <Moon
-                  className={`absolute inset-0 w-6 h-6 transition-all duration-150 ${
-                    theme === "dark"
-                      ? "opacity-100 scale-100 rotate-0"
-                      : "opacity-0 scale-0 -rotate-90"
-                  } group-hover:text-[var(--sidebar-text-hover)]`}
-                />
-              </div>
-
-              <span>
+              <span className="w-10 h-10 rounded-xl bg-[var(--hover-bg)] flex items-center justify-center group-hover:bg-[var(--hover-bg-strong)] transition-colors duration-150">
+                {theme === "dark" ? (
+                  <Sun className="w-5 h-5" />
+                ) : (
+                  <Moon className="w-5 h-5" />
+                )}
+              </span>
+              <span className="text-base font-medium">
                 {theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}
               </span>
             </button>
@@ -393,20 +398,26 @@ export default function Sidebar() {
           {/* Back to Dashboard */}
           <Link
             href="/dashboard"
-            onClick={() => setIsMobileOpen(false)}
-            className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
-            <LayoutDashboard className="h-6 w-6" />
-            <span>بازگشت به داشبورد</span>
+            onClick={closeMobileSheet}
+            className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150"
+            aria-label="بازگشت به داشبورد">
+            <span className="w-10 h-10 rounded-xl bg-[var(--hover-bg)] flex items-center justify-center group-hover:bg-[var(--hover-bg-strong)] transition-colors duration-150">
+              <LayoutDashboard className="w-5 h-5" />
+            </span>
+            <span className="text-base font-medium">بازگشت به داشبورد</span>
           </Link>
 
           {/* Logout */}
           <button
-            onClick={() => setIsMobileOpen(false)}
-            className="w-full flex items-center justify-center gap-4 px-4 py-4 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] transition-all duration-150 text-lg font-medium hover:scale-105">
-            <LogOut className="h-6 w-6" />
-            <Link href="/" className="font-medium">
-              خروج از حساب کاربری
-            </Link>
+            onClick={() => {
+              closeMobileSheet();
+              signOut({ callbackUrl: "/" });
+            }}
+            className="group w-full flex items-center gap-3.5 px-3 py-3 rounded-2xl text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] transition-all duration-150">
+            <span className="w-10 h-10 rounded-xl bg-[var(--danger-hover-bg)] flex items-center justify-center group-hover:bg-[var(--danger)] group-hover:text-white transition-colors duration-150">
+              <LogOut className="w-5 h-5" />
+            </span>
+            <span className="text-base font-medium">خروج از حساب کاربری</span>
           </button>
         </div>
       </aside>

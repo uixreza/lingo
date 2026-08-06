@@ -1,0 +1,160 @@
+
+> lingofam@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.235.86.226:3000
+- Environments: .env
+✓ Ready in 5.4s
+○ Compiling proxy ...
+
+○ Compiling /api/admin/unread-counts ...
+ POST /api/auth/_log 200 in 22.0s (next.js: 22.0s, application-code: 25ms)
+ GET /api/auth/providers 200 in 2.7s (next.js: 2.7s, application-code: 39ms)
+ GET /api/admin/unread-counts 200 in 16.7s (next.js: 15.2s, application-code: 1532ms)
+ GET /api/admin/unread-counts 200 in 1555ms (next.js: 9ms, application-code: 1546ms)
+ GET /admin/account 200 in 45s (next.js: 45s, proxy.ts: 250ms, application-code: 518ms)
+ GET /admin/account 200 in 135ms (next.js: 23ms, proxy.ts: 16ms, application-code: 97ms)
+ GET /api/auth/session 200 in 50ms (next.js: 16ms, application-code: 34ms)
+ GET /api/admin/unread-counts 200 in 352ms (next.js: 82ms, application-code: 270ms)
+ GET /api/auth/session 200 in 43ms (next.js: 5ms, application-code: 38ms)
+ GET /api/wallet 200 in 1955ms (next.js: 1484ms, application-code: 471ms)
+○ Compiling /api/wallet ...
+ GET /api/account 200 in 3.1s (next.js: 2.9s, application-code: 254ms)
+ GET /api/mentor 200 in 3.5s (next.js: 3.3s, application-code: 222ms)
+ GET /api/auth/csrf 200 in 84ms (next.js: 67ms, application-code: 17ms)
+ POST /api/auth/callback/credentials?callbackUrl=http://localhost:3000/admin 302 in 3.5s (next.js: 9ms, application-code: 3.5s)
+ PUT /api/admin/mentor 200 in 899ms (next.js: 457ms, application-code: 442ms)
+ PUT /api/sessions/price 200 in 2.1s (next.js: 1593ms, application-code: 467ms)
+ GET /api/admin/unread-counts 200 in 1756ms (next.js: 4ms, application-code: 1752ms)
+ GET /api/admin/unread-counts 200 in 3.1s (next.js: 4ms, application-code: 3.1s)
+ GET /api/admin/unread-counts 200 in 2.2s (next.js: 3ms, application-code: 2.2s)
+ GET /api/auth/session 200 in 24ms (next.js: 11ms, application-code: 13ms)
+ GET /api/admin/unread-counts 200 in 3.2s (next.js: 2ms, application-code: 3.2s)
+✓ Compiled in 2.3s
+ GET /admin/account 200 in 764ms (next.js: 441ms, proxy.ts: 145ms, application-code: 179ms)
+✓ Compiled in 0ms
+ GET /admin/account 200 in 395ms (next.js: 198ms, proxy.ts: 66ms, application-code: 131ms)
+ GET /api/admin/unread-counts 200 in 3.0s (next.js: 491ms, application-code: 2.5s)
+ GET /api/admin/unread-counts 200 in 4.1s (next.js: 191ms, application-code: 3.9s)
+✓ Compiled in 1671ms
+ GET /api/auth/session 200 in 365ms (next.js: 262ms, application-code: 104ms)
+ GET /admin/account 200 in 685ms (next.js: 313ms, proxy.ts: 178ms, application-code: 194ms)
+ GET /api/admin/mentor 200 in 3.7s (next.js: 394ms, application-code: 3.3s)
+ GET /api/account 200 in 3.7s (next.js: 499ms, application-code: 3.2s)
+ GET /api/admin/mentor 200 in 227ms (next.js: 3ms, application-code: 224ms)
+ GET /api/account 200 in 272ms (next.js: 3ms, application-code: 269ms)
+350000n
+ GET /api/sessions/price 200 in 5.9s (next.js: 747ms, application-code: 5.2s)
+350000n
+ GET /api/sessions/price 200 in 688ms (next.js: 4ms, application-code: 684ms)
+ GET /api/admin/unread-counts 200 in 4.4s (next.js: 30ms, application-code: 4.4s)
+✓ Compiled in 143ms
+ GET /admin/account 200 in 1184ms (next.js: 244ms, proxy.ts: 75ms, application-code: 864ms)
+ GET /admin/account 200 in 182ms (next.js: 6ms, proxy.ts: 9ms, application-code: 167ms)
+ GET /admin/account 200 in 187ms (next.js: 7ms, proxy.ts: 9ms, application-code: 171ms)
+ GET /admin/account 200 in 182ms (next.js: 5ms, proxy.ts: 8ms, application-code: 169ms)
+ GET /api/auth/session 200 in 244ms (next.js: 209ms, application-code: 34ms)
+ GET /api/mentor 200 in 735ms (next.js: 503ms, application-code: 232ms)
+ GET /api/wallet 200 in 1510ms (next.js: 94ms, application-code: 1416ms)
+ GET /api/account 200 in 1562ms (next.js: 447ms, application-code: 1116ms)
+ GET /api/admin/unread-counts 200 in 5.2s (next.js: 487ms, application-code: 4.8s)
+✓ Compiled in 133ms
+ GET /admin/account 200 in 518ms (next.js: 249ms, proxy.ts: 94ms, application-code: 175ms)
+ GET /api/auth/session 200 in 224ms (next.js: 190ms, application-code: 34ms)
+350000n
+ GET /api/sessions/price 200 in 3.1s (next.js: 68ms, application-code: 3.1s)
+ GET /api/account 200 in 3.2s (next.js: 40ms, application-code: 3.1s)
+350000n
+ GET /api/sessions/price 200 in 226ms (next.js: 3ms, application-code: 223ms)
+ GET /api/admin/mentor 200 in 3.6s (next.js: 30ms, application-code: 3.5s)
+ GET /api/account 200 in 625ms (next.js: 8ms, application-code: 616ms)
+ GET /api/admin/mentor 200 in 1816ms (next.js: 3ms, application-code: 1813ms)
+✓ Finished filesystem cache database compaction in 10.8s
+✓ Compiled in 112ms
+ GET /admin/account 200 in 737ms (next.js: 223ms, proxy.ts: 82ms, application-code: 432ms)
+ GET /admin/account 200 in 142ms (next.js: 4ms, proxy.ts: 8ms, application-code: 130ms)
+ GET /api/auth/session 200 in 241ms (next.js: 207ms, application-code: 34ms)
+ GET /api/mentor 200 in 2.9s (next.js: 88ms, application-code: 2.8s)
+ GET /api/wallet 200 in 2.9s (next.js: 40ms, application-code: 2.9s)
+ GET /api/admin/unread-counts 200 in 4.0s (next.js: 77ms, application-code: 3.9s)
+ GET /api/account 200 in 4.0s (next.js: 36ms, application-code: 4.0s)
+ GET /api/admin/unread-counts 200 in 2.0s (next.js: 2ms, application-code: 2.0s)
+ GET /api/admin/unread-counts 200 in 1522ms (next.js: 2ms, application-code: 1520ms)
+ GET /api/admin/unread-counts 200 in 2.9s (next.js: 3ms, application-code: 2.9s)
+ GET /api/admin/unread-counts 200 in 3.0s (next.js: 2ms, application-code: 3.0s)
+ GET /api/auth/session 200 in 28ms (next.js: 11ms, application-code: 17ms)
+350000n
+ GET /api/sessions/price 200 in 1947ms (next.js: 30ms, application-code: 1917ms)
+ GET /api/account 200 in 1976ms (next.js: 3ms, application-code: 1973ms)
+350000n
+ GET /api/sessions/price 200 in 217ms (next.js: 3ms, application-code: 214ms)
+ GET /api/admin/mentor 200 in 2.4s (next.js: 30ms, application-code: 2.4s)
+ GET /api/account 200 in 580ms (next.js: 2ms, application-code: 577ms)
+ GET /api/admin/mentor 200 in 993ms (next.js: 4ms, application-code: 990ms)
+ GET /api/admin/mentor 200 in 236ms (next.js: 5ms, application-code: 232ms)
+ GET /api/account 200 in 239ms (next.js: 3ms, application-code: 236ms)
+350000n
+ GET /api/sessions/price 200 in 241ms (next.js: 7ms, application-code: 234ms)
+ GET /api/account 200 in 574ms (next.js: 8ms, application-code: 566ms)
+350000n
+ GET /api/sessions/price 200 in 582ms (next.js: 15ms, application-code: 567ms)
+ GET /api/admin/mentor 200 in 585ms (next.js: 4ms, application-code: 581ms)
+ GET /api/admin/unread-counts 200 in 272ms (next.js: 3ms, application-code: 270ms)
+ GET /admin/account 200 in 92ms (next.js: 4ms, proxy.ts: 6ms, application-code: 82ms)
+ GET /api/auth/session 200 in 27ms (next.js: 14ms, application-code: 13ms)
+ GET /api/mentor 200 in 245ms (next.js: 4ms, application-code: 242ms)
+ GET /api/account 200 in 245ms (next.js: 4ms, application-code: 240ms)
+ GET /api/wallet 200 in 482ms (next.js: 4ms, application-code: 479ms)
+ GET /api/admin/unread-counts 200 in 1622ms (next.js: 9ms, application-code: 1612ms)
+350000n
+ GET /api/sessions/price 200 in 219ms (next.js: 2ms, application-code: 216ms)
+ GET /api/admin/mentor 200 in 234ms (next.js: 4ms, application-code: 230ms)
+ GET /api/account 200 in 246ms (next.js: 3ms, application-code: 243ms)
+350000n
+ GET /api/sessions/price 200 in 234ms (next.js: 4ms, application-code: 230ms)
+ GET /api/admin/mentor 200 in 248ms (next.js: 10ms, application-code: 238ms)
+ GET /api/account 200 in 245ms (next.js: 3ms, application-code: 241ms)
+ POST /api/admin/mentor/upload 200 in 410ms (next.js: 375ms, application-code: 35ms)
+ GET /uploads/1786019295014-3vp3936a.png 200 in 1070ms (next.js: 1055ms, application-code: 15ms)
+ GET /api/admin/unread-counts 200 in 1949ms (next.js: 3ms, application-code: 1946ms)
+ PUT /api/admin/mentor 200 in 1709ms (next.js: 4ms, application-code: 1705ms)
+ PUT /api/sessions/price 200 in 1712ms (next.js: 11ms, application-code: 1701ms)
+ GET /admin/account 200 in 93ms (next.js: 4ms, proxy.ts: 6ms, application-code: 82ms)
+ GET /api/auth/session 200 in 51ms (next.js: 13ms, application-code: 38ms)
+ GET /api/mentor 200 in 239ms (next.js: 10ms, application-code: 229ms)
+ GET /api/wallet 200 in 441ms (next.js: 4ms, application-code: 437ms)
+ GET /api/account 200 in 1580ms (next.js: 9ms, application-code: 1572ms)
+ GET /api/admin/unread-counts 200 in 1614ms (next.js: 4ms, application-code: 1610ms)
+ GET /api/admin/mentor 200 in 230ms (next.js: 3ms, application-code: 227ms)
+350000n
+ GET /api/sessions/price 200 in 224ms (next.js: 8ms, application-code: 216ms)
+ GET /api/account 200 in 251ms (next.js: 4ms, application-code: 247ms)
+350000n
+ GET /api/sessions/price 200 in 230ms (next.js: 11ms, application-code: 219ms)
+ GET /api/admin/mentor 200 in 234ms (next.js: 4ms, application-code: 230ms)
+ GET /api/account 200 in 254ms (next.js: 3ms, application-code: 251ms)
+ GET /dashboard 200 in 387ms (next.js: 308ms, proxy.ts: 5ms, application-code: 74ms)
+ GET /api/dashboard/stats 200 in 4.2s (next.js: 754ms, application-code: 3.4s)
+ GET /api/wallet 200 in 4.4s (next.js: 3ms, application-code: 4.4s)
+ GET /api/dashboard/stats 200 in 240ms (next.js: 3ms, application-code: 237ms)
+ GET /api/wallet 200 in 976ms (next.js: 4ms, application-code: 972ms)
+ GET /dashboard/sessions 200 in 272ms (next.js: 199ms, proxy.ts: 5ms, application-code: 68ms)
+350000n
+ GET /api/sessions/price 200 in 937ms (next.js: 7ms, application-code: 930ms)
+ GET /api/mentor 200 in 968ms (next.js: 16ms, application-code: 952ms)
+350000n
+ GET /api/sessions/price 200 in 230ms (next.js: 4ms, application-code: 225ms)
+ GET /api/mentor 200 in 580ms (next.js: 3ms, application-code: 577ms)
+ GET /api/sessions 200 in 4.3s (next.js: 436ms, application-code: 3.8s)
+ GET /api/sessions 200 in 237ms (next.js: 3ms, application-code: 235ms)
+ GET /dashboard/sessions 200 in 603ms (next.js: 4ms, proxy.ts: 4ms, application-code: 595ms)
+ GET /api/auth/session 200 in 39ms (next.js: 14ms, application-code: 25ms)
+ GET /api/wallet 200 in 492ms (next.js: 3ms, application-code: 489ms)
+ GET /api/mentor 200 in 928ms (next.js: 19ms, application-code: 910ms)
+ GET /api/sessions 200 in 1580ms (next.js: 5ms, application-code: 1575ms)
+350000n
+ GET /api/sessions/price 200 in 1737ms (next.js: 11ms, application-code: 1727ms)
+ GET /api/mentor 200 in 9.6s (next.js: 2ms, application-code: 9.6s)
+ GET /api/mentor 200 in 1558ms (next.js: 4ms, application-code: 1555ms)

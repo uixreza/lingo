@@ -37,32 +37,62 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5">
-          <KpiCard
-            label="تراکنش‌های ماه جاری"
-            value={stats?.currentMonth.transactionCount ?? 0}
-            data={stats?.dailyTransactions ?? []}
-            theme="emerald"
-            format={(v) => v.toLocaleString("fa-IR")}
-          />
+        <div className="relative overflow-hidden bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5">
+          <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-green-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-green-500/10 blur-3xl" />
+          <div className="relative">
+            <KpiCard
+              label="تراکنش‌های ماه جاری"
+              value={stats?.currentMonth.transactionCount ?? 0}
+              data={stats?.dailyTransactions ?? []}
+              theme="emerald"
+              format={(v) => v.toLocaleString("fa-IR")}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                padding: 0,
+                minWidth: 0,
+              }}
+            />
+          </div>
         </div>
-        <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5">
-          <KpiCard
-            label="حجم تراکنش‌ها (تومان)"
-            value={stats?.currentMonth.transactionVolume ?? 0}
-            data={stats?.dailyTransactions ?? []}
-            theme="emerald"
-            format={(v) => v.toLocaleString("fa-IR")}
-          />
+        <div className="relative overflow-hidden bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5">
+          <div className="pointer-events-none absolute -top-24 -right-24 h-56 w-56 rounded-full bg-green-500/15 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -left-24 h-56 w-56 rounded-full bg-green-500/10 blur-3xl" />
+          <div className="relative">
+            <KpiCard
+              label="حجم تراکنش‌ها (تومان)"
+              value={stats?.currentMonth.transactionVolume ?? 0}
+              data={stats?.dailyTransactions ?? []}
+              theme="emerald"
+              format={(v) => v.toLocaleString("fa-IR")}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                padding: 0,
+                minWidth: 0,
+              }}
+            />
+          </div>
         </div>
-        <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5 sm:col-span-2 lg:col-span-1">
-          <KpiCard
-            label="کلاس‌های ماه جاری"
-            value={stats?.currentMonth.sessionCount ?? 0}
-            data={stats?.dailySessions ?? []}
-            theme="emerald"
-            format={(v) => v.toLocaleString("fa-IR")}
-          />
+        <div className="relative overflow-hidden bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-5 sm:col-span-2 lg:col-span-1">
+          <div className="pointer-events-none absolute -top-24 -left-24 h-56 w-56 rounded-full bg-green-500/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 -right-24 h-56 w-56 rounded-full bg-green-500/10 blur-3xl" />
+          <div className="relative">
+            <KpiCard
+              label="کلاس‌های ماه جاری"
+              value={stats?.currentMonth.sessionCount ?? 0}
+              data={stats?.dailySessions ?? []}
+              theme="emerald"
+              format={(v) => v.toLocaleString("fa-IR")}
+              style={{
+                backgroundColor: "transparent",
+                border: "none",
+                padding: 0,
+                minWidth: 0,
+              }}
+            />
+          </div>
         </div>
       </div>
 

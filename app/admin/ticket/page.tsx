@@ -17,6 +17,7 @@ import {
   Loader2,
   RefreshCw,
 } from "lucide-react";
+import { ListSkeleton } from "@/components/dashboard/Skeletons";
 
 // Types
 type TicketStatus = "open" | "in-progress" | "resolved" | "closed";
@@ -322,15 +323,7 @@ export default function TicketsPage() {
               {/* Tickets List */}
               <div className="max-h-[600px] overflow-y-auto">
                 {isLoading ? (
-                  <div
-                    className="text-center py-12"
-                    style={{ color: "var(--dash-muted)" }}>
-                    <Loader2
-                      size={48}
-                      className="mx-auto mb-3 animate-spin opacity-30"
-                    />
-                    <p>در حال بارگذاری...</p>
-                  </div>
+                  <ListSkeleton count={3} />
                 ) : filteredTickets.length === 0 ? (
                   <div
                     className="text-center py-12"

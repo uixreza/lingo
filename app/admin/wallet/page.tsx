@@ -11,6 +11,7 @@ import {
   BookOpen,
   ArrowDownLeft,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/dashboard/Skeletons";
 
 type RecentSession = {
   id: number;
@@ -56,16 +57,7 @@ export default function AdminWalletPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[var(--light-purple)] mx-auto mb-4"></div>
-          <p className="text-[var(--dash-text)] text-lg">
-            بارگذاری اطلاعات کیف پول...
-          </p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (

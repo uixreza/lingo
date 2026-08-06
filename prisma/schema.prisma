@@ -336,3 +336,19 @@ model Post {
   @@index([createdAt])
   @@map("posts")
 }
+
+model Mentor {
+  id           Int      @id @default(autoincrement())
+  name         String   @db.VarChar(100)
+  title        String?  @db.VarChar(200)
+  photoUrl     String?  @db.VarChar(500)
+  bio          String?  @db.Text
+  certifications String[] @default([])
+  languages    String[] @default([])
+  experience   String?  @db.VarChar(500)
+  education    String?  @db.VarChar(500)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamp(3)
+
+  @@map("mentors")
+}

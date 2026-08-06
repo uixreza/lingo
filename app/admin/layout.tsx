@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 import Sidebar from "@/components/admin/Sidebar";
 import Header from "@/components/admin/Header";
-// app/layout.tsx
 
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 
@@ -10,17 +12,22 @@ export const metadata: Metadata = {
   description: "صفحه داشبورد لینگوفم",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id || session.user.role !== "Admin") {
+    redirect("/");
+  }
+
   const user = {
-    id: 1,
-    name: "رضا کمالی",
+    id: parseInt(session.user.id, 10),
+    name: session.user.fullname || "مدیر",
     image: "",
-    role: "student",
-    balance: 20000,
+    role: "Admin",
+    balance: 0,
   };
   return (
     <>

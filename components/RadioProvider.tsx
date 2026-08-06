@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -22,6 +23,11 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggle = useCallback(() => {
     const audio = audioRef.current;
@@ -33,14 +39,16 @@ export function RadioProvider({ children }: { children: React.ReactNode }) {
   return (
     <RadioContext.Provider value={{ playing, failed, toggle }}>
       {children}
-      <audio
-        ref={audioRef}
-        src={RADIO_STREAM_URL}
-        preload="none"
-        onPlay={() => setPlaying(true)}
-        onPause={() => setPlaying(false)}
-        onError={() => setFailed(true)}
-      />
+      {mounted && (
+        <audio
+          ref={audioRef}
+          src={RADIO_STREAM_URL}
+          preload="none"
+          onPlay={() => setPlaying(true)}
+          onPause={() => setPlaying(false)}
+          onError={() => setFailed(true)}
+        />
+      )}
     </RadioContext.Provider>
   );
 }

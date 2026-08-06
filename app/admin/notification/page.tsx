@@ -17,6 +17,7 @@ import {
   Plus,
   X,
 } from "lucide-react";
+import { PageSkeleton } from "@/components/dashboard/Skeletons";
 
 type Notification = {
   id: string;
@@ -197,11 +198,7 @@ export default function NotificationPage() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[var(--dash-muted)]" />
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (

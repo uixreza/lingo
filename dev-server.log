@@ -1,0 +1,32 @@
+
+> lingofam@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.10 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.235.105.191:3000
+- Environments: .env
+✓ Ready in 590ms
+⚠ Slow filesystem detected. The benchmark took 501ms. If F:\personal\lingofam\.next/dev is a network drive, consider moving it to a local folder.
+See more: https://nextjs.org/docs/app/guides/local-development
+
+ GET /api/auth/csrf 200 in 1268ms (next.js: 1231ms, application-code: 37ms)
+(node:9348) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
+
+To prepare for this change:
+- If you want the current behavior, explicitly use 'sslmode=verify-full'
+- If you want libpq compatibility now, use 'uselibpqcompat=true&sslmode=require'
+
+See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode definitions.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ POST /api/auth/callback/credentials 302 in 1975ms (next.js: 13ms, application-code: 1962ms)
+ GET /api/auth/csrf 200 in 43ms (next.js: 11ms, application-code: 32ms)
+ POST /api/auth/callback/credentials 302 in 509ms (next.js: 3ms, application-code: 505ms)
+ GET /api/account 200 in 382ms (next.js: 63ms, application-code: 319ms)
+ GET / 200 in 398ms (next.js: 110ms, application-code: 287ms)
+ GET /api/auth/csrf 200 in 122ms (next.js: 93ms, application-code: 28ms)
+ POST /api/auth/callback/credentials 302 in 1769ms (next.js: 3ms, application-code: 1766ms)
+ GET /admin/account 200 in 374ms (next.js: 147ms, proxy.ts: 8ms, application-code: 219ms)
+ GET /admin/account 200 in 73ms (next.js: 4ms, proxy.ts: 5ms, application-code: 64ms)
+[?25h

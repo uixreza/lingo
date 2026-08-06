@@ -21,7 +21,7 @@ const EXT_BY_MIME: Record<string, string> = {
 
 export function isBlobStorageEnabled(): boolean {
   return (
-    process.env.STORAGE_PROVIDER === "vercel-blob" &&
+    process.env.storage_provider === "vercel-blob" &&
     !!process.env.BLOB_READ_WRITE_TOKEN
   );
 }

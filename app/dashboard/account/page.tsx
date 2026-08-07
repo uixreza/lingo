@@ -24,7 +24,9 @@ import {
   Search,
   UserPlus,
   Unplug,
+  ShieldCheck,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
 import { useSession } from "next-auth/react";
@@ -51,6 +53,38 @@ type FriendRequest = {
     isPro: boolean;
   };
 };
+
+const tabVariants = {
+  initial: { opacity: 0, y: 16, scale: 0.99 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -12, scale: 0.99 },
+};
+
+const inputClass =
+  "w-full bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm outline-none border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60";
+
+const labelClass =
+  "flex items-center gap-1.5 text-sm font-semibold text-[var(--dash-text)] mb-2";
+
+const cardClass =
+  "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-bg)]/40 p-6";
+
+const accentBar =
+  "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent";
+
+const listVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.04, duration: 0.3 },
+  }),
+};
+
+function toFa(value: number | string): string {
+  const digits = "۰۱۲۳۴۵۶۷۸۹";
+  return String(value).replace(/[0-9]/g, (d) => digits[+d]);
+}
 
 export default function AccountPage() {
   const { update: updateSession } = useSession();
@@ -351,7 +385,7 @@ export default function AccountPage() {
       user.fullname.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
 
-  const tabs = [
+  const tabs: { id: string; label: string; icon: typeof User }[] = [
     { id: "profile", label: "پروفایل", icon: User },
     { id: "security", label: "امنیت", icon: Lock },
     { id: "ranking", label: "رتبه‌بندی", icon: Trophy },
@@ -374,22 +408,17 @@ export default function AccountPage() {
           </p>
         </div>
 
-        {/* Header */}
-        {/* <div>
-          <h1 className="text-3xl font-bold text-[var(--dash-text)] mb-2">
-            تنظیمات
-          </h1>
-          <p className="text-[var(--dash-muted)]">
-            مدیریت / ویرایش اطلاعات کاربری
-          </p>
-        </div> */}
-
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <div className="lg:w-72 flex-shrink-0">
-            <div className="sticky top-8 bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6 space-y-6">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="sticky top-8 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg p-6 space-y-6">
+              <div className="pointer-events-none absolute -top-24 -right-10 h-48 w-48 rounded-full bg-[var(--dash-accent)]/15 blur-3xl" />
               {/* User Card */}
-              <div className="text-center">
+              <div className="relative text-center">
                 <div className="relative inline-flex">
                   {isPro ? (
                     <div className="pro-border rounded-2xl p-[2px]">
@@ -402,51 +431,57 @@ export default function AccountPage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="bg-[var(--hover-bg-strong)] rounded-2xl p-1">
-                      <Avatar
-                        seed={avatarSeed}
-                        size={80}
-                        className="rounded-xl"
-                      />
+                    <div className="green-border rounded-2xl p-[2px]">
+                      <div className="bg-[var(--hover-bg-strong)] rounded-[14px] p-1">
+                        <Avatar
+                          seed={avatarSeed}
+                          size={80}
+                          className="rounded-xl"
+                        />
+                      </div>
                     </div>
                   )}
-                  <button
+                  <motion.button
+                    whileHover={{ scale: 1.1, rotate: 90 }}
+                    whileTap={{ scale: 0.9 }}
                     onClick={handleRotateAvatar}
                     className="absolute -bottom-1 -left-1 bg-[var(--dash-sides)] hover:bg-[var(--hover-bg-strong)] rounded-full p-1.5 shadow-lg transition-all duration-200 border border-[var(--hover-bg-strong)]"
                     title="تغییر تصویر پروفایل">
                     <RefreshCw className="h-4 w-4 text-[var(--dash-text)]" />
-                  </button>
+                  </motion.button>
                 </div>
                 <p className="font-bold text-[var(--dash-text)] mt-4 text-lg">
                   {userData.name || "کاربر"}
                 </p>
                 {isPro ? (
-                  <p className="inline-flex items-center gap-1.5 text-sm font-bold text-purple-400 mt-1">
-                    <Star className="h-4 w-4 fill-purple-400" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-500 dark:text-purple-400 mt-1.5">
+                    <Star className="h-3.5 w-3.5 fill-purple-400" />
                     کاربر ویژه
-                  </p>
+                  </span>
                 ) : (
-                  <p className="text-[var(--dash-muted)] text-sm mt-1">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 dark:text-green-400 mt-1.5">
+                    <User className="h-3.5 w-3.5" />
                     کاربر عادی
-                  </p>
+                  </span>
                 )}
               </div>
 
               {/* Divider */}
-              <div className="h-px bg-[var(--dash-muted)]/20"></div>
+              <div className="relative h-px bg-[var(--dash-muted)]/20"></div>
 
               {/* Navigation Tabs */}
-              <div className="space-y-2">
+              <div className="relative space-y-2">
                 {tabs.map((tab) => {
                   const Icon = tab.icon;
+                  const isActive = activeTab === tab.id;
                   return (
                     <button
                       key={tab.id}
                       onClick={() => setActiveTab(tab.id)}
-                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
-                        activeTab === tab.id
-                          ? "bg-green-500 text-black shadow-lg"
-                          : "text-[var(--dash-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--dash-text)]"
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 font-semibold ${
+                        isActive
+                          ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25"
+                          : "text-[var(--dash-text)] hover:bg-[var(--hover-bg)]"
                       }`}>
                       <Icon className="h-5 w-5" />
                       <span>{tab.label}</span>
@@ -454,559 +489,627 @@ export default function AccountPage() {
                   );
                 })}
               </div>
-            </div>
+            </motion.div>
           </div>
 
           {/* Main Content */}
           <div className="flex-1 min-w-0">
-            <div className="relative overflow-hidden bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl">
-              <div className="pointer-events-none absolute -top-32 -left-32 h-72 w-72 rounded-full bg-green-500/10 blur-3xl" />
+            <div className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg">
+              <div className="pointer-events-none absolute -top-32 -left-32 h-72 w-72 rounded-full bg-[var(--dash-accent)]/10 blur-3xl" />
               <div className="pointer-events-none absolute -bottom-32 -right-32 h-72 w-72 rounded-full bg-green-500/5 blur-3xl" />
 
               <div className="relative p-8">
-              {/* Profile Tab */}
-              {activeTab === "profile" && (
-                <div className="space-y-8">
-                  <div className="flex items-center justify-between gap-4 flex-wrap">
-                    <div className="flex items-center gap-3">
-                      <div className="h-10 w-1.5 rounded-full bg-green-500" />
-                      <div>
-                        <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                          اطلاعات پروفایل
-                        </h2>
-                        <p className="text-xs text-[var(--dash-muted)] mt-1">
-                          مشخصات خود را ویرایش و به‌روزرسانی کنید
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={savingProfile}
-                      className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg shadow-green-500/25 hover:bg-green-400 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-green-500">
-                      {savingProfile ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Save className="h-4 w-4" />
-                      )}
-                      {savingProfile ? "در حال ذخیره..." : "ذخیره"}
-                    </button>
-                  </div>
-
-                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        <User className="h-4 w-4 inline ml-1" />
-                        نام کامل
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={userData.name}
-                        onChange={handleProfileChange}
-                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        <Mail className="h-4 w-4 inline ml-1" />
-                        آدرس ایمیل
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={userData.email}
-                        onChange={handleProfileChange}
-                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        <Phone className="h-4 w-4 inline ml-1" />
-                        شماره تلفن
-                      </label>
-                      <input
-                        type="tel"
-                        name="phone"
-                        value={userData.phone}
-                        disabled
-                        className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm opacity-60 cursor-not-allowed"
-                        placeholder="۰۹۱۲۳۴۵۶۷۸۹"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        <Calendar className="h-4 w-4 inline ml-1" />
-                        تاریخ تولد
-                      </label>
-                      <DatePicker
-                        value={birthDate}
-                        onChange={(v) => setBirthDate(v)}
-                        calendar={persian}
-                        locale={persian_fa}
-                        format="YYYY/MM/DD"
-                        placeholder="انتخاب تاریخ تولد"
-                        containerClassName="w-full"
-                        inputClass="w-full outline-none bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border-0 focus:ring-2 focus:ring-green-500/60 transition-all"
-                        calendarPosition="bottom-right"
-                      />
-                    </div>
-                    </div>
-                  </div>
-
-                  {/* Level Selection */}
-                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
-                    <label className="block text-sm font-medium text-[var(--dash-muted)] mb-3">
-                      سطح زبان
-                    </label>
-                    <div className="flex flex-wrap gap-2">
-                      {["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => {
-                        const levelColors: Record<string, string> = {
-                          A1: "bg-green-500/15 text-green-700 dark:text-green-300 hover:bg-green-500/25",
-                          A2: "bg-green-500/15 text-green-700 dark:text-green-300 hover:bg-green-500/25",
-                          B1: "bg-orange-500/15 text-orange-700 dark:text-orange-300 hover:bg-orange-500/25",
-                          B2: "bg-orange-500/15 text-orange-700 dark:text-orange-300 hover:bg-orange-500/25",
-                          C1: "bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-500/25",
-                          C2: "bg-red-500/15 text-red-700 dark:text-red-300 hover:bg-red-500/25",
-                        };
-                        const selectedColors: Record<string, string> = {
-                          A1: "bg-green-500 text-white shadow-lg",
-                          A2: "bg-green-500 text-white shadow-lg",
-                          B1: "bg-orange-500 text-white shadow-lg",
-                          B2: "bg-orange-500 text-white shadow-lg",
-                          C1: "bg-red-500 text-white shadow-lg",
-                          C2: "bg-red-500 text-white shadow-lg",
-                        };
-                        return (
-                          <button
-                            key={lvl}
-                            onClick={() => setLevel(lvl === level ? "" : lvl)}
-                            className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                              level === lvl
-                                ? selectedColors[lvl]
-                                : levelColors[lvl]
-                            }`}>
-                            {lvl}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    <a
-                      href="https://t.me/lingofam_support"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 mt-3 px-3.5 py-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25 hover:bg-sky-500/20 hover:ring-sky-500/40 transition-colors text-xs font-medium">
-                      <Send className="h-3.5 w-3.5" />
-                      درخواست رایگان تعیین سطح (تلگرام)
-                    </a>
-                  </div>
-
-                </div>
-              )}
-
-              {/* Ranking Tab */}
-              {activeTab === "ranking" && (
-                <div className="space-y-6">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-1.5 rounded-full bg-green-500" />
-                    <div>
-                      <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                        رتبه‌بندی کاربران
-                      </h2>
-                      <p className="text-xs text-[var(--dash-muted)] mt-1">
-                        بر اساس میزان پیشرفت در یادگیری
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <div className="relative flex-1 min-w-[200px]">
-                      <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)]" />
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="جستجوی کاربر..."
-                        className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl py-3 pl-4 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all"
-                      />
-                    </div>
-                    <label className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--hover-bg)] cursor-pointer select-none hover:bg-[var(--hover-bg-strong)] transition-colors duration-200">
-                      <input
-                        type="checkbox"
-                        checked={showOnlyFriends}
-                        onChange={(e) => setShowOnlyFriends(e.target.checked)}
-                        className="w-4 h-4 accent-green-500 cursor-pointer"
-                      />
-                      <span className="text-sm text-[var(--dash-text)]">
-                        فقط دوستان
-                      </span>
-                    </label>
-                  </div>
-
-                  {/* Pending Friend Requests Section */}
-                  {friendRequests.length > 0 && (
-                    <div className="bg-[var(--hover-bg)] border border-dashed border-amber-400/40 rounded-2xl p-5 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <UserPlus className="h-4 w-4 text-amber-400" />
-                        <h3 className="font-bold text-[var(--dash-text)] text-sm">
-                          درخواست‌های دوستی
-                        </h3>
-                        <span className="px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-400 text-xs font-bold">
-                          {friendRequests.length}
-                        </span>
+                <AnimatePresence mode="wait">
+                  {/* Profile Tab */}
+                  {activeTab === "profile" && (
+                    <motion.div
+                      key="profile"
+                      variants={tabVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="space-y-8">
+                      <div className="flex items-center justify-between gap-4 flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2.5 rounded-xl bg-green-500/10">
+                            <User className="h-5 w-5 text-green-600 dark:text-green-400" />
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                              اطلاعات پروفایل
+                            </h2>
+                            <p className="text-xs text-[var(--dash-muted)] mt-1">
+                              مشخصات خود را ویرایش و به‌روزرسانی کنید
+                            </p>
+                          </div>
+                        </div>
+                        <motion.button
+                          whileHover={savingProfile ? {} : { scale: 1.02 }}
+                          whileTap={savingProfile ? {} : { scale: 0.98 }}
+                          onClick={handleSaveProfile}
+                          disabled={savingProfile}
+                          className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                          {savingProfile ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Save className="h-4 w-4" />
+                          )}
+                          {savingProfile ? "در حال ذخیره..." : "ذخیره"}
+                        </motion.button>
                       </div>
 
-                      {friendRequests.map((req) => {
-                        const isBusy = friendAction?.id === req.sender.id;
-                        return (
-                          <div
-                            key={req.id}
-                            className="flex items-center gap-3 p-3 rounded-xl bg-[var(--hover-bg-strong)]/60">
-                            <div className="relative shrink-0">
-                              {req.sender.isPro ? (
-                                <div className="pro-border rounded-xl p-[2px]">
-                                  <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
+                      <div className={cardClass}>
+                        <div className={accentBar} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className={labelClass}>
+                              <User className="h-4 w-4 text-[var(--dash-accent)]" />
+                              نام کامل
+                            </label>
+                            <input
+                              type="text"
+                              name="name"
+                              value={userData.name}
+                              onChange={handleProfileChange}
+                              className={inputClass}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={labelClass}>
+                              <Mail className="h-4 w-4 text-[var(--dash-accent)]" />
+                              آدرس ایمیل
+                            </label>
+                            <input
+                              type="email"
+                              name="email"
+                              value={userData.email}
+                              onChange={handleProfileChange}
+                              className={inputClass}
+                            />
+                          </div>
+
+                          <div>
+                            <label className={labelClass}>
+                              <Phone className="h-4 w-4 text-[var(--dash-accent)]" />
+                              شماره تلفن
+                            </label>
+                            <input
+                              type="tel"
+                              name="phone"
+                              value={userData.phone}
+                              disabled
+                              className={`${inputClass} opacity-60 cursor-not-allowed`}
+                              placeholder="۰۹۱۲۳۴۵۶۷۸۹"
+                            />
+                          </div>
+
+                          <div>
+                            <label className={labelClass}>
+                              <Calendar className="h-4 w-4 text-[var(--dash-accent)]" />
+                              تاریخ تولد
+                            </label>
+                            <DatePicker
+                              value={birthDate}
+                              onChange={(v) => setBirthDate(v)}
+                              calendar={persian}
+                              locale={persian_fa}
+                              format="YYYY/MM/DD"
+                              placeholder="انتخاب تاریخ تولد"
+                              containerClassName="w-full"
+                              inputClass="w-full outline-none bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all"
+                              calendarPosition="bottom-right"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Level Selection */}
+                      <div className={cardClass}>
+                        <div className={accentBar} />
+                        <label className={labelClass}>
+                          <Star className="h-4 w-4 text-[var(--dash-accent)]" />
+                          سطح زبان
+                        </label>
+                        <div className="flex flex-wrap gap-2">
+                          {["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => {
+                            const isSelected = level === lvl;
+                            const group =
+                              lvl.startsWith("A")
+                                ? "green"
+                                : lvl.startsWith("B")
+                                  ? "orange"
+                                  : "red";
+                            const base = {
+                              green:
+                                "bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/25",
+                              orange:
+                                "bg-orange-500/10 text-orange-600 dark:text-orange-400 border-orange-500/25",
+                              red: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/25",
+                            }[group];
+                            return (
+                              <motion.button
+                                key={lvl}
+                                whileHover={isSelected ? {} : { scale: 1.05 }}
+                                whileTap={isSelected ? {} : { scale: 0.95 }}
+                                onClick={() =>
+                                  setLevel(lvl === level ? "" : lvl)
+                                }
+                                className={`px-4 py-2 rounded-xl text-sm font-bold transition-all duration-300 border ${
+                                  isSelected
+                                    ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black border-transparent shadow-lg shadow-green-500/25"
+                                    : base
+                                }`}>
+                                {lvl}
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                        <a
+                          href="https://t.me/lingofam_support"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 mt-4 px-3.5 py-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25 hover:bg-sky-500/20 hover:ring-sky-500/40 transition-colors text-xs font-medium">
+                          <Send className="h-3.5 w-3.5" />
+                          درخواست رایگان تعیین سطح (تلگرام)
+                        </a>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Ranking Tab */}
+                  {activeTab === "ranking" && (
+                    <motion.div
+                      key="ranking"
+                      variants={tabVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="space-y-6">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-green-500/10">
+                          <Trophy className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                            رتبه‌بندی کاربران
+                          </h2>
+                          <p className="text-xs text-[var(--dash-muted)] mt-1">
+                            بر اساس میزان پیشرفت در یادگیری
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <div className="relative flex-1 min-w-[200px]">
+                          <Search className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--dash-muted)]" />
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="جستجوی کاربر..."
+                            className={`${inputClass} pr-11`}
+                          />
+                        </div>
+                        <motion.label
+                          whileTap={{ scale: 0.98 }}
+                          className="flex items-center gap-2 px-4 py-3 rounded-xl bg-[var(--dash-bg)]/60 cursor-pointer select-none border border-[var(--dash-muted)]/15 hover:bg-[var(--dash-bg)] transition-all duration-200">
+                          <input
+                            type="checkbox"
+                            checked={showOnlyFriends}
+                            onChange={(e) =>
+                              setShowOnlyFriends(e.target.checked)
+                            }
+                            className="w-4 h-4 accent-green-500 cursor-pointer"
+                          />
+                          <span className="text-sm text-[var(--dash-text)]">
+                            فقط دوستان
+                          </span>
+                        </motion.label>
+                      </div>
+
+                      {/* Pending Friend Requests Section */}
+                      {friendRequests.length > 0 && (
+                        <div className="relative overflow-hidden rounded-2xl border border-amber-500/25 bg-amber-500/5 p-5 space-y-3">
+                          <div className="flex items-center gap-2">
+                            <UserPlus className="h-4 w-4 text-amber-500" />
+                            <h3 className="font-bold text-[var(--dash-text)] text-sm">
+                              درخواست‌های دوستی
+                            </h3>
+                            <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-xs font-bold">
+                              {toFa(friendRequests.length)}
+                            </span>
+                          </div>
+
+                          {friendRequests.map((req) => {
+                            const isBusy = friendAction?.id === req.sender.id;
+                            return (
+                              <motion.div
+                                key={req.id}
+                                initial={{ opacity: 0, y: 8 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.25 }}
+                                className="flex items-center gap-3 p-3 rounded-xl bg-[var(--dash-bg)]/50 border border-[var(--dash-muted)]/10">
+                                <div className="relative shrink-0">
+                                  {req.sender.isPro ? (
+                                    <div className="pro-border rounded-xl p-[2px]">
+                                      <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
+                                        <Avatar
+                                          seed={req.sender.avatarSeed || req.sender.fullname}
+                                          size={36}
+                                          className="w-9 h-9 rounded-[10px]"
+                                        />
+                                      </div>
+                                    </div>
+                                  ) : (
                                     <Avatar
                                       seed={req.sender.avatarSeed || req.sender.fullname}
                                       size={36}
-                                      className="w-9 h-9 rounded-[10px]"
+                                      className="w-9 h-9 rounded-xl bg-[var(--hover-bg-strong)]"
                                     />
-                                  </div>
-                                </div>
-                              ) : (
-                                <Avatar
-                                  seed={req.sender.avatarSeed || req.sender.fullname}
-                                  size={36}
-                                  className="w-9 h-9 rounded-xl bg-[var(--hover-bg-strong)]"
-                                />
-                              )}
-                              {req.sender.isPro && (
-                                <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
-                                  <Star className="h-2.5 w-2.5 fill-purple-400 text-purple-400" />
-                                </span>
-                              )}
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-bold text-sm text-[var(--dash-text)] truncate">
-                                {req.sender.fullname}
-                              </p>
-                              <p className="text-xs text-amber-500/90 font-medium flex items-center gap-1">
-                                <Loader2 className="h-3 w-3" />
-                                در انتظار تایید شما
-                              </p>
-                            </div>
-                            <button
-                              onClick={() =>
-                                runFriendAction(req.sender.id, "accept")
-                              }
-                              disabled={isBusy}
-                              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-green-500 text-black hover:bg-green-400 transition-all duration-200 hover:scale-105 disabled:opacity-60 disabled:cursor-not-allowed">
-                              {isBusy && friendAction?.type === "accept" ? (
-                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              ) : (
-                                <UserPlus className="h-3.5 w-3.5" />
-                              )}
-                              پذیرش
-                            </button>
-                            <button
-                              onClick={() =>
-                                runFriendAction(req.sender.id, "remove")
-                              }
-                              disabled={isBusy}
-                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-[var(--danger)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                              رد کردن
-                            </button>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  <div className="space-y-3">
-                    {filteredRanking.map((user) => {
-                      const isTopThree = user.rank <= 3;
-                      const isCurrentUser = user.id === currentUserId;
-                      const rankColors = [
-                        "bg-yellow-400",
-                        "bg-gray-300",
-                        "bg-amber-600",
-                      ];
-                      return (
-                        <div
-                          key={user.id}
-                          className={`flex items-center gap-4 p-4 rounded-2xl transition-all duration-200 ${
-                            isCurrentUser
-                              ? "bg-green-500/10 ring-1 ring-green-500/30"
-                              : "bg-[var(--hover-bg)]"
-                          }`}>
-                          <div
-                            className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0 ${
-                              user.rank === 1
-                                ? "trophy-shine bg-purple-600 text-white"
-                                : isTopThree
-                                  ? `${rankColors[user.rank - 1]} text-black`
-                                  : "bg-[var(--hover-bg-strong)] text-[var(--dash-text)]"
-                            }`}>
-                            {user.rank === 1 ? (
-                              <Trophy className="h-5 w-5 relative z-10" />
-                            ) : (
-                              user.rank
-                            )}
-                          </div>
-                          <div className="relative shrink-0">
-                            {user.isPro ? (
-                              <div className="pro-border rounded-xl p-[2px]">
-                                <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
-                                  <Avatar
-                                    seed={user.avatarSeed || user.fullname}
-                                    size={40}
-                                    className="w-10 h-10 rounded-[10px] bg-[var(--hover-bg-strong)]"
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <Avatar
-                                seed={user.avatarSeed || user.fullname}
-                                size={44}
-                                className="w-11 h-11 rounded-xl shrink-0 bg-[var(--hover-bg-strong)]"
-                              />
-                            )}
-                            {user.isPro && (
-                              <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
-                                <Star className="h-3 w-3 fill-purple-400 text-purple-400" />
-                              </span>
-                            )}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-[var(--dash-text)] truncate flex items-center gap-2">
-                              {user.fullname}
-                              {isCurrentUser && (
-                                <span className="text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">
-                                  شما
-                                </span>
-                              )}
-                            </p>
-                            <p className="text-xs text-[var(--dash-muted)] mt-1">
-                              تاریخ عضویت: {user.joinDate}
-                            </p>
-                          </div>
-                          {!isCurrentUser && (
-                            <div className="flex items-center gap-2 shrink-0">
-                              {user.friendStatus === "friends" ? (
-                                <button
-                                  onClick={() => setDisconnectTarget(user)}
-                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-green-500/15 text-green-500 hover:bg-red-500/15 hover:text-[var(--danger)] transition-all duration-200"
-                                  title="قطع ارتباط">
-                                  <Unplug className="h-3.5 w-3.5" />
-                                  قطع ارتباط
-                                </button>
-                              ) : user.friendStatus === "pending" ? (
-                                <>
-                                  <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]">
-                                    در انتظار تایید
-                                  </span>
-                                  {!user.friendIncoming && (
-                                    <button
-                                      onClick={() =>
-                                        runFriendAction(user.id, "remove")
-                                      }
-                                      disabled={friendAction?.id === user.id}
-                                      className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-[var(--danger)] transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                                      لغو
-                                    </button>
                                   )}
-                                </>
-                              ) : (
-                                <button
-                                  onClick={() => runFriendAction(user.id, "add")}
-                                  disabled={friendAction?.id === user.id}
-                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white hover:scale-105 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                                  {friendAction?.id === user.id &&
-                                  friendAction?.type === "add" ? (
+                                  {req.sender.isPro && (
+                                    <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
+                                      <Star className="h-2.5 w-2.5 fill-purple-400 text-purple-400" />
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-sm text-[var(--dash-text)] truncate">
+                                    {req.sender.fullname}
+                                  </p>
+                                  <p className="text-xs text-amber-500/90 font-medium flex items-center gap-1">
+                                    <Loader2 className="h-3 w-3" />
+                                    در انتظار تایید شما
+                                  </p>
+                                </div>
+                                <motion.button
+                                  whileTap={isBusy ? {} : { scale: 0.95 }}
+                                  onClick={() =>
+                                    runFriendAction(req.sender.id, "accept")
+                                  }
+                                  disabled={isBusy}
+                                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold text-black bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/20 hover:shadow-green-500/35 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                  {isBusy && friendAction?.type === "accept" ? (
                                     <Loader2 className="h-3.5 w-3.5 animate-spin" />
                                   ) : (
                                     <UserPlus className="h-3.5 w-3.5" />
                                   )}
-                                  افزودن
+                                  پذیرش
+                                </motion.button>
+                                <button
+                                  onClick={() =>
+                                    runFriendAction(req.sender.id, "remove")
+                                  }
+                                  disabled={isBusy}
+                                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                  رد کردن
                                 </button>
-                              )}
-                            </div>
-                          )}
+                              </motion.div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                    {filteredRanking.length === 0 && (
-                      <div className="bg-[var(--hover-bg)] rounded-2xl p-8 text-center text-[var(--dash-muted)]">
-                        {searchQuery.trim()
-                          ? "کاربری با این نام پیدا نشد"
-                          : "کاربری برای نمایش وجود ندارد"}
-                      </div>
-                    )}
-                  </div>
+                      )}
 
-                  {/* Disconnect confirmation modal */}
-                  {disconnectTarget &&
-                    createPortal(
-                      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                        <div
-                          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                          onClick={() => setDisconnectTarget(null)}
-                        />
-                        <div className="relative w-full max-w-sm bg-[var(--dash-sides)] rounded-2xl shadow-2xl p-6">
-                          <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2.5 rounded-xl bg-red-500/15 shrink-0">
-                              <Unplug className="h-5 w-5 text-red-500" />
-                            </div>
-                            <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                              قطع ارتباط
-                            </h3>
+                      <div className="space-y-3">
+                        <AnimatePresence initial={false}>
+                          {filteredRanking.map((user, i) => {
+                            const isTopThree = user.rank <= 3;
+                            const isCurrentUser = user.id === currentUserId;
+                            const rankColors = [
+                              "bg-yellow-400",
+                              "bg-gray-300",
+                              "bg-amber-600",
+                            ];
+                            return (
+                              <motion.div
+                                key={user.id}
+                                layout
+                                variants={listVariants}
+                                custom={i}
+                                initial="initial"
+                                animate="animate"
+                                exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
+                                className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 ${
+                                  isCurrentUser
+                                    ? "border-green-500/30 bg-green-500/10 shadow-lg shadow-green-500/5"
+                                    : "border-[var(--dash-muted)]/10 bg-[var(--dash-bg)]/40 hover:border-[var(--dash-muted)]/25"
+                                }`}>
+                                <div
+                                  className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0 ${
+                                    user.rank === 1
+                                      ? "trophy-shine bg-purple-600 text-white"
+                                      : isTopThree
+                                        ? `${rankColors[user.rank - 1]} text-black`
+                                        : "bg-[var(--hover-bg-strong)] text-[var(--dash-text)]"
+                                  }`}>
+                                  {user.rank === 1 ? (
+                                    <Trophy className="h-5 w-5 relative z-10" />
+                                  ) : (
+                                    toFa(user.rank)
+                                  )}
+                                </div>
+                                <div className="relative shrink-0">
+                                  {user.isPro ? (
+                                    <div className="pro-border rounded-xl p-[2px]">
+                                      <div className="bg-[var(--hover-bg-strong)] rounded-[10px] p-0.5">
+                                        <Avatar
+                                          seed={user.avatarSeed || user.fullname}
+                                          size={40}
+                                          className="w-10 h-10 rounded-[10px] bg-[var(--hover-bg-strong)]"
+                                        />
+                                      </div>
+                                    </div>
+                                  ) : (
+                                    <Avatar
+                                      seed={user.avatarSeed || user.fullname}
+                                      size={44}
+                                      className="w-11 h-11 rounded-xl shrink-0 bg-[var(--hover-bg-strong)]"
+                                    />
+                                  )}
+                                  {user.isPro && (
+                                    <span className="absolute -bottom-1 -left-1 rounded-full bg-[var(--dash-sides)] p-0.5 ring-1 ring-purple-400/40">
+                                      <Star className="h-3 w-3 fill-purple-400 text-purple-400" />
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-bold text-[var(--dash-text)] truncate flex items-center gap-2">
+                                    {user.fullname}
+                                    {isCurrentUser && (
+                                      <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
+                                        شما
+                                      </span>
+                                    )}
+                                  </p>
+                                  <p className="text-xs text-[var(--dash-muted)] mt-1">
+                                    تاریخ عضویت: {user.joinDate}
+                                  </p>
+                                </div>
+                                {!isCurrentUser && (
+                                  <div className="flex items-center gap-2 shrink-0">
+                                    {user.friendStatus === "friends" ? (
+                                      <button
+                                        onClick={() => setDisconnectTarget(user)}
+                                        className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-green-500/15 text-green-600 dark:text-green-400 hover:bg-red-500/15 hover:text-red-500 transition-all duration-200"
+                                        title="قطع ارتباط">
+                                        <Unplug className="h-3.5 w-3.5" />
+                                        قطع ارتباط
+                                      </button>
+                                    ) : user.friendStatus === "pending" ? (
+                                      <>
+                                        <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]">
+                                          در انتظار تایید
+                                        </span>
+                                        {!user.friendIncoming && (
+                                          <button
+                                            onClick={() =>
+                                              runFriendAction(user.id, "remove")
+                                            }
+                                            disabled={friendAction?.id === user.id}
+                                            className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                            لغو
+                                          </button>
+                                        )}
+                                      </>
+                                    ) : (
+                                      <motion.button
+                                        whileHover={{ scale: 1.04 }}
+                                        whileTap={{ scale: 0.96 }}
+                                        onClick={() =>
+                                          runFriendAction(user.id, "add")
+                                        }
+                                        disabled={friendAction?.id === user.id}
+                                        className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg shadow-[var(--dark-purple)]/25 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+                                        {friendAction?.id === user.id &&
+                                        friendAction?.type === "add" ? (
+                                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                        ) : (
+                                          <UserPlus className="h-3.5 w-3.5" />
+                                        )}
+                                        افزودن
+                                      </motion.button>
+                                    )}
+                                  </div>
+                                )}
+                              </motion.div>
+                            );
+                          })}
+                        </AnimatePresence>
+                        {filteredRanking.length === 0 && (
+                          <div className="rounded-2xl border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)]/40 p-8 text-center text-[var(--dash-muted)]">
+                            {searchQuery.trim()
+                              ? "کاربری با این نام پیدا نشد"
+                              : "کاربری برای نمایش وجود ندارد"}
                           </div>
-                          <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-6">
-                            آیا از قطع ارتباط با{" "}
-                            <span className="font-bold text-[var(--dash-text)]">
-                              «{disconnectTarget.fullname}»
-                            </span>{" "}
-                            مطمئن هستید؟
-                          </p>
-                          <div className="flex gap-3">
-                            <button
+                        )}
+                      </div>
+
+                      {/* Disconnect confirmation modal */}
+                      {disconnectTarget &&
+                        createPortal(
+                          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+                            <div
+                              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
                               onClick={() => setDisconnectTarget(null)}
-                              disabled={!!friendAction}
-                              className="flex-[2] py-3 rounded-xl bg-green-500 text-black font-bold hover:bg-green-400 transition-all duration-200 disabled:opacity-60 shadow-lg shadow-green-500/20">
-                              نه، منصرف شدم
-                            </button>
-                            <button
-                              onClick={confirmDisconnect}
-                              disabled={!!friendAction}
-                              className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold ring-1 ring-red-500/20 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2">
-                              {friendAction?.type === "disconnect" && (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              )}
-                              بله، قطع ارتباط
-                            </button>
+                            />
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0.95, y: 12 }}
+                              animate={{ opacity: 1, scale: 1, y: 0 }}
+                              transition={{ duration: 0.25 }}
+                              className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/95 backdrop-blur-xl shadow-2xl p-6">
+                              <div className="flex items-center gap-3 mb-4">
+                                <div className="p-2.5 rounded-xl bg-red-500/15 shrink-0">
+                                  <Unplug className="h-5 w-5 text-red-500" />
+                                </div>
+                                <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                                  قطع ارتباط
+                                </h3>
+                              </div>
+                              <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-6">
+                                آیا از قطع ارتباط با{" "}
+                                <span className="font-bold text-[var(--dash-text)]">
+                                  «{disconnectTarget.fullname}»
+                                </span>{" "}
+                                مطمئن هستید؟
+                              </p>
+                              <div className="flex gap-3">
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => setDisconnectTarget(null)}
+                                  disabled={!!friendAction}
+                                  className="flex-[2] py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25">
+                                  نه، منصرف شدم
+                                </motion.button>
+                                <button
+                                  onClick={confirmDisconnect}
+                                  disabled={!!friendAction}
+                                  className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold ring-1 ring-red-500/20 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2">
+                                  {friendAction?.type === "disconnect" && (
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                  )}
+                                  بله، قطع ارتباط
+                                </button>
+                              </div>
+                            </motion.div>
+                          </div>,
+                          document.body,
+                        )}
+                    </motion.div>
+                  )}
+
+                  {/* Security Tab */}
+                  {activeTab === "security" && (
+                    <motion.div
+                      key="security"
+                      variants={tabVariants}
+                      initial="initial"
+                      animate="animate"
+                      exit="exit"
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      className="space-y-8">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-xl bg-green-500/10">
+                          <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                            تغییر رمز عبور
+                          </h2>
+                          <p className="text-xs text-[var(--dash-muted)] mt-1">
+                            رمز عبور خود را به‌صورت دوره‌ای تغییر دهید
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className={cardClass}>
+                        <div className={accentBar} />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                          <div>
+                            <label className={labelClass}>
+                              <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
+                              رمز عبور فعلی
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showCurrentPassword ? "text" : "password"}
+                                name="currentPassword"
+                                value={passwordData.currentPassword}
+                                onChange={handlePasswordChange}
+                                className={`${inputClass} pl-11`}
+                                placeholder="رمز عبور فعلی را وارد کنید"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowCurrentPassword(!showCurrentPassword)
+                                }
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                                {showCurrentPassword ? (
+                                  <EyeOff className="h-5 w-5" />
+                                ) : (
+                                  <Eye className="h-5 w-5" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className={labelClass}>
+                              <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
+                              رمز عبور جدید
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showNewPassword ? "text" : "password"}
+                                name="newPassword"
+                                value={passwordData.newPassword}
+                                onChange={handlePasswordChange}
+                                className={`${inputClass} pl-11`}
+                                placeholder="رمز عبور جدید را وارد کنید"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowNewPassword(!showNewPassword)
+                                }
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                                {showNewPassword ? (
+                                  <EyeOff className="h-5 w-5" />
+                                ) : (
+                                  <Eye className="h-5 w-5" />
+                                )}
+                              </button>
+                            </div>
+                          </div>
+
+                          <div>
+                            <label className={labelClass}>
+                              <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
+                              تکرار رمز عبور جدید
+                            </label>
+                            <div className="relative">
+                              <input
+                                type={showConfirmPassword ? "text" : "password"}
+                                name="confirmPassword"
+                                value={passwordData.confirmPassword}
+                                onChange={handlePasswordChange}
+                                className={`${inputClass} pl-11`}
+                                placeholder="رمز عبور جدید را مجدد وارد کنید"
+                              />
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  setShowConfirmPassword(!showConfirmPassword)
+                                }
+                                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                                {showConfirmPassword ? (
+                                  <EyeOff className="h-5 w-5" />
+                                ) : (
+                                  <Eye className="h-5 w-5" />
+                                )}
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>,
-                      document.body,
-                    )}
-                </div>
-              )}
-
-              {/* Security Tab */}
-              {activeTab === "security" && (
-                <div className="space-y-8">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-1.5 rounded-full bg-green-500" />
-                    <div>
-                      <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                        تغییر رمز عبور
-                      </h2>
-                      <p className="text-xs text-[var(--dash-muted)] mt-1">
-                        رمز عبور خود را به‌صورت دوره‌ای تغییر دهید
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="bg-[var(--hover-bg)] rounded-2xl p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        رمز عبور فعلی
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showCurrentPassword ? "text" : "password"}
-                          name="currentPassword"
-                          value={passwordData.currentPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
-                          placeholder="رمز عبور فعلی را وارد کنید"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowCurrentPassword(!showCurrentPassword)
-                          }
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
-                          {showCurrentPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
                       </div>
-                    </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        رمز عبور جدید
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showNewPassword ? "text" : "password"}
-                          name="newPassword"
-                          value={passwordData.newPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
-                          placeholder="رمز عبور جدید را وارد کنید"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowNewPassword(!showNewPassword)}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
-                          {showNewPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-[var(--dash-muted)] mb-2">
-                        تکرار رمز عبور جدید
-                      </label>
-                      <div className="relative">
-                        <input
-                          type={showConfirmPassword ? "text" : "password"}
-                          name="confirmPassword"
-                          value={passwordData.confirmPassword}
-                          onChange={handlePasswordChange}
-                          className="w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all pl-11"
-                          placeholder="رمز عبور جدید را مجدد وارد کنید"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                    </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={handleChangePassword}
-                    disabled={savingPassword}
-                    className="w-full py-3 bg-green-500 text-black rounded-xl font-bold shadow-lg shadow-green-500/25 hover:bg-green-400 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-green-500 inline-flex items-center justify-center gap-2">
-                    {savingPassword ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : null}
-                    {savingPassword ? "در حال تغییر..." : "تغییر رمز عبور"}
-                  </button>
-                </div>
-              )}
+                      <motion.button
+                        whileHover={savingPassword ? {} : { scale: 1.01 }}
+                        whileTap={savingPassword ? {} : { scale: 0.99 }}
+                        onClick={handleChangePassword}
+                        disabled={savingPassword}
+                        className="w-full py-3.5 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                        {savingPassword ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : null}
+                        {savingPassword ? "در حال تغییر..." : "تغییر رمز عبور"}
+                      </motion.button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
           </div>

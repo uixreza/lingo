@@ -31,13 +31,22 @@ const etcBooks = data.etc.items.map((item, i) => ({
   id: `etc-${i}`,
 }));
 
+type DailyWord = {
+  word: string;
+  partOfSpeech: string | null;
+  meaning: string;
+  example: string;
+};
+
 export default function DashboardPage() {
   const [activeGroup, setActiveGroup] = useState<"kids" | "adults" | "etc">(
     "kids",
   );
   const session = useSession();
   const [isLoading, setIsLoading] = useState(true);
-  const [discountPercent, setDiscountPercent] = useState(0);
+  const [marqueeTexts, setMarqueeTexts] = useState<string[]>([]);
+  const [wordOfDay, setWordOfDay] = useState<DailyWord | null>(null);
+  const [phrasalVerb, setPhrasalVerb] = useState<DailyWord | null>(null);
   const [stats, setStats] = useState<{
     upcomingCount: number;
     upcomingSessions: {
@@ -53,14 +62,17 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [statsRes, priceRes] = await Promise.all([
+        const [statsRes, dailyRes] = await Promise.all([
           fetch("/api/dashboard/stats"),
-          fetch("/api/sessions/price"),
+          fetch("/api/dashboard/daily-content"),
         ]);
         if (statsRes.ok) setStats(await statsRes.json());
-        if (priceRes.ok) {
-          const price = await priceRes.json();
-          setDiscountPercent(price.discountPercent ?? 0);
+        if (dailyRes.ok) {
+          const daily = await dailyRes.json();
+          if (Array.isArray(daily.marquee) && daily.marquee.length > 0)
+            setMarqueeTexts(daily.marquee);
+          if (daily.word) setWordOfDay(daily.word);
+          if (daily.phrasalVerb) setPhrasalVerb(daily.phrasalVerb);
         }
       } catch {
         // stats are decorative; keep cards hidden on failure
@@ -91,6 +103,7 @@ export default function DashboardPage() {
           }}
         />
         <div className="relative z-10">
+        {marqueeTexts.length > 0 && (
         <div
           className="flex items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-l from-green-500/10 to-emerald-500/5 ring-1 ring-green-500/15 px-4 py-2.5 mb-6"
           style={{ direction: "ltr" }}>
@@ -106,14 +119,7 @@ export default function DashboardPage() {
             <div className="flex w-max animate-marquee">
               {[0, 1].map((dup) => (
                 <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
-                  {[
-                    discountPercent > 0
-                      ? `🎉 تخفیف ویژه ${discountPercent}٪ روی کلاس‌های خصوصی! همین حالا رزرو کنید`
-                      : "کلاس‌های خصوصی با بهترین مدرس، هر زمان که بخواهید",
-                    "🎓 جلسات آنلاین با مدرس اختصاصی و پشتیبانی کامل",
-                    "📚 کتاب‌های دوره خود را از بخش دانلود دریافت کنید",
-                    "📻 رادیو انگلیسی، راهی عالی برای تقویت شنیداری",
-                  ].map((msg, i) => (
+                  {marqueeTexts.map((msg, i) => (
                     <span
                       key={i}
                       className="text-xs font-medium text-[var(--dash-muted)] whitespace-nowrap px-6 flex items-center gap-2">
@@ -126,6 +132,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+        )}
         <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
           <div>
             <div className="inline-block px-4 py-1.5 rounded-full bg-green-500 text-black text-xs font-bold mb-3">
@@ -178,10 +185,12 @@ export default function DashboardPage() {
       </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <WordOfTheDay />
-        <PhrasalVerbOfTheDay />
-      </div>
+      {(wordOfDay || phrasalVerb) && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {wordOfDay && <WordOfTheDay word={wordOfDay} />}
+          {phrasalVerb && <PhrasalVerbOfTheDay word={phrasalVerb} />}
+        </div>
+      )}
 
       {/* Download Books Section */}
       <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
@@ -290,14 +299,7 @@ function WordCard({
   );
 }
 
-function WordOfTheDay() {
-  const word = {
-    word: "Perseverance",
-    partOfSpeech: "noun",
-    meaning: "استقامت، پایداری",
-    example: "Her perseverance led her to success despite many challenges.",
-  };
-
+function WordOfTheDay({ word }: { word: DailyWord }) {
   return (
     <WordCard
       title="Word of Today"
@@ -305,25 +307,20 @@ function WordOfTheDay() {
       accentColor="border-green-500"
       iconColor="text-green-400"
       {...word}
+      partOfSpeech={word.partOfSpeech ?? ""}
     />
   );
 }
 
-function PhrasalVerbOfTheDay() {
-  const phrase = {
-    word: "Carry On",
-    partOfSpeech: "phrasal verb",
-    meaning: "ادامه دادن",
-    example: "Even when things get tough, you have to carry on.",
-  };
-
+function PhrasalVerbOfTheDay({ word }: { word: DailyWord }) {
   return (
     <WordCard
       title="Phrasal Verb of Today"
       gradient="bg-gradient-to-br from-[#2a1a2e] to-[#1a0d1f]"
       accentColor="border-purple-500"
       iconColor="text-purple-400"
-      {...phrase}
+      {...word}
+      partOfSpeech={word.partOfSpeech ?? ""}
     />
   );
 }

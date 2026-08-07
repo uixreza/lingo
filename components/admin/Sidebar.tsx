@@ -17,15 +17,16 @@ import {
   ChevronLeft,
   LayoutDashboard,
   BookOpen,
+  Settings2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Avatar from "../dashboard/Avatar";
 
 const menuItems = [
   { label: "خانه", href: "/admin", icon: Home },
   { label: "جلسات", href: "/admin/sessions", icon: GraduationCap },
   { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
+  { label: "مدیریت محتوا", href: "/admin/management", icon: Settings2 },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];
@@ -72,12 +73,14 @@ export default function Sidebar() {
   }, [pathname]);
 
   useEffect(() => {
-    setMounted(true);
+    const id = window.setTimeout(() => setMounted(true), 0);
+    return () => window.clearTimeout(id);
   }, []);
 
   // Close sheet when route changes on mobile
   useEffect(() => {
-    setIsMobileOpen(false);
+    const id = window.setTimeout(() => setIsMobileOpen(false), 0);
+    return () => window.clearTimeout(id);
   }, [pathname]);
 
   // Prevent body scroll when mobile sidebar is open
@@ -99,33 +102,23 @@ export default function Sidebar() {
     <span className="absolute -top-1 -left-1 h-2.5 w-2.5 rounded-full bg-red-500 border-2 border-[var(--sidebar-bg)]" />
   );
 
-  // Mobile Menu Button (bottom-right)
-  const MobileMenuButton = () => (
-    <button
-      onClick={() => setIsMobileOpen(true)}
-      className="lg:hidden fixed bottom-6 left-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
-      aria-label="باز کردن منو">
-      <Menu className="h-6 w-6" />
-    </button>
-  );
-
-  // Backdrop for mobile
-  const MobileBackdrop = () => (
-    <div
-      className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all duration-200 ${
-        isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
-      }`}
-      onClick={() => setIsMobileOpen(false)}
-    />
-  );
-
   return (
     <>
       {/* Mobile Menu Button - Bottom Right */}
-      <MobileMenuButton />
+      <button
+        onClick={() => setIsMobileOpen(true)}
+        className="lg:hidden fixed bottom-6 left-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
+        aria-label="باز کردن منو">
+        <Menu className="h-6 w-6" />
+      </button>
 
       {/* Mobile Backdrop */}
-      <MobileBackdrop />
+      <div
+        className={`lg:hidden fixed inset-0 bg-black/60 backdrop-blur-md z-40 transition-all duration-200 ${
+          isMobileOpen ? "opacity-100" : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMobileOpen(false)}
+      />
 
       {/* Desktop Sidebar */}
       <aside

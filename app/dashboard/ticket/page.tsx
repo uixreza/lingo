@@ -1,23 +1,32 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import {
   MessageSquare,
   Send,
   Paperclip,
-  Clock,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
-  ChevronLeft,
-  ChevronRight,
-  User,
+  UserRound,
   Calendar,
   Tag,
   Loader2,
+  Search,
+  ShieldCheck,
+  Inbox,
+  Hourglass,
+  AlertTriangle,
+  Landmark,
+  BookOpen,
+  FileQuestion,
+  GraduationCap,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { ListSkeleton } from "@/components/dashboard/Skeletons";
+import Avatar from "@/components/dashboard/Avatar";
 
 // Types
 type TicketStatus = "open" | "in-progress" | "resolved" | "closed";
@@ -50,53 +59,89 @@ interface Reply {
 }
 
 // Helper functions
-const getStatusBadge = (status: TicketStatus) => {
-  const statusConfig = {
-    open: {
-      label: "باز",
-      color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-      icon: MessageSquare,
-    },
-    "in-progress": {
-      label: "در حال بررسی",
-      color: "bg-yellow-500/10 text-yellow-500 border-yellow-500/20",
-      icon: Clock,
-    },
-    resolved: {
-      label: "حل شده",
-      color: "bg-green-500/10 text-green-500 border-green-500/20",
-      icon: CheckCircle,
-    },
-    closed: {
-      label: "بسته شده",
-      color: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-      icon: XCircle,
-    },
-  };
-  return statusConfig[status];
+const statusConfig: Record<
+  TicketStatus,
+  {
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    dot: string;
+    icon: typeof MessageSquare;
+  }
+> = {
+  open: {
+    label: "باز",
+    color: "text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/25",
+    dot: "#3b82f6",
+    icon: MessageSquare,
+  },
+  "in-progress": {
+    label: "در حال بررسی",
+    color: "text-yellow-600 dark:text-yellow-400",
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/25",
+    dot: "#eab308",
+    icon: Hourglass,
+  },
+  resolved: {
+    label: "حل شده",
+    color: "text-green-600 dark:text-green-400",
+    bg: "bg-green-500/10",
+    border: "border-green-500/25",
+    dot: "#22c55e",
+    icon: CheckCircle2,
+  },
+  closed: {
+    label: "بسته شده",
+    color: "text-gray-500 dark:text-gray-400",
+    bg: "bg-gray-500/10",
+    border: "border-gray-500/25",
+    dot: "#6b7280",
+    icon: XCircle,
+  },
 };
 
-const getPriorityBadge = (priority: TicketPriority) => {
-  const priorityConfig = {
-    low: {
-      label: "کم",
-      color: "bg-gray-500/10 text-gray-500 border-gray-500/20",
-    },
-    medium: {
-      label: "متوسط",
-      color: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    },
-    high: {
-      label: "بالا",
-      color: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    },
-    urgent: {
-      label: "فوری",
-      color: "bg-red-500/10 text-red-500 border-red-500/20",
-    },
-  };
-  return priorityConfig[priority];
+const priorityConfig: Record<
+  TicketPriority,
+  { label: string; color: string; bg: string; border: string }
+> = {
+  low: {
+    label: "کم",
+    color: "text-gray-500 dark:text-gray-400",
+    bg: "bg-gray-500/10",
+    border: "border-gray-500/25",
+  },
+  medium: {
+    label: "متوسط",
+    color: "text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/25",
+  },
+  high: {
+    label: "بالا",
+    color: "text-orange-600 dark:text-orange-400",
+    bg: "bg-orange-500/10",
+    border: "border-orange-500/25",
+  },
+  urgent: {
+    label: "فوری",
+    color: "text-red-600 dark:text-red-400",
+    bg: "bg-red-500/10",
+    border: "border-red-500/25",
+  },
 };
+
+const categoryIcons: Record<string, { label: string; icon: typeof UserRound }> =
+  {
+    technical: { label: "مشکل فنی", icon: AlertTriangle },
+    payment: { label: "مشکل پرداخت", icon: Landmark },
+    content: { label: "محتوا", icon: BookOpen },
+    certificate: { label: "گواهی", icon: GraduationCap },
+    general: { label: "سایر موارد", icon: FileQuestion },
+  };
 
 const formatDate = (dateString: string) => {
   const date = new Date(dateString);
@@ -109,12 +154,20 @@ const formatDate = (dateString: string) => {
   }).format(date);
 };
 
-const priorityColors: Record<TicketPriority, string> = {
-  low: "bg-gray-500/10 text-gray-400",
-  medium: "bg-blue-500/10 text-blue-400",
-  high: "bg-orange-500/10 text-orange-400",
-  urgent: "bg-red-500/10 text-red-400",
+function toFa(value: number | string): string {
+  const digits = "۰۱۲۳۴۵۶۷۸۹";
+  return String(value).replace(/[0-9]/g, (d) => digits[+d]);
+}
+
+const listVariants = {
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0 },
 };
+
+const inputClass =
+  "w-full bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm outline-none border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60";
+
+type StatusTab = "all" | "open" | "in-progress" | "resolved";
 
 export default function TicketsPage() {
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -130,13 +183,12 @@ export default function TicketsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSendingReply, setIsSendingReply] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<
-    "all" | "open" | "in-progress" | "resolved"
-  >("all");
+  const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const repliesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const fetchTickets = async () => {
+    const run = async () => {
       try {
         const res = await fetch("/api/tickets");
         if (!res.ok) throw new Error();
@@ -148,8 +200,12 @@ export default function TicketsPage() {
         setIsLoading(false);
       }
     };
-    fetchTickets();
+    void run();
   }, []);
+
+  useEffect(() => {
+    repliesRef.current?.scrollTo({ top: repliesRef.current.scrollHeight });
+  }, [selectedTicket?.replies.length]);
 
   const categories = [
     { value: "technical", label: "مشکل فنی", icon: "🔧" },
@@ -232,6 +288,7 @@ export default function TicketsPage() {
       );
       setSelectedTicket(updated);
       setReplyMessage("");
+      toast.success("پاسخ با موفقیت ارسال شد");
     } catch {
       toast.error("خطا در برقراری ارتباط");
     } finally {
@@ -239,158 +296,257 @@ export default function TicketsPage() {
     }
   };
 
+  const tabCounts: Record<StatusTab, number> = {
+    all: tickets.length,
+    open: tickets.filter((t) => t.status === "open").length,
+    "in-progress": tickets.filter((t) => t.status === "in-progress").length,
+    resolved: tickets.filter((t) => t.status === "resolved").length,
+  };
+
+  const detailConfig = selectedTicket
+    ? statusConfig[selectedTicket.status]
+    : null;
+  const DetailStatusIcon = detailConfig ? detailConfig.icon : MessageSquare;
+
   return (
-    <div dir="rtl" className="py-8">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        {/* <div className="mb-8">
-          <h1
-            className="text-3xl font-bold mb-2"
-            style={{ color: "var(--dash-text)" }}>
-            پشتیبانی و تیکت‌ها
-          </h1>
-          <p style={{ color: "var(--dash-muted)" }}>
-            درخواست‌های خود را مطرح کنید، ما در کوتاه ترین زمان پاسخگو هستیم
-          </p>
-        </div> */}
+    <div dir="rtl" className="min-h-screen py-6">
+      <div className="max-w-7xl mx-auto px-2 sm:px-0">
+        {/* Hero Stats */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          {(
+            [
+              {
+                label: "کل تیکت‌ها",
+                value: tabCounts.all,
+                icon: Inbox,
+                color: "text-blue-600 dark:text-blue-400",
+                iconBg: "bg-blue-500/10",
+                accent: "from-blue-500/30",
+              },
+              {
+                label: "باز",
+                value: tabCounts.open,
+                icon: MessageSquare,
+                color: "text-blue-600 dark:text-blue-400",
+                iconBg: "bg-blue-500/10",
+                accent: "from-blue-500/30",
+              },
+              {
+                label: "در حال بررسی",
+                value: tabCounts["in-progress"],
+                icon: Hourglass,
+                color: "text-yellow-600 dark:text-yellow-400",
+                iconBg: "bg-yellow-500/10",
+                accent: "from-yellow-500/30",
+              },
+              {
+                label: "حل شده",
+                value: tabCounts.resolved,
+                icon: CheckCircle2,
+                color: "text-green-600 dark:text-green-400",
+                iconBg: "bg-green-500/10",
+                accent: "from-green-500/30",
+              },
+            ] as const
+          ).map((stat, i) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.07, duration: 0.35 }}
+              className="relative overflow-hidden group rounded-2xl p-5 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl hover:border-[var(--dash-accent)]/40">
+              <div
+                className={`pointer-events-none absolute -top-10 -right-10 h-28 w-28 rounded-full bg-gradient-to-br ${stat.accent} to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}
+              />
+              <div
+                className={`relative z-10 inline-flex p-2.5 rounded-xl ${stat.iconBg} mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              </div>
+              <p className="relative z-10 text-2xl font-bold tabular-nums text-[var(--dash-text)]">
+                {toFa(stat.value)}
+              </p>
+              <p
+                className="relative z-10 text-sm mt-1"
+                style={{ color: "var(--dash-muted)" }}>
+                {stat.label}
+              </p>
+            </motion.div>
+          ))}
+        </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Tickets List Panel */}
           <div className="lg:col-span-1">
-            <div
-              className="rounded-xl border overflow-hidden"
-              style={{
-                backgroundColor: "var(--dash-sides)",
-                borderColor: "var(--dash-bg)",
-              }}>
+            <div className="relative overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl">
               {/* Create Ticket Button */}
-              <div
-                className="p-4 border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                <button
+              <div className="p-4 border-b border-[var(--dash-muted)]/10">
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={() => {
                     setTicketStep(1);
                     setIsCreatingTicket(true);
                   }}
-                  className="w-full py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2"
-                  style={{
-                    backgroundColor: "#22c55e",
-                    color: "black",
-                  }}>
-                  <MessageSquare size={18} />
+                  className="w-full py-3 rounded-xl font-bold text-black transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                  <MessageSquare className="h-5 w-5" />
                   تیکت جدید
-                </button>
+                </motion.button>
               </div>
 
               {/* Search */}
-              <div
-                className="p-4 border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                <input
-                  type="text"
-                  placeholder="جستجو در تیکت‌ها..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full px-4 py-2 rounded-xl border border-white/5 focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all text-right"
-                  style={{
-                    backgroundColor: "var(--dash-bg)",
-                    color: "var(--dash-text)",
-                  }}
-                />
+              <div className="p-4 border-b border-[var(--dash-muted)]/10">
+                <div className="relative">
+                  <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] pointer-events-none transition-colors">
+                    <Search className="h-5 w-5" />
+                  </span>
+                  <input
+                    type="text"
+                    placeholder="جستجو در تیکت‌ها..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pr-11 pl-4 py-2.5 rounded-xl outline-none transition-all focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/60 text-right"
+                    style={{ backgroundColor: "var(--dash-bg)" }}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Tabs */}
-              <div
-                className="flex border-b"
-                style={{ borderColor: "var(--dash-bg)" }}>
-                {(["all", "open", "in-progress", "resolved"] as const).map(
-                  (tab) => (
-                    <button
-                      key={tab}
-                      onClick={() => setActiveTab(tab)}
-                      className="flex-1 py-3 text-sm font-medium transition-colors relative"
-                      style={{
-                        color:
-                          activeTab === tab ? "#22c55e" : "var(--dash-muted)",
-                      }}>
-                      {tab === "all" && "همه"}
-                      {tab === "open" && "باز"}
-                      {tab === "in-progress" && "در حال بررسی"}
-                      {tab === "resolved" && "حل شده"}
-                      {activeTab === tab && (
-                        <motion.div
-                          layoutId="activeTab"
-                          className="absolute bottom-0 left-0 right-0 h-0.5"
-                          style={{ backgroundColor: "#22c55e" }}
-                        />
-                      )}
-                    </button>
-                  ),
+              <div className="flex items-center gap-1 p-2 border-b border-[var(--dash-muted)]/10">
+                {(["all", "open", "in-progress", "resolved"] as StatusTab[]).map(
+                  (tab) => {
+                    const isActive = activeTab === tab;
+                    const label =
+                      tab === "all"
+                        ? "همه"
+                        : tab === "open"
+                          ? "باز"
+                          : tab === "in-progress"
+                            ? "بررسی"
+                            : "حل شده";
+                    return (
+                      <button
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        className={`relative flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors duration-300 ${
+                          isActive
+                            ? "text-white"
+                            : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+                        }`}>
+                        {isActive && (
+                          <motion.span
+                            layoutId="dashboard-ticket-tab-pill"
+                            className="absolute inset-0 rounded-xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] shadow-lg shadow-[var(--dark-purple)]/30"
+                            transition={{
+                              type: "spring",
+                              stiffness: 400,
+                              damping: 32,
+                            }}
+                          />
+                        )}
+                        <span className="relative z-10">
+                          {label}
+                          <span className="mr-1 text-[10px] opacity-70">
+                            {toFa(tabCounts[tab])}
+                          </span>
+                        </span>
+                      </button>
+                    );
+                  },
                 )}
               </div>
 
               {/* Tickets List */}
-              <div className="max-h-[600px] overflow-y-auto">
+              <div className="max-h-[560px] overflow-y-auto">
                 {isLoading ? (
                   <ListSkeleton count={3} />
                 ) : filteredTickets.length === 0 ? (
                   <div
-                    className="text-center py-12"
+                    className="text-center py-14"
                     style={{ color: "var(--dash-muted)" }}>
-                    <MessageSquare
-                      size={48}
-                      className="mx-auto mb-3 opacity-30"
-                    />
+                    <div className="mx-auto w-14 h-14 rounded-2xl bg-[var(--hover-bg)] flex items-center justify-center mb-3">
+                      <MessageSquare className="h-6 w-6 opacity-60" />
+                    </div>
                     <p>تیکتی وجود ندارد</p>
                   </div>
                 ) : (
-                  filteredTickets.map((ticket) => {
-                    const StatusIcon = getStatusBadge(ticket.status).icon;
-                    const priorityBadge = getPriorityBadge(ticket.priority);
-
-                    return (
-                      <motion.button
-                        key={ticket.id}
-                        onClick={() => setSelectedTicket(ticket)}
-                        className="w-full p-4 text-right border-b transition-all hover:bg-white/5"
-                        style={{
-                          borderColor: "var(--dash-bg)",
-                          backgroundColor:
-                            selectedTicket?.id === ticket.id
-                              ? "var(--dash-bg)"
-                              : "transparent",
-                        }}
-                        whileHover={{ x: 4 }}>
-                        <div className="flex justify-between items-start mb-2">
-                          <h3
-                            className="font-semibold line-clamp-1 flex-1"
-                            style={{ color: "var(--dash-text)" }}>
-                            {ticket.title}
-                          </h3>
-                          <StatusIcon
-                            size={16}
-                            className={
-                              getStatusBadge(ticket.status).color.split(" ")[1]
-                            }
-                          />
-                        </div>
-                        <p
-                          className="text-sm line-clamp-2 mb-2"
-                          style={{ color: "var(--dash-muted)" }}>
-                          {ticket.message}
-                        </p>
-                        <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: "var(--dash-muted)" }}>
-                            {formatDate(ticket.createdAt)}
-                          </span>
-                          <span
-                            className={`px-2 py-0.5 rounded-full text-xs ${priorityBadge.color}`}>
-                            {priorityBadge.label}
-                          </span>
-                        </div>
-                      </motion.button>
-                    );
-                  })
+                  <AnimatePresence initial={false}>
+                    {filteredTickets.map((ticket, i) => {
+                      const cfg = statusConfig[ticket.status];
+                      const StatusIcon = cfg.icon;
+                      const prio = priorityConfig[ticket.priority];
+                      const isSelected = selectedTicket?.id === ticket.id;
+                      return (
+                        <motion.button
+                          key={ticket.id}
+                          layout
+                          variants={listVariants}
+                          initial="initial"
+                          animate="animate"
+                          exit={{ opacity: 0, y: -8 }}
+                          transition={{
+                            delay: i * 0.05,
+                            duration: 0.25,
+                            layout: { duration: 0.2 },
+                          }}
+                          onClick={() => setSelectedTicket(ticket)}
+                          className={`w-full p-4 text-right border-b border-[var(--dash-muted)]/10 transition-all duration-300 group ${
+                            isSelected
+                              ? "bg-[var(--dash-bg)]/80"
+                              : "hover:bg-white/5"
+                          }`}>
+                          <div className="flex items-start gap-3">
+                            <div className="relative shrink-0">
+                              <div className="p-3 rounded-2xl bg-[var(--dash-bg)] border border-[var(--dash-muted)]/10 group-hover:scale-105 transition-transform duration-300">
+                                <StatusIcon
+                                  className={`h-5 w-5 ${cfg.color}`}
+                                />
+                              </div>
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <p
+                                  className="font-semibold text-sm truncate"
+                                  style={{ color: "var(--dash-text)" }}>
+                                  {ticket.title}
+                                </p>
+                                <span
+                                  className="h-2 w-2 rounded-full shrink-0"
+                                  style={{
+                                    backgroundColor: cfg.dot,
+                                    boxShadow: `0 0 8px ${cfg.dot}`,
+                                  }}
+                                />
+                              </div>
+                              <p
+                                className="text-xs mb-1.5 line-clamp-1"
+                                style={{ color: "var(--dash-muted)" }}>
+                                {ticket.message}
+                              </p>
+                              <div className="flex items-center justify-between text-[11px]">
+                                <span
+                                  className="flex items-center gap-1"
+                                  style={{ color: "var(--dash-muted)" }}>
+                                  <Calendar className="h-3 w-3" />
+                                  {formatDate(ticket.createdAt)}
+                                </span>
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${prio.bg} ${prio.color} ${prio.border}`}>
+                                  {prio.label}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </motion.button>
+                      );
+                    })}
+                  </AnimatePresence>
                 )}
               </div>
             </div>
@@ -404,201 +560,239 @@ export default function TicketsPage() {
             {selectedTicket ? (
               <motion.div
                 key={selectedTicket.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="rounded-xl border overflow-hidden text-sm"
-                style={{
-                  backgroundColor: "var(--dash-sides)",
-                  borderColor: "var(--dash-bg)",
-                }}>
-                {/* Ticket Header */}
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <div className="flex justify-between items-start mb-4">
-                    <h2
-                      className="text-xl font-bold"
-                      style={{ color: "var(--dash-text)" }}>
-                      {selectedTicket.title}
-                    </h2>
-                    <div className="flex gap-2">
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getPriorityBadge(selectedTicket.priority).color}`}>
-                        اولویت:{" "}
-                        {getPriorityBadge(selectedTicket.priority).label}
-                      </span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusBadge(selectedTicket.status).color}`}>
-                        {getStatusBadge(selectedTicket.status).label}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div
-                    className="flex gap-4 text-sm"
-                    style={{ color: "var(--dash-muted)" }}>
-                    <div className="flex items-center gap-1">
-                      <User size={14} />
-                      <span>{selectedTicket.user.name}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar size={14} />
-                      <span>{formatDate(selectedTicket.createdAt)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Tag size={14} />
-                      <span>
-                        {
-                          categories.find(
-                            (c) => c.value === selectedTicket.category,
-                          )?.label
-                        }
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Initial Message */}
-                <div
-                  className="p-6 border-b"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <div className="flex gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/30 to-primary/10 flex items-center justify-center flex-shrink-0">
-                      <User size={18} />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-center mb-2">
-                        <span
-                          className="font-medium"
+                initial={{ opacity: 0, y: 16, scale: 0.99 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+                className="relative overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl">
+                <div className="pointer-events-none absolute -top-28 -right-16 h-64 w-64 rounded-full bg-[var(--dash-accent)]/15 blur-3xl" />
+                <div className="relative">
+                  {/* Ticket Header */}
+                  <div className="p-6 border-b border-[var(--dash-muted)]/10">
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
+                      <div className="min-w-0">
+                        <h2
+                          className="text-xl font-bold truncate"
                           style={{ color: "var(--dash-text)" }}>
-                          {selectedTicket.user.name}
+                          {selectedTicket.title}
+                        </h2>
+                        <div
+                          className="flex flex-wrap gap-4 text-sm mt-2"
+                          style={{ color: "var(--dash-muted)" }}>
+                          <span className="flex items-center gap-1.5">
+                            <UserRound className="h-4 w-4" />
+                            {selectedTicket.user.name}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="h-4 w-4" />
+                            {formatDate(selectedTicket.createdAt)}
+                          </span>
+                          <span className="flex items-center gap-1.5">
+                            <Tag className="h-4 w-4" />
+                            {
+                              categoryIcons[selectedTicket.category]?.label ??
+                                "سایر"
+                            }
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${priorityConfig[selectedTicket.priority].bg} ${priorityConfig[selectedTicket.priority].color} ${priorityConfig[selectedTicket.priority].border}`}>
+                          اولویت: {priorityConfig[selectedTicket.priority].label}
                         </span>
                         <span
-                          className="text-xs"
-                          style={{ color: "var(--dash-muted)" }}>
-                          {formatDate(selectedTicket.createdAt)}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${detailConfig!.bg} ${detailConfig!.color} ${detailConfig!.border}`}>
+                          <DetailStatusIcon className="h-3.5 w-3.5" />
+                          {statusConfig[selectedTicket.status].label}
                         </span>
                       </div>
-                      <p
-                        style={{ color: "var(--dash-text)" }}
-                        className="leading-relaxed">
-                        {selectedTicket.message}
-                      </p>
                     </div>
                   </div>
-                </div>
 
-                {/* Replies */}
-                <div
-                  className="p-6 border-b max-h-[400px] overflow-y-auto"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <h3
-                    className="font-medium mb-4"
-                    style={{ color: "var(--dash-text)" }}>
-                    پاسخ‌ها ({selectedTicket.replies.length})
-                  </h3>
-                  <div className="space-y-4">
-                    {selectedTicket.replies.map((reply) => (
-                      <motion.div
-                        key={reply.id}
-                        initial={{ opacity: 0, x: reply.isAdmin ? -20 : 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        className={`flex gap-3 ${reply.isAdmin ? "flex-row" : ""}`}>
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                            reply.isAdmin
-                              ? "bg-green-500/20 text-green-500"
-                              : "bg-blue-500/20 text-blue-500"
-                          }`}>
-                          {reply.isAdmin ? "👨‍💻" : <User size={18} />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center mb-2">
-                            <span
-                              className="font-medium"
-                              style={{ color: "var(--dash-text)" }}>
-                              {reply.userName}
-                              {reply.isAdmin && (
-                                <span className="text-xs mr-2 px-2 py-0.5 rounded-full bg-green-500/20 text-green-500">
-                                  پشتیبان
-                                </span>
-                              )}
-                            </span>
-                            <span
-                              className="text-xs"
-                              style={{ color: "var(--dash-muted)" }}>
-                              {formatDate(reply.createdAt)}
-                            </span>
-                          </div>
-                          <p
-                            style={{ color: "var(--dash-text)" }}
-                            className="leading-relaxed">
-                            {reply.message}
-                          </p>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Reply Input */}
-                {selectedTicket.status !== "resolved" &&
-                  selectedTicket.status !== "closed" && (
-                    <div className="p-6">
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <textarea
-                          value={replyMessage}
-                          onChange={(e) => setReplyMessage(e.target.value)}
-                          placeholder="پاسخ خود را بنویسید..."
-                          rows={3}
-                          className="flex-1 px-4 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-offset-2 resize-none"
-                          style={{
-                            backgroundColor: "var(--dash-bg)",
-                            borderColor: "var(--dash-border)",
-                            color: "var(--dash-text)",
-                          }}
+                  {/* Initial Message */}
+                  <div className="p-6 border-b border-[var(--dash-muted)]/10">
+                    <div className="flex gap-3">
+                      <div className="shrink-0">
+                        <Avatar
+                          seed={selectedTicket.user.name}
+                          size={42}
+                          className="rounded-xl"
                         />
-                        <button
-                          onClick={handleSendReply}
-                          disabled={!replyMessage.trim() || isSendingReply}
-                          className="px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50 flex items-center gap-2 shadow-lg sm:self-start"
-                          style={{
-                            backgroundColor: "#22c55e",
-                            color: "black",
-                          }}>
-                          {isSendingReply ? (
-                            <Loader2 size={18} className="animate-spin" />
-                          ) : (
-                            <Send size={18} />
-                          )}
-                          ارسال
-                        </button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-center mb-2 gap-2 flex-wrap">
+                          <span
+                            className="font-semibold text-sm"
+                            style={{ color: "var(--dash-text)" }}>
+                            {selectedTicket.user.name}
+                          </span>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--dash-muted)" }}>
+                            {formatDate(selectedTicket.createdAt)}
+                          </span>
+                        </div>
+                        <p
+                          style={{ color: "var(--dash-text)" }}
+                          className="leading-relaxed text-sm">
+                          {selectedTicket.message}
+                        </p>
+                        {selectedTicket.attachment && (
+                          <a
+                            href={selectedTicket.attachment}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg bg-[var(--dash-bg)] border border-[var(--dash-muted)]/15 text-xs text-[var(--dash-muted)] hover:text-[var(--dash-accent)] transition-colors">
+                            <Paperclip className="h-3.5 w-3.5" />
+                            پیوست تیکت
+                          </a>
+                        )}
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  {/* Replies */}
+                  <div
+                    ref={repliesRef}
+                    className="p-6 border-b border-[var(--dash-muted)]/10 max-h-[380px] overflow-y-auto">
+                    <h3
+                      className="font-bold mb-4 flex items-center gap-2"
+                      style={{ color: "var(--dash-text)" }}>
+                      <MessageSquare className="h-4 w-4 text-[var(--dash-accent)]" />
+                      پاسخ‌ها ({toFa(selectedTicket.replies.length)})
+                    </h3>
+                    {selectedTicket.replies.length === 0 ? (
+                      <div
+                        className="text-center py-8 text-sm"
+                        style={{ color: "var(--dash-muted)" }}>
+                        هنوز پاسخی داده نشده است
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        <AnimatePresence initial={false}>
+                          {selectedTicket.replies.map((reply) => (
+                            <motion.div
+                              key={reply.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25 }}
+                              className="flex gap-3">
+                              <div
+                                className={`w-10 h-10 rounded-xl shrink-0 flex items-center justify-center ${
+                                  reply.isAdmin
+                                    ? "bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg shadow-[var(--dark-purple)]/25"
+                                    : "bg-blue-500/10 text-blue-500"
+                                }`}>
+                                {reply.isAdmin ? (
+                                  <ShieldCheck className="h-5 w-5" />
+                                ) : (
+                                  <UserRound className="h-5 w-5" />
+                                )}
+                              </div>
+                              <div
+                                className={`flex-1 min-w-0 p-3.5 rounded-2xl border ${
+                                  reply.isAdmin
+                                    ? "bg-[var(--dash-accent)]/10 border-[var(--dash-accent)]/20"
+                                    : "bg-[var(--dash-bg)]/60 border-[var(--dash-muted)]/10"
+                                }`}>
+                                <div className="flex justify-between items-center mb-2 gap-2 flex-wrap">
+                                  <span
+                                    className="font-semibold text-sm flex items-center gap-2"
+                                    style={{ color: "var(--dash-text)" }}>
+                                    {reply.userName}
+                                    {reply.isAdmin && (
+                                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-600 dark:text-green-400 font-medium">
+                                        پشتیبان
+                                      </span>
+                                    )}
+                                  </span>
+                                  <span
+                                    className="text-[11px]"
+                                    style={{ color: "var(--dash-muted)" }}>
+                                    {formatDate(reply.createdAt)}
+                                  </span>
+                                </div>
+                                <p
+                                  style={{ color: "var(--dash-text)" }}
+                                  className="leading-relaxed text-sm">
+                                  {reply.message}
+                                </p>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </AnimatePresence>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Reply Input */}
+                  {selectedTicket.status !== "resolved" &&
+                    selectedTicket.status !== "closed" && (
+                      <div className="p-6">
+                        <div className="flex flex-col sm:flex-row gap-3">
+                          <textarea
+                            value={replyMessage}
+                            onChange={(e) => setReplyMessage(e.target.value)}
+                            placeholder="پاسخ خود را بنویسید..."
+                            rows={3}
+                            className="flex-1 px-4 py-3 rounded-xl outline-none resize-none transition-all focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] bg-[var(--dash-bg)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/60 border border-[var(--dash-muted)]/15"
+                          />
+                          <motion.button
+                            whileHover={
+                              !replyMessage.trim() || isSendingReply
+                                ? {}
+                                : { scale: 1.02 }
+                            }
+                            whileTap={isSendingReply ? {} : { scale: 0.98 }}
+                            onClick={handleSendReply}
+                            disabled={!replyMessage.trim() || isSendingReply}
+                            className="px-8 py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-lg sm:self-start bg-gradient-to-l from-green-500 to-emerald-500 shadow-green-500/25 hover:shadow-green-500/40">
+                            {isSendingReply ? (
+                              <Loader2 size={18} className="animate-spin" />
+                            ) : (
+                              <Send size={18} />
+                            )}
+                            ارسال
+                          </motion.button>
+                        </div>
+                      </div>
+                    )}
+
+                  {selectedTicket.status === "resolved" ||
+                  selectedTicket.status === "closed" ? (
+                    <div
+                      className="px-6 pb-6 flex items-center justify-center gap-2 text-sm"
+                      style={{ color: "var(--dash-muted)" }}>
+                      <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      این تیکت بسته شده و امکان پاسخ‌گویی غیرفعال است
+                    </div>
+                  ) : null}
+                </div>
               </motion.div>
             ) : (
-              <div
-                className="flex items-center justify-center h-full rounded-xl border"
-                style={{
-                  backgroundColor: "var(--dash-sides)",
-                  borderColor: "var(--dash-bg)",
-                }}>
-                <div className="text-center py-16">
-                  <MessageSquare
-                    size={64}
-                    className="mx-auto mb-4 opacity-30"
-                  />
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.1 }}
+                className="relative overflow-hidden flex items-center justify-center h-full min-h-[420px] rounded-2xl bg-[var(--dash-sides)]/60 backdrop-blur-sm border border-dashed border-[var(--dash-muted)]/25">
+                <div className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-[var(--dash-accent)]/10 blur-3xl" />
+                <div className="relative text-center py-16 px-6">
+                  <div className="mx-auto w-16 h-16 mb-4 rounded-3xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] flex items-center justify-center shadow-lg shadow-[var(--dark-purple)]/25">
+                    <MessageSquare className="h-7 w-7 text-white" />
+                  </div>
                   <h3
-                    className="text-xl font-medium mb-2"
+                    className="text-lg font-semibold mb-2"
                     style={{ color: "var(--dash-text)" }}>
                     تیکتی انتخاب نشده
                   </h3>
-                  <p style={{ color: "var(--dash-muted)" }}>
-                    از سمت راست تیکتی را انتخاب کنید یا تیکت جدید ایجاد کنید
+                  <p
+                    className="text-sm"
+                    style={{ color: "var(--dash-muted)" }}>
+                    از فهرست روبه‌رو یک تیکت را انتخاب کنید تا جزئیات آن نمایش
+                    داده شود
                   </p>
                 </div>
-              </div>
+              </motion.div>
             )}
           </div>
         </div>
@@ -610,7 +804,7 @@ export default function TicketsPage() {
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={() => setIsCreatingTicket(false)}
             />
-            <div className="fixed bottom-0 inset-x-0 z-[60] bg-[var(--dash-sides)] shadow-2xl rounded-t-3xl max-h-[92dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:rounded-2xl lg:max-w-lg lg:w-full">
+            <div className="fixed bottom-0 inset-x-0 z-[60] bg-[var(--dash-sides)]/95 backdrop-blur-xl border-t border-[var(--dash-muted)]/15 lg:border rounded-t-3xl lg:rounded-2xl shadow-2xl max-h-[92dvh] overflow-y-auto animate-[sheet-up_0.3s_ease-out] lg:static lg:animate-none lg:max-w-lg lg:w-full">
               {/* Drag Handle (mobile only) */}
               <div className="flex justify-center pt-3 pb-1 lg:hidden">
                 <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
@@ -619,7 +813,7 @@ export default function TicketsPage() {
               {/* Header */}
               <div
                 className="px-6 pt-2 pb-4 border-b flex items-center gap-3"
-                style={{ borderColor: "var(--dash-bg)" }}>
+                style={{ borderColor: "var(--dash-muted)" }}>
                 <div className="p-2.5 rounded-xl bg-green-500/15 shrink-0">
                   <MessageSquare className="h-5 w-5 text-green-500" />
                 </div>
@@ -661,13 +855,17 @@ export default function TicketsPage() {
                 <div className="flex justify-between">
                   <span
                     className={`text-[11px] font-bold ${
-                      ticketStep === 1 ? "text-green-500" : "text-[var(--dash-muted)]"
+                      ticketStep === 1
+                        ? "text-green-500"
+                        : "text-[var(--dash-muted)]"
                     }`}>
                     ۱. اطلاعات اولیه
                   </span>
                   <span
                     className={`text-[11px] font-bold ${
-                      ticketStep === 2 ? "text-green-500" : "text-[var(--dash-muted)]"
+                      ticketStep === 2
+                        ? "text-green-500"
+                        : "text-[var(--dash-muted)]"
                     }`}>
                     ۲. متن تیکت
                   </span>
@@ -694,12 +892,7 @@ export default function TicketsPage() {
                         value={newTicketTitle}
                         onChange={(e) => setNewTicketTitle(e.target.value)}
                         placeholder="مثال: مشکل در دسترسی به دوره..."
-                        className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all"
-                        style={{
-                          backgroundColor: "var(--dash-bg)",
-                          borderColor: "var(--dash-border)",
-                          color: "var(--dash-text)",
-                        }}
+                        className={inputClass}
                       />
                     </div>
 
@@ -713,18 +906,21 @@ export default function TicketsPage() {
                         {categories.map((cat) => {
                           const selected = newTicketCategory === cat.value;
                           return (
-                            <button
+                            <motion.button
                               key={cat.value}
                               type="button"
+                              whileTap={{ scale: 0.98 }}
                               onClick={() => setNewTicketCategory(cat.value)}
                               className={`flex items-center gap-2.5 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
                                 selected
-                                  ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-500"
+                                  ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-600 dark:text-green-400"
                                   : "bg-[var(--dash-bg)] text-[var(--dash-muted)] hover:bg-[var(--dash-border)] hover:text-[var(--dash-text)]"
                               }`}>
-                              <span className="text-lg leading-none">{cat.icon}</span>
+                              <span className="text-lg leading-none">
+                                {cat.icon}
+                              </span>
                               <span className="truncate">{cat.label}</span>
-                            </button>
+                            </motion.button>
                           );
                         })}
                       </div>
@@ -740,17 +936,18 @@ export default function TicketsPage() {
                         {priorities.map((p) => {
                           const selected = newTicketPriority === p.value;
                           return (
-                            <button
+                            <motion.button
                               key={p.value}
                               type="button"
+                              whileTap={{ scale: 0.98 }}
                               onClick={() => setNewTicketPriority(p.value)}
-                              className={`py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                              className={`py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border ${
                                 selected
-                                  ? priorityColors[p.value] + " ring-1 ring-current"
-                                  : "bg-[var(--dash-bg)] text-[var(--dash-muted)] hover:bg-[var(--dash-border)] hover:text-[var(--dash-text)]"
+                                  ? `${priorityConfig[p.value].bg} ${priorityConfig[p.value].color} ${priorityConfig[p.value].border}`
+                                  : "bg-[var(--dash-bg)] text-[var(--dash-muted)] border-transparent hover:bg-[var(--dash-border)] hover:text-[var(--dash-text)]"
                               }`}>
                               {p.label}
-                            </button>
+                            </motion.button>
                           );
                         })}
                       </div>
@@ -769,7 +966,11 @@ export default function TicketsPage() {
                       className="flex items-center gap-2.5 bg-[var(--dash-bg)] rounded-xl px-4 py-3 border"
                       style={{ borderColor: "var(--dash-border)" }}>
                       <span className="text-lg leading-none">
-                        {categories.find((c) => c.value === newTicketCategory)?.icon}
+                        {
+                          categories.find(
+                            (c) => c.value === newTicketCategory,
+                          )?.icon
+                        }
                       </span>
                       <span
                         className="text-sm font-medium truncate flex-1"
@@ -777,8 +978,12 @@ export default function TicketsPage() {
                         {newTicketTitle.trim() || "بدون عنوان"}
                       </span>
                       <span
-                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 ${priorityColors[newTicketPriority]}`}>
-                        {priorities.find((p) => p.value === newTicketPriority)?.label}
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 border ${priorityConfig[newTicketPriority].bg} ${priorityConfig[newTicketPriority].color} ${priorityConfig[newTicketPriority].border}`}>
+                        {
+                          priorities.find(
+                            (p) => p.value === newTicketPriority,
+                          )?.label
+                        }
                       </span>
                     </div>
 
@@ -793,12 +998,7 @@ export default function TicketsPage() {
                         onChange={(e) => setNewTicketMessage(e.target.value)}
                         placeholder="مشکل خود را به طور کامل توضیح دهید..."
                         rows={5}
-                        className="w-full px-4 py-3 rounded-xl border focus:outline-none focus:ring-2 focus:ring-green-500/30 focus:border-green-500/40 transition-all resize-none"
-                        style={{
-                          backgroundColor: "var(--dash-bg)",
-                          borderColor: "var(--dash-border)",
-                          color: "var(--dash-text)",
-                        }}
+                        className={`${inputClass} resize-none`}
                       />
                     </div>
                   </motion.div>
@@ -808,43 +1008,35 @@ export default function TicketsPage() {
               {/* Footer (sticky on mobile sheet) */}
               {ticketStep === 1 ? (
                 <div
-                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)]"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <button
+                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)]/95 backdrop-blur-xl"
+                  style={{ borderColor: "var(--dash-muted)" }}>
+                  <motion.button
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setTicketStep(2)}
                     disabled={!newTicketTitle.trim()}
-                    className="w-full py-3 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-green-400"
-                    style={{
-                      backgroundColor: "#22c55e",
-                      color: "black",
-                      boxShadow: "0 8px 24px -8px rgba(34,197,94,0.45)",
-                    }}>
+                    className="w-full py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
                     ادامه
                     <ChevronLeft size={18} />
-                  </button>
+                  </motion.button>
                 </div>
               ) : (
                 <div
-                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)] flex gap-3"
-                  style={{ borderColor: "var(--dash-bg)" }}>
-                  <button
+                  className="sticky bottom-0 p-6 border-t bg-[var(--dash-sides)]/95 backdrop-blur-xl flex gap-3"
+                  style={{ borderColor: "var(--dash-muted)" }}>
+                  <motion.button
+                    whileTap={isSubmitting ? {} : { scale: 0.98 }}
                     onClick={handleCreateTicket}
                     disabled={
                       !newTicketTitle.trim() ||
                       !newTicketMessage.trim() ||
                       isSubmitting
                     }
-                    className="flex-1 py-3 rounded-xl font-bold transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2 hover:bg-green-400"
-                    style={{
-                      backgroundColor: "#22c55e",
-                      color: "black",
-                      boxShadow: "0 8px 24px -8px rgba(34,197,94,0.45)",
-                    }}>
+                    className="flex-1 py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
                     {isSubmitting && (
                       <Loader2 size={18} className="animate-spin" />
                     )}
                     ارسال تیکت
-                  </button>
+                  </motion.button>
                   <button
                     onClick={() => setTicketStep(1)}
                     className="px-6 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center gap-1.5 hover:opacity-80"

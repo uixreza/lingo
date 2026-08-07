@@ -1,6 +1,6 @@
-⚠ Slow filesystem detected. The benchmark took 260ms. If F:\personal\lingofam\.next/dev is a network drive, consider moving it to a local folder.
+⚠ Slow filesystem detected. The benchmark took 577ms. If F:\personal\lingofam\.next/dev is a network drive, consider moving it to a local folder.
 See more: https://nextjs.org/docs/app/guides/local-development
-(node:7232) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
+(node:26564) Warning: SECURITY WARNING: The SSL modes 'prefer', 'require', and 'verify-ca' are treated as aliases for 'verify-full'.
 In the next major version (pg-connection-string v3.0.0 and pg v9.0.0), these modes will adopt standard libpq semantics, which have weaker security guarantees.
 
 To prepare for this change:
@@ -11,35 +11,85 @@ See https://www.postgresql.org/docs/current/libpq-ssl.html for libpq SSL mode de
 (Use `node --trace-warnings ...` to show where the warning was created)
 [browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[browser] Image with src "/uploads/1785957878382-6ojjgu1i.jpg" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 [browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
 Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
-Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
-⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.wallet.findUnique()` invocation:
-
-
-
-    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
-    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
-    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
-    at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\wallet\route.ts:13:18)
-  67 | ...
-  68 | ...
-> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
-     |                                               ^
-  70 | ...
-  71 | ...
-  72 | ... {
-  code: 'ETIMEDOUT',
-  meta: { modelName: 'Wallet' },
-  clientVersion: '7.8.0'
+[browser] Image with src "http://localhost:3000/uploads/1785957878382-6ojjgu1i.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
+[browser] Uncaught ReferenceError: savedPost is not defined
+    at BlogPage (app/admin/blog/page.tsx:622:19)
+  620 |               <p
+  621 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 622 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  623 |                 }`}>
+  624 |                 پست با موفقیت ذخیره شد
+  625 |               </p>
+⨯ ReferenceError: savedPost is not defined
+    at BlogPage (app\admin\blog\page.tsx:622:19)
+  620 |               <p
+  621 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 622 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  623 |                 }`}>
+  624 |                 پست با موفقیت ذخیره شد
+  625 |               </p> {
+  digest: '2949329550'
 }
+[browser] Uncaught ReferenceError: savedPost is not defined
+    at BlogPage (app/admin/blog/page.tsx:622:19)
+  620 |               <p
+  621 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 622 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  623 |                 }`}>
+  624 |                 پست با موفقیت ذخیره شد
+  625 |               </p>
+⨯ ReferenceError: savedPost is not defined
+    at BlogPage (app\admin\blog\page.tsx:620:19)
+  618 |               <p
+  619 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 620 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  621 |                 }`}>
+  622 |                 پست با موفقیت ذخیره شد
+  623 |               </p> {
+  digest: '2949329550'
+}
+[browser] Uncaught ReferenceError: savedPost is not defined
+    at BlogPage (app/admin/blog/page.tsx:620:19)
+  618 |               <p
+  619 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 620 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  621 |                 }`}>
+  622 |                 پست با موفقیت ذخیره شد
+  623 |               </p>
+⨯ ReferenceError: savedPost is not defined
+    at BlogPage (app\admin\blog\page.tsx:620:19)
+  618 |               <p
+  619 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 620 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  621 |                 }`}>
+  622 |                 پست با موفقیت ذخیره شد
+  623 |               </p> {
+  digest: '2949329550'
+}
+[browser] Uncaught ReferenceError: savedPost is not defined
+    at BlogPage (app/admin/blog/page.tsx:620:19)
+  618 |               <p
+  619 |                 className={`text-center text-sm font-medium transition-opacity ${
+> 620 |                   savedPost ? "opacity-100 text-green-500" : "opacity-0"
+      |                   ^
+  621 |                 }`}>
+  622 |                 پست با موفقیت ذخیره شد
+  623 |               </p>
+[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "http://localhost:3000/uploads/1785957878382-6ojjgu1i.jpg" has either width or height modified, but not the other. If you use CSS to change the size of your image, also include the styles 'width: "auto"' or 'height: "auto"' to maintain the aspect ratio.
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.session.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -47,7 +97,7 @@ Invalid `prisma.session.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\dashboard\stats\route.ts:17:39)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -60,7 +110,7 @@ Invalid `prisma.session.findMany()` invocation:
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.ticket.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -68,7 +118,7 @@ Invalid `prisma.ticket.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\tickets\route.ts:18:19)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -77,11 +127,11 @@ Invalid `prisma.ticket.findMany()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'Ticket' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.ticket.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -89,7 +139,7 @@ Invalid `prisma.ticket.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\tickets\route.ts:18:19)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -98,11 +148,11 @@ Invalid `prisma.ticket.findMany()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'Ticket' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.wallet.findUnique()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -110,7 +160,7 @@ Invalid `prisma.wallet.findUnique()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\wallet\route.ts:13:18)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -119,11 +169,11 @@ Invalid `prisma.wallet.findUnique()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'Wallet' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.ticket.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -131,7 +181,7 @@ Invalid `prisma.ticket.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\tickets\route.ts:18:19)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -140,11 +190,11 @@ Invalid `prisma.ticket.findMany()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'Ticket' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.user.findUnique()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -152,7 +202,7 @@ Invalid `prisma.user.findUnique()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\account\route.ts:122:16)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -161,11 +211,11 @@ Invalid `prisma.user.findUnique()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'User' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.user.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -173,7 +223,7 @@ Invalid `prisma.user.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\ranking\route.ts:106:17)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -182,11 +232,11 @@ Invalid `prisma.user.findMany()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'User' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.friend.findMany()` invocation:
+Invalid `prisma.session.count()` invocation:
 
 
 
@@ -194,7 +244,7 @@ Invalid `prisma.friend.findMany()` invocation:
     at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
     at zr.request (app\generated\prisma\runtime\client.js:69:7288)
     at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\friends\route.ts:13:20)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
   67 | ...
   68 | ...
 > 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
@@ -203,9 +253,183 @@ Invalid `prisma.friend.findMany()` invocation:
   71 | ...
   72 | ... {
   code: 'ETIMEDOUT',
-  meta: { modelName: 'Friend' },
+  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.session.count()` invocation:
+
+
+Can't reach database server at ep-withered-mud-atm3nidq-pooler.c-9.us-east-1.aws.neon.tech
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'P1001',
+  meta: {
+    modelName: 'Session',
+    driverAdapterError: Error [DriverAdapterError]: DatabaseNotReachable
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:44621)
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:45065)
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:46285)
+        at async e.run (app\generated\prisma\runtime\client.js:15:43335)
+        at async e.execute (app\generated\prisma\runtime\client.js:61:815)
+        at async jt.request (app\generated\prisma\runtime\client.js:62:2401)
+        at async Object.singleLoader (app\generated\prisma\runtime\client.js:69:6569)
+        at async zr.request (app\generated\prisma\runtime\client.js:69:7175)
+        at async a (app\generated\prisma\runtime\client.js:79:6862)
+        at async GET (app\api\admin\unread-counts\route.ts:11:31)
+      13 | ...
+      14 | ...
+    > 15 | ...r(let o of n){let s=Ia(o,r.sqlCommenter),a=await this.#u(s,r.queryable,()=>r.queryable....
+         |                                               ^
+      16 | ...
+      17 | ...
+      18 | ... {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.ticket.count()` invocation:
+
+
+Server has closed the connection.
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'P1017',
+  meta: {
+    modelName: 'Ticket',
+    driverAdapterError: Error [DriverAdapterError]: ConnectionClosed
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:44621)
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:45065)
+        at async e.interpretNode (app\generated\prisma\runtime\client.js:15:46285)
+        at async e.run (app\generated\prisma\runtime\client.js:15:43335)
+        at async e.execute (app\generated\prisma\runtime\client.js:61:815)
+        at async jt.request (app\generated\prisma\runtime\client.js:62:2401)
+        at async Object.singleLoader (app\generated\prisma\runtime\client.js:69:6569)
+        at async zr.request (app\generated\prisma\runtime\client.js:69:7175)
+        at async a (app\generated\prisma\runtime\client.js:79:6862)
+        at async GET (app\api\admin\unread-counts\route.ts:11:31)
+      13 | ...
+      14 | ...
+    > 15 | ...r(let o of n){let s=Ia(o,r.sqlCommenter),a=await this.#u(s,r.queryable,()=>r.queryable....
+         |                                               ^
+      16 | ...
+      17 | ...
+      18 | ... {
+      [cause]: [Object]
+    }
+  },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.session.count()` invocation:
+
+
+
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'ETIMEDOUT',
+  meta: { modelName: 'Session' },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.session.count()` invocation:
+
+
+
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'ETIMEDOUT',
+  meta: { modelName: 'Session' },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.session.count()` invocation:
+
+
+
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'ETIMEDOUT',
+  meta: { modelName: 'Session' },
+  clientVersion: '7.8.0'
+}
+⨯ Error [PrismaClientKnownRequestError]: 
+Invalid `prisma.session.count()` invocation:
+
+
+
+    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
+    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
+    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
+    at async a (app\generated\prisma\runtime\client.js:79:6862)
+    at async GET (app\api\admin\unread-counts\route.ts:11:31)
+  67 | ...
+  68 | ...
+> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
+     |                                               ^
+  70 | ...
+  71 | ...
+  72 | ... {
+  code: 'ETIMEDOUT',
+  meta: { modelName: 'Session' },
+  clientVersion: '7.8.0'
+}
+[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
+[browser] Image with src "/assets/img/sideIcon.png" was detected as the Largest Contentful Paint (LCP). Please add the `loading="eager"` property if this image is above the fold.
+Read more: https://nextjs.org/docs/app/api-reference/components/image#loading
 ⨯ Error [PrismaClientKnownRequestError]: 
 Invalid `prisma.mentor.findFirst()` invocation:
 
@@ -249,27 +473,6 @@ Invalid `prisma.wallet.findUnique()` invocation:
   clientVersion: '7.8.0'
 }
 ⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.wallet.findUnique()` invocation:
-
-
-
-    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
-    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
-    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
-    at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\wallet\route.ts:13:18)
-  67 | ...
-  68 | ...
-> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
-     |                                               ^
-  70 | ...
-  71 | ...
-  72 | ... {
-  code: 'ETIMEDOUT',
-  meta: { modelName: 'Wallet' },
-  clientVersion: '7.8.0'
-}
-⨯ Error [PrismaClientKnownRequestError]: 
 Invalid `prisma.transaction.findMany()` invocation:
 
 
@@ -288,27 +491,6 @@ Invalid `prisma.transaction.findMany()` invocation:
   72 | ... {
   code: 'ETIMEDOUT',
   meta: { modelName: 'Transaction' },
-  clientVersion: '7.8.0'
-}
-⨯ Error [PrismaClientKnownRequestError]: 
-Invalid `prisma.session.count()` invocation:
-
-
-
-    at zr.handleRequestError (app\generated\prisma\runtime\client.js:69:8286)
-    at zr.handleAndLogRequestError (app\generated\prisma\runtime\client.js:69:7581)
-    at zr.request (app\generated\prisma\runtime\client.js:69:7288)
-    at async a (app\generated\prisma\runtime\client.js:79:6862)
-    at async GET (app\api\admin\unread-counts\route.ts:11:31)
-  67 | ...
-  68 | ...
-> 69 | ...t u=s?{modelName:s,...t.meta}:t.meta;throw new b.PrismaClientKnownRequestError(l,{code:...
-     |                                               ^
-  70 | ...
-  71 | ...
-  72 | ... {
-  code: 'ETIMEDOUT',
-  meta: { modelName: 'Session' },
   clientVersion: '7.8.0'
 }
 [browser] Uncaught TypeError: can't access property "map", stats.dailyTransactions is undefined

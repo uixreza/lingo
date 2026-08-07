@@ -103,7 +103,7 @@ export default function Sidebar() {
   const MobileMenuButton = () => (
     <button
       onClick={() => setIsMobileOpen(true)}
-      className="lg:hidden fixed bottom-6 right-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
+      className="lg:hidden fixed bottom-6 left-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
       aria-label="باز کردن منو">
       <Menu className="h-6 w-6" />
     </button>

@@ -126,6 +126,31 @@
   --light-orange: #e88b4a;
 }
 
+.admin-pattern {
+  position: relative;
+}
+
+.admin-pattern::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cpath d='M0 15 L15 0 L30 15 L45 0 L60 15' fill='none' stroke='%231d4ed8' stroke-width='1.5'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .admin-pattern::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='30' viewBox='0 0 60 30'%3E%3Cpath d='M0 15 L15 0 L30 15 L45 0 L60 15' fill='none' stroke='white' stroke-width='1.5'/%3E%3C/svg%3E");
+  opacity: 0.03;
+}
+
+.admin-pattern > * {
+  position: relative;
+  z-index: 1;
+}
+
 *::-webkit-scrollbar {
   display: none;
 }

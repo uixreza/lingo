@@ -16,7 +16,9 @@ function slugify(title: string): string {
 function serializePost(post: {
   id: number;
   title: string;
+  slug: string;
   thumbnailUrl: string | null;
+  thumbnailGradient: string | null;
   tags: string[];
   status: string;
   createdAt: Date;
@@ -27,7 +29,9 @@ function serializePost(post: {
   return {
     id: post.id,
     title: post.title,
+    slug: post.slug,
     thumbnailUrl: post.thumbnailUrl,
+    thumbnailGradient: post.thumbnailGradient,
     tags: post.tags,
     status: post.status,
     createdAt: post.createdAt.toISOString(),
@@ -85,6 +89,10 @@ export async function POST(request: Request) {
     typeof body.thumbnailUrl === "string" && body.thumbnailUrl.trim()
       ? body.thumbnailUrl.trim()
       : null;
+  const thumbnailGradient =
+    typeof body.thumbnailGradient === "string" && body.thumbnailGradient.trim()
+      ? body.thumbnailGradient.trim()
+      : null;
   const tags = Array.isArray(body.tags)
     ? body.tags.filter((t): t is string => typeof t === "string").slice(0, 10)
     : [];
@@ -96,6 +104,7 @@ export async function POST(request: Request) {
         slug: slugify(title),
         content,
         thumbnailUrl,
+        thumbnailGradient,
         tags,
         status: statusEnum,
         authorId: parseInt(sess.user.id, 10),

@@ -23,6 +23,7 @@ type BlogPost = {
   title: string;
   slug: string;
   thumbnailUrl: string | null;
+  thumbnailGradient: string | null;
   tags: string[];
   summary: string;
   content: string;
@@ -72,7 +73,6 @@ function useMediaQuery(query: string) {
     const mql = window.matchMedia(query);
     const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
     mql.addEventListener("change", onChange);
-    setMatches(mql.matches);
     return () => mql.removeEventListener("change", onChange);
   }, [query]);
 
@@ -175,15 +175,23 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-3 px-6 pt-6">
-            <AuthorAvatar
-              seed={post.authorAvatarSeed}
-              name={post.author}
-              size={34}
-            />
-            <span className="text-sm font-medium text-white">
-              {post.author}
-            </span>
+          <div
+            className={post.thumbnailGradient ? "relative h-40 sm:h-52" : ""}
+            style={
+              post.thumbnailGradient
+                ? { background: post.thumbnailGradient }
+                : undefined
+            }>
+            <div className="flex items-center gap-3 px-6 pt-6">
+              <AuthorAvatar
+                seed={post.authorAvatarSeed}
+                name={post.author}
+                size={34}
+              />
+              <span className="text-sm font-medium text-white">
+                {post.author}
+              </span>
+            </div>
           </div>
         )}
 
@@ -234,6 +242,11 @@ export default function BlogPage() {
       if (!cancelled) {
         setPosts(data);
         setLoaded(true);
+        const slug = new URLSearchParams(window.location.search).get("post");
+        if (slug) {
+          const match = data.find((p) => p.slug === slug);
+          if (match) setSelected(match);
+        }
       }
     });
     return () => {
@@ -298,8 +311,14 @@ export default function BlogPage() {
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Rss className="h-10 w-10 text-green-500/30" />
+                    <div
+                      className="w-full h-full flex items-center justify-center group-hover:scale-105 transition-transform duration-500"
+                      style={
+                        post.thumbnailGradient
+                          ? { background: post.thumbnailGradient }
+                          : undefined
+                      }>
+                      <Rss className="h-10 w-10 text-white/40" />
                     </div>
                   )}
                 </div>

@@ -46,6 +46,10 @@ export const authOptions: NextAuthOptions = {
             });
             const user = await prisma.user.findUnique({ where: { phone } });
             if (!user || !user.isActive) return null;
+            await prisma.user.update({
+              where: { id: user.id },
+              data: { lastLoginAt: new Date() },
+            });
             return {
               id: String(user.id),
               phone: user.phone,
@@ -60,6 +64,10 @@ export const authOptions: NextAuthOptions = {
           if (!user || !user.isActive) return null;
           const isValid = await bcrypt.compare(password, user.passwordHash);
           if (!isValid) return null;
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() },
+          });
           return {
             id: String(user.id),
             phone: user.phone,

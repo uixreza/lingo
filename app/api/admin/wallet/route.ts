@@ -15,29 +15,27 @@ export async function GET() {
   startOfWeek.setHours(0, 0, 0, 0);
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
-  const [totalIncomeAgg, todayAgg, weekAgg, monthAgg, totalStudents, totalSessions, sessions] = await Promise.all([
-    prisma.session.aggregate({
-      where: { paymentStatus: "paid" },
-      _sum: { amountPaid: true },
-    }),
-    prisma.session.aggregate({
-      where: { paymentStatus: "paid", requestedAt: { gte: startOfDay } },
-      _sum: { amountPaid: true },
-    }),
-    prisma.session.aggregate({
-      where: { paymentStatus: "paid", requestedAt: { gte: startOfWeek } },
-      _sum: { amountPaid: true },
-    }),
-    prisma.session.aggregate({
-      where: { paymentStatus: "paid", requestedAt: { gte: startOfMonth } },
-      _sum: { amountPaid: true },
+  const pad = (n: number) => String(n).padStart(2, "0");
+  const fmtDate = (d: Date) =>
+    `${d.getFullYear()}/${pad(d.getMonth() + 1)}/${pad(d.getDate())}`;
+
+  const [transactions, totalStudents, totalSessions, paidSessions] = await Promise.all([
+    prisma.transaction.findMany({
+      where: { status: "completed" },
+      select: {
+        id: true,
+        amount: true,
+        createdAt: true,
+        paymentMethod: true,
+        description: true,
+        user: { select: { fullname: true } },
+      },
     }),
     prisma.user.count({ where: { role: "Client" } }),
     prisma.session.count(),
     prisma.session.findMany({
       where: { paymentStatus: "paid" },
       orderBy: { requestedAt: "desc" },
-      take: 50,
       select: {
         id: true,
         user: { select: { fullname: true } },
@@ -50,21 +48,56 @@ export async function GET() {
     }),
   ]);
 
-  const pad = (n: number) => String(n).padStart(2, "0");
+  const deposits = transactions
+    .filter((t) => t.amount > BigInt(0))
+    .map((t) => ({ ...t, amount: Number(t.amount) }));
+
+  const sum = (items: { amount: number }[]) =>
+    items.reduce((acc, t) => acc + t.amount, 0);
+
+  const inRange = (d: Date, from: Date) => d.getTime() >= from.getTime();
+
+  const totalIncome = sum(deposits);
+  const todayIncome = sum(deposits.filter((t) => inRange(t.createdAt, startOfDay)));
+  const weekIncome = sum(deposits.filter((t) => inRange(t.createdAt, startOfWeek)));
+  const monthIncome = sum(deposits.filter((t) => inRange(t.createdAt, startOfMonth)));
+
+  const recentSessions = paidSessions.map((s) => ({
+    id: `s-${s.id}`,
+    studentName: s.user.fullname,
+    amount: Number(s.amountPaid),
+    type: s.sessionType,
+    date: fmtDate(s.sessionDate),
+  }));
+
+  const recentDeposits = deposits
+    .slice()
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 50)
+    .map((t) => ({
+      id: `t-${t.id}`,
+      studentName: t.user.fullname,
+      amount: t.amount,
+      type:
+        t.paymentMethod === "Card-to-Card"
+          ? "کارت به کارت"
+          : t.paymentMethod === "Gateway"
+            ? "درگاه"
+            : "واریز",
+      date: fmtDate(t.createdAt),
+    }));
+
+  const recent = [...recentDeposits, ...recentSessions]
+    .sort((a, b) => (a.date > b.date ? -1 : 1))
+    .slice(0, 50);
 
   return NextResponse.json({
-    totalIncome: Number(totalIncomeAgg._sum.amountPaid ?? 0),
-    todayIncome: Number(todayAgg._sum.amountPaid ?? 0),
-    weekIncome: Number(weekAgg._sum.amountPaid ?? 0),
-    monthIncome: Number(monthAgg._sum.amountPaid ?? 0),
+    totalIncome: totalIncome,
+    todayIncome,
+    weekIncome,
+    monthIncome,
     totalStudents,
     totalSessions,
-    recentSessions: sessions.map((s) => ({
-      id: s.id,
-      studentName: s.user.fullname,
-      amount: Number(s.amountPaid),
-      type: s.sessionType,
-      date: `${s.sessionDate.getFullYear()}/${pad(s.sessionDate.getMonth() + 1)}/${pad(s.sessionDate.getDate())}`,
-    })),
+    recentSessions: recent,
   });
 }

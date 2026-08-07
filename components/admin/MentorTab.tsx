@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   Save,
@@ -13,6 +13,7 @@ import {
   Award,
   Banknote,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
 import toast from "react-hot-toast";
 
@@ -48,6 +49,19 @@ const FIXED_LANGS = [
 
 const FIXED_CERTS = ["TTC", "TOEFL", "TESOL", "IELTS", "DUOLINGO"];
 
+const inputClass =
+  "w-full bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm outline-none border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60";
+const labelClass =
+  "block text-sm font-medium text-[var(--dash-muted)] mb-2";
+
+const cardClass =
+  "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-bg)]/40 p-6";
+const accentBar =
+  "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent";
+
+const iconTile =
+  "p-2 rounded-xl bg-green-500/10 text-green-600 dark:text-green-400";
+
 export default function MentorTab() {
   const [mentor, setMentor] = useState<Mentor>(EMPTY);
   const [accountName, setAccountName] = useState("");
@@ -58,22 +72,20 @@ export default function MentorTab() {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/admin/mentor");
-      if (!res.ok) return;
-      const data = await res.json();
-      if (data.mentor) setMentor(data.mentor);
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
+    const run = async () => {
+      try {
+        const res = await fetch("/api/admin/mentor");
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.mentor) setMentor(data.mentor);
+      } catch {
+        // silent
+      } finally {
+        setLoading(false);
+      }
+    };
+    void run();
     fetch("/api/account")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
@@ -92,7 +104,7 @@ export default function MentorTab() {
         }
       })
       .catch(() => {});
-  }, [load]);
+  }, []);
 
   const update = (patch: Partial<Mentor>) =>
     setMentor((prev) => ({ ...prev, ...patch }));
@@ -228,28 +240,20 @@ export default function MentorTab() {
     }
   };
 
-  const inputClass =
-    "w-full bg-[var(--dash-bg)]/60 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500/60 transition-all";
-  const labelClass =
-    "block text-sm font-medium text-[var(--dash-muted)] mb-2";
-
-  const cardClass =
-    "relative overflow-hidden bg-[var(--hover-bg)] rounded-2xl p-6";
-  const accentBar =
-    "pointer-events-none absolute top-0 inset-x-0 h-0.5 bg-gradient-to-l from-transparent via-green-500/70 to-transparent";
-
-  const iconTile = "p-2 rounded-xl bg-green-500/15 text-green-500";
-
   if (loading) {
     return <PageSkeleton />;
   }
 
   return (
-    <div className="space-y-8">
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="space-y-8">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-green-500/15 text-green-500">
-            <GraduationCap className="h-6 w-6" />
+          <div className="p-2.5 rounded-2xl bg-green-500/10">
+            <GraduationCap className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
             <h2 className="text-xl font-bold text-[var(--dash-text)]">
@@ -260,17 +264,19 @@ export default function MentorTab() {
             </p>
           </div>
         </div>
-        <button
+        <motion.button
+          whileHover={saving || uploading ? {} : { scale: 1.02 }}
+          whileTap={saving || uploading ? {} : { scale: 0.98 }}
           onClick={handleSave}
           disabled={saving || uploading}
-          className="flex items-center gap-2 px-6 py-2.5 bg-green-500 text-black rounded-xl font-bold shadow-lg shadow-green-500/25 hover:bg-green-400 transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-green-500">
+          className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
           {saving ? (
             <Loader2 className="h-4 w-4 animate-spin" />
           ) : (
             <Save className="h-4 w-4" />
           )}
           {saving ? "در حال ذخیره..." : "ذخیره"}
-        </button>
+        </motion.button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 items-start">
@@ -299,7 +305,9 @@ export default function MentorTab() {
                 />
               ) : (
                 <div className="text-center px-4">
-                  <ImageIcon className="h-10 w-10 text-[var(--dash-muted)] mx-auto mb-2" />
+                  <div className="w-12 h-12 rounded-2xl bg-[var(--hover-bg)] flex items-center justify-center mx-auto mb-2">
+                    <ImageIcon className="h-6 w-6 text-[var(--dash-muted)]" />
+                  </div>
                   <p className="text-xs text-[var(--dash-muted)]">
                     {uploading
                       ? "در حال آپلود..."
@@ -308,7 +316,7 @@ export default function MentorTab() {
                 </div>
               )}
               {uploading && (
-                <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center">
                   <Loader2 className="h-8 w-8 text-white animate-spin" />
                 </div>
               )}
@@ -345,14 +353,15 @@ export default function MentorTab() {
               {FIXED_LANGS.map((lang) => {
                 const active = (mentor.languages ?? []).includes(lang.label);
                 return (
-                  <button
+                  <motion.button
                     key={lang.code}
                     type="button"
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => toggleLang(lang.code)}
                     className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm transition-all duration-200 border ${
                       active
-                        ? "bg-green-500/10 border-green-500/50 text-[var(--dash-text)]"
-                        : "bg-[var(--dash-bg)]/60 border-transparent text-[var(--dash-muted)] hover:border-[var(--dash-muted)]/30"
+                        ? "bg-green-500/10 border-green-500/50 text-[var(--dash-text)] shadow-lg shadow-green-500/5"
+                        : "bg-[var(--dash-bg)]/60 border-transparent text-[var(--dash-muted)] hover:border-[var(--dash-muted)]/30 hover:bg-[var(--dash-bg)]"
                     }`}>
                     <span className="flex items-center gap-2.5">
                       <span className="text-lg leading-none">{lang.flag}</span>
@@ -369,7 +378,7 @@ export default function MentorTab() {
                       }`}>
                       <Check className="h-3.5 w-3.5" />
                     </span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -439,14 +448,15 @@ export default function MentorTab() {
               {FIXED_CERTS.map((cert) => {
                 const active = (mentor.certifications ?? []).includes(cert);
                 return (
-                  <button
+                  <motion.button
                     key={cert}
                     type="button"
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => toggleCert(cert)}
                     className={`flex items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 border ${
                       active
                         ? "bg-green-500/10 border-green-500/50 text-[var(--dash-text)]"
-                        : "bg-[var(--dash-bg)]/60 border-transparent text-[var(--dash-muted)] hover:border-[var(--dash-muted)]/30"
+                        : "bg-[var(--dash-bg)]/60 border-transparent text-[var(--dash-muted)] hover:border-[var(--dash-muted)]/30 hover:bg-[var(--dash-bg)]"
                     }`}>
                     {cert}
                     <span
@@ -457,7 +467,7 @@ export default function MentorTab() {
                       }`}>
                       <Check className="h-3.5 w-3.5" />
                     </span>
-                  </button>
+                  </motion.button>
                 );
               })}
             </div>
@@ -556,9 +566,8 @@ export default function MentorTab() {
               این مبلغ هنگام رزرو کلاس خصوصی از دانشجو دریافت می‌شود
             </p>
           </div>
-
-          </div>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -52,6 +52,7 @@ export default function MentorTab() {
   const [mentor, setMentor] = useState<Mentor>(EMPTY);
   const [accountName, setAccountName] = useState("");
   const [priceInput, setPriceInput] = useState("");
+  const [discountPercentInput, setDiscountPercentInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -82,8 +83,12 @@ export default function MentorTab() {
     fetch("/api/sessions/price")
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => {
-        if (d && typeof d.privatePrice === "number") {
+        if (!d) return;
+        if (typeof d.privatePrice === "number") {
           setPriceInput(String(d.privatePrice));
+        }
+        if (typeof d.discountPercent === "number") {
+          setDiscountPercentInput(String(d.discountPercent));
         }
       })
       .catch(() => {});
@@ -158,17 +163,27 @@ export default function MentorTab() {
     const digits = priceInput
       .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
       .replace(/\D/g, "");
-    if (digits === "") return true;
-    const p = parseInt(digits, 10);
-    if (!Number.isFinite(p) || p < 0) {
-      toast.error("قیمت کلاس خصوصی معتبر نیست");
+    const discountDigits = discountPercentInput
+      .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+      .replace(/\D/g, "");
+    let p = 0;
+    if (digits !== "") {
+      p = parseInt(digits, 10);
+      if (!Number.isFinite(p) || p < 0) {
+        toast.error("قیمت کلاس خصوصی معتبر نیست");
+        return false;
+      }
+    }
+    const discount = discountDigits === "" ? 0 : parseInt(discountDigits, 10);
+    if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
+      toast.error("درصد تخفیف باید بین ۰ تا ۱۰۰ باشد");
       return false;
     }
     try {
       const res = await fetch("/api/sessions/price", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ privatePrice: p }),
+        body: JSON.stringify({ privatePrice: p, discountPercent: discount }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -177,6 +192,9 @@ export default function MentorTab() {
       }
       if (typeof data?.privatePrice === "number") {
         setPriceInput(String(data.privatePrice));
+      }
+      if (typeof data?.discountPercent === "number") {
+        setDiscountPercentInput(String(data.discountPercent));
       }
       return true;
     } catch {
@@ -482,7 +500,59 @@ export default function MentorTab() {
                   ).toLocaleString("fa-IR") + " تومان"
                 : "مبلغ را وارد کنید"}
             </div>
-            <p className="mt-1 text-xs text-[var(--dash-muted)]/70">
+
+            <div className="mt-5 pt-5 border-t border-[var(--dash-muted)]/10">
+              <label className={labelClass}>درصد تخفیف</label>
+              <div className="relative max-w-sm">
+                <input
+                  value={discountPercentInput}
+                  onChange={(e) =>
+                    setDiscountPercentInput(
+                      e.target.value.replace(/[^0-9۰-۹]/g, ""),
+                    )
+                  }
+                  inputMode="numeric"
+                  placeholder="مثلاً 20"
+                  className={`${inputClass} pl-12`}
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[var(--dash-muted)] font-medium">
+                  ٪
+                </span>
+              </div>
+              <div className="mt-2 text-xs text-[var(--dash-muted)]">
+                {discountPercentInput.replace(/[۰-۹]/g, (d) =>
+                  String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+                )
+                  ? (() => {
+                      const price = Number(
+                        priceInput
+                          .replace(/[۰-۹]/g, (d) =>
+                            String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+                          )
+                          .replace(/\D/g, ""),
+                      );
+                      const discount = Number(
+                        discountPercentInput
+                          .replace(/[۰-۹]/g, (d) =>
+                            String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+                          )
+                          .replace(/\D/g, ""),
+                      );
+                      if (!price || !discount) {
+                        return `${discount}٪ تخفیف اعمال می‌شود`;
+                      }
+                      const finalPrice = Math.round(
+                        (price * (100 - discount)) / 100,
+                      );
+                      return `${discount}٪ تخفیف → قیمت نهایی ${finalPrice.toLocaleString("fa-IR")} تومان`;
+                    })()
+                  : "۰٪ به معنای بدون تخفیف است"}
+              </div>
+              <p className="mt-1 text-xs text-[var(--dash-muted)]/70">
+                این تخفیف هنگام رزرو کلاس خصوصی به دانشجو نمایش داده می‌شود
+              </p>
+            </div>
+            <p className="mt-3 text-xs text-[var(--dash-muted)]/70">
               این مبلغ هنگام رزرو کلاس خصوصی از دانشجو دریافت می‌شود
             </p>
           </div>

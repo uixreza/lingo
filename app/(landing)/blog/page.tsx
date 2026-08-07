@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Rss, Calendar, User, Tag, FileText, X } from "lucide-react";
-
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.1 } },
@@ -29,7 +28,39 @@ type BlogPost = {
   content: string;
   date: string;
   author: string;
+  authorAvatarSeed: string | null;
 };
+
+function AuthorAvatar({
+  seed,
+  name,
+  size,
+  className = "",
+}: {
+  seed?: string | null;
+  name: string;
+  size: number;
+  className?: string;
+}) {
+  return seed ? (
+    <img
+      src={`https://api.dicebear.com/10.x/notionists/svg?seed=${encodeURIComponent(seed)}`}
+      alt={name}
+      width={size}
+      height={size}
+      className={`rounded-lg object-cover shrink-0 bg-[#333] ${className}`}
+    />
+  ) : (
+    <span
+      className={`rounded-lg bg-[#333] flex items-center justify-center shrink-0 ${className}`}
+      style={{ width: size, height: size }}>
+      <User
+        className="text-[#999]"
+        style={{ width: size * 0.55, height: size * 0.55 }}
+      />
+    </span>
+  );
+}
 
 function useMediaQuery(query: string) {
   const [matches, setMatches] = useState(() => {
@@ -46,6 +77,14 @@ function useMediaQuery(query: string) {
   }, [query]);
 
   return matches;
+}
+
+function toPersianDigits(n: string) {
+  return n.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
+}
+
+function formatDate(dateStr: string) {
+  return toPersianDigits(dateStr.replaceAll("/", " / "));
 }
 
 async function loadPosts() {
@@ -84,7 +123,13 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.25 }}
       onClick={onClose}
-      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center">
+      className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center">
+      <button
+        onClick={onClose}
+        aria-label="بستن"
+        className="absolute top-4 end-4 z-20 p-2.5 rounded-full bg-black/50 border border-white/10 text-white hover:bg-black/70 hover:scale-105 transition-all duration-200">
+        <X className="h-4 w-4" />
+      </button>
       <motion.div
         role="dialog"
         aria-modal="true"
@@ -108,14 +153,7 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
         }`}>
         <div className="w-10 h-1 rounded-full bg-white/15 mx-auto mt-3 sm:hidden" />
 
-        <button
-          onClick={onClose}
-          aria-label="بستن"
-          className="absolute top-4 end-4 z-10 p-2 rounded-full bg-black/50 border border-white/10 text-white hover:bg-black/70 transition-colors">
-          <X className="h-4 w-4" />
-        </button>
-
-        {post.thumbnailUrl && (
+        {post.thumbnailUrl ? (
           <div className="relative h-52 sm:h-72">
             <Image
               src={post.thumbnailUrl}
@@ -125,6 +163,27 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
               sizes="(max-width: 640px) 100vw, 768px"
               className="object-cover"
             />
+            <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1.5">
+              <AuthorAvatar
+                seed={post.authorAvatarSeed}
+                name={post.author}
+                size={30}
+              />
+              <span className="text-xs font-medium text-white whitespace-nowrap">
+                {post.author}
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 px-6 pt-6">
+            <AuthorAvatar
+              seed={post.authorAvatarSeed}
+              name={post.author}
+              size={34}
+            />
+            <span className="text-sm font-medium text-white">
+              {post.author}
+            </span>
           </div>
         )}
 
@@ -148,14 +207,10 @@ function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
 
           <div className="flex items-center gap-5 mt-4 text-sm text-[#666] flex-wrap">
             <span className="flex items-center gap-1.5">
-              <User className="h-4 w-4" />
-              {post.author}
-            </span>
-            <span className="flex items-center gap-1.5">
               <Calendar className="h-4 w-4" />
-              {post.date}
+              {formatDate(post.date)}
             </span>
-            <span>{minutes} دقیقه مطالعه</span>
+            <span>{minutes.toLocaleString("fa-IR")} دقیقه مطالعه</span>
           </div>
 
           <div
@@ -271,13 +326,17 @@ export default function BlogPage() {
                   )}
 
                   <div className="flex items-center justify-between border-t border-white/5 pt-3 text-xs text-[#666]">
-                    <span className="flex items-center gap-1.5">
-                      <User className="h-3.5 w-3.5" />
+                    <span className="flex items-center gap-2">
+                      <AuthorAvatar
+                        seed={post.authorAvatarSeed}
+                        name={post.author}
+                        size={30}
+                      />
                       {post.author}
                     </span>
                     <span className="flex items-center gap-1.5">
                       <Calendar className="h-3.5 w-3.5" />
-                      {post.date}
+                      {formatDate(post.date)}
                     </span>
                   </div>
                 </div>

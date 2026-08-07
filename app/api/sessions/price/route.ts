@@ -4,12 +4,9 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const sessionPrice = await prisma.sessionPrice.findFirst();
-  console.log(sessionPrice?.privatePrice)
-  if (!sessionPrice) {
-    return NextResponse.json({ privatePrice: 350000 });
-  }
   return NextResponse.json({
-    privatePrice: Number(sessionPrice.privatePrice),
+    privatePrice: Number(sessionPrice?.privatePrice ?? 350000),
+    discountPercent: Number(sessionPrice?.discountPercent ?? 0),
   });
 }
 
@@ -19,7 +16,7 @@ export async function PUT(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { privatePrice?: unknown };
+  let body: { privatePrice?: unknown; discountPercent?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -33,6 +30,14 @@ export async function PUT(request: Request) {
       ? Math.round(body.privatePrice)
       : undefined;
 
+  const discount =
+    typeof body.discountPercent === "number" &&
+    Number.isFinite(body.discountPercent) &&
+    body.discountPercent >= 0 &&
+    body.discountPercent <= 100
+      ? Math.round(body.discountPercent)
+      : undefined;
+
   if (price === undefined) {
     return NextResponse.json(
       { error: "privatePrice must be a non-negative number" },
@@ -44,9 +49,20 @@ export async function PUT(request: Request) {
   const sessionPrice = existing
     ? await prisma.sessionPrice.update({
         where: { id: existing.id },
-        data: { privatePrice: BigInt(price) },
+        data: {
+          privatePrice: BigInt(price),
+          ...(discount !== undefined ? { discountPercent: discount } : {}),
+        },
       })
-    : await prisma.sessionPrice.create({ data: { privatePrice: BigInt(price) } });
+    : await prisma.sessionPrice.create({
+        data: {
+          privatePrice: BigInt(price),
+          discountPercent: discount ?? 0,
+        },
+      });
 
-  return NextResponse.json({ privatePrice: Number(sessionPrice.privatePrice) });
+  return NextResponse.json({
+    privatePrice: Number(sessionPrice.privatePrice),
+    discountPercent: Number(sessionPrice.discountPercent),
+  });
 }

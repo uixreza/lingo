@@ -35,15 +35,16 @@ const DEFAULT_MENTOR = {
   name: "رضا کمالی",
   photoUrl: "/me.png",
   certifications: [] as string[],
+  languages: [] as string[],
   experience: "",
   education: "",
 };
 
 
 const languages = [
-  { id: "en", label: "English", flag: "🇬🇧", available: true },
-  { id: "tr", label: "Turkish", flag: "🇹🇷", available: false },
-  { id: "de", label: "German", flag: "🇩🇪", available: false },
+  { id: "en", label: "English", flag: "🇬🇧" },
+  { id: "tr", label: "Turkish", flag: "🇹🇷" },
+  { id: "de", label: "German", flag: "🇩🇪" },
 ];
 
 const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
@@ -102,6 +103,7 @@ export default function SessionsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [privatePrice, setPrivatePrice] = useState<number | null>(null);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
@@ -127,8 +129,9 @@ export default function SessionsPage() {
           setReservedSlots(data.reservedSlots ?? []);
         }
         if (priceRes.ok) {
-          const { privatePrice } = await priceRes.json();
+          const { privatePrice, discountPercent } = await priceRes.json();
           setPrivatePrice(privatePrice);
+          setDiscountPercent(discountPercent ?? 0);
         }
         if (mentorRes.ok) {
           const { mentor } = await mentorRes.json();
@@ -141,6 +144,16 @@ export default function SessionsPage() {
                 : [],
               experience: mentor.experience || "",
               education: mentor.education || "",
+              languages: Array.isArray(mentor.languages)
+                ? mentor.languages
+                : [],
+            });
+            setLanguage((prev) => {
+              const available = new Set(mentor.languages ?? []);
+              const prevLabel =
+                languages.find((l) => l.id === prev)?.label ?? "";
+              if (available.has(prevLabel)) return prev;
+              return languages.find((l) => available.has(l.label))?.id ?? "";
             });
           }
         }
@@ -158,7 +171,19 @@ export default function SessionsPage() {
     0,
   );
 
-  const canSubmit = language && totalSlots > 0;
+  const availableLanguages = new Set(mentor.languages ?? []);
+
+  const discountedPrice = (p: number) =>
+    discountPercent > 0
+      ? Math.round((p * (100 - discountPercent)) / 100)
+      : p;
+
+  const canSubmit =
+    language &&
+    availableLanguages.has(
+      languages.find((l) => l.id === language)?.label ?? "",
+    ) &&
+    totalSlots > 0;
 
   const toggleSlot = (dateStr: string, time: string) => {
     setSelectedSlots((prev) => {
@@ -417,14 +442,15 @@ export default function SessionsPage() {
               </div>
               <div className="grid grid-cols-3 gap-3">
                 {languages.map((lang) => {
+                  const available = availableLanguages.has(lang.label);
                   const selected = language === lang.id;
                   return (
                     <button
                       key={lang.id}
-                      onClick={() => lang.available && setLanguage(lang.id)}
-                      disabled={!lang.available}
+                      onClick={() => available && setLanguage(lang.id)}
+                      disabled={!available}
                       className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl text-sm font-medium transition-all duration-200 ${
-                        !lang.available
+                        !available
                           ? "opacity-30 cursor-not-allowed"
                           : selected
                             ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-400"
@@ -432,7 +458,7 @@ export default function SessionsPage() {
                       }`}>
                       <span className="text-2xl">{lang.flag}</span>
                       <span>{lang.label}</span>
-                      {!lang.available && (
+                      {!available && (
                         <div className="absolute inset-0 bg-[var(--dash-sides)]/60 rounded-xl flex items-center justify-center">
                           <Lock className="h-4 w-4 text-[var(--dash-muted)]" />
                         </div>
@@ -646,6 +672,26 @@ export default function SessionsPage() {
 
             {/* Price */}
             <div className="bg-gradient-to-r from-green-500/8 to-emerald-500/5 rounded-xl p-5 ring-1 ring-green-500/10">
+              {discountPercent > 0 && privatePrice !== null && (
+                <div className="flex items-center justify-between mb-3 pb-3 border-b border-green-500/10">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-bold text-green-500 bg-green-500/10 px-2 py-0.5 rounded-md">
+                      {toPersianDigits(String(discountPercent))}٪ تخفیف
+                    </span>
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      قیمت اصلی
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-[var(--dash-muted)]/60 line-through text-left" dir="ltr">
+                      {(totalSlots > 0 ? totalSlots * privatePrice : privatePrice).toLocaleString("fa-IR")}
+                    </span>
+                    <span className="text-xs text-[var(--dash-muted)]/60">
+                      تومان
+                    </span>
+                  </div>
+                </div>
+              )}
               {totalSlots > 0 ? (
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
@@ -668,7 +714,7 @@ export default function SessionsPage() {
                           <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                         </span>
                       ) : (
-                        (totalSlots * privatePrice).toLocaleString("fa-IR")
+                        (totalSlots * discountedPrice(privatePrice)).toLocaleString("fa-IR")
                       )}
                       {privatePrice !== null && (
                         <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
@@ -694,7 +740,7 @@ export default function SessionsPage() {
                         <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </span>
                     ) : (
-                      privatePrice.toLocaleString("fa-IR")
+                      discountedPrice(privatePrice).toLocaleString("fa-IR")
                     )}
                     {privatePrice !== null && (
                       <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">

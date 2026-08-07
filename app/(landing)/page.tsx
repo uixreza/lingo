@@ -33,7 +33,7 @@ export default function Home() {
       {/* Mobile App Download Button */}
       <button
         onClick={handleDownloadClick}
-        className="fixed top-4 left-4 z-50 sm:hidden flex items-center gap-1.5 px-3 py-1.5 bg-green-800 text-green-200 font-semibold text-[10px] rounded-lg shadow-lg hover:bg-green-700 transition-all duration-200"
+        className="fixed top-4 left-4 z-50 sm:hidden flex items-center gap-1.5 px-3 py-1.5 bg-transparent text-green-400 font-semibold text-[10px] rounded-lg border-2 border-dashed border-green-500/60 backdrop-blur-sm hover:border-green-400 hover:text-green-300 transition-all duration-200"
       >
         {downloadClicked ? (
           <Loader2 className="w-3 h-3 animate-spin" />
@@ -52,7 +52,7 @@ export default function Home() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="relative z-10 flex flex-col-reverse lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-24 min-h-screen gap-6 sm:gap-10 lg:gap-16">
+        className="relative z-10 flex flex-col-reverse lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-24 min-h-screen gap-2 sm:gap-10 lg:gap-16">
         <div className="flex-1 text-center lg:text-right">
           <motion.div
             variants={item}

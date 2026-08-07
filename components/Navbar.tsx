@@ -46,9 +46,9 @@ export default function Navbar() {
             variants={item}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl text-[#a0a0a0] hover:text-white hover:bg-white/10 text-xs sm:text-sm font-medium">
+            className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl text-[#a0a0a0] hover:text-white hover:bg-white/10 text-[11px] sm:text-sm font-medium">
             <Icon size={16} />
-            <span className="hidden sm:inline">{label}</span>
+            <span>{label}</span>
           </motion.button>
         </Link>
       ))}

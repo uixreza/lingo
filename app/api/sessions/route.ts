@@ -116,10 +116,15 @@ export async function POST(request: Request) {
   // Price from DB — single source of truth, matches what the UI displays.
   // Fallbacks mirror the price GET route so they can never diverge.
   const sessionPrice = await prisma.sessionPrice.findFirst();
-  const amountPaid =
+  const discountPercent = Number(sessionPrice?.discountPercent ?? 0);
+  const rawAmount =
     sessionType === "Private"
       ? Number(sessionPrice?.privatePrice ?? 350000)
       : Number(sessionPrice?.subscriptionPrice ?? 150000);
+  const amountPaid =
+    sessionType === "Private" && discountPercent > 0
+      ? Math.round((rawAmount * (100 - discountPercent)) / 100)
+      : rawAmount;
 
   // Free session (admin set price to 0): no wallet interaction
   if (amountPaid <= 0) {

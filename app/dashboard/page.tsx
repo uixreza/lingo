@@ -37,6 +37,7 @@ export default function DashboardPage() {
   );
   const session = useSession();
   const [isLoading, setIsLoading] = useState(true);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [stats, setStats] = useState<{
     upcomingCount: number;
     upcomingSessions: {
@@ -52,8 +53,15 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch("/api/dashboard/stats");
-        if (res.ok) setStats(await res.json());
+        const [statsRes, priceRes] = await Promise.all([
+          fetch("/api/dashboard/stats"),
+          fetch("/api/sessions/price"),
+        ]);
+        if (statsRes.ok) setStats(await statsRes.json());
+        if (priceRes.ok) {
+          const price = await priceRes.json();
+          setDiscountPercent(price.discountPercent ?? 0);
+        }
       } catch {
         // stats are decorative; keep cards hidden on failure
       } finally {
@@ -83,6 +91,41 @@ export default function DashboardPage() {
           }}
         />
         <div className="relative z-10">
+        <div
+          className="flex items-center gap-3 overflow-hidden rounded-xl bg-gradient-to-l from-green-500/10 to-emerald-500/5 ring-1 ring-green-500/15 px-4 py-2.5 mb-6"
+          style={{ direction: "ltr" }}>
+          <span className="shrink-0 flex items-center gap-2 text-xs font-bold text-green-500">
+            <span className="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+              </svg>
+            </span>
+            اطلاعیه
+          </span>
+          <div className="relative flex-1 overflow-hidden min-w-0">
+            <div className="flex w-max animate-marquee">
+              {[0, 1].map((dup) => (
+                <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
+                  {[
+                    discountPercent > 0
+                      ? `🎉 تخفیف ویژه ${discountPercent}٪ روی کلاس‌های خصوصی! همین حالا رزرو کنید`
+                      : "کلاس‌های خصوصی با بهترین مدرس، هر زمان که بخواهید",
+                    "🎓 جلسات آنلاین با مدرس اختصاصی و پشتیبانی کامل",
+                    "📚 کتاب‌های دوره خود را از بخش دانلود دریافت کنید",
+                    "📻 رادیو انگلیسی، راهی عالی برای تقویت شنیداری",
+                  ].map((msg, i) => (
+                    <span
+                      key={i}
+                      className="text-xs font-medium text-[var(--dash-muted)] whitespace-nowrap px-6 flex items-center gap-2">
+                      {msg}
+                      <span className="w-1 h-1 rounded-full bg-green-500/60 shrink-0" />
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
         <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
           <div>
             <div className="inline-block px-4 py-1.5 rounded-full bg-green-500 text-black text-xs font-bold mb-3">

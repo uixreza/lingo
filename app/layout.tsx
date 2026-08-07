@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
 import Loading from "./loading";
+import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",
@@ -22,6 +23,7 @@ export default function RootLayout({
       suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>
+        <SplashScreen />
       </body>
     </html>
   );

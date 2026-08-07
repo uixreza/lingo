@@ -201,6 +201,67 @@
   }
 }
 
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 30s linear infinite;
+}
+
+@keyframes splash-glow {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes splash-glow-center {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+}
+
+@keyframes splash-pulse {
+  0%,
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.animate-splash-glow {
+  animation: splash-glow 4s ease-in-out infinite;
+}
+
+.animate-splash-glow-center {
+  animation: splash-glow-center 4s ease-in-out infinite;
+}
+
+.animate-splash-pulse {
+  animation: splash-pulse 2.2s ease-in-out infinite;
+}
+
 .pro-border {
   position: relative;
   animation: pro-glow-pulse 3s ease-in-out infinite;

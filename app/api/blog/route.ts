@@ -15,7 +15,7 @@ export async function GET() {
         tags: true,
         content: true,
         publishedAt: true,
-        author: { select: { fullname: true } },
+        author: { select: { fullname: true, avatarSeed: true } },
       },
     });
 
@@ -29,6 +29,7 @@ const mapped = posts.map((post) => ({
     content: post.content,
     date: moment(post.publishedAt).format("jYYYY/jMM/jDD"),
     author: post.author.fullname,
+    authorAvatarSeed: post.author.avatarSeed,
   }));
 
     return NextResponse.json(mapped);

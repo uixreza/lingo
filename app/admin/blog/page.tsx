@@ -1255,14 +1255,14 @@ export default function BlogPage() {
         )}
       </AnimatePresence>
 
-      {/* Confirm Delete Modal */}
+      {/* Confirm Delete - bottom sheet on mobile, centered card on desktop */}
       <AnimatePresence>
         {confirmDelete && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            className="fixed inset-0 z-50 lg:flex lg:items-center lg:justify-center lg:p-4">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1271,35 +1271,45 @@ export default function BlogPage() {
               onClick={() => setConfirmDelete(null)}
             />
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 12 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: -8 }}
-              transition={{ type: "spring", stiffness: 300, damping: 26 }}
-              className="relative w-full max-w-sm rounded-2xl border border-red-500/20 bg-[var(--dash-sides)] p-6 shadow-2xl">
-              <div className="w-12 h-12 rounded-xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto mb-4">
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 24 }}
+              transition={{ duration: 0.25 }}
+              className="fixed bottom-0 inset-x-0 z-50 bg-[var(--dash-sides)]/95 backdrop-blur-xl border-t border-red-500/20 lg:border lg:rounded-2xl rounded-t-3xl shadow-2xl p-6 pb-8 lg:static lg:pb-6 lg:w-full lg:max-w-sm">
+              <div className="flex justify-center pt-0 pb-3 lg:hidden">
+                <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+              </div>
+
+              <div className="w-14 h-14 mx-auto rounded-2xl border bg-red-500/10 border-red-500/20 text-red-500 flex items-center justify-center mb-4">
                 <Trash2 className="h-6 w-6" />
               </div>
               <h3 className="text-lg font-bold text-[var(--dash-text)] text-center mb-2">
                 حذف پست
               </h3>
-              <p className="text-sm text-[var(--dash-muted)] text-center leading-relaxed mb-6">
+              <p className="text-sm text-[var(--dash-muted)] text-center leading-relaxed mb-4">
                 مطمئن هستید که این پست حذف شود؟ این عملیات قابل بازگشت نیست.
               </p>
               <p className="text-sm font-medium text-[var(--dash-text)] text-center mb-6 break-words">
                 «{confirmDelete.title}»
               </p>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => handleDelete(confirmDelete.id)}
+                  disabled={deletingId === confirmDelete.id}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold bg-gradient-to-l from-red-500 to-rose-500 text-white shadow-lg shadow-red-500/25 transition-all duration-300 disabled:opacity-60 disabled:cursor-wait">
+                  {deletingId === confirmDelete.id ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  {deletingId === confirmDelete.id ? "در حال حذف..." : "حذف"}
+                </motion.button>
                 <button
                   onClick={() => setConfirmDelete(null)}
                   disabled={deletingId === confirmDelete.id}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-[var(--dash-muted)]/30 text-[var(--dash-muted)] hover:bg-[var(--dash-bg)] transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                  className="flex-1 py-3 rounded-xl text-sm font-bold text-[var(--dash-text)] bg-[var(--dash-muted)]/15 hover:bg-[var(--dash-muted)]/25 transition-colors duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
                   انصراف
-                </button>
-                <button
-                  onClick={() => handleDelete(confirmDelete.id)}
-                  disabled={deletingId === confirmDelete.id}
-                  className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-l from-red-500 to-rose-500 text-white font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-wait shadow-lg shadow-red-500/25 hover:shadow-red-500/40">
-                  {deletingId === confirmDelete.id ? "در حال حذف..." : "حذف"}
                 </button>
               </div>
             </motion.div>

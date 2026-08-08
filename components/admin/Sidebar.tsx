@@ -18,6 +18,7 @@ import {
   LayoutDashboard,
   BookOpen,
   Settings2,
+  Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -27,6 +28,7 @@ const menuItems = [
   { label: "جلسات", href: "/admin/sessions", icon: GraduationCap },
   { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
   { label: "مدیریت محتوا", href: "/admin/management", icon: Settings2 },
+  { label: "مدیریت کاربران", href: "/admin/users", icon: Users },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];

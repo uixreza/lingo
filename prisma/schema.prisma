@@ -43,6 +43,7 @@ model User {
   sentFriends       Friend[] @relation("SentFriendRequests")
   receivedFriends   Friend[] @relation("ReceivedFriendRequests")
   posts             Post[]
+  notebookNotes     NotebookNote[]
 
   @@map("users")
 }
@@ -319,6 +320,20 @@ model Notification {
   @@index([userId, read])
   @@index([createdAt])
   @@map("notifications")
+}
+
+model NotebookNote {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  localId   String   @map("local_id") @db.VarChar(64)
+  text      String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(3)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, localId])
+  @@map("notebook_notes")
 }
 
 enum PostStatus {

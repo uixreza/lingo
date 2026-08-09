@@ -1,13 +1,15 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, NotebookText } from "lucide-react";
+import { Plus, Trash2, NotebookText, CloudUpload, CloudCheck, Loader2 } from "lucide-react";
+import toast from "react-hot-toast";
 
 type Note = {
   id: string;
   text: string;
   updatedAt: number;
+  synced?: boolean;
 };
 
 const STORAGE_KEY = "lingofam-notebook";
@@ -48,7 +50,7 @@ const loadNotes = (): Note[] => {
   return [];
 };
 
-let notesCache: Note[] = loadNotes();
+let notesCache: Note[] = [];
 const listeners = new Set<() => void>();
 
 const subscribe = (listener: () => void) => {
@@ -59,6 +61,8 @@ const subscribe = (listener: () => void) => {
 };
 
 const getSnapshot = (): Note[] => notesCache;
+
+const getServerSnapshot = (): Note[] => notesCache;
 
 const persistNotes = (notes: Note[]) => {
   notesCache = notes;
@@ -80,8 +84,54 @@ const listVariants = {
 };
 
 export default function NotebookPage() {
-  const notes = useSyncExternalStore(subscribe, getSnapshot, loadNotes);
+  const notes = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    persistNotes(loadNotes());
+    let cancelled = false;
+    fetch("/api/notes")
+      .then(async (res) => {
+        if (!res.ok) throw new Error("fetch failed");
+        const data = (await res.json()) as {
+          notes?: { localId: string; text: string; updatedAt: string }[];
+        };
+        if (cancelled || !Array.isArray(data.notes)) return;
+
+        const localById = new Map(notesCache.map((n) => [n.id, n]));
+        const merged: Note[] = [...notesCache];
+
+        for (const dbNote of data.notes) {
+          const existing = localById.get(dbNote.localId);
+          const dbTime = new Date(dbNote.updatedAt).getTime();
+          if (existing) {
+            const idx = merged.indexOf(existing);
+            if (dbTime > existing.updatedAt) {
+              merged[idx] = { ...existing, text: dbNote.text, updatedAt: dbTime, synced: true };
+              localById.set(dbNote.localId, merged[idx]);
+            } else if (!existing.synced) {
+              merged[idx] = { ...existing, synced: true };
+              localById.set(dbNote.localId, merged[idx]);
+            }
+          } else {
+            const incoming: Note = {
+              id: dbNote.localId,
+              text: dbNote.text,
+              updatedAt: dbTime,
+              synced: true,
+            };
+            localById.set(dbNote.localId, incoming);
+            merged.push(incoming);
+          }
+        }
+        persistNotes(merged);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const addNote = () => {
     const note = createNote();
@@ -92,13 +142,36 @@ export default function NotebookPage() {
   const updateNote = (id: string, text: string) => {
     persistNotes(
       notesCache.map((note) =>
-        note.id === id ? { ...note, text, updatedAt: Date.now() } : note,
+        note.id === id ? { ...note, text, updatedAt: Date.now(), synced: false } : note,
       ),
     );
   };
 
   const deleteNote = (id: string) => {
     persistNotes(notesCache.filter((note) => note.id !== id));
+  };
+
+  const saveNote = async (id: string) => {
+    if (syncingId) return;
+    const note = notesCache.find((n) => n.id === id);
+    if (!note || !note.text.trim()) return;
+    setSyncingId(id);
+    try {
+      const res = await fetch("/api/notes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ localId: note.id, text: note.text }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      persistNotes(
+        notesCache.map((n) => (n.id === id ? { ...n, synced: true } : n)),
+      );
+      toast.success("یادداشت در سرور ذخیره شد");
+    } catch {
+      toast.error("خطا در ذخیره یادداشت");
+    } finally {
+      setSyncingId(null);
+    }
   };
 
   return (
@@ -193,12 +266,28 @@ export default function NotebookPage() {
                   <span className="text-[11px] text-[var(--dash-muted)]">
                     {timeAgo(note.updatedAt)}
                   </span>
-                  <button
-                    onClick={() => deleteNote(note.id)}
-                    aria-label="حذف یادداشت"
-                    className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-colors duration-150">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => saveNote(note.id)}
+                      disabled={note.synced || syncingId === note.id}
+                      aria-label={note.synced ? "ذخیره شده" : "ذخیره در حساب"}
+                      title={note.synced ? "در حساب شما ذخیره شده است" : "ذخیره در حساب (دسترسی روی دستگاه‌های دیگر)"}
+                      className="p-2 rounded-lg text-[var(--dash-muted)] transition-colors duration-150 disabled:cursor-default enabled:hover:text-green-500 enabled:hover:bg-green-500/10">
+                      {syncingId === note.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : note.synced ? (
+                        <CloudCheck className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <CloudUpload className="h-4 w-4" />
+                      )}
+                    </button>
+                    <button
+                      onClick={() => deleteNote(note.id)}
+                      aria-label="حذف یادداشت"
+                      className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-colors duration-150">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </motion.div>
             ))}

@@ -40,6 +40,8 @@
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.4.2",
     "framer-motion": "^12.42.2",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^1.23.0",
     "moment-jalaali": "^0.10.4",
     "next": "16.2.10",

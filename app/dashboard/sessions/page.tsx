@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Lock,
   CalendarDays,
@@ -23,10 +24,17 @@ import moment from "moment-jalaali";
 import toast from "react-hot-toast";
 
 const timeSlots = [
-  { value: "08:30", label: "۰۸:۳۰ تا ۱۰:۰۰" },
-  { value: "10:30", label: "۱۰:۳۰ تا ۱۲:۰۰" },
-  { value: "12:30", label: "۱۲:۳۰ تا ۱۴:۰۰" },
+  { value: "08:30", label: "۰۸:۳۰ تا ۱۰:۰۰", period: "Morning" },
+  { value: "10:30", label: "۱۰:۳۰ تا ۱۲:۰۰", period: "Morning" },
+  { value: "12:30", label: "۱۲:۳۰ تا ۱۴:۰۰", period: "Morning" },
+  { value: "17:00", label: "۱۷:۰۰ تا ۱۸:۳۰", period: "Afternoon" },
+  { value: "19:00", label: "۱۹:۰۰ تا ۲۰:۳۰", period: "Afternoon" },
 ];
+
+const periodLabels = {
+  Morning: "صبح",
+  Afternoon: "عصر",
+};
 
 const DEFAULT_MENTOR = {
   name: "رضا کمالی",
@@ -121,6 +129,7 @@ export default function SessionsPage() {
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
+  const [fluencyConfirmed, setFluencyConfirmed] = useState(false);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -201,7 +210,8 @@ export default function SessionsPage() {
     availableLanguages.has(
       languages.find((l) => l.id === language)?.label ?? "",
     ) &&
-    totalSlots > 0;
+    totalSlots > 0 &&
+    fluencyConfirmed;
 
   const toggleSlot = (dateStr: string, time: string) => {
     setSelectedSlots((prev) => {
@@ -770,6 +780,30 @@ export default function SessionsPage() {
             )}
           </div>
 
+          {/* Fluency notice */}
+          <div className="space-y-2.5">
+            <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+              لطفاً قبل از ثبت درخواست، سطح زبان خود را در{" "}
+              <Link
+                href="/dashboard/account"
+                className="font-bold text-green-600 dark:text-green-400 underline underline-offset-2 hover:opacity-80 transition-opacity">
+                حساب کاربری
+              </Link>{" "}
+              انتخاب کنید
+            </p>
+            <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
+              <input
+                type="checkbox"
+                checked={fluencyConfirmed}
+                onChange={(e) => setFluencyConfirmed(e.target.checked)}
+                className="h-4 w-4 accent-green-500 rounded cursor-pointer"
+              />
+              <span className="text-xs font-medium text-[var(--dash-muted)]">
+                انتخاب کرده‌ام
+              </span>
+            </label>
+          </div>
+
           {/* Submit */}
           <motion.button
             whileTap={canSubmit && !submitting ? { scale: 0.98 } : {}}
@@ -1071,43 +1105,59 @@ export default function SessionsPage() {
                 </p>
               </div>
             </div>
-            <div className="space-y-2.5">
-              {timeSlots.map((slot) => {
-                const reserved =
-                  reservedByDate[slotPickerDate]?.has(slot.value) ?? false;
-                const selected =
-                  selectedSlots[slotPickerDate]?.includes(slot.value) ?? false;
-                return (
-                  <motion.button
-                    key={slot.value}
-                    whileTap={!reserved ? { scale: 0.98 } : {}}
-                    onClick={() => toggleSlot(slotPickerDate, slot.value)}
-                    disabled={reserved}
-                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
-                      reserved
-                        ? "bg-red-500/10 text-red-500/70 ring-1 ring-red-500/20 cursor-not-allowed"
-                        : selected
-                          ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25"
-                          : "bg-[var(--dash-bg)]/60 text-[var(--dash-text)] border border-[var(--dash-muted)]/10 hover:bg-[var(--dash-bg)]"
-                    }`}>
-                    <span className="flex items-center gap-2.5">
-                      {reserved ? (
-                        <Lock className="h-4 w-4" />
-                      ) : selected ? (
-                        <Check className="h-4 w-4" strokeWidth={3} />
-                      ) : (
-                        <span className="h-2 w-2 rounded-full bg-[var(--dash-muted)]/50" />
-                      )}
-                      {slot.label}
+            <div className="space-y-4">
+              {(["Morning", "Afternoon"] as const).map((period) => (
+                <div key={period}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="h-3.5 w-1 rounded-full bg-green-500/60" />
+                    <span className="text-[11px] font-bold text-[var(--dash-muted)]">
+                      {periodLabels[period]}
                     </span>
-                    {selected && !reserved && (
-                      <span className="text-[10px] opacity-80">
-                        انتخاب شد
-                      </span>
-                    )}
-                  </motion.button>
-                );
-              })}
+                  </div>
+                  <div className="space-y-2.5">
+                    {timeSlots
+                      .filter((slot) => slot.period === period)
+                      .map((slot) => {
+                        const reserved =
+                          reservedByDate[slotPickerDate]?.has(slot.value) ??
+                          false;
+                        const selected =
+                          selectedSlots[slotPickerDate]?.includes(slot.value) ??
+                          false;
+                        return (
+                          <motion.button
+                            key={slot.value}
+                            whileTap={!reserved ? { scale: 0.98 } : {}}
+                            onClick={() => toggleSlot(slotPickerDate, slot.value)}
+                            disabled={reserved}
+                            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 ${
+                              reserved
+                                ? "bg-red-500/10 text-red-500/70 ring-1 ring-red-500/20 cursor-not-allowed"
+                                : selected
+                                  ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25"
+                                  : "bg-[var(--dash-bg)]/60 text-[var(--dash-text)] border border-[var(--dash-muted)]/10 hover:bg-[var(--dash-bg)]"
+                            }`}>
+                            <span className="flex items-center gap-2.5">
+                              {reserved ? (
+                                <Lock className="h-4 w-4" />
+                              ) : selected ? (
+                                <Check className="h-4 w-4" strokeWidth={3} />
+                              ) : (
+                                <span className="h-2 w-2 rounded-full bg-[var(--dash-muted)]/50" />
+                              )}
+                              {slot.label}
+                            </span>
+                            {selected && !reserved && (
+                              <span className="text-[10px] opacity-80">
+                                انتخاب شد
+                              </span>
+                            )}
+                          </motion.button>
+                        );
+                      })}
+                  </div>
+                </div>
+              ))}
             </div>
             <motion.button
               whileTap={{ scale: 0.98 }}

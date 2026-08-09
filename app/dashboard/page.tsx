@@ -2,12 +2,14 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import data from "@/data.json";
 import {
   BookOpen,
   Calendar,
   Clock,
   Globe,
+  Loader2,
   Play,
   Pause,
   Radio,
@@ -43,6 +45,8 @@ export default function DashboardPage() {
     "kids",
   );
   const session = useSession();
+  const router = useRouter();
+  const [navigating, setNavigating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [marqueeTexts, setMarqueeTexts] = useState<string[]>([]);
   const [wordOfDay, setWordOfDay] = useState<DailyWord | null>(null);
@@ -148,9 +152,14 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Link
-            href="/dashboard/sessions"
-            className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden">
+          <button
+            onClick={() => {
+              if (navigating) return;
+              setNavigating(true);
+              router.push("/dashboard/sessions");
+            }}
+            disabled={navigating}
+            className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 p-6 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden cursor-pointer">
             <div
               className="absolute inset-0 opacity-[0.07]"
               style={{
@@ -163,22 +172,26 @@ export default function DashboardPage() {
               <span className="text-3xl font-extrabold text-white tracking-tight">
                 درخواست جلسه
               </span>
-              <svg
-                className="w-7 h-7 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}>
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M15 5l-7 7 7 7"
-                />
-              </svg>
+              {navigating ? (
+                <Loader2 className="w-7 h-7 text-white animate-spin" />
+              ) : (
+                <svg
+                  className="w-7 h-7 text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}>
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 5l-7 7 7 7"
+                  />
+                </svg>
+              )}
             </div>
 
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          </Link>
+          </button>
           <UpcomingSessionsCard stats={stats} />
           <RadioCard />
         </div>

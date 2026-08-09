@@ -285,7 +285,7 @@ export default function AdminSessionsPage() {
 
   return (
     <div className="min-h-screen py-6">
-      <div className="max-w-7xl mx-auto px-2 sm:px-0">
+      <div className="max-w-7xl mx-auto">
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {stats.map((stat, i) => (

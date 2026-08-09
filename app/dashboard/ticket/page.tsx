@@ -310,7 +310,7 @@ export default function TicketsPage() {
 
   return (
     <div dir="rtl" className="min-h-screen py-6">
-      <div className="max-w-7xl mx-auto px-2 sm:px-0">
+      <div className="max-w-7xl mx-auto">
         {/* Hero Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {(

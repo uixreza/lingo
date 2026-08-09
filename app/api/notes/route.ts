@@ -53,3 +53,29 @@ export async function POST(request: Request) {
 
   return NextResponse.json({ note }, { status: 200 });
 }
+
+export async function DELETE(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = parseInt(session.user.id, 10);
+
+  let body: { localId?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid body" }, { status: 400 });
+  }
+
+  const localId = typeof body.localId === "string" ? body.localId.trim() : "";
+
+  if (!localId || localId.length > 64) {
+    return NextResponse.json({ error: "Invalid localId" }, { status: 400 });
+  }
+
+  await prisma.notebookNote.deleteMany({ where: { userId, localId } });
+
+  return NextResponse.json({ ok: true });
+}

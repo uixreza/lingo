@@ -397,7 +397,7 @@ export default function AccountPage() {
 
   return (
     <div dir="rtl">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto py-8 space-y-6">
         {/* Save notice */}
         <div className="flex items-center backdrop-blur-3xl gap-2.5 bg-blue-500/10 rounded-xl px-4 py-3 ring-1 ring-blue-500/20">
           <svg className="h-4 w-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -288,7 +288,7 @@ export default function NotificationPage() {
 
   return (
     <div dir="rtl">
-      <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-4xl mx-auto py-8 space-y-6">
         {/* Header */}
         <motion.section
           initial={{ opacity: 0, y: 16 }}

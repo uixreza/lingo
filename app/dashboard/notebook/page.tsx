@@ -87,6 +87,8 @@ export default function NotebookPage() {
   const notes = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   const [focusedId, setFocusedId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     persistNotes(loadNotes());
@@ -147,8 +149,27 @@ export default function NotebookPage() {
     );
   };
 
-  const deleteNote = (id: string) => {
-    persistNotes(notesCache.filter((note) => note.id !== id));
+  const confirmDelete = async () => {
+    if (!deleteTarget || deleting) return;
+    const target = deleteTarget;
+    setDeleting(true);
+    try {
+      if (target.synced) {
+        const res = await fetch("/api/notes", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ localId: target.id }),
+        });
+        if (!res.ok) throw new Error("delete failed");
+      }
+      persistNotes(notesCache.filter((note) => note.id !== target.id));
+      setDeleteTarget(null);
+      toast.success("یادداشت حذف شد");
+    } catch {
+      toast.error("خطا در حذف یادداشت از سرور");
+    } finally {
+      setDeleting(false);
+    }
   };
 
   const saveNote = async (id: string) => {
@@ -282,7 +303,7 @@ export default function NotebookPage() {
                       )}
                     </button>
                     <button
-                      onClick={() => deleteNote(note.id)}
+                      onClick={() => setDeleteTarget(note)}
                       aria-label="حذف یادداشت"
                       className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-colors duration-150">
                       <Trash2 className="h-4 w-4" />
@@ -294,6 +315,65 @@ export default function NotebookPage() {
           </AnimatePresence>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {deleteTarget && (
+          <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => !deleting && setDeleteTarget(null)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 120, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 120, scale: 0.98 }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              className="relative w-full rounded-t-3xl border border-[var(--dash-muted)]/15 bg-[var(--dash-sides)] p-5 pb-7 shadow-2xl sm:max-w-md sm:rounded-2xl sm:pb-6">
+              <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-[var(--dash-muted)]/30 sm:hidden" />
+              <div className="flex items-start gap-3.5">
+                <div className="shrink-0 p-3 rounded-2xl bg-red-500/10">
+                  <Trash2 className="h-6 w-6 text-red-500" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                    حذف یادداشت
+                  </h3>
+                  <p className="text-sm text-[var(--dash-muted)] mt-1.5 leading-6">
+                    {deleteTarget.synced
+                      ? "این یادداشت از حساب شما هم حذف می‌شود و روی دستگاه‌های دیگر دیگر قابل دسترسی نیست."
+                      : "این یادداشت برای همیشه از همین مرورگر حذف می‌شود."}
+                  </p>
+                </div>
+              </div>
+              <div className="mt-6 grid grid-cols-2 gap-3">
+                <button
+                  onClick={() => !deleting && setDeleteTarget(null)}
+                  disabled={deleting}
+                  className="rounded-xl px-4 py-3 text-sm font-bold text-[var(--dash-muted)] bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/15 transition-colors hover:bg-[var(--dash-bg)] disabled:opacity-50">
+                  انصراف
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  disabled={deleting}
+                  className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white bg-red-500 shadow-lg shadow-red-500/25 transition-colors hover:bg-red-600 disabled:opacity-50">
+                  {deleting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      در حال حذف…
+                    </>
+                  ) : (
+                    "حذف"
+                  )}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

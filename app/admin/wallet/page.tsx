@@ -237,7 +237,7 @@ export default function AdminWalletPage() {
 
   return (
     <div className="min-h-screen py-6">
-      <div className="max-w-4xl mx-auto px-4 sm:px-0">
+      <div className="max-w-4xl mx-auto">
         {/* Tab Toggle */}
         <div className="flex justify-start mb-8">
           <div className="relative w-full sm:w-auto inline-flex p-1.5 rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-xl border border-[var(--dash-muted)]/15 dark:border-white/20 shadow-lg">

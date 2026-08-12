@@ -31,6 +31,7 @@ import {
 } from "@derpdaderp/chartkit";
 import { useTheme } from "next-themes";
 import moment from "moment-jalaali";
+import MarqueeSection from "@/components/admin/MarqueeSection";
 import type { AdminLogEntry } from "@/app/api/admin/logs/route";
 
 const emptySubscribe = () => () => {};
@@ -473,6 +474,8 @@ export default function DashboardPage() {
           </motion.div>
         ))}
       </div>
+
+      <MarqueeSection />
 
       {/* Logs */}
       <motion.div

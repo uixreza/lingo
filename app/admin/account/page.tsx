@@ -51,7 +51,6 @@ export default function AccountPage() {
   const { update: updateSession } = useSession();
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [isLoading, setIsLoading] = useState(true);
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -65,7 +64,6 @@ export default function AccountPage() {
   });
 
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -212,7 +210,6 @@ export default function AccountPage() {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          currentPassword: passwordData.currentPassword,
           newPassword: passwordData.newPassword,
         }),
       });
@@ -222,7 +219,6 @@ export default function AccountPage() {
       }
       toast.success("رمز عبور با موفقیت تغییر کرد");
       setPasswordData({
-        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
@@ -511,35 +507,6 @@ export default function AccountPage() {
                       <div className={cardClass}>
                         <div className={accentBar} />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                          <div>
-                            <label className={labelClass}>
-                              <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
-                              رمز عبور فعلی
-                            </label>
-                            <div className="relative">
-                              <input
-                                type={showCurrentPassword ? "text" : "password"}
-                                name="currentPassword"
-                                value={passwordData.currentPassword}
-                                onChange={handlePasswordChange}
-                                className={`${inputClass} pl-11`}
-                                placeholder="رمز عبور فعلی را وارد کنید"
-                              />
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  setShowCurrentPassword(!showCurrentPassword)
-                                }
-                                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
-                                {showCurrentPassword ? (
-                                  <EyeOff className="h-5 w-5" />
-                                ) : (
-                                  <Eye className="h-5 w-5" />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-
                           <div>
                             <label className={labelClass}>
                               <Lock className="h-4 w-4 text-[var(--dash-accent)]" />

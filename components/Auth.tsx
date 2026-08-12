@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef } from "react";
 import { RefreshCw, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -89,25 +89,17 @@ function LoginForm({ close }: { close: () => void }) {
   const [loginError, setLoginError] = useState("");
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [timer, setTimer] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const [timer, setTimer] = useState(300);
   const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
-  const resetTimer = useCallback(() => {
-    setTimer(60);
-    setCanResend(false);
-  }, []);
+  const canResend = timer <= 0;
 
   useEffect(() => {
-    if (!showOtp || canResend) return;
-    if (timer <= 0) {
-      setCanResend(true);
-      return;
-    }
+    if (!showOtp || timer <= 0) return;
     const id = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(id);
-  }, [timer, canResend, showOtp]);
+  }, [timer, showOtp]);
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -142,8 +134,7 @@ function LoginForm({ close }: { close: () => void }) {
     setPhoneError("");
     setLoginMode("otp");
     setShowOtp(true);
-    setTimer(60);
-    setCanResend(false);
+    setTimer(300);
     setOtp(Array(6).fill(""));
     setTimeout(() => inputsRef.current[0]?.focus(), 100);
   };
@@ -169,8 +160,7 @@ function LoginForm({ close }: { close: () => void }) {
       }
       if (data.code) console.log("Login OTP:", data.code);
       setShowOtp(true);
-      setTimer(60);
-      setCanResend(false);
+      setTimer(300);
       setOtp(Array(6).fill(""));
       setTimeout(() => inputsRef.current[0]?.focus(), 100);
       toast.success(data.message);
@@ -394,8 +384,7 @@ function LoginForm({ close }: { close: () => void }) {
 function SignupForm({ close }: { close: () => void }) {
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
-  const [timer, setTimer] = useState(60);
-  const [canResend, setCanResend] = useState(false);
+  const [timer, setTimer] = useState(300);
   const [agreed, setAgreed] = useState(true);
   const [fullName, setFullName] = useState("");
   const [password, setPassword] = useState("");
@@ -405,20 +394,13 @@ function SignupForm({ close }: { close: () => void }) {
   const [phoneError, setPhoneError] = useState("");
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
-  const resetTimer = useCallback(() => {
-    setTimer(60);
-    setCanResend(false);
-  }, []);
+  const canResend = timer <= 0;
 
   useEffect(() => {
-    if (!showOtp || canResend) return;
-    if (timer <= 0) {
-      setCanResend(true);
-      return;
-    }
+    if (!showOtp || timer <= 0) return;
     const id = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(id);
-  }, [timer, canResend, showOtp]);
+  }, [timer, showOtp]);
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
@@ -475,8 +457,7 @@ function SignupForm({ close }: { close: () => void }) {
       }
       if (data.code) console.log("OTP code:", data.code);
       setShowOtp(true);
-      setTimer(60);
-      setCanResend(false);
+      setTimer(300);
       setOtp(Array(6).fill(""));
       setTimeout(() => inputsRef.current[0]?.focus(), 100);
       toast.success(data.message);
@@ -514,7 +495,6 @@ function SignupForm({ close }: { close: () => void }) {
           otp: code,
         }),
       });
-      const data = await res.json();
       if (!res.ok) {
         setOtpError(true);
         return;

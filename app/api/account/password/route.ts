@@ -11,11 +11,11 @@ export async function PUT(request: Request) {
 
   const userId = parseInt(session.user.id, 10);
   const body = await request.json();
-  const { currentPassword, newPassword } = body;
+  const { newPassword } = body;
 
-  if (!currentPassword || !newPassword) {
+  if (!newPassword) {
     return NextResponse.json(
-      { error: "Current and new password are required" },
+      { error: "New password is required" },
       { status: 400 }
     );
   }
@@ -34,14 +34,6 @@ export async function PUT(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
-  }
-
-  const isValid = await bcrypt.compare(currentPassword, user.passwordHash);
-  if (!isValid) {
-    return NextResponse.json(
-      { error: "Current password is incorrect" },
-      { status: 403 }
-    );
   }
 
   const passwordHash = await bcrypt.hash(newPassword, 12);

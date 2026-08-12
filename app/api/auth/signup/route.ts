@@ -1,12 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, FluencyLevel } from "@/app/generated/prisma";
-import { PrismaPg } from "@prisma/adapter-pg";
-import pg from "pg";
+import { prisma } from "@/lib/auth";
+import { FluencyLevel } from "@/app/generated/prisma";
 import bcrypt from "bcryptjs";
-
-const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
 
 export async function POST(req: NextRequest) {
   try {

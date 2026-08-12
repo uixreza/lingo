@@ -17,7 +17,6 @@ import {
   ChevronLeft,
   LayoutDashboard,
   BookOpen,
-  Settings2,
   Users,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -27,7 +26,6 @@ const menuItems = [
   { label: "خانه", href: "/admin", icon: Home },
   { label: "جلسات", href: "/admin/sessions", icon: GraduationCap },
   { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
-  { label: "مدیریت محتوا", href: "/admin/management", icon: Settings2 },
   { label: "مدیریت کاربران", href: "/admin/users", icon: Users },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },

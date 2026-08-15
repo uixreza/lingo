@@ -68,10 +68,10 @@ export default function SplashScreen() {
           exit={{ opacity: 0, scale: 1.08 }}
           transition={{ duration: 0.7, ease: "easeInOut" }}
           className="fixed inset-0 z-[999] bg-[#04070a] overflow-hidden flex items-center justify-center">
-          {/* Green glares of light */}
-          <div className="absolute top-1/2 left-1/2 w-[520px] h-[520px] max-sm:w-[380px] max-sm:h-[380px] max-sm:blur-[80px] rounded-full bg-[#22c55e]/15 blur-[140px] animate-splash-glow-center" />
-          <div className="absolute -top-32 -right-32 hidden sm:block w-[420px] h-[420px] rounded-full bg-[#16a34a]/10 blur-[120px] animate-splash-glow" style={{ animationDelay: "1.2s" }} />
-          <div className="absolute -bottom-32 -left-32 hidden sm:block w-[420px] h-[420px] rounded-full bg-[#4ade80]/10 blur-[120px] animate-splash-glow" style={{ animationDelay: "2s" }} />
+          {/* Green glares of light (static) */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-[#22c55e]/15 blur-[140px]" />
+          <div className="absolute -top-32 -right-32 w-[420px] h-[420px] rounded-full bg-[#16a34a]/10 blur-[120px]" />
+          <div className="absolute -bottom-32 -left-32 w-[420px] h-[420px] rounded-full bg-[#4ade80]/10 blur-[120px]" />
 
           {/* Particles flying around */}
           {PARTICLES.map((p) => (
@@ -85,14 +85,13 @@ export default function SplashScreen() {
                 repeat: Infinity,
                 ease: "easeInOut",
               }}
-              className={`absolute rounded-full bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.9)] max-sm:shadow-none ${
-                p.id % 2 === 0 ? "" : "max-sm:hidden"
-              }`}
+              className="absolute rounded-full bg-green-400"
               style={{
                 left: `${p.left}%`,
                 top: `${p.top}%`,
                 width: p.size,
                 height: p.size,
+                boxShadow: "0 0 8px rgba(74, 222, 128, 0.9)",
               }}
             />
           ))}
@@ -104,7 +103,7 @@ export default function SplashScreen() {
             transition={{ duration: 0.9, ease: "easeOut" }}
             className="relative z-10 flex flex-col items-center gap-5">
             <div className="relative">
-              <div className="absolute -inset-8 max-sm:-inset-4 rounded-full bg-[#22c55e]/25 blur-2xl max-sm:blur-lg animate-splash-pulse" />
+              <div className="absolute -inset-8 rounded-full bg-[#22c55e]/25 blur-2xl animate-splash-pulse" />
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}

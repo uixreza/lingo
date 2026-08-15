@@ -537,26 +537,3 @@ body {
   color: #93c5a4;
 }
 
-/* Mobile performance: lighter splash layers on small screens */
-@media (max-width: 640px) {
-  .animate-splash-glow,
-  .animate-splash-glow-center {
-    animation-duration: 5s;
-  }
-}
-
-/* Respect reduced-motion preferences: stop infinite decorative animations */
-@media (prefers-reduced-motion: reduce) {
-  .animate-splash-glow,
-  .animate-splash-glow-center,
-  .animate-splash-pulse,
-  .animate-marquee,
-  .pro-border,
-  .pro-border::before,
-  .green-border,
-  .green-border::before,
-  .trophy-shine::after {
-    animation: none;
-  }
-}
-

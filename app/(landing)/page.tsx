@@ -24,15 +24,6 @@ export default function Home() {
   const [marqueeTexts, setMarqueeTexts] = useState<string[]>([]);
   const [marqueeLoading, setMarqueeLoading] = useState(true);
   const [starting, setStarting] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 640px)");
-    const on = () => setIsMobile(mq.matches);
-    on();
-    mq.addEventListener("change", on);
-    return () => mq.removeEventListener("change", on);
-  }, []);
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -56,9 +47,9 @@ export default function Home() {
     <main
       style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}
       className="relative min-h-screen bg-[#050505] overflow-hidden">
-      <div className="absolute top-[-200px] left-[-10%] hidden md:block w-[800px] h-[800px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
-      <div className="absolute top-[30%] left-[55%] hidden md:block -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />
-      <div className="absolute top-[60%] left-[15%] hidden md:block w-[300px] h-[300px] rounded-full bg-[#22c55e]/10 blur-[100px] pointer-events-none" />
+      <div className="absolute top-[-200px] left-[-10%] w-[800px] h-[800px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
+      <div className="absolute top-[30%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />
+      <div className="absolute top-[60%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#22c55e]/10 blur-[100px] pointer-events-none" />
 
       {marqueeLoading ? (
         <div
@@ -117,7 +108,7 @@ export default function Home() {
         <div className="flex-1 text-center lg:text-right">
           <motion.div
             variants={item}
-            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green-500/20 bg-green-500/5 text-green-400 text-sm mb-8">
+            className="hidden sm:inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green-500/20 bg-green-500/5 text-green-400 text-sm mb-8">
             <motion.span
               animate={{ opacity: [1, 0.3, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -200,13 +191,9 @@ export default function Home() {
               className="absolute w-[270px] sm:w-[380px] h-[270px] sm:h-[380px] rounded-full border border-dashed border-green-400/15"
             />
             <motion.div
-              animate={
-                isMobile
-                  ? { opacity: [0.4, 0.15, 0.4] }
-                  : { scale: [1, 1.12, 1] }
-              }
+              animate={{ scale: [1, 1.12, 1] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full bg-[#22c55e]/5 blur-2xl max-sm:blur-xl pointer-events-none"
+              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full bg-[#22c55e]/5 blur-2xl pointer-events-none"
             />
             <Image
               alt="mini Room"

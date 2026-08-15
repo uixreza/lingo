@@ -43,7 +43,6 @@ export async function GET(request: Request) {
         fluencyLevel: true,
         isVerified: true,
         isActive: true,
-        progress: true,
         role: true,
         badges: true,
         createdAt: true,

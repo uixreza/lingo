@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
-import { PageSkeleton } from "@/components/dashboard/Skeletons";
 import Avatar from "@/components/dashboard/Avatar";
 
 type RecentSession = {
@@ -226,7 +225,87 @@ export default function AdminWalletPage() {
   };
 
   if (isLoading) {
-    return <PageSkeleton />;
+    return (
+      <div className="animate-pulse">
+        {/* Tab toggle */}
+        <div className="flex justify-start mb-8">
+          <div className="w-full sm:w-72 h-12 rounded-2xl bg-[var(--dash-sides)]/80 border border-[var(--dash-muted)]/15 dark:border-white/20 flex items-center p-1.5 gap-1.5">
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)]" />
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)]" />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Balance + Income stats */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Balance card */}
+            <div
+              className="relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-2xl"
+              style={{
+                background:
+                  "linear-gradient(140deg, var(--light-purple) 0%, var(--dark-purple) 100%)",
+              }}>
+              <div className="flex items-start justify-between gap-3 mb-9">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-2xl bg-white/25" />
+                  <div className="space-y-2">
+                    <div className="h-4 w-24 rounded bg-white/30" />
+                    <div className="h-2.5 w-16 rounded bg-white/20" />
+                  </div>
+                </div>
+                <div className="h-6 w-16 rounded-full bg-white/25" />
+              </div>
+              <div className="text-center mb-8">
+                <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3" />
+                <div className="h-7 w-24 mx-auto rounded-full bg-white/25" />
+              </div>
+              <div className="pt-4 border-t border-white/15 flex items-center justify-between gap-4">
+                <div className="space-y-2">
+                  <div className="h-2.5 w-16 rounded bg-white/20" />
+                  <div className="h-3.5 w-24 rounded bg-white/30" />
+                </div>
+                <div className="w-px h-8 bg-white/15" />
+                <div className="space-y-2">
+                  <div className="h-2.5 w-16 rounded bg-white/20" />
+                  <div className="h-3.5 w-20 rounded bg-white/30" />
+                </div>
+              </div>
+            </div>
+
+            {/* Income stats */}
+            <div className="bg-[var(--dash-sides)]/80 rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
+              <div className="h-5 w-28 mx-auto rounded bg-[var(--hover-bg-strong)] mb-5" />
+              <div className="space-y-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-8 rounded-xl bg-[var(--hover-bg)]" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Recent sessions */}
+          <div className="lg:col-span-3 space-y-6">
+            <div className="bg-[var(--dash-sides)]/80 rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)]" />
+                  <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)]" />
+                </div>
+                <div className="h-7 w-16 rounded-full bg-[var(--hover-bg-strong)]" />
+              </div>
+              <div className="space-y-3">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-14 rounded-xl bg-[var(--hover-bg)]" />
+                ))}
+              </div>
+            </div>
+
+            {/* Security notice */}
+            <div className="h-14 rounded-xl border border-green-500/20 bg-green-500/10" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   const incomeStats = [
@@ -237,8 +316,7 @@ export default function AdminWalletPage() {
 
   return (
     <div className="min-h-screen py-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Tab Toggle */}
+      {/* Tab Toggle */}
         <div className="flex justify-start mb-8">
           <div className="relative w-full sm:w-auto inline-flex p-1.5 rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-xl border border-[var(--dash-muted)]/15 dark:border-white/20 shadow-lg">
             {(["income", "manual"] as Tab[]).map((t) => (
@@ -276,32 +354,78 @@ export default function AdminWalletPage() {
               {/* Balance Card + Income Stats */}
               <div className="lg:col-span-2 space-y-6">
                 {/* Balance Card */}
-                <div className="relative overflow-hidden bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] rounded-2xl p-6 shadow-2xl text-white">
-                  <div className="absolute inset-0 opacity-10">
-                    <div className="absolute inset-0 bg-[url('/assets/img/mazePattern.svg')] bg-cover"></div>
+                <motion.div
+                  initial={{ opacity: 0, y: 16, rotateX: 8 }}
+                  animate={{ opacity: 1, y: 0, rotateX: 0 }}
+                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  whileHover={{ y: -4 }}
+                  className="relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-2xl text-white ring-1 ring-black/10"
+                  style={{
+                    background:
+                      "linear-gradient(140deg, var(--light-purple) 0%, var(--dark-purple) 100%)",
+                    opacity: 1,
+                  }}>
+                  <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
+                  <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[var(--dash-accent)]/30 blur-3xl" />
+                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+                  <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
+                    <div className="absolute inset-0 bg-[url('/assets/img/mazePattern.svg')] bg-cover" />
                   </div>
 
                   <div className="relative z-10">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                        <Wallet className="h-6 w-6" />
+                    <div className="flex items-start justify-between gap-3 mb-9">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm ring-1 ring-white/15">
+                          <Wallet className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <h2 className="text-base font-bold text-white/95">
+                            درآمد کل
+                          </h2>
+                          <p className="text-[11px] text-white/40 mt-0.5">
+                            کیف پول مدیریت
+                          </p>
+                        </div>
                       </div>
-                      <h2 className="text-lg font-semibold">درآمد کل</h2>
+                      <span className="px-2.5 py-1 rounded-full bg-[var(--dash-accent)]/25 text-white text-[10px] font-bold ring-1 ring-white/30 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-white" />
+                        فعال
+                      </span>
                     </div>
 
-                    <div className="text-center mb-6">
-                      <div className="text-4xl font-bold tabular-nums mb-2 drop-shadow">
+                    <div className="text-center mb-8">
+                      <div className="text-[42px] sm:text-[48px] leading-none font-extrabold tracking-tight mb-3 tabular-nums bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
                         <CountUp value={data ? data.totalIncome : 0} />
                       </div>
-                      <div className="text-white/80 text-lg">تومان</div>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 ring-1 ring-white/15 text-white/80 text-xs font-medium">
+                        <Shield className="h-3.5 w-3.5" />
+                        تومان
+                      </span>
                     </div>
 
-                    <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
-                      <Shield className="h-4 w-4" />
-                      <span>امن و قابل اعتماد</span>
+                    <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/10">
+                      <div>
+                        <p className="text-[10px] text-white/40 mb-1">
+                          درآمد امروز
+                        </p>
+                        <p className="text-sm font-bold">
+                          <CountUp value={data ? data.todayIncome : 0} /> تومان
+                        </p>
+                      </div>
+                      <div className="w-px h-8 bg-white/10" />
+                      <div className="text-left">
+                        <p className="text-[10px] text-white/40 mb-1">
+                          تراکنش‌های اخیر
+                        </p>
+                        <p className="text-sm font-bold">
+                          {toFaDigits(data ? data.recentSessions.length : 0)}{" "}
+                          مورد
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
 
                 {/* Income Stats */}
                 <div className="bg-[var(--dash-sides)]/80 backdrop-blur-xl rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
@@ -762,7 +886,6 @@ export default function AdminWalletPage() {
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
     </div>
   );
 }

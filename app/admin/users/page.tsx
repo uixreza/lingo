@@ -13,6 +13,9 @@ import {
   Save,
   BadgeCheck,
   CalendarDays,
+  Star,
+  Gem,
+  Swords,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Avatar from "@/components/dashboard/Avatar";
@@ -32,8 +35,8 @@ type UserItem = {
   fluencyLevel: FluencyLevel;
   isVerified: boolean;
   isActive: boolean;
-  progress: number;
   role: UserRole;
+  badges: string[];
   createdAt: string;
 };
 
@@ -61,6 +64,30 @@ const ROLE_LABEL: Record<UserRole, string> = {
   Teacher: "مدرس",
   Client: "کاربر",
 };
+
+const BADGE_DEFS = [
+  {
+    key: "Pro",
+    label: "کاربر ویژه",
+    Icon: Star,
+    activeTile:
+      "bg-purple-500/20 text-purple-400 border-purple-500/30 shadow-lg shadow-purple-500/10",
+  },
+  {
+    key: "Loyalty",
+    label: "کاربر وفادار",
+    Icon: Gem,
+    activeTile:
+      "bg-amber-500/20 text-amber-400 border-amber-500/30 shadow-lg shadow-amber-500/10",
+  },
+  {
+    key: "Warrior",
+    label: "رزمنده",
+    Icon: Swords,
+    activeTile:
+      "bg-red-500/20 text-red-400 border-red-500/30 shadow-lg shadow-red-500/10",
+  },
+] as const;
 
 function getConfirmCopy(kind: ConfirmKind, name: string) {
   if (kind === "delete") {
@@ -123,6 +150,7 @@ export default function UserManagementPage() {
   const [total, setTotal] = useState(0);
   const [hasMore, setHasMore] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [badgeBusy, setBadgeBusy] = useState<Record<number, boolean>>({});
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -194,6 +222,46 @@ export default function UserManagementPage() {
       toast.error("خطا در ارتباط با سرور");
     } finally {
       setLoadingMore(false);
+    }
+  };
+
+  const toggleBadge = async (user: UserItem, key: (typeof BADGE_DEFS)[number]["key"]) => {
+    if (badgeBusy[user.id]) return;
+    const has = user.badges.includes(key);
+    const next = has
+      ? user.badges.filter((b) => b !== key)
+      : [...user.badges, key];
+    setBadgeBusy((prev) => ({ ...prev, [user.id]: true }));
+    setUsers((prev) =>
+      prev.map((u) => (u.id === user.id ? { ...u, badges: next } : u)),
+    );
+    const rollback = () =>
+      setUsers((prev) =>
+        prev.map((u) => (u.id === user.id ? { ...u, badges: user.badges } : u)),
+      );
+    try {
+      const res = await fetch(`/api/admin/users/${user.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ badges: next }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        rollback();
+        toast.error(data.error || "خطا در تغییر نشان کاربر");
+        return;
+      }
+      setUsers((prev) =>
+        prev.map((u) =>
+          u.id === user.id ? { ...u, badges: data.badges ?? next } : u,
+        ),
+      );
+      toast.success(has ? "نشان حذف شد" : "نشان اعطا شد");
+    } catch {
+      rollback();
+      toast.error("خطا در ارتباط با سرور");
+    } finally {
+      setBadgeBusy((prev) => ({ ...prev, [user.id]: false }));
     }
   };
 
@@ -422,9 +490,6 @@ export default function UserManagementPage() {
                   <span className="text-[10px] font-bold bg-purple-500/10 text-purple-500 px-2 py-0.5 rounded-md">
                     {FLUENCY_LABELS[user.fluencyLevel]}
                   </span>
-                  <span className="text-[10px] font-bold bg-[var(--dash-muted)]/10 text-[var(--dash-muted)] px-2 py-0.5 rounded-md">
-                    پیشرفت {toFa(user.progress)}٪
-                  </span>
                   {user.isPro && (
                     <span className="text-[10px] font-bold bg-purple-500/10 text-purple-500 px-2 py-0.5 rounded-md">
                       Pro
@@ -436,6 +501,31 @@ export default function UserManagementPage() {
                       غیرفعال
                     </span>
                   )}
+                </div>
+
+                {/* Achievements */}
+                <div className="flex items-center gap-1.5 mt-2.5">
+                  <span className="text-[10px] font-bold text-[var(--dash-muted)] ml-0.5">
+                    نشان‌ها:
+                  </span>
+                  {BADGE_DEFS.map((def) => {
+                    const active = user.badges.includes(def.key);
+                    const Icon = def.Icon;
+                    return (
+                      <motion.button
+                        key={def.key}
+                        whileTap={badgeBusy[user.id] ? {} : { scale: 0.85 }}
+                        onClick={() => toggleBadge(user, def.key)}
+                        title={`${active ? "برداشتن" : "اعطای"} نشان ${def.label}`}
+                        className={`p-1.5 rounded-lg border transition-all duration-200 ${
+                          active
+                            ? `${def.activeTile} opacity-100`
+                            : "border-[var(--dash-muted)]/15 bg-[var(--dash-muted)]/5 text-[var(--dash-muted)]/60 opacity-30 hover:opacity-60"
+                        }`}>
+                        <Icon className="h-4 w-4" />
+                      </motion.button>
+                    );
+                  })}
                 </div>
 
                 {user.email && (

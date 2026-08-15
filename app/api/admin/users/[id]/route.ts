@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 
 const FLUENCY_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 const ROLES = ["Admin", "Teacher", "Client"] as const;
+const BADGES = ["Loyalty", "Pro", "Warrior"] as const;
 
 export async function PATCH(
   request: Request,
@@ -96,6 +97,20 @@ export async function PATCH(
     data.isActive = Boolean(body.isActive);
   }
 
+  if (body.badges !== undefined) {
+    const badges = body.badges as unknown;
+    if (
+      !Array.isArray(badges) ||
+      !badges.every((b) => BADGES.includes(b as (typeof BADGES)[number]))
+    ) {
+      return NextResponse.json(
+        { error: "نشان‌های کاربر معتبر نیستند" },
+        { status: 400 },
+      );
+    }
+    data.badges = badges;
+  }
+
   if (Object.keys(data).length === 0) {
     return NextResponse.json({ error: "فیلدی برای ویرایش ارسال نشده است" }, { status: 400 });
   }
@@ -114,7 +129,6 @@ export async function PATCH(
         fluencyLevel: true,
         isVerified: true,
         isActive: true,
-        progress: true,
         role: true,
         badges: true,
         createdAt: true,

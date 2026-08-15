@@ -19,8 +19,45 @@ export default function SplashScreen() {
   const [visible, setVisible] = useState(true);
 
   useEffect(() => {
-    const t = setTimeout(() => setVisible(false), 3200);
-    return () => clearTimeout(t);
+    const audio = new Audio("/assets/sounds/intro.mp3");
+    audio.volume = 1;
+
+    const tryPlay = () => {
+      const p = audio.play();
+      if (p?.catch) p.catch(() => {});
+    };
+
+    tryPlay();
+
+    const onInteract = () => {
+      tryPlay();
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+      window.removeEventListener("touchstart", onInteract);
+      window.removeEventListener("click", onInteract);
+    };
+
+    window.addEventListener("pointerdown", onInteract);
+    window.addEventListener("keydown", onInteract);
+    window.addEventListener("touchstart", onInteract);
+    window.addEventListener("click", onInteract);
+
+    const t = setTimeout(() => {
+      setVisible(false);
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+      window.removeEventListener("touchstart", onInteract);
+      window.removeEventListener("click", onInteract);
+    }, 3200);
+    return () => {
+      clearTimeout(t);
+      window.removeEventListener("pointerdown", onInteract);
+      window.removeEventListener("keydown", onInteract);
+      window.removeEventListener("touchstart", onInteract);
+      window.removeEventListener("click", onInteract);
+      audio.pause();
+      audio.currentTime = 0;
+    };
   }, []);
 
   return (
@@ -70,7 +107,7 @@ export default function SplashScreen() {
               <motion.div
                 animate={{ scale: [1, 1.05, 1] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden ring-1 ring-green-500/40 shadow-2xl shadow-green-500/30">
+                className="relative w-24 h-24 sm:w-28 sm:h-28">
                 <Image
                   src="/assets/img/sideIcon.png"
                   alt="Lingofam"

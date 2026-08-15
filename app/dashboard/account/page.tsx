@@ -37,7 +37,6 @@ type RankingUser = {
   fullname: string;
   avatarSeed: string | null;
   isPro: boolean;
-  progress: number;
   joinDate: string;
   rank: number;
   friendStatus: "none" | "pending" | "friends";

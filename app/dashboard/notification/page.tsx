@@ -148,6 +148,7 @@ export default function NotificationPage() {
     setNotifications(
       notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
     );
+    window.dispatchEvent(new Event("notifications-read"));
   };
 
   const markAllAsRead = async () => {
@@ -156,6 +157,7 @@ export default function NotificationPage() {
       headers: { "Content-Type": "application/json" },
     });
     setNotifications(notifications.map((n) => ({ ...n, read: true })));
+    window.dispatchEvent(new Event("notifications-read"));
   };
 
   if (loading) {

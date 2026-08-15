@@ -94,6 +94,7 @@ function LoginForm({ close }: { close: () => void }) {
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
   const canResend = timer <= 0;
+  const otpCooldown = loginMode === "otp" && timer > 0;
 
   useEffect(() => {
     if (!showOtp || timer <= 0) return;
@@ -136,7 +137,7 @@ function LoginForm({ close }: { close: () => void }) {
     setShowOtp(true);
     setTimer(300);
     setOtp(Array(6).fill(""));
-    setTimeout(() => inputsRef.current[0]?.focus(), 100);
+    handleRequestOtp();
   };
 
   const handleRequestOtp = async () => {
@@ -201,6 +202,21 @@ function LoginForm({ close }: { close: () => void }) {
       });
 
       if (result?.error) {
+        const bannedMsg =
+          "حساب شما مسدود شده است؛ برای اطلاعات بیشتر با تیم پشتیبانی تماس بگیرید";
+        try {
+          const statusRes = await fetch(
+            `/api/auth/status?phone=${encodeURIComponent(phone)}`,
+          );
+          const status = await statusRes.json();
+          if (status?.banned) {
+            setLoginError(bannedMsg);
+            toast.error(bannedMsg);
+            return;
+          }
+        } catch {
+          // fall through to generic error
+        }
         setLoginError("شماره موبایل یا رمز عبور اشتباه است");
         toast.error("شماره موبایل یا رمز عبور اشتباه است");
         return;
@@ -370,12 +386,17 @@ function LoginForm({ close }: { close: () => void }) {
 
       <motion.button
         variants={{ hidden: { opacity: 0, y: 12 }, show: { opacity: 1, y: 0 } }}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        whileHover={!otpCooldown && !loading ? { scale: 1.02 } : undefined}
+        whileTap={!otpCooldown && !loading ? { scale: 0.98 } : undefined}
         type="button"
         onClick={handleSwitchToOtp}
-        className="w-full py-3 rounded-xl border border-green-500/30 text-green-400 hover:bg-green-500/10 font-medium text-sm transition-all duration-200">
-        ورود با کد یکبار مصرف
+        disabled={otpCooldown || loading}
+        className={`w-full py-3 rounded-xl border font-medium text-sm transition-all duration-200 ${
+          otpCooldown || loading
+            ? "border-white/10 text-[#666] cursor-not-allowed"
+            : "border-green-500/30 text-green-400 hover:bg-green-500/10 cursor-pointer"
+        }`}>
+        {otpCooldown ? `ارسال مجدد تا ${formatTime(timer)}` : "ورود با کد یکبار مصرف"}
       </motion.button>
     </motion.form>
   );
@@ -390,7 +411,8 @@ function SignupForm({ close }: { close: () => void }) {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [otpError, setOtpError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -431,7 +453,7 @@ function SignupForm({ close }: { close: () => void }) {
     fullName.trim().length >= 2 &&
     password.length >= 8 &&
     phone.length === 11 &&
-    (!showOtp || allOtpFilled);
+    allOtpFilled;
 
   const inputStyle =
     "w-10 sm:w-11 h-12 sm:h-14 text-center text-lg sm:text-xl font-bold text-white bg-white/5 border border-white/10 rounded-xl outline-none focus:border-green-500/50 transition-colors";
@@ -442,7 +464,7 @@ function SignupForm({ close }: { close: () => void }) {
       return;
     }
     setPhoneError("");
-    setLoading(true);
+    setSending(true);
     try {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
@@ -464,7 +486,7 @@ function SignupForm({ close }: { close: () => void }) {
     } catch {
       toast.error("خطا در ارتباط با سرور");
     } finally {
-      setLoading(false);
+      setSending(false);
     }
   };
 
@@ -482,7 +504,7 @@ function SignupForm({ close }: { close: () => void }) {
     e.preventDefault();
     if (!canSubmit) return;
     setOtpError(false);
-    setLoading(true);
+    setSubmitting(true);
     try {
       const code = otp.join("");
       const res = await fetch("/api/auth/signup", {
@@ -504,7 +526,7 @@ function SignupForm({ close }: { close: () => void }) {
     } catch {
       toast.error("خطا در ارتباط با سرور");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -515,26 +537,30 @@ function SignupForm({ close }: { close: () => void }) {
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
       className="flex flex-col gap-5"
       onSubmit={handleSubmit}>
-      <Field label="نام و نام خانوادگی">
-        <input
-          type="text"
-          placeholder="نام و نام خانوادگی خود را وارد کنید"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
-        />
-      </Field>
+      {!showOtp && (
+        <>
+          <Field label="نام و نام خانوادگی">
+            <input
+              type="text"
+              placeholder="نام و نام خانوادگی خود را وارد کنید"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
+            />
+          </Field>
 
-      <Field label="رمز عبور">
-        <input
-          type="password"
-          placeholder="حداقل ۸ کاراکتر"
-          autoComplete="new-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
-        />
-      </Field>
+          <Field label="رمز عبور">
+            <input
+              type="password"
+              placeholder="حداقل ۸ کاراکتر"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
+            />
+          </Field>
+        </>
+      )}
 
       <Field label="شماره موبایل">
         <div className="flex gap-2">
@@ -556,10 +582,10 @@ function SignupForm({ close }: { close: () => void }) {
           <button
             type="button"
             onClick={handleRequestCode}
-            disabled={showOtp || loading}
+            disabled={showOtp || sending}
             className="shrink-0 px-4 py-3 rounded-xl bg-green-500 hover:bg-green-400 disabled:bg-green-500/30 disabled:cursor-not-allowed text-black font-semibold text-sm transition-all duration-200 active:scale-[0.98] flex items-center gap-2">
-            {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-            {loading ? "در حال ارسال" : "دریافت کد"}
+            {sending ? <Loader2 size={16} className="animate-spin" /> : null}
+            {sending ? "در حال ارسال" : "دریافت کد"}
           </button>
         </div>
         {phoneError && (
@@ -602,9 +628,9 @@ function SignupForm({ close }: { close: () => void }) {
                 <button
                   type="button"
                   onClick={handleRequestCode}
-                  disabled={loading}
+                  disabled={sending}
                   className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors">
-                  {loading ? (
+                  {sending ? (
                     <Loader2 size={13} className="animate-spin" />
                   ) : (
                     <RefreshCw size={13} />
@@ -652,17 +678,17 @@ function SignupForm({ close }: { close: () => void }) {
             hidden: { opacity: 0, y: 12 },
             show: { opacity: 1, y: 0 },
           }}
-          whileHover={canSubmit && !loading ? { scale: 1.02 } : undefined}
-          whileTap={canSubmit && !loading ? { scale: 0.98 } : undefined}
+          whileHover={canSubmit && !submitting ? { scale: 1.02 } : undefined}
+          whileTap={canSubmit && !submitting ? { scale: 0.98 } : undefined}
           type="submit"
-          disabled={!canSubmit || loading}
+          disabled={!canSubmit || submitting}
           className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-2 ${
-            canSubmit && !loading
+            canSubmit && !submitting
               ? "bg-green-500 hover:bg-green-400 text-black cursor-pointer"
               : "bg-green-500/30 text-black/40 cursor-not-allowed"
           }`}>
-          {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-          {loading ? "در حال ثبت‌نام" : "ثبت‌نام"}
+          {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
+          {submitting ? "در حال ثبت‌نام" : "ثبت‌نام"}
         </motion.button>
         <motion.button
           variants={{

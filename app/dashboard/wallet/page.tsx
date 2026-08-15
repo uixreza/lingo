@@ -16,9 +16,11 @@ import {
   Eye,
   ChevronDown,
   X,
+  Lock,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
+import toast from "react-hot-toast";
 
 type WalletData = {
   balance: number;
@@ -54,7 +56,6 @@ export default function WalletPage() {
   const [copiedCard, setCopiedCard] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
-  const [rightTab, setRightTab] = useState<"info" | "invoices">("info");
   const [visibleInvoices, setVisibleInvoices] = useState(5);
 
   const copyCardNumber = async () => {
@@ -308,39 +309,70 @@ export default function WalletPage() {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-pulse pb-24 lg:pb-0">
         {/* Balance card */}
-        <div className="order-1 lg:col-start-1 lg:col-span-2 rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]/60 h-52 shadow-2xl" />
+        <div
+          className="order-1 lg:col-start-1 lg:col-span-2 relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-2xl"
+          style={{
+            background:
+              "linear-gradient(140deg, var(--light-purple) 0%, var(--dark-purple) 100%)",
+          }}>
+          <div className="flex items-start justify-between gap-3 mb-9">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-2xl bg-white/25" />
+              <div className="space-y-2">
+                <div className="h-4 w-24 rounded bg-white/30" />
+                <div className="h-2.5 w-16 rounded bg-white/20" />
+              </div>
+            </div>
+            <div className="h-6 w-16 rounded-full bg-white/25" />
+          </div>
+          <div className="text-center mb-8">
+            <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3" />
+            <div className="h-7 w-24 mx-auto rounded-full bg-white/25" />
+          </div>
+          <div className="pt-4 border-t border-white/15 flex items-center justify-between gap-4">
+            <div className="space-y-2">
+              <div className="h-2.5 w-16 rounded bg-white/20" />
+              <div className="h-3.5 w-24 rounded bg-white/30" />
+            </div>
+            <div className="w-px h-8 bg-white/15" />
+            <div className="space-y-2">
+              <div className="h-2.5 w-16 rounded bg-white/20" />
+              <div className="h-3.5 w-20 rounded bg-white/30" />
+            </div>
+          </div>
+        </div>
+
+        {/* Invoices card */}
+        <div className={`order-3 lg:col-start-1 lg:col-span-2 ${cardClass} p-6`}>
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="h-8 w-8 rounded-lg bg-[var(--hover-bg-strong)]" />
+            <div className="h-5 w-32 rounded bg-[var(--hover-bg-strong)]" />
+          </div>
+          <div className="space-y-2.5">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-12 rounded-xl bg-[var(--hover-bg)]" />
+            ))}
+          </div>
+        </div>
 
         {/* Charge card */}
         <div className={`order-2 lg:col-start-3 lg:col-span-3 ${cardClass} p-6`}>
           <div className="flex items-center gap-3 mb-6">
             <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)]" />
             <div className="h-5 w-40 rounded bg-[var(--hover-bg-strong)]" />
-            <div className="h-7 w-24 rounded-full bg-[var(--hover-bg-strong)] mr-auto" />
           </div>
-          <div className="h-12 rounded-xl bg-[var(--hover-bg)] mb-6" />
-          <div className="h-24 rounded-xl bg-[var(--hover-bg)] mb-6" />
+          <div className="flex gap-1.5 p-1.5 rounded-2xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 mb-6">
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)]" />
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)]" />
+          </div>
+          <div className="w-full max-w-md mx-auto h-44 rounded-2xl bg-[var(--hover-bg)] mb-6" />
+          <div className="h-32 rounded-xl bg-[var(--hover-bg)] mb-6" />
           <div className="h-14 rounded-xl bg-[var(--hover-bg)]" />
           {/* Wallet guide (mobile only) */}
           <div className="lg:hidden mt-6 rounded-2xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 p-5 space-y-3">
             <div className="h-4 w-28 rounded bg-[var(--hover-bg-strong)] mb-4" />
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="h-3 rounded bg-[var(--hover-bg)]" />
-            ))}
-          </div>
-        </div>
-
-        {/* Info / Invoices card */}
-        <div className={`order-3 lg:col-start-1 lg:col-span-2 ${cardClass} p-6`}>
-          <div className="flex items-center justify-between mb-5">
-            <div className="flex items-center gap-2.5">
-              <div className="h-8 w-8 rounded-lg bg-[var(--hover-bg-strong)]" />
-              <div className="h-5 w-32 rounded bg-[var(--hover-bg-strong)]" />
-            </div>
-            <div className="h-7 w-24 rounded-full bg-[var(--hover-bg-strong)]" />
-          </div>
-          <div className="space-y-2.5">
-            {[0, 1, 2].map((i) => (
-              <div key={i} className="h-11 rounded-xl bg-[var(--hover-bg)]" />
             ))}
           </div>
         </div>
@@ -372,130 +404,93 @@ export default function WalletPage() {
       <div className="contents lg:flex lg:flex-col lg:gap-6 lg:col-start-1 lg:col-span-2">
       {/* Balance card */}
       <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="order-1 lg:col-start-1 lg:col-span-2 relative overflow-hidden rounded-2xl bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] p-6 shadow-2xl text-white">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute inset-0 bg-[url('/assets/img/mazePattern.svg')] bg-cover"></div>
+          initial={{ opacity: 0, y: 16, rotateX: 8 }}
+          animate={{ opacity: 1, y: 0, rotateX: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          whileHover={{ y: -4 }}
+          className="order-1 lg:col-start-1 lg:col-span-2 relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-2xl text-white ring-1 ring-black/10"
+          style={{
+            background:
+              "linear-gradient(140deg, var(--light-purple) 0%, var(--dark-purple) 100%)",
+            opacity: 1,
+          }}>
+          <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-white/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-28 -left-16 h-64 w-64 rounded-full bg-[var(--dash-accent)]/30 blur-3xl" />
+          <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 rounded-full bg-white/5 blur-2xl" />
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/40 to-transparent" />
+
+          <div className="pointer-events-none absolute inset-0 opacity-[0.08]">
+            <div className="absolute inset-0 bg-[url('/assets/img/mazePattern.svg')] bg-cover" />
           </div>
-          <div className="pointer-events-none absolute -top-20 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
 
           <div className="relative z-10">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Wallet className="h-6 w-6" />
+            <div className="flex items-start justify-between gap-3 mb-9">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-2xl bg-white/10 backdrop-blur-sm ring-1 ring-white/15">
+                  <Wallet className="h-5 w-5" />
+                </div>
+                <div>
+                  <h2 className="text-base font-bold text-white/95">موجودی فعلی</h2>
+                  <p className="text-[11px] text-white/40 mt-0.5">
+                    کیف پول لینگوفام
+                  </p>
+                </div>
               </div>
-              <h2 className="text-lg font-semibold">موجودی فعلی</h2>
+              <span className="px-2.5 py-1 rounded-full bg-[var(--dash-accent)]/25 text-white text-[10px] font-bold ring-1 ring-white/30 flex items-center gap-1.5">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    walletData?.isActive ? "bg-white" : "bg-red-400"
+                  }`}
+                />
+                {walletData?.isActive ? "فعال" : "غیرفعال"}
+              </span>
             </div>
 
-            <div className="text-center mb-6">
-              <div className="text-4xl font-bold mb-2">
+            <div className="text-center mb-8">
+              <div className="text-[42px] sm:text-[48px] leading-none font-extrabold tracking-tight mb-3 tabular-nums bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
                 {formatNumber(walletData?.balance ?? 0)}
               </div>
-              <div className="text-white/80 text-lg">تومان</div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 ring-1 ring-white/15 text-white/80 text-xs font-medium">
+                <Shield className="h-3.5 w-3.5" />
+                تومان
+              </span>
             </div>
 
-            <div className="flex items-center justify-center gap-2 text-white/80 text-sm">
-              <Shield className="h-4 w-4" />
-              <span>امن و قابل اعتماد</span>
+            <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/10">
+              <div>
+                <p className="text-[10px] text-white/40 mb-1">آخرین شارژ</p>
+                <p className="text-sm font-bold">
+                  {formatNumber(walletData?.lastCharge ?? 0)} تومان
+                </p>
+              </div>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="text-left">
+                <p className="text-[10px] text-white/40 mb-1">تعداد تراکنش‌ها</p>
+                <p className="text-sm font-bold">
+                  {formatNumber(walletData?.transactionCount ?? 0)} مورد
+                </p>
+              </div>
             </div>
           </div>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={rightTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
-            className={`${cardClass} p-6 order-3 lg:col-start-1 lg:col-span-2`}>
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className={`${cardClass} p-6 order-3 lg:col-start-1 lg:col-span-2`}>
             <div className={accentBar} />
-            {/* Title + small toggle */}
-            <div className="flex items-center justify-between gap-3 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-green-500/10">
-                  {rightTab === "info" ? (
-                    <Info className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  ) : (
-                    <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
-                  )}
-                </div>
-                <h3 className="font-bold text-[var(--dash-text)] text-lg">
-                  {rightTab === "info" ? "اطلاعات سریع" : "فاکتورها"}
-                </h3>
+            {/* Title */}
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
-
-              <div className="flex items-center gap-1 p-1 rounded-full bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10">
-                {(["info", "invoices"] as const).map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setRightTab(tab)}
-                    className={`relative px-3 py-1.5 rounded-full text-xs font-bold transition-colors duration-300 ${
-                      rightTab === tab
-                        ? "text-black"
-                        : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
-                    }`}>
-                    {rightTab === tab && (
-                      <motion.span
-                        layoutId="wallet-side-pill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-l from-green-500 to-emerald-500 shadow-md shadow-green-500/25"
-                        transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                      />
-                    )}
-                    <span className="relative z-10">
-                      {tab === "info" ? "اطلاعات" : "فاکتورها"}
-                    </span>
-                  </button>
-                ))}
-              </div>
+              <h3 className="font-bold text-[var(--dash-text)] text-lg">
+                فاکتورها
+              </h3>
             </div>
 
-            {rightTab === "info" ? (
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between rounded-xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-green-500/10">
-                      <Wallet className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <span className="text-[var(--dash-muted)] text-sm">
-                      آخرین شارژ
-                    </span>
-                  </div>
-                  <span className="text-[var(--dash-text)] font-medium">
-                    {formatNumber(walletData?.lastCharge ?? 0)} تومان
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-green-500/10">
-                      <CreditCard className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <span className="text-[var(--dash-muted)] text-sm">
-                      تعداد تراکنش‌ها
-                    </span>
-                  </div>
-                  <span className="text-[var(--dash-text)] font-medium">
-                    {formatNumber(walletData?.transactionCount ?? 0)} مورد
-                  </span>
-                </div>
-                <div className="flex items-center justify-between rounded-xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 px-4 py-3">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-1.5 rounded-lg bg-green-500/10">
-                      <Shield className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                    </div>
-                    <span className="text-[var(--dash-muted)] text-sm">
-                      وضعیت حساب
-                    </span>
-                  </div>
-                  <span className={`font-medium flex items-center gap-1 ${walletData?.isActive ? "text-green-500" : "text-red-500"}`}>
-                    <CheckCircle2 className="h-4 w-4" />
-                    {walletData?.isActive ? "فعال" : "غیرفعال"}
-                  </span>
-                </div>
-              </div>
-            ) : invoices.length === 0 ? (
+            {invoices.length === 0 ? (
               <div className="text-center py-8 text-sm text-[var(--dash-muted)]">
                 فاکتوری یافت نشد
               </div>
@@ -560,7 +555,6 @@ export default function WalletPage() {
               </>
             )}
           </motion.div>
-        </AnimatePresence>
       </div>
 
       {/* Right column wrapper (charge + guide) */}
@@ -583,31 +577,43 @@ export default function WalletPage() {
           </div>
 
           {/* Payment Method Toggle */}
-          <div className="flex gap-1.5 p-1.5 bg-[var(--dash-sides)]/60 rounded-2xl border border-[var(--dash-muted)]/15 mb-6">
-            {(["card-to-card", "payment-gate"] as const).map((method) => (
-              <button
-                key={method}
-                onClick={() => setPaymentMethod(method)}
-                className={`relative flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-300 ${
-                  paymentMethod === method
-                    ? "text-black"
-                    : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
-                }`}>
-                {paymentMethod === method && (
-                  <motion.span
-                    layoutId="wallet-method-pill"
-                    className="absolute inset-0 rounded-xl bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25"
-                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                  />
-                )}
-                <span className="relative z-10">
-                  {method === "card-to-card"
-                    ? "کارت به کارت"
-                    : "درگاه پرداخت"}
-                </span>
-              </button>
-            ))}
-          </div>
+          <div className="flex gap-1.5 p-1.5 flex-1 bg-[var(--dash-sides)]/60 rounded-2xl border border-[var(--dash-muted)]/15 mb-6">
+              {(["card-to-card", "payment-gate"] as const).map((method) => {
+                const locked = method === "payment-gate";
+                return (
+                  <button
+                    key={method}
+                    onClick={() => {
+                      if (locked) {
+                        toast("درگاه پرداخت در دست ساخت است");
+                        return;
+                      }
+                      setPaymentMethod(method);
+                    }}
+                    className={`relative flex-1 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-300 ${
+                      paymentMethod === method
+                        ? "text-black"
+                        : locked
+                          ? "text-[var(--dash-muted)]/50 cursor-not-allowed"
+                          : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+                    }`}>
+                    {paymentMethod === method && (
+                      <motion.span
+                        layoutId="wallet-method-pill"
+                        className="absolute inset-0 rounded-xl bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25"
+                        transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                      />
+                    )}
+                    <span className="relative z-10 inline-flex items-center justify-center gap-1.5">
+                      {locked && <Lock size={13} />}
+                      {method === "card-to-card"
+                        ? "کارت به کارت"
+                        : "درگاه پرداخت"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
           <AnimatePresence mode="wait">
             {paymentMethod === "card-to-card" ? (
@@ -620,19 +626,20 @@ export default function WalletPage() {
                 {/* Debit Card Design */}
                 <div className="w-full max-w-md mx-auto mb-6">
                   <div className="rounded-2xl p-6 shadow-2xl relative overflow-hidden" style={{ background: "linear-gradient(135deg, var(--sidebar-bg), var(--dash-bg))" }}>
-                    <div className="absolute inset-0 opacity-[0.07]">
+                    <div className="absolute inset-0 opacity-20 dark:opacity-[0.12]">
                       <svg
-                        className="absolute inset-0 w-full h-full"
-                        style={{ color: "var(--light-purple)" }}
+                        className="absolute inset-0 w-full h-full text-[var(--dark-purple)] dark:text-[var(--light-purple)]"
                         aria-hidden="true">
                         <defs>
                           <pattern
                             id="wallet-card-pattern"
-                            width="30"
-                            height="30"
-                            patternUnits="userSpaceOnUse">
-                            <path
-                              d="M15 0L30 15L15 30L0 15Z"
+                            width="24"
+                            height="24"
+                            patternUnits="userSpaceOnUse"
+                            patternTransform="rotate(45)">
+                            <rect
+                              width="16"
+                              height="24"
                               fill="currentColor"
                               fillOpacity="0.5"
                             />

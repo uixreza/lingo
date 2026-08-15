@@ -73,6 +73,78 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-UltraLight.woff") format("woff");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Light.woff") format("woff");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Regular.woff") format("woff");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Medium.woff") format("woff");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-SemiBold.woff") format("woff");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Bold.woff") format("woff");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-ExtraBold.woff") format("woff");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Black.woff") format("woff");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Morabba";
+  src: url("/assets/fonts/Morabba/Morabba-Heavy.woff") format("woff");
+  font-weight: 950;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --font-sans: "Dana", sans-serif;
   --font-mono: "Dana", sans-serif;

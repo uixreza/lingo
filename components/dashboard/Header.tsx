@@ -7,6 +7,7 @@ import {
   Zap,
   ChevronLeft,
   Bell,
+  Swords,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -49,11 +50,31 @@ export default function Header({ user }: { user: User }) {
     }
   };
 
+  const [hasUnread, setHasUnread] = useState(false);
+
+  const fetchUnread = async () => {
+    try {
+      const res = await fetch("/api/notifications");
+      if (res.ok) {
+        const data: { read: boolean }[] = await res.json();
+        setHasUnread(Array.isArray(data) && data.some((n) => !n.read));
+      }
+    } catch {
+      // ignore
+    }
+  };
+
   useEffect(() => {
     fetchBalance();
-    const handler = () => fetchBalance();
-    window.addEventListener("balance-update", handler);
-    return () => window.removeEventListener("balance-update", handler);
+    fetchUnread();
+    const balanceHandler = () => fetchBalance();
+    const unreadHandler = () => fetchUnread();
+    window.addEventListener("balance-update", balanceHandler);
+    window.addEventListener("notifications-read", unreadHandler);
+    return () => {
+      window.removeEventListener("balance-update", balanceHandler);
+      window.removeEventListener("notifications-read", unreadHandler);
+    };
   }, []);
 
   // Calculate XP progress
@@ -111,22 +132,36 @@ export default function Header({ user }: { user: User }) {
 
             {/* Pro & Loyalty Badges */}
             <div className="flex items-center gap-2">
-              <div className="group relative">
-                <div className="bg-purple-500/15 text-purple-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
-                  <Star className="h-3 w-3 fill-purple-400" />
+              {user.badges?.includes("Pro") && (
+                <div className="group relative">
+                  <div className="bg-purple-500/15 text-purple-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                    <Star className="h-3 w-3 fill-purple-400" />
+                  </div>
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                    کاربر ویژه (Pro)
+                  </div>
                 </div>
-                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                  کاربر ویژه (Pro)
+              )}
+              {user.badges?.includes("Loyalty") && (
+                <div className="group relative">
+                  <div className="bg-amber-500/15 text-amber-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                    <Gem className="h-3 w-3" />
+                  </div>
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                    کاربر وفادار
+                  </div>
                 </div>
-              </div>
-              <div className="group relative">
-                <div className="bg-amber-500/15 text-amber-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
-                  <Gem className="h-3 w-3" />
+              )}
+              {user.badges?.includes("Warrior") && (
+                <div className="group relative">
+                  <div className="bg-red-500/15 text-red-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                    <Swords className="h-3 w-3" />
+                  </div>
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                    رزمنده
+                  </div>
                 </div>
-                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                  کاربر وفادار
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -138,7 +173,9 @@ export default function Header({ user }: { user: User }) {
             href={"/dashboard/notification"}
             className="relative p-2 rounded-xl bg-[var(--hover-bg)]  hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg">
             <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
-            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--header-bg)]"></div>
+            {hasUnread && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--header-bg)]" />
+            )}
           </Link>
 
           {/* Balance Card */}

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions } from "@/lib/auth";
+import { authOptions, prisma } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
+import BanGuard from "@/components/dashboard/BanGuard";
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 import { RadioProvider } from "@/components/RadioProvider";
 import RadioButton from "@/components/dashboard/RadioButton";
@@ -28,15 +29,25 @@ export default async function RootLayout({
     role: "student",
     balance: 20000,
   };
+
+  const dbUser = await prisma.user.findUnique({
+    where: { id: parseInt(session.user.id, 10) },
+    select: { isActive: true, badges: true },
+  });
+
+  if (!dbUser || !dbUser.isActive) {
+    redirect("/api/auth/exit");
+  }
   return (
     <RadioProvider>
+      <BanGuard />
       <div
         className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
         dir="rtl">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <Header user={user} />
+          <Header user={{ ...user, badges: dbUser?.badges ?? [] }} />
 
           {/* Page Content */}
           <main className="flex-1 overflow-y-auto py-6 px-2 sm:px-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">

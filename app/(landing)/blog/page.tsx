@@ -264,7 +264,10 @@ export default function BlogPage() {
         initial="hidden"
         animate="show"
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
-        <motion.div variants={item} className="mb-14 text-right">
+        <motion.div
+          variants={item}
+          style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}
+          className="mb-14 text-right">
           <p className="text-green-400 text-sm font-medium tracking-wide mb-3">
             وبلاگ لینگوفام
           </p>

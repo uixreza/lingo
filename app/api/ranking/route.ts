@@ -104,13 +104,12 @@ export async function GET() {
   const currentUserId = parseInt(session.user.id, 10);
 
   const users = await prisma.user.findMany({
-    orderBy: [{ progress: "desc" }, { createdAt: "asc" }],
+    orderBy: { createdAt: "asc" },
     select: {
       id: true,
       fullname: true,
       avatarSeed: true,
       IsPro: true,
-      progress: true,
       createdAt: true,
     },
     take: 100,
@@ -146,7 +145,6 @@ export async function GET() {
         fullname: user.fullname,
         avatarSeed: user.avatarSeed,
         isPro: user.IsPro,
-        progress: user.progress,
         joinDate: gregToJalaliStr(user.createdAt),
         rank: index + 1,
         friendStatus: friend?.status ?? "none",

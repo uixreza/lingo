@@ -359,6 +359,18 @@
   animation: splash-pulse 2.2s ease-in-out infinite;
 }
 
+/* GPU layer hints: cache animated (blurred) layers and composite instead
+   of re-rasterizing every frame. No visual change. */
+.animate-splash-glow,
+.animate-splash-glow-center,
+.animate-splash-pulse {
+  will-change: transform, opacity;
+}
+
+.animate-marquee {
+  will-change: transform;
+}
+
 .pro-border {
   position: relative;
   animation: pro-glow-pulse 3s ease-in-out infinite;

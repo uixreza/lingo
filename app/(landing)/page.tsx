@@ -81,7 +81,7 @@ export default function Home() {
               اطلاعیه
             </span>
             <div className="relative flex-1 overflow-hidden min-w-0">
-              <div className="flex w-max animate-marquee">
+              <div className="flex w-max will-change-transform animate-marquee">
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
                     {marqueeTexts.map((msg, i) => (
@@ -179,7 +179,7 @@ export default function Home() {
                 ease: "easeOut",
                 delay: 0.6,
               }}
-              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full border border-green-400/20"
+              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full border border-green-400/20 will-change-transform"
             />
             <motion.div
               animate={{ rotate: 360 }}
@@ -188,12 +188,12 @@ export default function Home() {
                 repeat: Infinity,
                 ease: "linear",
               }}
-              className="absolute w-[270px] sm:w-[380px] h-[270px] sm:h-[380px] rounded-full border border-dashed border-green-400/15"
+              className="absolute w-[270px] sm:w-[380px] h-[270px] sm:h-[380px] rounded-full border border-dashed border-green-400/15 will-change-transform"
             />
             <motion.div
               animate={{ scale: [1, 1.12, 1] }}
               transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full bg-[#22c55e]/5 blur-2xl pointer-events-none"
+              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full bg-[#22c55e]/5 blur-2xl will-change-transform pointer-events-none"
             />
             <Image
               alt="mini Room"

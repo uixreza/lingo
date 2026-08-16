@@ -18,6 +18,9 @@ import {
   X,
   Plus,
   Sparkles,
+  Clock,
+  Users,
+  ChevronDown,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
@@ -129,7 +132,7 @@ export default function SessionsPage() {
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
-  const [fluencyConfirmed, setFluencyConfirmed] = useState(false);
+  const [proExpanded, setProExpanded] = useState(false);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -210,8 +213,7 @@ export default function SessionsPage() {
     availableLanguages.has(
       languages.find((l) => l.id === language)?.label ?? "",
     ) &&
-    totalSlots > 0 &&
-    fluencyConfirmed;
+    totalSlots > 0;
 
   const toggleSlot = (dateStr: string, time: string) => {
     setSelectedSlots((prev) => {
@@ -372,37 +374,100 @@ export default function SessionsPage() {
   };
 
   const ProCard = (
-    <div className="pro-border rounded-xl p-[2px]">
-      <div className="bg-[var(--hover-bg)] backdrop-blur-xl rounded-[10px] p-4">
-        <div className="flex items-start gap-3 mb-3">
-          <div className="p-2.5 rounded-xl bg-purple-500/15 shrink-0">
-            <Sparkles className="h-4 w-4 text-purple-500" />
+    <div className="relative overflow-hidden rounded-2xl border border-purple-500/25 bg-gradient-to-bl from-purple-500/10 via-[var(--dash-sides)]/80 to-indigo-500/10 backdrop-blur-xl p-5 shadow-xl">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/60 to-transparent" />
+      <div className="pointer-events-none absolute -top-16 -left-16 h-40 w-40 rounded-full bg-purple-500/20 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-16 -right-16 h-40 w-40 rounded-full bg-indigo-500/15 blur-3xl" />
+
+      <div className="relative flex items-start gap-3 mb-4">
+        <div className="relative shrink-0">
+          <div className="p-2.5 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/30">
+            <Sparkles className="h-4 w-4 text-white" />
           </div>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="text-sm font-bold text-[var(--dash-text)]">
-                کاربر ویژه (Pro)
-              </span>
-              <span className="text-[10px] bg-purple-500/15 text-purple-500 px-1.5 py-0.5 rounded font-medium">
-                اشتراک فعال
-              </span>
-            </div>
-            <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-              کلاس‌های عمومی هر جمعه ساعت ۱۰:۰۰ تا ۱۱:۳۰ با مدرس {mentor.name}
-            </p>
+          <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+          </span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-wrap items-center gap-2 mb-1">
+            <span className="text-sm font-black text-[var(--dash-text)]">
+              کاربر ویژه (Pro)
+            </span>
+            <span className="text-[10px] bg-purple-500/15 text-purple-500 px-1.5 py-0.5 rounded font-bold">
+              اشتراک فعال
+            </span>
           </div>
+          <h3 className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-purple-400 to-indigo-400">
+            پنل بحث آنلاین هفتگی
+          </h3>
         </div>
         <motion.button
-          whileHover={{ scale: 1.01 }}
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-2.5 rounded-lg text-sm font-bold transition-all duration-200 bg-purple-500/15 text-purple-500 hover:bg-purple-500/25"
-          onClick={() => toast.error("لینک جلسه جمعه هنوز قرار داده نشده است")}>
-          <span className="flex items-center justify-center gap-2">
-            <Video className="h-4 w-4" />
-            لینک جلسه جمعه قرار داده می‌شود
-          </span>
+          whileTap={{ scale: 0.9 }}
+          onClick={() => setProExpanded((v) => !v)}
+          aria-label={proExpanded ? "بستن جزئیات" : "نمایش جزئیات"}
+          aria-expanded={proExpanded}
+          className="shrink-0 p-2 rounded-lg bg-[var(--dash-bg)]/60 border border-purple-500/15 text-purple-400 hover:bg-purple-500/10 transition-colors">
+          <ChevronDown
+            className={`h-4 w-4 transition-transform duration-300 ${
+              proExpanded ? "rotate-180" : ""
+            }`}
+            strokeWidth={2.5}
+          />
         </motion.button>
       </div>
+
+      <AnimatePresence initial={false}>
+        {proExpanded && (
+          <motion.div
+            key="pro-details"
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25 }}
+            className="overflow-hidden">
+            <div className="relative flex items-center gap-2.5 bg-[var(--dash-bg)]/60 border border-purple-500/15 rounded-xl px-4 py-3 mb-3">
+              <div className="p-1.5 rounded-lg bg-purple-500/15 shrink-0">
+                <CalendarDays className="h-4 w-4 text-purple-400" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-bold text-[var(--dash-text)]">هر جمعه</p>
+                <p className="text-[11px] text-[var(--dash-muted)] mt-0.5">
+                  ۱۰:۰۰ تا ۱۱:۳۰ — با مدرس {mentor.name}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0 px-2 py-1 rounded-lg bg-purple-500/10">
+                <Clock className="h-3 w-3 text-purple-400" />
+                <span className="text-[10px] font-bold text-purple-400">
+                  ۱۰:۰۰
+                </span>
+              </div>
+            </div>
+
+            <div className="relative flex flex-wrap gap-1.5 mb-4">
+              <span className="text-[10px] font-bold text-purple-500 bg-purple-500/10 px-2 py-1 rounded-md flex items-center gap-1">
+                <Users className="h-3 w-3" />
+                گفتگوی گروهی زنده
+              </span>
+              <span className="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded-md flex items-center gap-1">
+                <BookOpen className="h-3 w-3" />
+                تمرین مکالمه
+              </span>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <motion.button
+        whileHover={{ scale: 1.01 }}
+        whileTap={{ scale: 0.98 }}
+        className="relative w-full py-3 rounded-xl text-sm font-bold text-white transition-all duration-200 bg-gradient-to-l from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+        onClick={() => toast.error("لینک جلسه جمعه هنوز قرار داده نشده است")}>
+        <span className="flex items-center justify-center gap-2">
+          <Video className="h-4 w-4" />
+          لینک جلسه جمعه قرار داده می‌شود
+        </span>
+      </motion.button>
     </div>
   );
 
@@ -781,28 +846,15 @@ export default function SessionsPage() {
           </div>
 
           {/* Fluency notice */}
-          <div className="space-y-2.5">
-            <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-              لطفاً قبل از ثبت درخواست، سطح زبان خود را در{" "}
-              <Link
-                href="/dashboard/account"
-                className="font-bold text-green-600 dark:text-green-400 underline underline-offset-2 hover:opacity-80 transition-opacity">
-                حساب کاربری
-              </Link>{" "}
-              انتخاب کنید
-            </p>
-            <label className="flex items-center gap-2 cursor-pointer select-none w-fit">
-              <input
-                type="checkbox"
-                checked={fluencyConfirmed}
-                onChange={(e) => setFluencyConfirmed(e.target.checked)}
-                className="h-4 w-4 accent-green-500 rounded cursor-pointer"
-              />
-              <span className="text-xs font-medium text-[var(--dash-muted)]">
-                انتخاب کرده‌ام
-              </span>
-            </label>
-          </div>
+          <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
+            لطفاً قبل از ثبت درخواست، سطح زبان خود را در{" "}
+            <Link
+              href="/dashboard/account"
+              className="font-bold text-green-600 dark:text-green-400 underline underline-offset-2 hover:opacity-80 transition-opacity">
+              حساب کاربری
+            </Link>{" "}
+            انتخاب کنید
+          </p>
 
           {/* Submit */}
           <motion.button

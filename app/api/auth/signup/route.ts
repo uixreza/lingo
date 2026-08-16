@@ -72,8 +72,22 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        await tx.wallet.create({
-          data: { userId: newUser.id, balance: 0, lastCharge: 0 },
+        const wallet = await tx.wallet.create({
+          data: { userId: newUser.id, balance: 150000, lastCharge: 0 },
+        });
+
+        await tx.transaction.create({
+          data: {
+            userId: newUser.id,
+            walletId: wallet.id,
+            amount: 150000,
+            balanceBefore: 0,
+            balanceAfter: 150000,
+            description: "هدیه خوش‌آمدگویی ثبت‌نام",
+            paymentMethod: "Gift",
+            status: "completed",
+            completedAt: new Date(),
+          },
         });
 
         return newUser;

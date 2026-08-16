@@ -109,15 +109,57 @@
       {
         "name": "Grammar by Betty Azar",
         "author": "Betty Azar",
-        "cover": "/assets/img/Book-Covers/Etc/azar.jpg",
-        "bookUrl": "https://dl.digi-zaban.ir/books/etc/azar.pdf",
-        "audioUrl": ""
+        "cover": "/assets/img/Book-Covers/bettyazar/1.jpg",
+        "bookUrl": "https://dl.languagecentre.ir/grammar/Understanding%20and%20Using%20English%20Garmmar%205th%20-%20[www.languagecentre.ir].pdf",
+        "audioUrl": "https://dl.languagecentre.ir/grammar/Understanding%20and%20Using%20English%20Garmmar%205th%20-%20Audio.zip"
       },
       {
         "name": "Street Talk",
         "author": "David Burke",
-        "cover": "/assets/img/Book-Covers/Etc/street-talk.jpg",
-        "bookUrl": "https://dl.digi-zaban.ir/books/etc/street-talk.pdf",
+        "cover": "/assets/img/Book-Covers/streettalk/1.webp",
+        "bookUrl": "https://dl.ieltstep.com/Books/Conversation/Street-Talk/Street-Talk-1-Book-www.ieltstep.com.pdf",
+        "audioUrl": "https://dl.ieltstep.com/Books/Conversation/Street-Talk/Street-Talk-1-Audio-www.ieltstep.com.zip"
+      },
+      {
+        "name": "Essential Grammar in Use",
+        "author": "Raymond Murphy",
+        "cover": "/assets/img/Book-Covers/GrammarInUse/1.jpg",
+        "bookUrl": "https://dl.languagecentre.ir/books/Essential%20Grammar%20in%20Use%20[www.languagecentre.ir].pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "Grammar in Use Intermediate",
+        "author": "Raymond Murphy",
+        "cover": "/assets/img/Book-Covers/GrammarInUse/2.jpg",
+        "bookUrl": "https://dl.languagecentre.ir/books/Intermediate%20English%20garmmar%20in%20Use%20[www.languagecentre.ir].pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "Advanced Grammar in Use",
+        "author": "Martin Hewings",
+        "cover": "/assets/img/Book-Covers/GrammarInUse/3.jpg",
+        "bookUrl": "https://dl.languagecentre.ir/books/Advanced-Grammar-in-Use%20[www.languagecentre.ir].pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "Animal Farm",
+        "author": "George Orwell",
+        "cover": "/assets/img/Book-Covers/novels/animalsfarm.webp",
+        "bookUrl": "https://pwc.r.zapp.ir/animal_farm_596a63eb96.pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "The Old Man and the Sea",
+        "author": "Ernest Hemingway",
+        "cover": "/assets/img/Book-Covers/novels/oldmanandthesea.webp",
+        "bookUrl": "https://pwc.r.zapp.ir/Hemmingway_The_Old_Man_and_the_Sea_1952_Borna_LC_com_f129ad913c.pdf",
+        "audioUrl": ""
+      },
+      {
+        "name": "Jane Eyre",
+        "author": "Charlotte Brontë",
+        "cover": "/assets/img/Book-Covers/novels/janeayre.webp",
+        "bookUrl": "https://pwc.r.zapp.ir/jane_eyre_a1b80dc7e8.pdf",
         "audioUrl": ""
       }
     ]

@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { createPortal } from "react-dom";
-import DatePicker from "react-multi-date-picker";
-import "react-multi-date-picker/styles/layouts/prime.css";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import DateObject from "react-date-object";
+import moment from "moment-jalaali";
 import {
   User,
   Mail,
@@ -85,6 +84,173 @@ function toFa(value: number | string): string {
   return String(value).replace(/[0-9]/g, (d) => digits[+d]);
 }
 
+const faMonths = [
+  "فروردین",
+  "اردیبهشت",
+  "خرداد",
+  "تیر",
+  "مرداد",
+  "شهریور",
+  "مهر",
+  "آبان",
+  "آذر",
+  "دی",
+  "بهمن",
+  "اسفند",
+];
+
+const WHEEL_ITEM_H = 44;
+const WHEEL_VISIBLE = 5;
+const WHEEL_PAD = 2;
+
+function WheelColumn({
+  items,
+  activeIndex,
+  onActiveChange,
+  className = "",
+}: {
+  items: string[];
+  activeIndex: number;
+  onActiveChange: (index: number) => void;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [active, setActive] = useState(activeIndex);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (el) el.scrollTop = activeIndex * WHEEL_ITEM_H;
+    setActive(activeIndex);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length]);
+
+  return (
+    <div
+      ref={ref}
+      onScroll={() => {
+        const el = ref.current;
+        if (!el) return;
+        const idx = Math.round(el.scrollTop / WHEEL_ITEM_H);
+        const clamped = Math.max(0, Math.min(items.length - 1, idx));
+        if (clamped !== active) {
+          setActive(clamped);
+          onActiveChange(clamped);
+        }
+      }}
+      style={{ height: WHEEL_ITEM_H * WHEEL_VISIBLE }}
+      className={`overflow-y-auto overscroll-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden [scroll-snap-type:y_mandatory] ${className}`}>
+      {Array.from({ length: WHEEL_PAD }).map((_, i) => (
+        <div key={`pad-t-${i}`} style={{ height: WHEEL_ITEM_H }} />
+      ))}
+      {items.map((item, i) => (
+        <div
+          key={i}
+          style={{ height: WHEEL_ITEM_H }}
+          className={`[scroll-snap-align:center] [scroll-snap-stop:always] flex items-center justify-center text-sm font-bold transition-colors duration-75 ${
+            i === active
+              ? "text-green-500"
+              : "text-[var(--dash-muted)]/45"
+          }`}>
+          {item}
+        </div>
+      ))}
+      {Array.from({ length: WHEEL_PAD }).map((_, i) => (
+        <div key={`pad-b-${i}`} style={{ height: WHEEL_ITEM_H }} />
+      ))}
+    </div>
+  );
+}
+
+function JalaliWheelPicker({
+  value,
+  onChange,
+}: {
+  value: DateObject | null;
+  onChange: (value: DateObject) => void;
+}) {
+  const base =
+    value ?? new DateObject({ calendar: persian, locale: persian_fa });
+  const jYear = base.year;
+  const jMonth = base.month.number;
+  const jDay = base.day;
+
+  const years = useMemo(() => {
+    const current = new DateObject({
+      calendar: persian,
+      locale: persian_fa,
+    }).year;
+    const start = Math.max(1300, current - 80);
+    return Array.from({ length: current - start + 1 }, (_, i) => start + i);
+  }, []);
+
+  const yearIdx = (() => {
+    const found = years.indexOf(jYear);
+    if (found >= 0) return found;
+    return jYear < years[0] ? 0 : years.length - 1;
+  })();
+
+  const setValue = (y: number, m: number, d: number) => {
+    onChange(
+      new DateObject({
+        year: y,
+        month: m,
+        day: d,
+        calendar: persian,
+        locale: persian_fa,
+      }),
+    );
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)]/60 py-3">
+      <div className="grid grid-cols-3 gap-2 px-5 pb-2">
+        <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
+          روز
+        </p>
+        <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
+          ماه
+        </p>
+        <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
+          سال
+        </p>
+      </div>
+      <div className="relative">
+        <div className="pointer-events-none absolute left-5 right-5 top-1/2 -translate-y-1/2 z-10 h-11 rounded-xl bg-green-500/10 ring-1 ring-green-500/25" />
+        <div className="flex gap-2 px-5" style={{ height: WHEEL_ITEM_H * WHEEL_VISIBLE }}>
+          <WheelColumn
+            className="flex-1"
+            items={Array.from({ length: moment.jDaysInMonth(jYear, jMonth - 1) }, (_, i) =>
+              toFa(i + 1),
+            )}
+            activeIndex={jDay - 1}
+            onActiveChange={(d) => setValue(jYear, jMonth, d + 1)}
+          />
+          <WheelColumn
+            className="flex-1"
+            items={faMonths}
+            activeIndex={jMonth - 1}
+            onActiveChange={(m) =>
+              setValue(jYear, m + 1, Math.min(jDay, moment.jDaysInMonth(jYear, m)))
+            }
+          />
+          <WheelColumn
+            className="flex-1"
+            items={years.map((y) => toFa(y))}
+            activeIndex={yearIdx}
+            onActiveChange={(y) =>
+              setValue(
+                years[y],
+                jMonth,
+                Math.min(jDay, moment.jDaysInMonth(years[y], jMonth - 1)),
+              )
+            }
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AccountPage() {
   const { update: updateSession } = useSession();
   const [activeTab, setActiveTab] = useState("profile");
@@ -95,6 +261,7 @@ export default function AccountPage() {
   const [birthDate, setBirthDate] = useState<DateObject | null>(
     () => new DateObject().convert(persian, persian_fa),
   );
+  const [mobilePickerOpen, setMobilePickerOpen] = useState(false);
   const [userData, setUserData] = useState({
     name: "",
     email: "",
@@ -524,11 +691,11 @@ export default function AccountPage() {
                           whileTap={savingProfile ? {} : { scale: 0.98 }}
                           onClick={handleSaveProfile}
                           disabled={savingProfile}
-                          className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                          className="flex items-center gap-2 px-4 py-2 sm:px-6 sm:py-2.5 text-sm sm:text-base rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
                           {savingProfile ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin" />
                           ) : (
-                            <Save className="h-4 w-4" />
+                            <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           )}
                           {savingProfile ? "در حال ذخیره..." : "ذخیره"}
                         </motion.button>
@@ -585,17 +752,24 @@ export default function AccountPage() {
                               <Calendar className="h-4 w-4 text-[var(--dash-accent)]" />
                               تاریخ تولد
                             </label>
-                            <DatePicker
-                              value={birthDate}
-                              onChange={(v) => setBirthDate(v)}
-                              calendar={persian}
-                              locale={persian_fa}
-                              format="YYYY/MM/DD"
-                              placeholder="انتخاب تاریخ تولد"
-                              containerClassName="w-full"
-                              inputClass="w-full outline-none bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all"
-                              calendarPosition="bottom-right"
-                            />
+                            <button
+                              type="button"
+                              onClick={() => setMobilePickerOpen(true)}
+                              className="w-full flex items-center justify-between gap-2 outline-none bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all">
+                              <span
+                                className={
+                                  birthDate
+                                    ? ""
+                                    : "text-[var(--dash-muted)]/60"
+                                }>
+                                {birthDate
+                                  ? birthDate.format("YYYY/MM/DD")
+                                  : "انتخاب تاریخ تولد"}
+                              </span>
+                              <span className="p-1.5 rounded-lg bg-green-500/10">
+                                <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
+                              </span>
+                            </button>
                           </div>
                         </div>
                       </div>
@@ -1081,6 +1255,52 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {mobilePickerOpen && (
+          <div className="fixed inset-0 z-[80] lg:flex lg:items-center lg:justify-center lg:p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setMobilePickerOpen(false)}
+            />
+            <motion.div
+              initial={{ y: "100%", opacity: 0.5 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: "100%", opacity: 0.5 }}
+              transition={{ type: "spring", damping: 30, stiffness: 300 }}
+              className="fixed bottom-0 inset-x-0 rounded-t-3xl bg-[var(--dash-sides)]/95 backdrop-blur-xl border-t border-[var(--dash-muted)]/15 shadow-2xl p-6 pb-8 lg:static lg:rounded-2xl lg:w-full lg:max-w-md lg:border lg:pb-6">
+              <div className="flex justify-center pb-3 lg:hidden">
+                <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+              </div>
+              <div className="flex items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span className="p-2 rounded-xl bg-green-500/15 shrink-0">
+                    <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="text-base font-bold text-[var(--dash-text)]">
+                      تاریخ تولد
+                    </h3>
+                    <p className="text-xs text-[var(--dash-muted)] mt-0.5 truncate">
+                      {birthDate ? birthDate.format("YYYY/MM/DD") : ""}
+                    </p>
+                  </div>
+                </div>
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => setMobilePickerOpen(false)}
+                  className="shrink-0 px-5 py-2.5 rounded-xl font-bold text-black bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25">
+                  تأیید
+                </motion.button>
+              </div>
+              <JalaliWheelPicker value={birthDate} onChange={setBirthDate} />
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

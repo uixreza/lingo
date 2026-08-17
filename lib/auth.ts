@@ -13,7 +13,8 @@ function createPrisma() {
     max: 5,
     idleTimeoutMillis: 5_000,
     connectionTimeoutMillis: 10_000,
-  });
+    family: 4,
+  } as pg.PoolConfig);
   pool.on("error", (err) => {
     console.error("Unexpected pg pool error:", err.message);
   });

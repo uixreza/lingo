@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -21,10 +21,13 @@ import {
   Clock,
   Users,
   ChevronDown,
+  MessageSquare,
+  Info,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
+import HorizScrollbar from "@/components/dashboard/UI/HorizScrollbar";
 
 const timeSlots = [
   { value: "08:30", label: "۰۸:۳۰ تا ۱۰:۰۰", period: "Morning" },
@@ -97,6 +100,73 @@ type RequestStatus = "Approved" | "Pending" | "Canceled";
 
 const cardClass =
   "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg";
+
+function DateLegend() {
+  const Row = ({
+    swatch,
+    children,
+  }: {
+    swatch: React.ReactNode;
+    children: React.ReactNode;
+  }) => (
+    <div className="flex items-center gap-3">
+      <div className="w-9 h-9 shrink-0 rounded-lg overflow-hidden flex items-center justify-center relative">
+        {swatch}
+      </div>
+      <span className="text-sm font-medium text-[var(--dash-muted)]">
+        {children}
+      </span>
+    </div>
+  );
+
+  return (
+    <div className="space-y-2.5">
+      <Row swatch={<div className="w-full h-full bg-purple-500/15 ring-1 ring-purple-500/40 rounded-lg" />}>
+        امروز
+      </Row>
+      <Row
+        swatch={
+          <div className="w-full h-full bg-green-500 rounded-lg flex items-center justify-center">
+            <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />
+          </div>
+        }>
+        جلسه تأیید شده
+      </Row>
+      <Row
+        swatch={
+          <div className="w-full h-full bg-amber-500 rounded-lg flex items-center justify-center">
+            <Loader2 className="h-3.5 w-3.5 text-black animate-spin" strokeWidth={3} />
+          </div>
+        }>
+        در انتظار بررسی
+      </Row>
+      <Row
+        swatch={
+          <div className="w-full h-full bg-red-500 rounded-lg flex items-center justify-center">
+            <Lock className="h-3 w-3 text-black" strokeWidth={2.5} />
+          </div>
+        }>
+        کاملاً رزرو شده
+      </Row>
+      <Row
+        swatch={
+          <div className="w-full h-full bg-green-500/15 rounded-lg flex items-center justify-end p-0.5">
+            <span className="h-3.5 min-w-3.5 px-0.5 bg-green-500 rounded-full flex items-center justify-center">
+              <span className="text-[7px] font-black text-black leading-none">۲</span>
+            </span>
+          </div>
+        }>
+        انتخاب شده (تعداد ساعت)
+      </Row>
+      <Row swatch={<div className="w-full h-full bg-[var(--hover-bg-strong)] rounded-lg" />}>
+        روز گذشته
+      </Row>
+      <Row swatch={<div className="w-full h-full bg-[var(--hover-bg)] rounded-lg" />}>
+        روز قابل رزرو
+      </Row>
+    </div>
+  );
+}
 const accentBar =
   "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent";
 
@@ -133,6 +203,9 @@ export default function SessionsPage() {
   const [isCanceling, setIsCanceling] = useState(false);
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
   const [proExpanded, setProExpanded] = useState(false);
+  const [panelTopic, setPanelTopic] = useState("");
+  const monthGridsRef = useRef<HTMLDivElement>(null);
+  const [showDateHelp, setShowDateHelp] = useState(false);
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -148,10 +221,11 @@ export default function SessionsPage() {
   useEffect(() => {
     const fetchSessions = async () => {
       try {
-        const [sessionsRes, priceRes, mentorRes] = await Promise.all([
+        const [sessionsRes, priceRes, mentorRes, panelRes] = await Promise.all([
           fetch("/api/sessions"),
           fetch("/api/sessions/price"),
           fetch("/api/mentor"),
+          fetch("/api/panel-discussion"),
         ]);
         if (sessionsRes.ok) {
           const data = await sessionsRes.json();
@@ -186,6 +260,10 @@ export default function SessionsPage() {
               return languages.find((l) => available.has(l.label))?.id ?? "";
             });
           }
+        }
+        if (panelRes.ok) {
+          const { topic } = await panelRes.json();
+          setPanelTopic(topic ?? "");
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -444,6 +522,20 @@ export default function SessionsPage() {
               </div>
             </div>
 
+            {panelTopic && (
+              <div className="relative bg-[var(--dash-bg)]/60 border border-purple-500/15 rounded-xl px-4 py-3 mb-3">
+                <div className="flex items-center gap-1.5 mb-1">
+                  <MessageSquare className="h-3.5 w-3.5 text-purple-400" />
+                  <span className="text-[11px] font-bold text-purple-400">
+                    موضوع این هفته
+                  </span>
+                </div>
+                <p dir="ltr" className="text-sm font-bold text-[var(--dash-text)] leading-relaxed text-left">
+                  {panelTopic}
+                </p>
+              </div>
+            )}
+
             <div className="relative flex flex-wrap gap-1.5 mb-4">
               <span className="text-[10px] font-bold text-purple-500 bg-purple-500/10 px-2 py-1 rounded-md flex items-center gap-1">
                 <Users className="h-3 w-3" />
@@ -472,40 +564,40 @@ export default function SessionsPage() {
   );
 
   return isLoading ? (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-pulse">
-      <div className={`lg:col-span-3 ${cardClass} p-6`}>
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+      <div className="lg:col-span-3 rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
         <div className="flex items-center gap-3 mb-8">
-          <div className="h-8 w-1 rounded-full bg-[var(--hover-bg-strong)]" />
-          <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)]" />
+          <div className="h-8 w-1 rounded-full bg-[var(--hover-bg-strong)] animate-pulse" />
+          <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
         </div>
         <div className="space-y-7">
           {[0, 1, 2, 3].map((i) => (
             <div key={i} className="space-y-3">
-              <div className="h-3 w-32 rounded bg-[var(--hover-bg-strong)]" />
-              <div className="h-24 rounded-xl bg-[var(--hover-bg)]" />
+              <div className="h-3 w-32 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
+              <div className="h-24 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
             </div>
           ))}
-          <div className="h-14 rounded-xl bg-[var(--hover-bg)]" />
+          <div className="h-14 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
         </div>
       </div>
-      <div className={`lg:col-span-2 ${cardClass} p-6`}>
+      <div className="lg:col-span-2 rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
         <div className="flex items-center justify-between mb-6">
-          <div className="h-5 w-36 rounded bg-[var(--hover-bg-strong)]" />
-          <div className="h-5 w-10 rounded-full bg-[var(--hover-bg-strong)]" />
+          <div className="h-5 w-36 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
+          <div className="h-5 w-10 rounded-full bg-[var(--hover-bg-strong)] animate-pulse" />
         </div>
         {[0, 1, 2].map((i) => (
-          <div key={i} className="rounded-2xl p-5 bg-[var(--hover-bg)] space-y-3 mb-3">
+          <div key={i} className="rounded-2xl p-5 bg-[var(--dash-sides)] space-y-3 mb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-lg bg-[var(--hover-bg-strong)]" />
+                <div className="h-9 w-9 rounded-lg bg-[var(--hover-bg-strong)] animate-pulse" />
                 <div className="space-y-2">
-                  <div className="h-3 w-24 rounded bg-[var(--hover-bg-strong)]" />
-                  <div className="h-2.5 w-16 rounded bg-[var(--hover-bg-strong)]" />
+                  <div className="h-3 w-24 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
+                  <div className="h-2.5 w-16 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
                 </div>
               </div>
-              <div className="h-6 w-16 rounded-full bg-[var(--hover-bg-strong)]" />
+              <div className="h-6 w-16 rounded-full bg-[var(--hover-bg-strong)] animate-pulse" />
             </div>
-            <div className="h-2.5 w-full rounded bg-[var(--hover-bg-strong)]" />
+            <div className="h-2.5 w-full rounded bg-[var(--hover-bg-strong)] animate-pulse" />
           </div>
         ))}
       </div>
@@ -639,12 +731,18 @@ export default function SessionsPage() {
               <label className="text-sm font-medium text-[var(--dash-muted)]">
                 تاریخ و ساعت جلسه
               </label>
+              <button
+                onClick={() => setShowDateHelp(true)}
+                className="mr-auto p-1.5 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-green-500 hover:bg-[var(--hover-bg-strong)] transition-all duration-150"
+                aria-label="راهنمای رنگ روزها">
+                <Info className="h-4 w-4" />
+              </button>
             </div>
             <div className="space-y-4">
               {/* Month Grids */}
               {mounted && (
                 <div className="relative">
-                  <div className="flex gap-6 overflow-x-auto pb-2" style={{ direction: "ltr" }}>
+                  <div ref={monthGridsRef} className="flex gap-6 overflow-x-auto pb-2 lg:pb-6" style={{ direction: "ltr" }}>
                     {(() => {
                       const now = moment();
                       const jNowYear = now.jYear();
@@ -736,6 +834,7 @@ export default function SessionsPage() {
                       });
                     })()}
                   </div>
+                  <HorizScrollbar scrollRef={monthGridsRef} />
                 </div>
               )}
             </div>
@@ -1220,6 +1319,75 @@ export default function SessionsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Date color legend — desktop popup */}
+      {showDateHelp && (
+        <div className="fixed inset-0 z-[70] hidden lg:flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowDateHelp(false)}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="relative w-full max-w-sm overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/95 backdrop-blur-xl shadow-2xl p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="p-2.5 rounded-xl bg-purple-500/15 shrink-0">
+                <Info className="h-5 w-5 text-purple-400" />
+              </div>
+              <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                راهنمای رنگ روزها
+              </h3>
+              <button
+                onClick={() => setShowDateHelp(false)}
+                className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
+                aria-label="بستن راهنما">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <DateLegend />
+          </motion.div>
+        </div>
+      )}
+
+      {/* Date color legend — mobile bottom sheet */}
+      <div
+        className={`lg:hidden fixed inset-0 z-[70] ${
+          showDateHelp ? "" : "pointer-events-none"
+        }`}
+        aria-hidden={!showDateHelp}>
+        <div
+          className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-300 ${
+            showDateHelp ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={() => setShowDateHelp(false)}
+        />
+        <motion.div
+          initial={{ y: "100%" }}
+          animate={{ y: showDateHelp ? 0 : "100%" }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="absolute bottom-0 inset-x-0 rounded-t-3xl border-t border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/95 backdrop-blur-2xl shadow-2xl p-5 pb-8">
+          <div className="flex justify-center pt-1 pb-3">
+            <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+          </div>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="p-2.5 rounded-xl bg-purple-500/15 shrink-0">
+              <Info className="h-5 w-5 text-purple-400" />
+            </div>
+            <h3 className="text-lg font-bold text-[var(--dash-text)]">
+              راهنمای رنگ روزها
+            </h3>
+            <button
+              onClick={() => setShowDateHelp(false)}
+              className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
+              aria-label="بستن راهنما">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+          <DateLegend />
+        </motion.div>
+      </div>
 
       {/* Cancel confirmation modal */}
       {cancelTarget && (

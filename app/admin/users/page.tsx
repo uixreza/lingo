@@ -396,20 +396,20 @@ export default function UserManagementPage() {
 
       {/* Users grid */}
       {isSearching ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 animate-pulse">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {[0, 1, 2, 3, 4, 5].map((i) => (
             <div
               key={i}
-              className={`${cardClass} p-5 space-y-4`}>
+              className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-5 space-y-4">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-xl bg-[var(--hover-bg-strong)]" />
+                <div className="w-12 h-12 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
                 <div className="space-y-2 flex-1">
-                  <div className="h-3.5 w-2/3 rounded bg-[var(--hover-bg-strong)]" />
-                  <div className="h-3 w-1/2 rounded bg-[var(--hover-bg)]" />
+                  <div className="h-3.5 w-2/3 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
+                  <div className="h-3 w-1/2 rounded bg-[var(--hover-bg)] animate-pulse" />
                 </div>
               </div>
-              <div className="h-7 w-full rounded-lg bg-[var(--hover-bg)]" />
-              <div className="h-9 w-full rounded-xl bg-[var(--hover-bg)]" />
+              <div className="h-7 w-full rounded-lg bg-[var(--hover-bg)] animate-pulse" />
+              <div className="h-9 w-full rounded-xl bg-[var(--hover-bg)] animate-pulse" />
             </div>
           ))}
         </div>

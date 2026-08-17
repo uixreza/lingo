@@ -106,6 +106,14 @@ export default function DashboardPage() {
             backgroundRepeat: "repeat",
           }}
         />
+        <div
+          className="absolute -top-32 -left-32 h-96 w-96 rounded-full opacity-30"
+          style={{
+            background:
+              "radial-gradient(circle, rgba(34,197,94,0.45) 0%, rgba(34,197,94,0.12) 45%, transparent 70%)",
+            filter: "blur(30px)",
+          }}
+        />
         <div className="relative z-10">
         {marqueeTexts.length > 0 && (
         <div
@@ -120,7 +128,7 @@ export default function DashboardPage() {
             اطلاعیه
           </span>
           <div className="relative flex-1 overflow-hidden min-w-0">
-            <div className="flex w-max animate-marquee">
+            <div className="flex w-max animate-marquee-reverse">
               {[0, 1].map((dup) => (
                 <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
                   {marqueeTexts.map((msg, i) => (
@@ -146,7 +154,7 @@ export default function DashboardPage() {
               خوش آمدید، {session.data?.user.fullname}!
             </h1>
             <p className="text-[var(--dash-muted)] mt-2 text-sm sm:text-base">
-              این‌جا می‌توانید کتاب‌های دوره خود را دانلود کنید.
+              هر روز یه قدم کوچیک به هدفت نزدیک‌تر شو!
             </p>
           </div>
         </div>
@@ -423,7 +431,7 @@ function UpcomingSessionsCard({
 }
 
 function RadioCard() {
-  const { playing, failed, toggle } = useRadio();
+  const { playing, failed, toggle, accent, setAccent, station } = useRadio();
 
   return (
     <div className="relative flex flex-col justify-between rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-2xl shadow-2xl p-4 overflow-hidden">
@@ -441,6 +449,21 @@ function RadioCard() {
             تقویت مهارت شنیداری
           </p>
         </div>
+        <div className="mr-auto flex items-center gap-1 p-0.5 rounded-full bg-[var(--hover-bg)]">
+          {(["UK", "US"] as const).map((a) => (
+            <button
+              key={a}
+              onClick={() => setAccent(a)}
+              aria-pressed={accent === a}
+              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200 ${
+                accent === a
+                  ? "bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow"
+                  : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+              }`}>
+              {a}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="flex items-center gap-3">
@@ -457,7 +480,7 @@ function RadioCard() {
 
         <div className="min-w-0">
           <p className="text-sm font-medium text-[var(--dash-text)] truncate">
-            LBC UK
+            {station}
           </p>
           <div className="flex items-center gap-2">
             <p className="text-xs text-[var(--dash-muted)]">
@@ -465,7 +488,9 @@ function RadioCard() {
                 ? "پخش در دسترس نیست"
                 : playing
                   ? "در حال پخش زنده..."
-                  : "ایستگاه زنده — گفتگو و اخبار"}
+                  : accent === "US"
+                    ? "لهجه آمریکایی — اخبار و گفتگو"
+                    : "لهجه بریتانیایی — گفتگو و اخبار"}
             </p>
             {playing && (
               <span className="flex items-end gap-0.5 h-3" aria-hidden>

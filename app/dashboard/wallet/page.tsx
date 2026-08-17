@@ -307,7 +307,7 @@ export default function WalletPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start animate-pulse pb-24 lg:pb-0">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start pb-24 lg:pb-0">
         {/* Balance card */}
         <div
           className="order-1 lg:col-start-1 lg:col-span-2 relative overflow-hidden rounded-3xl p-6 sm:p-7 shadow-2xl"
@@ -317,76 +317,76 @@ export default function WalletPage() {
           }}>
           <div className="flex items-start justify-between gap-3 mb-9">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-2xl bg-white/25" />
+              <div className="h-10 w-10 rounded-2xl bg-white/25 animate-pulse" />
               <div className="space-y-2">
-                <div className="h-4 w-24 rounded bg-white/30" />
-                <div className="h-2.5 w-16 rounded bg-white/20" />
+                <div className="h-4 w-24 rounded bg-white/30 animate-pulse" />
+                <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
               </div>
             </div>
-            <div className="h-6 w-16 rounded-full bg-white/25" />
+            <div className="h-6 w-16 rounded-full bg-white/25 animate-pulse" />
           </div>
           <div className="text-center mb-8">
-            <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3" />
-            <div className="h-7 w-24 mx-auto rounded-full bg-white/25" />
+            <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3 animate-pulse" />
+            <div className="h-7 w-24 mx-auto rounded-full bg-white/25 animate-pulse" />
           </div>
           <div className="pt-4 border-t border-white/15 flex items-center justify-between gap-4">
             <div className="space-y-2">
-              <div className="h-2.5 w-16 rounded bg-white/20" />
-              <div className="h-3.5 w-24 rounded bg-white/30" />
+              <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
+              <div className="h-3.5 w-24 rounded bg-white/30 animate-pulse" />
             </div>
             <div className="w-px h-8 bg-white/15" />
             <div className="space-y-2">
-              <div className="h-2.5 w-16 rounded bg-white/20" />
-              <div className="h-3.5 w-20 rounded bg-white/30" />
+              <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
+              <div className="h-3.5 w-20 rounded bg-white/30 animate-pulse" />
             </div>
           </div>
         </div>
 
         {/* Invoices card */}
-        <div className={`order-3 lg:col-start-1 lg:col-span-2 ${cardClass} p-6`}>
+        <div className="order-3 lg:col-start-1 lg:col-span-2 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
           <div className="flex items-center gap-2.5 mb-5">
-            <div className="h-8 w-8 rounded-lg bg-[var(--hover-bg-strong)]" />
-            <div className="h-5 w-32 rounded bg-[var(--hover-bg-strong)]" />
+            <div className="h-8 w-8 rounded-lg bg-[var(--hover-bg-strong)] animate-pulse" />
+            <div className="h-5 w-32 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
           </div>
           <div className="space-y-2.5">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-12 rounded-xl bg-[var(--hover-bg)]" />
+              <div key={i} className="h-12 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
             ))}
           </div>
         </div>
 
         {/* Charge card */}
-        <div className={`order-2 lg:col-start-3 lg:col-span-3 ${cardClass} p-6`}>
+        <div className="order-2 lg:col-start-3 lg:col-span-3 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)]" />
-            <div className="h-5 w-40 rounded bg-[var(--hover-bg-strong)]" />
+            <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+            <div className="h-5 w-40 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
           </div>
           <div className="flex gap-1.5 p-1.5 rounded-2xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 mb-6">
-            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)]" />
-            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)]" />
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
           </div>
-          <div className="w-full max-w-md mx-auto h-44 rounded-2xl bg-[var(--hover-bg)] mb-6" />
-          <div className="h-32 rounded-xl bg-[var(--hover-bg)] mb-6" />
-          <div className="h-14 rounded-xl bg-[var(--hover-bg)]" />
+          <div className="w-full max-w-md mx-auto h-44 rounded-2xl bg-[var(--hover-bg)] mb-6 animate-pulse" />
+          <div className="h-32 rounded-xl bg-[var(--hover-bg)] mb-6 animate-pulse" />
+          <div className="h-14 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
           {/* Wallet guide (mobile only) */}
           <div className="lg:hidden mt-6 rounded-2xl bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 p-5 space-y-3">
-            <div className="h-4 w-28 rounded bg-[var(--hover-bg-strong)] mb-4" />
+            <div className="h-4 w-28 rounded bg-[var(--hover-bg-strong)] mb-4 animate-pulse" />
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-3 rounded bg-[var(--hover-bg)]" />
+              <div key={i} className="h-3 rounded bg-[var(--hover-bg)] animate-pulse" />
             ))}
           </div>
         </div>
 
         {/* Wallet guide (desktop only) */}
         <div
-          className={`order-4 hidden lg:block lg:col-start-3 lg:col-span-3 ${cardClass} p-6`}>
+          className="order-4 hidden lg:block lg:col-start-3 lg:col-span-3 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
           <div className="flex items-center gap-3 mb-6">
-            <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)]" />
-            <div className="h-5 w-40 rounded bg-[var(--hover-bg-strong)]" />
+            <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+            <div className="h-5 w-40 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="h-4 rounded bg-[var(--hover-bg)]" />
+              <div key={i} className="h-4 rounded bg-[var(--hover-bg)] animate-pulse" />
             ))}
           </div>
         </div>

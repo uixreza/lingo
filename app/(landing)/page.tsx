@@ -55,15 +55,15 @@ export default function Home() {
         <div
           className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3"
           style={{ direction: "ltr" }}>
-          <div className="flex items-center gap-3 overflow-hidden w-full rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5 animate-pulse">
+          <div className="flex items-center gap-3 overflow-hidden w-full rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
             <span className="shrink-0 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-green-500/20 flex items-center justify-center">
+              <span className="w-7 h-7 rounded-lg bg-green-500/20 flex items-center justify-center animate-pulse">
                 <span className="w-3.5 h-3.5 rounded-sm bg-green-500/30" />
               </span>
             </span>
             <div className="flex-1 space-y-2">
-              <div className="h-2 w-16 bg-white/10 rounded-full" />
-              <div className="h-2 w-36 bg-white/10 rounded-full" />
+              <div className="h-2 w-16 bg-white/10 rounded-full animate-pulse" />
+              <div className="h-2 w-36 bg-white/10 rounded-full animate-pulse" />
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export default function Home() {
               اطلاعیه
             </span>
             <div className="relative flex-1 overflow-hidden min-w-0">
-              <div className="flex w-max will-change-transform animate-marquee">
+              <div className="flex w-max will-change-transform animate-marquee-reverse">
                 {[0, 1].map((dup) => (
                   <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
                     {marqueeTexts.map((msg, i) => (
@@ -99,6 +99,30 @@ export default function Home() {
           </div>
         </div>
       ) : null}
+
+      <Link href="/lingotv">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{
+            boxShadow: [
+              "0 0 0 0 rgba(34,197,94,0.45)",
+              "0 0 0 9px rgba(34,197,94,0)",
+              "0 0 0 0 rgba(34,197,94,0.45)",
+            ],
+          }}
+          transition={{ duration: 1.6, repeat: Infinity, ease: "easeOut" }}
+          className="fixed top-4 right-4 z-40 hidden lg:flex items-center gap-2 pl-2.5 pr-4 py-2 rounded-xl bg-[#0a0f0a]/80 border border-green-500/30 backdrop-blur-xl">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-green-500" />
+          </span>
+          <span className="text-[11px] font-black tracking-[0.2em] text-green-400">
+            LIVE
+          </span>
+          <span className="text-xs font-bold text-green-400">LingoTV</span>
+        </motion.button>
+      </Link>
 
       <motion.section
         variants={container}

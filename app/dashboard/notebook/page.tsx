@@ -2,8 +2,9 @@
 
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, Trash2, NotebookText, CloudUpload, CloudCheck, Loader2 } from "lucide-react";
+import { Plus, Trash2, PenLine, X, Save, CloudUpload, NotebookText, CloudCheck, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import RichTextEditor from "@/components/dashboard/UI/RichTextEditor";
 
 type Note = {
   id: string;
@@ -85,7 +86,7 @@ const listVariants = {
 
 export default function NotebookPage() {
   const notes = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
-  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
   const [deleting, setDeleting] = useState(false);
@@ -122,8 +123,7 @@ export default function NotebookPage() {
               text: dbNote.text,
               updatedAt: dbTime,
               synced: true,
-            };
-            localById.set(dbNote.localId, incoming);
+            };            localById.set(dbNote.localId, incoming);
             merged.push(incoming);
           }
         }
@@ -138,7 +138,39 @@ export default function NotebookPage() {
   const addNote = () => {
     const note = createNote();
     persistNotes([note, ...notesCache]);
-    setFocusedId(note.id);
+    setEditingId(note.id);
+  };
+
+  const plainText = (html: string) =>
+    html
+      .replace(/<[^>]*>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const editingNote = notes.find((n) => n.id === editingId) ?? null;
+
+  const closeEditor = () => {
+    const note = notesCache.find((n) => n.id === editingId);
+    if (note && !plainText(note.text)) {
+      persistNotes(notesCache.filter((n) => n.id !== note.id));
+    }
+    setEditingId(null);
+  };
+
+  const saveAndClose = async () => {
+    if (syncingId) return;
+    const note = notesCache.find((n) => n.id === editingId);
+    if (!note) {
+      setEditingId(null);
+      return;
+    }
+    if (!plainText(note.text)) {
+      persistNotes(notesCache.filter((n) => n.id !== note.id));
+      setEditingId(null);
+      return;
+    }
+    await saveNote(note.id);
+    setEditingId(null);
   };
 
   const updateNote = (id: string, text: string) => {
@@ -243,14 +275,6 @@ export default function NotebookPage() {
               یادداشت‌ها در همین مرورگر ذخیره می‌شوند.
             </p>
           </div>
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            onClick={addNote}
-            className="relative flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-black transition-all duration-300 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
-            <Plus className="h-4 w-4" />
-            اولین یادداشت را بنویسید
-          </motion.button>
         </motion.div>
       ) : (
         <motion.div
@@ -274,20 +298,31 @@ export default function NotebookPage() {
                 }}
                 className="group relative flex flex-col gap-3 overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg p-4 transition-colors duration-300 hover:border-[var(--dash-accent)]/40">
                 <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent" />
-                <textarea
-                  value={note.text}
-                  autoFocus={note.id === focusedId}
-                  onChange={(e) => updateNote(note.id, e.target.value)}
-                  onFocus={() => setFocusedId(note.id)}
-                  placeholder="یادداشت بنویسید…"
-                  rows={Math.max(3, Math.min(14, note.text.split("\n").length))}
-                  className="w-full flex-1 resize-none bg-transparent text-[var(--dash-text)] placeholder:text-[var(--dash-muted)] text-sm leading-7 outline-none focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] rounded-lg transition-shadow"
-                />
+                <button
+                  onClick={() => setEditingId(note.id)}
+                  className="flex-1 text-right min-w-0 cursor-text">
+                  {plainText(note.text) ? (
+                    <p className="text-sm text-[var(--dash-text)] leading-7 whitespace-pre-wrap break-words line-clamp-6">
+                      {plainText(note.text)}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-[var(--dash-muted)] leading-7">
+                      یادداشت بنویسید…
+                    </p>
+                  )}
+                </button>
                 <div className="flex items-center justify-between pt-2 border-t border-[var(--dash-muted)]/10">
                   <span className="text-[11px] text-[var(--dash-muted)]">
                     {timeAgo(note.updatedAt)}
                   </span>
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setEditingId(note.id)}
+                      aria-label="ویرایش یادداشت"
+                      title="ویرایش"
+                      className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors duration-150">
+                      <PenLine className="h-4 w-4" />
+                    </button>
                     <button
                       onClick={() => saveNote(note.id)}
                       disabled={note.synced || syncingId === note.id}
@@ -315,6 +350,79 @@ export default function NotebookPage() {
           </AnimatePresence>
         </motion.div>
       )}
+
+      <AnimatePresence>
+        {editingNote && (
+          <div className="fixed inset-0 z-[70] flex items-end justify-center sm:items-center sm:p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeEditor}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, y: 120, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 120, scale: 0.98 }}
+              transition={{ type: "spring", damping: 28, stiffness: 320 }}
+              className="relative w-full max-h-[94dvh] overflow-hidden rounded-t-3xl border border-[var(--dash-muted)]/15 bg-[var(--dash-sides)] shadow-2xl flex flex-col sm:max-w-3xl sm:rounded-2xl">
+              <div className="mx-auto mt-3 h-1.5 w-10 rounded-full bg-[var(--dash-muted)]/30 sm:hidden" />
+              <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[var(--dash-muted)]/10">
+                <span className="inline-flex items-center gap-2 text-sm font-bold text-[var(--dash-text)]">
+                  <NotebookText className="h-4 w-4 text-green-500" />
+                  {plainText(editingNote.text) ? "ویرایش یادداشت" : "نوشتن یادداشت"}
+                </span>
+                <button
+                  onClick={closeEditor}
+                  aria-label="بستن"
+                  className="p-2 rounded-xl text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:bg-[var(--hover-bg)] transition-all">
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-3 sm:p-4">
+                <RichTextEditor
+                  key={editingNote.id}
+                  initialContent={editingNote.text}
+                  autoFocus
+                  onChange={(html) => updateNote(editingNote.id, html)}
+                  placeholder="یادداشت بنویسید…"
+                  minHeight="300px"
+                />
+              </div>
+              <div className="flex flex-col sm:flex-row gap-3 px-4 sm:px-6 py-3 border-t border-[var(--dash-muted)]/10">
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={closeEditor}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl border border-[var(--dash-muted)]/30 text-[var(--dash-muted)] hover:bg-[var(--dash-bg)] hover:text-[var(--dash-text)] transition-all duration-300 font-medium">
+                  <Save className="h-4 w-4" />
+                  ذخیره محلی
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={saveAndClose}
+                  disabled={syncingId === editingNote.id}
+                  className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                  {syncingId === editingNote.id ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      در حال ذخیره...
+                    </>
+                  ) : (
+                    <>
+                      <CloudUpload className="h-4 w-4" />
+                      ذخیره در دیتابیس
+                    </>
+                  )}
+                </motion.button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <AnimatePresence>
         {deleteTarget && (

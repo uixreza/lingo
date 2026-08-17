@@ -113,6 +113,7 @@ export default function Sidebar() {
                   alt="Logo"
                   width={48}
                   height={48}
+                  loading="eager"
                 />
               </div>
             </div>

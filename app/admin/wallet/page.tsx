@@ -226,12 +226,12 @@ export default function AdminWalletPage() {
 
   if (isLoading) {
     return (
-      <div className="animate-pulse">
+      <div className="">
         {/* Tab toggle */}
         <div className="flex justify-start mb-8">
-          <div className="w-full sm:w-72 h-12 rounded-2xl bg-[var(--dash-sides)]/80 border border-[var(--dash-muted)]/15 dark:border-white/20 flex items-center p-1.5 gap-1.5">
-            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)]" />
-            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)]" />
+          <div className="w-full sm:w-72 h-12 rounded-2xl bg-[var(--dash-sides)] border border-[var(--dash-muted)]/15 dark:border-white/20 flex items-center p-1.5 gap-1.5">
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+            <div className="flex-1 h-9 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
           </div>
         </div>
 
@@ -247,37 +247,37 @@ export default function AdminWalletPage() {
               }}>
               <div className="flex items-start justify-between gap-3 mb-9">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-2xl bg-white/25" />
+                  <div className="h-10 w-10 rounded-2xl bg-white/25 animate-pulse" />
                   <div className="space-y-2">
-                    <div className="h-4 w-24 rounded bg-white/30" />
-                    <div className="h-2.5 w-16 rounded bg-white/20" />
+                    <div className="h-4 w-24 rounded bg-white/30 animate-pulse" />
+                    <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
                   </div>
                 </div>
-                <div className="h-6 w-16 rounded-full bg-white/25" />
+                <div className="h-6 w-16 rounded-full bg-white/25 animate-pulse" />
               </div>
               <div className="text-center mb-8">
-                <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3" />
-                <div className="h-7 w-24 mx-auto rounded-full bg-white/25" />
+                <div className="h-12 w-2/3 mx-auto rounded-xl bg-white/30 mb-3 animate-pulse" />
+                <div className="h-7 w-24 mx-auto rounded-full bg-white/25 animate-pulse" />
               </div>
               <div className="pt-4 border-t border-white/15 flex items-center justify-between gap-4">
                 <div className="space-y-2">
-                  <div className="h-2.5 w-16 rounded bg-white/20" />
-                  <div className="h-3.5 w-24 rounded bg-white/30" />
+                  <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
+                  <div className="h-3.5 w-24 rounded bg-white/30 animate-pulse" />
                 </div>
                 <div className="w-px h-8 bg-white/15" />
                 <div className="space-y-2">
-                  <div className="h-2.5 w-16 rounded bg-white/20" />
-                  <div className="h-3.5 w-20 rounded bg-white/30" />
+                  <div className="h-2.5 w-16 rounded bg-white/20 animate-pulse" />
+                  <div className="h-3.5 w-20 rounded bg-white/30 animate-pulse" />
                 </div>
               </div>
             </div>
 
             {/* Income stats */}
-            <div className="bg-[var(--dash-sides)]/80 rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
-              <div className="h-5 w-28 mx-auto rounded bg-[var(--hover-bg-strong)] mb-5" />
+            <div className="bg-[var(--dash-sides)] rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
+              <div className="h-5 w-28 mx-auto rounded bg-[var(--hover-bg-strong)] mb-5 animate-pulse" />
               <div className="space-y-3">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-8 rounded-xl bg-[var(--hover-bg)]" />
+                  <div key={i} className="h-8 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
                 ))}
               </div>
             </div>
@@ -285,23 +285,23 @@ export default function AdminWalletPage() {
 
           {/* Recent sessions */}
           <div className="lg:col-span-3 space-y-6">
-            <div className="bg-[var(--dash-sides)]/80 rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
+            <div className="bg-[var(--dash-sides)] rounded-2xl p-6 shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)]" />
-                  <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)]" />
+                  <div className="h-10 w-10 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+                  <div className="h-5 w-44 rounded bg-[var(--hover-bg-strong)] animate-pulse" />
                 </div>
-                <div className="h-7 w-16 rounded-full bg-[var(--hover-bg-strong)]" />
+                <div className="h-7 w-16 rounded-full bg-[var(--hover-bg-strong)] animate-pulse" />
               </div>
               <div className="space-y-3">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-14 rounded-xl bg-[var(--hover-bg)]" />
+                  <div key={i} className="h-14 rounded-xl bg-[var(--hover-bg)] animate-pulse" />
                 ))}
               </div>
             </div>
 
             {/* Security notice */}
-            <div className="h-14 rounded-xl border border-green-500/20 bg-green-500/10" />
+            <div className="h-14 rounded-xl border border-green-500/20 bg-green-500/10 animate-pulse" />
           </div>
         </div>
       </div>

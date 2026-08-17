@@ -18,8 +18,7 @@ type User = {
   name: string;
   image?: string | null;
   balance: number;
-  level?: number;
-  xp?: number;
+  years?: number;
   streak?: number;
   badges?: string[];
 };
@@ -31,8 +30,7 @@ export default function Header({ user }: { user: User }) {
   const {
     name: _name,
     balance,
-    level = 1,
-    xp = 0,
+    years = 1,
     streak = 0,
   } = user;
 
@@ -77,10 +75,6 @@ export default function Header({ user }: { user: User }) {
     };
   }, []);
 
-  // Calculate XP progress
-  const xpForNextLevel = 1000;
-  const xpProgress = (xp / xpForNextLevel) * 100;
-
   return (
     <header className="bg-[var(--header-bg)] backdrop-blur-2xl shadow-sm px-4 sm:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
@@ -94,8 +88,10 @@ export default function Header({ user }: { user: User }) {
                 size={56}
                 className="rounded-xl w-12 h-12 sm:w-14 sm:h-14"
               />
-              <div className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
-                {level}
+              <div
+                title={`${years} سال همراه لینگوفم`}
+                className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
+                {years}
               </div>
             </div>
           </div>
@@ -115,19 +111,6 @@ export default function Header({ user }: { user: User }) {
                   <span className="xs:hidden">{streak}</span>
                 </div>
               )}
-            </div>
-
-            {/* XP Progress Bar - Important, keep green */}
-            <div className="hidden xs:flex items-center gap-2 sm:gap-3 w-full max-w-[200px] sm:max-w-[240px] lg:max-w-[280px]">
-              <div className="flex-1 bg-[var(--hover-bg-strong)] rounded-full h-1.5 sm:h-2 overflow-hidden min-w-[80px]">
-                <div
-                  className="bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] h-full rounded-full transition-all duration-500 ease-out shadow-lg"
-                  style={{ width: `${Math.min(xpProgress, 100)}%` }}
-                />
-              </div>
-              <span className="text-[var(--text-muted)] text-xs sm:text-sm font-medium min-w-[45px] sm:min-w-[60px] shrink-0">
-                {xp} XP
-              </span>
             </div>
 
             {/* Pro & Loyalty Badges */}
@@ -178,32 +161,39 @@ export default function Header({ user }: { user: User }) {
             )}
           </Link>
 
-          {/* Balance Card */}
+{/* Balance Card */}
           <Link
             href="/dashboard/wallet"
-            className="group flex items-center gap-2 sm:gap-3 bg-[var(--hover-bg)]  rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 hover:bg-[var(--hover-bg-strong)] hover:scale-105 transition-all duration-200 shadow-lg min-w-[100px] xs:min-w-[120px] sm:min-w-[140px]">
-            <div className="relative">
-              <Wallet className="h-4 w-4 sm:h-6 sm:w-6 text-[var(--icon-muted)]" />
-            </div>
+            className="group relative flex items-center gap-2 sm:gap-3 overflow-hidden bg-gradient-to-l from-[var(--light-purple)]/15 via-[var(--hover-bg)] to-[var(--hover-bg)] rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ring-1 ring-purple-500/15 hover:ring-purple-400/40 hover:scale-105 transition-all duration-200 shadow-lg min-w-[100px] xs:min-w-[120px] sm:min-w-[140px]">
+            <div className="absolute -top-8 -left-8 h-20 w-20 rounded-full bg-purple-500/25 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
-            <div className="text-right flex-1 min-w-0">
-              <div className="text-[var(--text-muted)] text-[10px] xs:text-xs">
-                موجودی
+            <div className="relative flex items-center gap-2 sm:gap-3 w-full">
+              <div className="relative shrink-0">
+                <div className="absolute inset-0 bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] rounded-xl blur-md opacity-60" />
+                <div className="relative bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)] rounded-xl p-2 sm:p-2.5 shadow-lg">
+                  <Wallet className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                </div>
               </div>
-               <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate min-h-[1.25em]">
-                {realBalance === null ? (
-                  <span className="flex items-end gap-1 mt-1" dir="ltr">
-                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <span className="w-1.5 h-1.5 bg-[var(--header-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
-                  </span>
-                ) : (
-                  realBalance.toLocaleString("fa-IR")
-                )}
-              </div>
-            </div>
 
-            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-muted)] group-hover:text-[var(--header-text)] transition-colors shrink-0" />
+              <div className="text-right flex-1 min-w-0">
+                <div className="text-[var(--text-muted)] text-[10px] xs:text-xs">
+                  موجودی
+                </div>
+                <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate min-h-[1.25em]">
+                  {realBalance === null ? (
+                    <span className="flex items-end gap-1 mt-1" dir="ltr">
+                      <span className="w-1.5 h-1.5 bg-[var(--dash-accent)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-1.5 h-1.5 bg-[var(--dash-accent)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-1.5 h-1.5 bg-[var(--dash-accent)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </span>
+                  ) : (
+                    realBalance.toLocaleString("fa-IR")
+                  )}
+                </div>
+              </div>
+
+              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-muted)] group-hover:text-[var(--header-text)] transition-colors shrink-0" />
+            </div>
           </Link>
         </div>
       </div>

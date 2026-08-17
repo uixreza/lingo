@@ -8,7 +8,15 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 
 function createPrisma() {
-  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    max: 5,
+    idleTimeoutMillis: 5_000,
+    connectionTimeoutMillis: 10_000,
+  });
+  pool.on("error", (err) => {
+    console.error("Unexpected pg pool error:", err.message);
+  });
   const adapter = new PrismaPg(pool);
   return new PrismaClient({ adapter });
 }
@@ -17,6 +25,22 @@ const prisma = globalForPrisma.prisma ?? createPrisma();
 globalForPrisma.prisma = prisma;
 
 export { prisma };
+
+const LOYALTY_THRESHOLD_MS = 365.25 * 24 * 60 * 60 * 1000;
+
+export async function ensureLoyaltyBadge(userId: number) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { createdAt: true, badges: true },
+  });
+  if (!user) return;
+  const hasOneYear = Date.now() - new Date(user.createdAt).getTime() >= LOYALTY_THRESHOLD_MS;
+  if (!hasOneYear || user.badges.includes("Loyalty")) return;
+  await prisma.user.update({
+    where: { id: userId },
+    data: { badges: { push: "Loyalty" } },
+  });
+}
 
 export const authOptions: NextAuthOptions = {
   providers: [

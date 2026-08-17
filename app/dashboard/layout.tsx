@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import { authOptions, prisma } from "@/lib/auth";
+import { authOptions, prisma, ensureLoyaltyBadge } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import BanGuard from "@/components/dashboard/BanGuard";
+import UserOnboarding from "@/components/dashboard/UserOnboarding";
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 import { RadioProvider } from "@/components/RadioProvider";
 import RadioButton from "@/components/dashboard/RadioButton";
@@ -30,24 +31,35 @@ export default async function RootLayout({
     balance: 20000,
   };
 
+  const userId = parseInt(session.user.id, 10);
+  await ensureLoyaltyBadge(userId);
+
   const dbUser = await prisma.user.findUnique({
-    where: { id: parseInt(session.user.id, 10) },
-    select: { isActive: true, badges: true },
+    where: { id: userId },
+    select: { isActive: true, badges: true, createdAt: true, avatarSeed: true },
   });
 
   if (!dbUser || !dbUser.isActive) {
     redirect("/api/auth/exit");
   }
+  const yearsWithUs = Math.max(
+    1,
+    Math.floor(
+      (Date.now() - new Date(dbUser.createdAt).getTime()) /
+        (365.25 * 24 * 60 * 60 * 1000),
+    ),
+  );
   return (
     <RadioProvider>
       <BanGuard />
+      {!dbUser.avatarSeed && <UserOnboarding />}
       <div
         className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
         dir="rtl">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
-          <Header user={{ ...user, badges: dbUser?.badges ?? [] }} />
+          <Header user={{ ...user, badges: dbUser?.badges ?? [], years: yearsWithUs }} />
 
           {/* Page Content */}
           <main className="flex-1 overflow-y-auto py-6 px-2 sm:px-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">

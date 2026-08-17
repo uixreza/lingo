@@ -375,8 +375,9 @@ export default function DashboardPage() {
           {[0, 1, 2].map((i) => (
             <div
               key={i}
-              className="h-44 rounded-2xl bg-[var(--dash-sides)]/60 animate-pulse"
-            />
+              className="h-44 rounded-2xl bg-[var(--dash-sides)] p-5">
+              <div className="h-full w-3/4 rounded-xl bg-[var(--hover-bg-strong)] animate-pulse" />
+            </div>
           ))}
         </div>
       )}

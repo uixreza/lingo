@@ -1,6 +1,7 @@
 "use client";
 import { motion } from "framer-motion";
 import { ComponentProps, useState } from "react";
+import { useSession } from "next-auth/react";
 
 function Step({ step, currentStep }: { step: number; currentStep: number }) {
   let status =
@@ -99,6 +100,8 @@ export default function UserOnboarding() {
   const [lastName, setLastName] = useState("");
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [profilePreview, setProfilePreview] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+  const { update: updateSession } = useSession();
 
   const handleProfilePictureUpload = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -127,16 +130,35 @@ export default function UserOnboarding() {
     }
   };
 
-  const handleSubmit = () => {
-    // Here you would typically send the data to your backend
-    console.log({
-      firstName,
-      lastName,
-      profilePicture,
-    });
-
-    // Move to final step
-    setStep(3);
+  const handleSubmit = async () => {
+    if (submitting) return;
+    const fullname = `${firstName} ${lastName}`.trim();
+    if (!fullname) return;
+    setSubmitting(true);
+    try {
+      const seed = profilePicture
+        ? profilePicture.name
+            .replace(/\.[^.]+$/, "")
+            .replace(/[^a-z0-9]/gi, "")
+            .slice(0, 10) || Math.random().toString(36).substring(2, 10)
+        : Math.random().toString(36).substring(2, 10);
+      const res = await fetch("/api/account", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: fullname, avatarSeed: seed }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      try {
+        await updateSession({ user: { fullname, avatarSeed: seed } });
+      } catch {
+        // session refresh failure shouldn't block completion
+      }
+      setStep(3);
+    } catch {
+      alert("خطا در ذخیره اطلاعات. دوباره تلاش کنید.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const isStep1Valid = firstName.trim() !== "" && lastName.trim() !== "";
@@ -439,9 +461,10 @@ export default function UserOnboarding() {
             ) : step === 2 ? (
               <button
                 onClick={handleSubmit}
-                className="duration-350 flex items-center justify-center rounded-full py-2 px-6 font-medium tracking-tight text-white transition hover:opacity-90 active:opacity-100"
+                disabled={submitting}
+                className="duration-350 flex items-center justify-center rounded-full py-2 px-6 font-medium tracking-tight text-white transition hover:opacity-90 active:opacity-100 disabled:opacity-50"
                 style={{ backgroundColor: "var(--dash-accent)" }}>
-                تکمیل پروفایل
+                {submitting ? "در حال ذخیره..." : "تکمیل پروفایل"}
               </button>
             ) : (
               <button

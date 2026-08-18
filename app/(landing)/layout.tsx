@@ -3,6 +3,7 @@ import "../globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Navbar from "@/components/Navbar";
 import Auth from "@/components/Auth";
+import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",
@@ -20,6 +21,7 @@ export default function RootLayout({
       {children}
       <Navbar />
       <Auth />
+      <PWAInstallPrompt />
     </AuthProvider>
   );
 }

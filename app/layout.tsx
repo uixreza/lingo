@@ -8,6 +8,16 @@ export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+  applicationName: "لینگوفم",
+  appleWebApp: {
+    capable: true,
+    title: "لینگوفم",
+    statusBarStyle: "black-translucent",
+  },
+  icons: {
+    icon: [{ url: "/icon.png", sizes: "any", type: "image/png" }],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {

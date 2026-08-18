@@ -55,11 +55,23 @@ function useIsIOS() {
 
 export default function PWAInstallPrompt() {
   const deferredPrompt = useRef<BeforeInstallPromptEvent | null>(null);
+  const wantInstall = useRef(false);
   const [open, setOpen] = useState(false);
-  const [showHelp, setShowHelp] = useState(false);
   const isDesktop = useIsDesktop();
   const isIOS = useIsIOS();
   const isStandalone = useStandalone();
+
+  const promptNow = async () => {
+    const prompt = deferredPrompt.current;
+    if (!prompt) return;
+    deferredPrompt.current = null;
+    await prompt.prompt();
+    const choice = await prompt.userChoice;
+    if (choice.outcome === "accepted") {
+      sessionStorage.setItem(DISMISS_KEY, "1");
+      setOpen(false);
+    }
+  };
 
   useEffect(() => {
     if (isStandalone || isDesktop) return;
@@ -68,6 +80,10 @@ export default function PWAInstallPrompt() {
       e.preventDefault();
       deferredPrompt.current = e as BeforeInstallPromptEvent;
       if (!sessionStorage.getItem(DISMISS_KEY)) setOpen(true);
+      if (wantInstall.current) {
+        wantInstall.current = false;
+        void promptNow();
+      }
     };
     window.addEventListener("beforeinstallprompt", onPrompt);
 
@@ -93,19 +109,12 @@ export default function PWAInstallPrompt() {
     setOpen(false);
   };
 
-  const install = async () => {
-    const prompt = deferredPrompt.current;
-    if (prompt) {
-      await prompt.prompt();
-      const choice = await prompt.userChoice;
-      if (choice.outcome === "accepted") {
-        sessionStorage.setItem(DISMISS_KEY, "1");
-        setOpen(false);
-      }
-      deferredPrompt.current = null;
-      return;
+  const install = () => {
+    if (deferredPrompt.current) {
+      void promptNow();
+    } else {
+      wantInstall.current = true;
     }
-    if (!isIOS) setShowHelp(true);
   };
 
   return (
@@ -142,17 +151,15 @@ export default function PWAInstallPrompt() {
               </button>
             </div>
             <p className="text-[#aaa] text-sm leading-relaxed mb-6">
-              {isIOS || showHelp ? (
+              {isIOS ? (
                 <>
-                  برای نصب، دکمه{" "}
+                  برای نصب اپلیکیشن روی گوشی، دکمه{" "}
                   <span className="inline-flex items-center gap-1 text-white">
                     <Share size={14} /> اشتراک‌گذاری
                   </span>{" "}
-                  (یا منوی{" "}
-                  <span className="inline-flex items-center gap-1 text-white">⋮</span>{" "}
-                  مرورگر) را بزنید و گزینه{" "}
+                  را بزنید و گزینه{" "}
                   <span className="inline-flex items-center gap-1 text-white">
-                    <Plus size={14} /> افزودن به صفحه اصلی / Install app
+                    <Plus size={14} /> افزودن به صفحه اصلی
                   </span>{" "}
                   را انتخاب کنید.
                 </>

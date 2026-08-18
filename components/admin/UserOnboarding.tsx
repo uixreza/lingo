@@ -142,7 +142,7 @@ export default function UserOnboarding() {
   const isStep1Valid = firstName.trim() !== "" && lastName.trim() !== "";
 
   return (
-    <div className="flex fixed left-0 top-0 h-screen w-full flex-1 flex-col items-center justify-center p-4 bg-[var(--dash-bg)]/80 backdrop-blur-md">
+    <div className="flex fixed left-0 top-0 z-[999] h-screen w-full flex-1 flex-col items-center justify-center p-4 bg-[var(--dash-bg)]/80 backdrop-blur-md">
       <div
         className="mx-auto w-full max-w-md rounded-2xl shadow-xl border"
         style={{

@@ -1,4 +1,4 @@
-const CACHE_NAME = "lingofam-shell-v2";
+const CACHE_NAME = "lingofam-shell-v3";
 const SHELL_URLS = ["/", "/manifest.webmanifest", "/icons/icon-192x192.png", "/icons/icon-512x512.png"];
 
 self.addEventListener("install", (event) => {
@@ -52,7 +52,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/assets/") ||
     url.pathname.startsWith("/fonts/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/icon.png"
+    url.pathname === "/mainIcon.png"
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {

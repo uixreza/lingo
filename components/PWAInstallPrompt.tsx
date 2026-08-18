@@ -57,6 +57,7 @@ export default function PWAInstallPrompt() {
   const deferredPrompt = useRef<BeforeInstallPromptEvent | null>(null);
   const wantInstall = useRef(false);
   const [open, setOpen] = useState(false);
+  const [installing, setInstalling] = useState(false);
   const isDesktop = useIsDesktop();
   const isIOS = useIsIOS();
   const isStandalone = useStandalone();
@@ -65,11 +66,15 @@ export default function PWAInstallPrompt() {
     const prompt = deferredPrompt.current;
     if (!prompt) return;
     deferredPrompt.current = null;
-    await prompt.prompt();
-    const choice = await prompt.userChoice;
-    if (choice.outcome === "accepted") {
-      sessionStorage.setItem(DISMISS_KEY, "1");
-      setOpen(false);
+    try {
+      await prompt.prompt();
+      const choice = await prompt.userChoice;
+      if (choice.outcome === "accepted") {
+        sessionStorage.setItem(DISMISS_KEY, "1");
+        setOpen(false);
+      }
+    } finally {
+      setInstalling(false);
     }
   };
 
@@ -105,11 +110,13 @@ export default function PWAInstallPrompt() {
   }, [isStandalone, isDesktop]);
 
   const dismiss = () => {
+    wantInstall.current = false;
     sessionStorage.setItem(DISMISS_KEY, "1");
     setOpen(false);
   };
 
   const install = () => {
+    setInstalling(true);
     if (deferredPrompt.current) {
       void promptNow();
     } else {

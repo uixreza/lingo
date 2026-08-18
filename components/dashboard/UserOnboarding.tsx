@@ -2,7 +2,6 @@
 import { motion, type Variants } from "framer-motion";
 import { useSyncExternalStore, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { Cake, Wallet } from "lucide-react";
 
 const sheetVariants: Variants = {
@@ -26,9 +25,9 @@ function useIsDesktop() {
 }
 
 export default function UserOnboarding() {
+  const [visible, setVisible] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const { update: updateSession } = useSession();
-  const router = useRouter();
   const isDesktop = useIsDesktop();
 
   const finish = async () => {
@@ -47,20 +46,25 @@ export default function UserOnboarding() {
       } catch {
         // session refresh failure shouldn't block completion
       }
-      router.push("/dashboard");
+      setVisible(false);
     } catch {
       alert("خطا در ذخیره اطلاعات. دوباره تلاش کنید.");
       setSubmitting(false);
     }
   };
 
+  if (!visible) return null;
+
   return (
-    <div className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center sm:p-4 bg-[#04070a]/85 backdrop-blur-md overflow-hidden">
+    <div
+      onClick={finish}
+      className="fixed inset-0 z-[999] flex items-end sm:items-center justify-center sm:p-4 bg-[#04070a]/85 backdrop-blur-md overflow-hidden">
       {/* Green glare of light */}
       <div className="absolute -top-40 -left-40 w-[480px] h-[480px] rounded-full bg-[#22c55e]/15 blur-[140px] pointer-events-none" />
       <div className="absolute -bottom-48 -right-48 w-[420px] h-[420px] rounded-full bg-[#16a34a]/10 blur-[120px] pointer-events-none" />
 
       <motion.div
+        onClick={(e) => e.stopPropagation()}
         key={isDesktop ? "dialog" : "sheet"}
         variants={isDesktop ? dialogVariants : sheetVariants}
         initial="hidden"

@@ -21,6 +21,7 @@ import {
   Globe,
   X,
   ClipboardCheck,
+  ArrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -83,8 +84,8 @@ function CountUp({
 }
 
 const listVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
 };
 
 const statusConfig: Record<
@@ -142,6 +143,11 @@ export default function AdminSessionsPage() {
   const [copiedId, setCopiedId] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filter, setFilter] = useState<SessionStatus | "all">("all");
+  const [mobileView, setMobileView] = useState<"list" | "detail">("list");
+  const [panelTopic, setPanelTopic] = useState("");
+  const [panelLink, setPanelLink] = useState("");
+  const [panelSaving, setPanelSaving] = useState(false);
+  const [panelLoading, setPanelLoading] = useState(false);
 
   const fetchSessions = async () => {
     const res = await fetch("/api/admin/sessions");
@@ -179,6 +185,45 @@ export default function AdminSessionsPage() {
       console.error("Error fetching sessions:", err);
     } finally {
       setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchPanel = async () => {
+      setPanelLoading(true);
+      try {
+        const res = await fetch("/api/admin/panel-discussion");
+        if (res.ok) {
+          const data = await res.json();
+          setPanelTopic(data.topic ?? "");
+          setPanelLink(data.link ?? "");
+        }
+      } catch {
+        // silent
+      } finally {
+        setPanelLoading(false);
+      }
+    };
+    void fetchPanel();
+  }, []);
+
+  const handleSavePanel = async () => {
+    setPanelSaving(true);
+    try {
+      const res = await fetch("/api/admin/panel-discussion", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ topic: panelTopic, link: panelLink }),
+      });
+      if (res.ok) {
+        toast.success("تنظیمات پنل بحث ذخیره شد");
+      } else {
+        toast.error("خطا در ذخیره‌سازی");
+      }
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setPanelSaving(false);
     }
   };
 
@@ -226,6 +271,7 @@ export default function AdminSessionsPage() {
   const handleSelectSession = (session: SessionRequest) => {
     setSelectedSession(session);
     setMeetLinkInput(session.meetLink);
+    setMobileView("detail");
   };
 
   const handleSaveMeetLink = () => {
@@ -314,9 +360,73 @@ export default function AdminSessionsPage() {
           ))}
         </div>
 
+        {/* Panel Discussion Management */}
+        <div className="mb-8 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg">
+          <div className="pointer-events-none absolute -top-20 -right-10 h-40 w-40 rounded-full bg-purple-500/15 blur-3xl" />
+          <div className="relative p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="p-2.5 rounded-xl bg-purple-500/10">
+                <MessageSquare className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              </div>
+              <h2 className="text-lg font-bold text-[var(--dash-text)]">
+                مدیریت پنل بحث آنلاین
+              </h2>
+            </div>
+
+            {panelLoading ? (
+              <div className="flex items-center gap-2 text-sm text-[var(--dash-muted)]">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                در حال بارگذاری...
+              </div>
+            ) : (
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-[var(--dash-muted)] mb-1.5">
+                    موضوع این هفته
+                  </label>
+                  <input
+                    type="text"
+                    value={panelTopic}
+                    onChange={(e) => setPanelTopic(e.target.value)}
+                    placeholder="موضوع بحث را وارد کنید..."
+                    className="w-full px-4 py-2.5 rounded-xl text-sm outline-none border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/50 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-[var(--dash-muted)] mb-1.5">
+                    لینک جلسه
+                  </label>
+                  <input
+                    type="url"
+                    value={panelLink}
+                    onChange={(e) => setPanelLink(e.target.value)}
+                    placeholder="https://meet.google.com/..."
+                    className="w-full px-4 py-2.5 rounded-xl text-sm outline-none border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/50 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all"
+                    style={{ direction: "ltr" }}
+                  />
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-end mt-4">
+              <motion.button
+                whileHover={panelSaving ? {} : { scale: 1.02 }}
+                whileTap={panelSaving ? {} : { scale: 0.98 }}
+                onClick={handleSavePanel}
+                disabled={panelSaving || panelLoading}
+                className="px-5 py-2.5 rounded-xl text-sm font-bold text-white bg-gradient-to-l from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                {panelSaving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : null}
+                ذخیره
+              </motion.button>
+            </div>
+          </div>
+        </div>
+
         <div className="grid lg:grid-cols-5 gap-6">
           {/* Left: Sessions List */}
-          <div className="lg:col-span-2">
+          <div className={`${mobileView === "list" ? "" : "hidden "}lg:block lg:col-span-2`}>
             <div className="bg-[var(--dash-sides)]/80 backdrop-blur-xl rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 overflow-hidden">
               {/* Search */}
               <div className="p-4 border-b border-[var(--dash-muted)]/10">
@@ -412,16 +522,10 @@ export default function AdminSessionsPage() {
                       return (
                         <motion.button
                           key={session.id}
-                          layout
                           variants={listVariants}
                           initial="initial"
                           animate="animate"
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{
-                            delay: i * 0.05,
-                            duration: 0.25,
-                            layout: { duration: 0.2 },
-                          }}
+                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
                           onClick={() => handleSelectSession(session)}
                           className={`w-full p-4 text-right border-b border-[var(--dash-muted)]/10 transition-all duration-300 group ${
                             isSelected
@@ -472,8 +576,7 @@ export default function AdminSessionsPage() {
                             </div>
                           </div>
                           <motion.div
-                            className={`mt-3 rounded-full inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold border ${cfg.bg} ${cfg.color} ${cfg.border}`}
-                            layout>
+                            className={`mt-3 rounded-full inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                             <StatusIcon className="h-3 w-3" />
                             {cfg.label}
                           </motion.div>
@@ -487,7 +590,7 @@ export default function AdminSessionsPage() {
           </div>
 
           {/* Right: Session Detail */}
-          <div className="lg:col-span-3">
+          <div className={`${mobileView === "detail" ? "" : "hidden "}lg:block lg:col-span-3`}>
             {selectedSession ? (
               <motion.div
                 key={selectedSession.id}
@@ -499,6 +602,13 @@ export default function AdminSessionsPage() {
                 <div className="relative">
                   {/* Header */}
                   <div className="p-6 border-b border-[var(--dash-muted)]/10">
+                    {/* Mobile back button */}
+                    <button
+                      onClick={() => setMobileView("list")}
+                      className="lg:hidden flex items-center gap-2 text-sm text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors mb-4">
+                      <ArrowRight className="h-4 w-4" />
+                      بازگشت به فهرست
+                    </button>
                     <div className="flex justify-between items-start mb-5">
                       <div className="flex items-center gap-4 min-w-0">
                         <div className="shrink-0 relative">

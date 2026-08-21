@@ -24,6 +24,7 @@ import {
   MessageSquare,
   Info,
   Globe,
+  User,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
@@ -55,9 +56,9 @@ const DEFAULT_MENTOR = {
 };
 
 const languages = [
-  { id: "en", label: "English", flag: "🇬🇧" },
-  { id: "tr", label: "Turkish", flag: "🇹🇷" },
-  { id: "de", label: "German", flag: "🇩🇪" },
+  { id: "en", label: "English", flag: "/assets/img/flags/US.webp" },
+  { id: "tr", label: "Turkish", flag: "/assets/img/flags/TR.jpg" },
+  { id: "de", label: "German", flag: "/assets/img/flags/GR.jpg" },
 ];
 
 const weekDays = ["ش", "ی", "د", "س", "چ", "پ", "ج"];
@@ -174,12 +175,11 @@ const accentBar =
   "pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent";
 
 const listVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: (i: number) => ({
+  initial: { opacity: 0 },
+  animate: {
     opacity: 1,
-    y: 0,
-    transition: { delay: i * 0.05, duration: 0.3 },
-  }),
+    transition: { duration: 0.2 },
+  },
 };
 
 export default function SessionsPage() {
@@ -201,6 +201,7 @@ export default function SessionsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [privatePrice, setPrivatePrice] = useState<number | null>(null);
+  const [mobileTab, setMobileTab] = useState<"form" | "list">("form");
   const [discountPercent, setDiscountPercent] = useState(0);
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
@@ -610,14 +611,40 @@ export default function SessionsPage() {
   ) : (
     <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
       {/* Pro Section (mobile only - above form) */}
-      <div className="lg:hidden">{ProCard}</div>
+      <div className="lg:hidden">
+        {ProCard}
+        {/* Mobile tab bar */}
+        <div className="flex gap-1.5 p-1.5 mt-4 bg-[var(--dash-sides)]/60 rounded-2xl border border-[var(--dash-muted)]/15">
+          {(["form", "list"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setMobileTab(tab)}
+              className={`relative flex-1 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors duration-300 ${
+                mobileTab === tab
+                  ? "text-white"
+                  : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+              }`}>
+              {mobileTab === tab && (
+                <motion.span
+                  layoutId="mobile-tab-pill"
+                  className="absolute inset-0 rounded-xl bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] shadow-lg"
+                  transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                />
+              )}
+              <span className="relative z-10">
+                {tab === "form" ? "درخواست جلسه" : "درخواست‌های من"}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
 
-      {/* Right: Request Form (wider) */}
-      <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.35 }}
-        className={`lg:col-span-3 ${cardClass} p-6`}>
+        {/* Right: Request Form (wider) */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+          className={`${mobileTab === "form" ? "" : "hidden "}lg:!block lg:col-span-3 ${cardClass} p-6`}>
         <div className={accentBar} />
         <div className="pointer-events-none absolute -top-24 -right-10 h-48 w-48 rounded-full bg-[var(--dash-accent)]/15 blur-3xl" />
         <div className="relative flex items-center gap-3 mb-8">
@@ -633,14 +660,14 @@ export default function SessionsPage() {
           {/* Language */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-bold text-[var(--light-purple)] bg-[var(--light-purple)]/10 px-2 py-0.5 rounded-md">
                 ۱
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
                 زبان مورد نظر
               </label>
             </div>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-row gap-3">
               {languages.map((lang) => {
                 const available = availableLanguages.has(lang.label);
                 const selected = language === lang.id;
@@ -650,23 +677,39 @@ export default function SessionsPage() {
                     whileTap={available ? { scale: 0.97 } : {}}
                     onClick={() => available && setLanguage(lang.id)}
                     disabled={!available}
-                    className={`relative flex flex-col items-center gap-2.5 p-4 rounded-xl text-sm font-medium transition-all duration-200 ${
+                    className={`relative h-16 flex-1 rounded-2xl overflow-hidden text-sm font-medium transition-all duration-200 ${
                       !available
                         ? "opacity-30 cursor-not-allowed"
                         : selected
-                          ? "bg-green-500/10 ring-1 ring-green-500/40 text-green-600 dark:text-green-400"
-                          : "bg-[var(--hover-bg)] text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)]"
+                          ? "ring-2 ring-[var(--light-purple)]/60"
+                          : "hover:brightness-110"
                     }`}>
-                    <span className="text-2xl">{lang.flag}</span>
-                    <span>{lang.label}</span>
+                    {/* Flag image — full background */}
+                    <div className="absolute inset-0">
+                      <Image
+                        src={lang.flag}
+                        alt={lang.label}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {/* Gradient overlay — full width */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/60 to-black/20" />
+                    {/* Language name */}
+                    <div className="absolute bottom-2 right-3">
+                      <span
+                        className="text-sm sm:text-xl font-extrabold tracking-wider text-white drop-shadow-lg">
+                        {lang.label}
+                      </span>
+                    </div>
                     {!available && (
-                      <div className="absolute inset-0 bg-[var(--dash-sides)]/60 rounded-xl flex items-center justify-center">
+                      <div className="absolute inset-0 bg-[var(--dash-sides)]/60 rounded-2xl flex items-center justify-center">
                         <Lock className="h-4 w-4 text-[var(--dash-muted)]" />
                       </div>
                     )}
                     {selected && (
-                      <div className="absolute -top-1 -left-1 h-4 w-4 bg-green-500 rounded-full flex items-center justify-center">
-                        <Check className="h-2.5 w-2.5 text-black" strokeWidth={3} />
+                      <div className="absolute top-2 left-2 h-5 w-5 bg-[var(--light-purple)] rounded-full flex items-center justify-center shadow-lg">
+                        <Check className="h-3 w-3 text-white" strokeWidth={3} />
                       </div>
                     )}
                   </motion.button>
@@ -688,18 +731,6 @@ export default function SessionsPage() {
             </div>
 
             <div className="relative flex items-start gap-4 mb-5">
-              <div className="relative shrink-0">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
-                  <Image
-                    src={mentor.photoUrl}
-                    alt={mentor.name}
-                    width={256}
-                    height={256}
-                    unoptimized={mentor.photoUrl !== "/me.png"}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
               <div className="flex-1 min-w-0">
                 <p className="text-base font-extrabold text-[var(--dash-text)] leading-tight">
                   {mentor.name}
@@ -726,6 +757,18 @@ export default function SessionsPage() {
                   </div>
                 )}
               </div>
+              <div className="relative shrink-0">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
+                  <Image
+                    src={mentor.photoUrl}
+                    alt={mentor.name}
+                    width={256}
+                    height={256}
+                    unoptimized={mentor.photoUrl !== "/me.png"}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              </div>
             </div>
 
             <div className="relative grid grid-cols-2 gap-3">
@@ -736,17 +779,13 @@ export default function SessionsPage() {
                     <span className="text-[10px] font-bold text-purple-400">زبان‌ها</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {mentor.languages.map((lang) => {
-                      const flag = languages.find((l) => l.label === lang)?.flag;
-                      return (
+                    {mentor.languages.map((lang) => (
                         <span
                           key={lang}
-                          className="text-[10px] font-medium text-[var(--dash-text)] flex items-center gap-1">
-                          {flag && <span>{flag}</span>}
+                          className="text-[10px] font-medium text-[var(--dash-text)]">
                           {lang}
                         </span>
-                      );
-                    })}
+                      ))}
                   </div>
                 </div>
               )}
@@ -1043,7 +1082,7 @@ export default function SessionsPage() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, delay: 0.1 }}
-        className={`lg:col-span-2 ${cardClass} p-6`}>
+        className={`${mobileTab === "list" ? "" : "hidden "}lg:!block lg:col-span-2 ${cardClass} p-6 lg:sticky lg:top-4 lg:self-start`}>
         <div className={accentBar} />
         <div className="relative flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-[var(--dash-text)]">
@@ -1099,35 +1138,26 @@ export default function SessionsPage() {
               return (
                 <motion.div
                   key={req.id}
-                  layout
                   variants={listVariants}
-                  custom={i}
                   initial="initial"
                   animate="animate"
-                  exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
-                  className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg transition-all duration-300 hover:-translate-y-0.5 hover:shadow-xl">
-                  <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-green-500/50 to-transparent" />
-                  <div className="px-5 pt-5 pb-5">
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 min-w-0">
-                        <div
-                          className={`p-2 rounded-xl ${statusBg[req.status]}`}>
-                          <StatusIcon
-                            className={`h-4 w-4 ${statusColors[req.status]}`}
-                          />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="font-bold text-[15px] text-[var(--dash-text)]">
-                            {req.language}
-                          </p>
-                          <p className="text-xs text-[var(--dash-muted)] mt-0.5">
-                            {req.type}
-                          </p>
-                        </div>
+                  exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                  className="relative rounded-2xl border border-[var(--dash-muted)]/10 bg-[var(--dash-sides)]/60 backdrop-blur-sm transition-all duration-200 hover:border-[var(--dash-muted)]/20">
+                  <div className="p-4">
+                    {/* Top row: icon + language + type + status + cancel */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <StatusIcon className={`h-4 w-4 shrink-0 ${statusColors[req.status]}`} />
+                        <p className="text-[15px] font-bold text-[var(--dash-text)] truncate">
+                          {req.language}
+                        </p>
+                        <span className="text-[10px] text-[var(--dash-muted)] bg-[var(--hover-bg)] px-2 py-0.5 rounded-full shrink-0">
+                          {req.type === "Private" ? "خصوصی" : "عمومی"}
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
                         <span
-                          className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusBg[req.status]} ${statusColors[req.status]}`}>
+                          className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusBg[req.status]} ${statusColors[req.status]}`}>
                           {statusLabel[req.status]}
                         </span>
                         {req.status !== "Canceled" && (
@@ -1138,10 +1168,10 @@ export default function SessionsPage() {
                                 ? "جلسه تأیید شده قابل لغو نیست"
                                 : "لغو جلسه"
                             }
-                            className={`p-1.5 rounded-full transition-all duration-200 ${
+                            className={`p-1 rounded-lg transition-all duration-200 ${
                               req.status === "Approved"
-                                ? "bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]/40 cursor-not-allowed"
-                                : "bg-red-500/10 text-red-500 hover:bg-red-500/20 hover:scale-110"
+                                ? "text-[var(--dash-muted)]/30 cursor-not-allowed"
+                                : "text-red-400/60 hover:text-red-500 hover:bg-red-500/10"
                             }`}>
                             {req.status === "Approved" ? (
                               <Lock className="h-3.5 w-3.5" />
@@ -1153,71 +1183,40 @@ export default function SessionsPage() {
                       </div>
                     </div>
 
-                    {/* Language → Teacher */}
-                    <div className="mt-4 flex items-center justify-between gap-2 bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 rounded-xl px-4 py-3">
-                      <div className="min-w-0 text-center flex-1">
-                        <p className="text-[10px] text-[var(--dash-muted)]">
-                          زبان
-                        </p>
-                        <p className="text-sm font-bold text-[var(--dash-text)] truncate mt-0.5">
-                          {req.language}
-                        </p>
-                      </div>
-                      <BookOpen className="h-4 w-4 text-[var(--dash-muted)] shrink-0" />
-                      <div className="min-w-0 text-center flex-1">
-                        <p className="text-[10px] text-[var(--dash-muted)]">
-                          مدرس
-                        </p>
-                        <p className="text-sm font-bold text-[var(--dash-text)] truncate mt-0.5">
-                          {mentor.name}
-                        </p>
-                      </div>
+                    {/* Info row */}
+                    <div className="flex items-center gap-3 text-[11px] text-[var(--dash-muted)] mb-3">
+                      <span className="flex items-center gap-1">
+                        <CalendarDays className="h-3 w-3" />
+                        {toPersianDigits(req.date)}
+                      </span>
+                      <span className="w-px h-3 bg-[var(--dash-muted)]/20" />
+                      <span className="flex items-center gap-1">
+                        <Clock className="h-3 w-3" />
+                        {toPersianDigits(req.time)}
+                      </span>
+                      <span className="w-px h-3 bg-[var(--dash-muted)]/20" />
+                      <span className="flex items-center gap-1">
+                        <User className="h-3 w-3" />
+                        {mentor.name}
+                      </span>
                     </div>
 
-                    {/* Info grid */}
-                    <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                      <div>
-                        <p className="text-[10px] text-[var(--dash-muted)]">
-                          تاریخ
-                        </p>
-                        <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
-                          {toPersianDigits(req.date)}
-                        </p>
-                      </div>
-                      <div className="border-x border-dashed border-[var(--dash-muted)]/15">
-                        <p className="text-[10px] text-[var(--dash-muted)]">
-                          ساعت
-                        </p>
-                        <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
-                          {toPersianDigits(req.time)}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[10px] text-[var(--dash-muted)]">
-                          نوع
-                        </p>
-                        <p className="text-xs font-bold text-[var(--dash-text)] mt-0.5">
-                          {req.type === "Private" ? "خصوصی" : "عمومی"}
-                        </p>
-                      </div>
-                    </div>
-
+                    {/* Reason */}
                     {req.reason && (
-                      <div className="mt-3 py-2.5 pr-3 border-r-2 border-[var(--dash-muted)]/10">
-                        <p className="text-sm text-[var(--dash-muted)]/60 leading-relaxed line-clamp-2">
-                          {req.reason}
-                        </p>
-                      </div>
+                      <p className="text-[11px] text-[var(--dash-muted)]/50 mb-3 line-clamp-1">
+                        {req.reason}
+                      </p>
                     )}
 
+                    {/* Approved section */}
                     {req.status === "Approved" && (
-                      <div className="mt-4 pt-4 border-t border-[var(--dash-muted)]/10 space-y-3">
+                      <div className="pt-3 border-t border-[var(--dash-muted)]/8 space-y-2.5">
                         {"meetLink" in req && req.meetLink ? (
                           <div className="flex items-center gap-2">
-                            <div className="flex-1 flex items-center gap-2.5 bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 rounded-lg px-4 py-2.5 min-w-0">
-                              <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                            <div className="flex-1 flex items-center gap-2 bg-[var(--hover-bg)] rounded-lg px-3 py-2 min-w-0">
+                              <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
                               <span
-                                className="text-sm font-mono truncate text-left"
+                                className="text-xs font-mono truncate text-left"
                                 style={{
                                   color: "var(--dash-text)",
                                   direction: "ltr",
@@ -1229,19 +1228,18 @@ export default function SessionsPage() {
                               onClick={() =>
                                 handleCopyLink(req.id, req.meetLink!)
                               }
-                              className="shrink-0 px-3 py-2.5 rounded-lg text-xs font-medium bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 hover:bg-[var(--dash-bg)] transition-colors"
-                              style={{ color: "var(--dash-muted)" }}>
+                              className="shrink-0 p-2 rounded-lg text-[var(--dash-muted)] hover:bg-[var(--hover-bg)] transition-colors">
                               {copiedId === req.id ? (
-                                <span className="text-green-500">کپی شد</span>
+                                <span className="text-[10px] text-green-500 font-semibold">کپی شد</span>
                               ) : (
-                                <Copy className="h-4 w-4" />
+                                <Copy className="h-3.5 w-3.5" />
                               )}
                             </button>
                           </div>
                         ) : (
-                          <div className="flex items-center gap-2.5 bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 rounded-lg px-4 py-2.5">
-                            <Loader2 className="h-4 w-4 text-green-500 animate-spin shrink-0" />
-                            <span className="text-sm text-[var(--dash-muted)]">
+                          <div className="flex items-center gap-2 bg-[var(--hover-bg)] rounded-lg px-3 py-2">
+                            <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin shrink-0" />
+                            <span className="text-xs text-[var(--dash-muted)]">
                               لینک در تاریخ جلسه قرار داده می‌شود
                             </span>
                           </div>
@@ -1259,16 +1257,16 @@ export default function SessionsPage() {
                               : "_self"
                           }
                           rel="noopener noreferrer"
-                          className={`flex items-center justify-center gap-2 w-full py-3 rounded-xl text-sm font-bold transition-all duration-300 ${
+                          className={`flex items-center justify-center gap-2 w-full py-2.5 rounded-xl text-xs font-bold transition-all duration-200 ${
                             "meetLink" in req && req.meetLink
-                              ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25 hover:shadow-green-500/40"
-                              : "bg-[var(--dash-bg)]/60 text-[var(--dash-muted)] cursor-not-allowed"
+                              ? "bg-green-500 text-white hover:bg-green-600"
+                              : "bg-[var(--hover-bg)] text-[var(--dash-muted)]/50 cursor-not-allowed"
                           }`}
                           onClick={(e) => {
                             if (!("meetLink" in req && req.meetLink))
                               e.preventDefault();
                           }}>
-                          <Video className="h-4 w-4" />
+                          <Video className="h-3.5 w-3.5" />
                           شرکت در کلاس
                         </a>
                       </div>

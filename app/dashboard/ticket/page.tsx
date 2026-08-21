@@ -503,7 +503,7 @@ export default function TicketsPage() {
                           }`}>
                           <div className="flex items-start gap-3">
                             <div className="relative shrink-0">
-                              <div className="p-3 rounded-2xl bg-[var(--dash-bg)] border border-[var(--dash-muted)]/10 group-hover:scale-105 transition-transform duration-300">
+                              <div className={`p-3 rounded-2xl border transition-all duration-300 group-hover:scale-105 ${isSelected ? "bg-[var(--light-purple)]/15 border-[var(--light-purple)]/30 shadow-lg shadow-[var(--light-purple)]/10" : "bg-[var(--dash-bg)] border-[var(--dash-muted)]/10"}`}>
                                 <StatusIcon
                                   className={`h-5 w-5 ${cfg.color}`}
                                 />
@@ -616,7 +616,7 @@ export default function TicketsPage() {
                         <Avatar
                           seed={selectedTicket.user.name}
                           size={42}
-                          className="rounded-xl"
+                          className="rounded-xl bg-[var(--hover-bg)] ring-2 ring-[var(--light-purple)]/20"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

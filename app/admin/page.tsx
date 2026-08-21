@@ -385,96 +385,131 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {[
-          {
-            title: "تراکنش‌های روزانه",
-            icon: DollarSign,
-            iconBg: "bg-green-500/10",
-            iconColor: "text-green-600 dark:text-green-400",
-            chart: (
-              <ResponsiveChart height={280}>
-                {({ width }) => (
-                  <LineChart
-                    data={transactionData}
-                    timeKey="day"
-                    series={[
-                      {
-                        key: "amount",
-                        label: "مبلغ",
-                        color: "#10b981",
-                        area: true,
-                      },
-                    ]}
-                    width={width}
-                    height={280}
-                    theme={chartTheme}
-                    curve="monotone"
-                    showDots
-                    dotSize={3}
-                    glow
-                    grid={{ horizontal: true, vertical: false, opacity: 0.4 }}
-                    areaGradient={{ from: 0.35, to: 0.04 }}
-                    showLegend={false}
-                    unit="تومان"
-                  />
-                )}
-              </ResponsiveChart>
-            ),
-          },
-          {
-            title: "کلاس‌های روزانه",
-            icon: CalendarCheck,
-            iconBg: "bg-violet-500/10",
-            iconColor: "text-violet-600 dark:text-violet-400",
-            chart: (
-              <ResponsiveChart height={280}>
-                {({ width }) => (
-                  <BarChart
-                    data={sessionData}
-                    dataKey="count"
-                    categoryKey="day"
-                    width={width}
-                    height={280}
-                    theme={chartTheme}
-                    barRadius={6}
-                  />
-                )}
-              </ResponsiveChart>
-            ),
-          },
-        ].map((card, i) => (
-          <motion.div
-            key={card.title}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 + i * 0.1, duration: 0.4 }}
-            className="min-w-0 overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl transition-all duration-300 hover:shadow-xl">
-            <div
-              className="p-6"
-              style={{
-                borderBottom: "1px solid var(--dash-muted)/10",
-              }}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl ${card.iconBg}`}>
-                    <card.icon className={`h-5 w-5 ${card.iconColor}`} />
-                  </div>
-                  <h2
-                    className="text-lg font-bold"
-                    style={{ color: "var(--dash-text)" }}>
-                    {card.title}
-                  </h2>
+        {/* Transactions Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+          className="group relative min-w-0 overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-green-500/30">
+          <div className="pointer-events-none absolute -top-20 -right-20 h-40 w-40 rounded-full bg-green-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="relative p-6 pb-2">
+            <div className="flex items-start justify-between mb-1">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-green-500/10 group-hover:scale-110 transition-transform duration-300">
+                  <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
                 </div>
-                <span
-                  className="px-3 py-1 rounded-full text-xs font-medium bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10"
-                  style={{ color: "var(--dash-muted)" }}>
-                  روزهای ماه جاری
-                </span>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: "var(--dash-text)" }}>
+                    تراکنش‌های روزانه
+                  </h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--dash-muted)" }}>
+                    روزهای ماه جاری
+                  </p>
+                </div>
               </div>
+              {stats && (
+                <div className="text-left">
+                  <p className="text-[10px] font-medium" style={{ color: "var(--dash-muted)" }}>
+                    کل ماه
+                  </p>
+                  <p className="text-sm font-extrabold text-green-600 dark:text-green-400 tabular-nums">
+                    {stats.currentMonth.transactionVolume.toLocaleString("fa-IR")}
+                  </p>
+                  <p className="text-[10px]" style={{ color: "var(--dash-muted)" }}>
+                    تومان
+                  </p>
+                </div>
+              )}
             </div>
-            <div className="p-4">{card.chart}</div>
-          </motion.div>
-        ))}
+          </div>
+
+          <div className="relative px-2 pb-4">
+            <ResponsiveChart height={260}>
+              {({ width }) => (
+                <LineChart
+                  data={transactionData}
+                  timeKey="day"
+                  series={[
+                    {
+                      key: "amount",
+                      label: "مبلغ",
+                      color: "#10b981",
+                      area: true,
+                    },
+                  ]}
+                  width={width}
+                  height={260}
+                  theme={chartTheme}
+                  curve="monotone"
+                  showDots
+                  dotSize={3}
+                  glow
+                  grid={{ horizontal: true, vertical: false, opacity: 0.3 }}
+                  areaGradient={{ from: 0.3, to: 0.02 }}
+                  showLegend={false}
+                  unit="تومان"
+                />
+              )}
+            </ResponsiveChart>
+          </div>
+        </motion.div>
+
+        {/* Sessions Chart */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.4 }}
+          className="group relative min-w-0 overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl transition-all duration-300 hover:shadow-xl hover:border-violet-500/30">
+          <div className="pointer-events-none absolute -top-20 -right-20 h-40 w-40 rounded-full bg-violet-500/10 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+          <div className="relative p-6 pb-2">
+            <div className="flex items-start justify-between mb-1">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-violet-500/10 group-hover:scale-110 transition-transform duration-300">
+                  <CalendarCheck className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-bold" style={{ color: "var(--dash-text)" }}>
+                    کلاس‌های روزانه
+                  </h2>
+                  <p className="text-xs mt-0.5" style={{ color: "var(--dash-muted)" }}>
+                    روزهای ماه جاری
+                  </p>
+                </div>
+              </div>
+              {stats && (
+                <div className="text-left">
+                  <p className="text-[10px] font-medium" style={{ color: "var(--dash-muted)" }}>
+                    کل ماه
+                  </p>
+                  <p className="text-sm font-extrabold text-violet-600 dark:text-violet-400 tabular-nums">
+                    {toFa(stats.currentMonth.sessionCount)}
+                  </p>
+                  <p className="text-[10px]" style={{ color: "var(--dash-muted)" }}>
+                    جلسه
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="relative px-2 pb-4">
+            <ResponsiveChart height={260}>
+              {({ width }) => (
+                <BarChart
+                  data={sessionData}
+                  dataKey="count"
+                  categoryKey="day"
+                  width={width}
+                  height={260}
+                  theme={chartTheme}
+                  barRadius={6}
+                />
+              )}
+            </ResponsiveChart>
+          </div>
+        </motion.div>
       </div>
 
       {/* Marquee & Site Control */}

@@ -71,6 +71,7 @@ model Friend {
 model panelDiscussion {
   id            Int       @id @default(autoincrement())
   link          String?
+  topic         String?
 }
 
 enum Badges {

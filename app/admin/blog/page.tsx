@@ -1129,110 +1129,197 @@ export default function BlogPage() {
               </span>
             </div>
 
-            <div className="relative overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-[var(--dash-muted)]/20">
-                    <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">تصویر</th>
-                    <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">عنوان</th>
-                    <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium hidden sm:table-cell">نویسنده</th>
-                    <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium hidden md:table-cell">تاریخ</th>
-                    <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">وضعیت</th>
-                    <th className="text-left py-3 px-4 text-[var(--dash-muted)] font-medium">عملیات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {posts.map((post) => (
-                    <tr
-                      key={post.id}
-                      className="border-b border-[var(--dash-muted)]/10 transition-colors duration-300 hover:bg-[var(--dash-bg)]/50">
-                      <td className="py-4 px-4">
-                        <div
-                          className="w-12 h-12 rounded-xl bg-[var(--dash-bg)] flex items-center justify-center overflow-hidden border border-[var(--dash-muted)]/10"
-                          style={
-                            !post.thumbnailUrl && post.thumbnailGradient
-                              ? { background: post.thumbnailGradient }
-                              : undefined
-                          }>
-                          {post.thumbnailUrl ? (
-                            <Image src={post.thumbnailUrl} alt="" width={48} height={48} unoptimized className="object-cover" />
-                          ) : post.thumbnailGradient ? (
-                            <ImageIcon className="h-5 w-5 text-white/70" />
-                          ) : (
-                            <ImageIcon className="h-5 w-5 text-[var(--dash-muted)]" />
-                          )}
-                        </div>
-                      </td>
-                      <td className="py-4 px-4">
-                        <p className="font-semibold text-[var(--dash-text)] truncate max-w-[200px]">
-                          {post.title}
-                        </p>
-                      </td>
-                      <td className="py-4 px-4 text-[var(--dash-muted)] hidden sm:table-cell">
-                        {post.author}
-                      </td>
-                      <td className="py-4 px-4 text-[var(--dash-muted)] hidden md:table-cell">
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="h-3.5 w-3.5" />
-                          {post.date}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                            post.isPublished
-                              ? "bg-green-500/10 text-green-600 dark:text-green-400"
-                              : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
-                          }`}>
-                          {post.isPublished ? "منتشر شده" : "پیش‌نویس"}
-                        </span>
-                      </td>
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-1 justify-end">
-                          {post.isPublished && (
+            <div className="relative">
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-[var(--dash-muted)]/20">
+                      <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">تصویر</th>
+                      <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">عنوان</th>
+                      <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium hidden md:table-cell">نویسنده</th>
+                      <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium hidden md:table-cell">تاریخ</th>
+                      <th className="text-right py-3 px-4 text-[var(--dash-muted)] font-medium">وضعیت</th>
+                      <th className="text-left py-3 px-4 text-[var(--dash-muted)] font-medium">عملیات</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {posts.map((post) => (
+                      <tr
+                        key={post.id}
+                        className="border-b border-[var(--dash-muted)]/10 transition-colors duration-300 hover:bg-[var(--dash-bg)]/50">
+                        <td className="py-4 px-4">
+                          <div
+                            className="w-12 h-12 rounded-xl bg-[var(--dash-bg)] flex items-center justify-center overflow-hidden border border-[var(--dash-muted)]/10"
+                            style={
+                              !post.thumbnailUrl && post.thumbnailGradient
+                                ? { background: post.thumbnailGradient }
+                                : undefined
+                            }>
+                            {post.thumbnailUrl ? (
+                              <Image src={post.thumbnailUrl} alt="" width={48} height={48} unoptimized className="object-cover" />
+                            ) : post.thumbnailGradient ? (
+                              <ImageIcon className="h-5 w-5 text-white/70" />
+                            ) : (
+                              <ImageIcon className="h-5 w-5 text-[var(--dash-muted)]" />
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <p className="font-semibold text-[var(--dash-text)] truncate max-w-[200px]">
+                            {post.title}
+                          </p>
+                        </td>
+                        <td className="py-4 px-4 text-[var(--dash-muted)] hidden md:table-cell">
+                          {post.author}
+                        </td>
+                        <td className="py-4 px-4 text-[var(--dash-muted)] hidden md:table-cell">
+                          <span className="flex items-center gap-1.5">
+                            <Calendar className="h-3.5 w-3.5" />
+                            {post.date}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                              post.isPublished
+                                ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                                : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                            }`}>
+                            {post.isPublished ? "منتشر شده" : "پیش‌نویس"}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <div className="flex items-center gap-1 justify-end">
+                            {post.isPublished && (
+                              <button
+                                onClick={() => handleView(post)}
+                                className="p-2 text-[var(--dash-muted)] hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all hover:scale-105"
+                                title="مشاهده">
+                                <Eye className="h-4 w-4" />
+                              </button>
+                            )}
                             <button
-                              onClick={() => handleView(post)}
-                              className="p-2 text-[var(--dash-muted)] hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all hover:scale-105"
-                              title="مشاهده">
-                              <Eye className="h-4 w-4" />
+                              onClick={() => handleEdit(post)}
+                              className="p-2 text-[var(--dash-muted)] hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all hover:scale-105"
+                              title="ویرایش">
+                              <Edit3 className="h-4 w-4" />
                             </button>
-                          )}
-                          <button
-                            onClick={() => handleEdit(post)}
-                            className="p-2 text-[var(--dash-muted)] hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all hover:scale-105"
-                            title="ویرایش">
-                            <Edit3 className="h-4 w-4" />
-                          </button>
-                          {!post.isPublished && (
+                            {!post.isPublished && (
+                              <button
+                                onClick={() => handlePublish(post)}
+                                disabled={publishingId === post.id}
+                                className="p-2 text-[var(--dash-muted)] hover:text-green-600 hover:bg-green-500/10 rounded-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-wait"
+                                title="انتشار">
+                                {publishingId === post.id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Send className="h-4 w-4" />
+                                )}
+                              </button>
+                            )}
                             <button
-                              onClick={() => handlePublish(post)}
-                              disabled={publishingId === post.id}
-                              className="p-2 text-[var(--dash-muted)] hover:text-green-600 hover:bg-green-500/10 rounded-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-wait"
-                              title="انتشار">
-                              {publishingId === post.id ? (
+                              onClick={() => setConfirmDelete(post)}
+                              disabled={deletingId === post.id}
+                              className="p-2 text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-wait"
+                              title="حذف">
+                              {deletingId === post.id ? (
                                 <Loader2 className="h-4 w-4 animate-spin" />
                               ) : (
-                                <Send className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" />
                               )}
                             </button>
-                          )}
-                          <button
-                            onClick={() => setConfirmDelete(post)}
-                            disabled={deletingId === post.id}
-                            className="p-2 text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-wait"
-                            title="حذف">
-                            {deletingId === post.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                          </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <div className="sm:hidden divide-y divide-[var(--dash-muted)]/10">
+                {posts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="p-4 space-y-3">
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-14 h-14 shrink-0 rounded-xl bg-[var(--dash-bg)] flex items-center justify-center overflow-hidden border border-[var(--dash-muted)]/10"
+                        style={
+                          !post.thumbnailUrl && post.thumbnailGradient
+                            ? { background: post.thumbnailGradient }
+                            : undefined
+                        }>
+                        {post.thumbnailUrl ? (
+                          <Image src={post.thumbnailUrl} alt="" width={56} height={56} unoptimized className="object-cover" />
+                        ) : post.thumbnailGradient ? (
+                          <ImageIcon className="h-5 w-5 text-white/70" />
+                        ) : (
+                          <ImageIcon className="h-5 w-5 text-[var(--dash-muted)]" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-sm text-[var(--dash-text)] truncate">
+                          {post.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 text-[11px] text-[var(--dash-muted)]">
+                          <span>{post.author}</span>
+                          <span className="w-px h-3 bg-[var(--dash-muted)]/20" />
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {post.date}
+                          </span>
                         </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      </div>
+                      <span
+                        className={`shrink-0 px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+                          post.isPublished
+                            ? "bg-green-500/10 text-green-600 dark:text-green-400"
+                            : "bg-yellow-500/10 text-yellow-600 dark:text-yellow-400"
+                        }`}>
+                        {post.isPublished ? "منتشر شده" : "پیش‌نویس"}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 justify-end">
+                      {post.isPublished && (
+                        <button
+                          onClick={() => handleView(post)}
+                          className="p-2 text-[var(--dash-muted)] hover:text-green-500 hover:bg-green-500/10 rounded-lg transition-all">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => handleEdit(post)}
+                        className="p-2 text-[var(--dash-muted)] hover:text-blue-500 hover:bg-blue-500/10 rounded-lg transition-all">
+                        <Edit3 className="h-4 w-4" />
+                      </button>
+                      {!post.isPublished && (
+                        <button
+                          onClick={() => handlePublish(post)}
+                          disabled={publishingId === post.id}
+                          className="p-2 text-[var(--dash-muted)] hover:text-green-600 hover:bg-green-500/10 rounded-lg transition-all disabled:opacity-50">
+                          {publishingId === post.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Send className="h-4 w-4" />
+                          )}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => setConfirmDelete(post)}
+                        disabled={deletingId === post.id}
+                        className="p-2 text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all disabled:opacity-50">
+                        {deletingId === post.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {loadingPosts && (

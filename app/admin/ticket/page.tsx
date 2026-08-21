@@ -23,6 +23,7 @@ import {
   FileQuestion,
   UserRound,
   Hourglass,
+  ArrowRight,
 } from "lucide-react";
 import { ListSkeleton } from "@/components/dashboard/Skeletons";
 import Avatar from "@/components/dashboard/Avatar";
@@ -159,8 +160,8 @@ function toFa(value: number | string): string {
 }
 
 const listVariants = {
-  initial: { opacity: 0, y: 12 },
-  animate: { opacity: 1, y: 0 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
 };
 
 type StatusTab = "all" | "open" | "in-progress" | "resolved";
@@ -175,6 +176,7 @@ export default function TicketsPage() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileView, setMobileView] = useState<"list" | "detail">("list");
   const repliesRef = useRef<HTMLDivElement>(null);
 
   const fetchTickets = async () => {
@@ -369,7 +371,7 @@ export default function TicketsPage() {
 
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Tickets List Panel */}
-          <div className="lg:col-span-1">
+          <div className={`${mobileView === "list" ? "" : "hidden "}lg:block lg:col-span-1`}>
             <div className="relative overflow-hidden rounded-2xl shadow-lg border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl">
               {/* Search */}
               <div className="p-4 border-b border-[var(--dash-muted)]/10">
@@ -476,17 +478,14 @@ export default function TicketsPage() {
                       return (
                         <motion.button
                           key={ticket.id}
-                          layout
                           variants={listVariants}
                           initial="initial"
                           animate="animate"
-                          exit={{ opacity: 0, y: -8 }}
-                          transition={{
-                            delay: i * 0.05,
-                            duration: 0.25,
-                            layout: { duration: 0.2 },
+                          exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                          onClick={() => {
+                            setSelectedTicket(ticket);
+                            setMobileView("detail");
                           }}
-                          onClick={() => setSelectedTicket(ticket)}
                           className={`w-full p-4 text-right border-b border-[var(--dash-muted)]/10 transition-all duration-300 group ${
                             isSelected
                               ? "bg-[var(--dash-bg)]/80"
@@ -494,7 +493,7 @@ export default function TicketsPage() {
                           }`}>
                           <div className="flex items-start gap-3">
                             <div className="relative shrink-0">
-                              <div className="p-3 rounded-2xl bg-[var(--dash-bg)] border border-[var(--dash-muted)]/10 group-hover:scale-105 transition-transform duration-300">
+                              <div className={`p-3 rounded-2xl border transition-all duration-300 group-hover:scale-105 ${isSelected ? "bg-[var(--light-purple)]/15 border-[var(--light-purple)]/30 shadow-lg shadow-[var(--light-purple)]/10" : "bg-[var(--dash-bg)] border-[var(--dash-muted)]/10"}`}>
                                 <StatusIcon
                                   className={`h-5 w-5 ${cfg.color}`}
                                 />
@@ -545,9 +544,7 @@ export default function TicketsPage() {
 
           {/* Ticket Detail Panel */}
           <div
-            className={`lg:col-span-2 min-w-0 ${
-              !selectedTicket ? "hidden lg:block" : ""
-            }`}>
+            className={`${mobileView === "detail" ? "" : "hidden "}lg:block lg:col-span-2 min-w-0`}>
             {selectedTicket ? (
               <motion.div
                 key={selectedTicket.id}
@@ -559,6 +556,13 @@ export default function TicketsPage() {
                 <div className="relative">
                   {/* Ticket Header */}
                   <div className="p-6 border-b border-[var(--dash-muted)]/10">
+                    {/* Mobile back button */}
+                    <button
+                      onClick={() => setMobileView("list")}
+                      className="lg:hidden flex items-center gap-2 text-sm text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors mb-4">
+                      <ArrowRight className="h-4 w-4" />
+                      بازگشت به فهرست
+                    </button>
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 mb-5">
                       <div className="min-w-0">
                         <h2
@@ -650,7 +654,7 @@ export default function TicketsPage() {
                         <Avatar
                           seed={selectedTicket.user.name}
                           size={42}
-                          className="rounded-xl"
+                          className="rounded-xl bg-[var(--hover-bg)] ring-2 ring-[var(--light-purple)]/20"
                         />
                       </div>
                       <div className="flex-1 min-w-0">

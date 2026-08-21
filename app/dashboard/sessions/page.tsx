@@ -23,6 +23,7 @@ import {
   ChevronDown,
   MessageSquare,
   Info,
+  Globe,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
@@ -45,6 +46,8 @@ const periodLabels = {
 const DEFAULT_MENTOR = {
   name: "رضا کمالی",
   photoUrl: "/me.png",
+  title: "",
+  bio: "",
   certifications: [] as string[],
   languages: [] as string[],
   experience: "",
@@ -237,12 +240,14 @@ export default function SessionsPage() {
           setPrivatePrice(privatePrice);
           setDiscountPercent(discountPercent ?? 0);
         }
-        if (mentorRes.ok) {
+          if (mentorRes.ok) {
           const { mentor } = await mentorRes.json();
           if (mentor) {
             setMentor({
               name: mentor.name || DEFAULT_MENTOR.name,
               photoUrl: mentor.photoUrl || DEFAULT_MENTOR.photoUrl,
+              title: mentor.title || "",
+              bio: mentor.bio || "",
               certifications: Array.isArray(mentor.certifications)
                 ? mentor.certifications
                 : [],
@@ -671,16 +676,20 @@ export default function SessionsPage() {
           </div>
 
           {/* Teacher Introduction */}
-          <div className="relative bg-gradient-to-br from-purple-500/5 to-purple-500/[0.02] rounded-2xl p-5 ring-1 ring-purple-500/10">
-            <div className="flex items-center gap-2 mb-5">
+          <div className="relative bg-gradient-to-br from-purple-500/8 via-purple-500/[0.03] to-indigo-500/5 rounded-2xl p-5 ring-1 ring-purple-500/15 overflow-hidden">
+            <div className="pointer-events-none absolute -top-20 -left-20 h-40 w-40 rounded-full bg-purple-500/15 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-20 -right-20 h-32 w-32 rounded-full bg-indigo-500/10 blur-3xl" />
+
+            <div className="relative flex items-center gap-2 mb-5">
               <div className="h-5 w-1 rounded-full bg-purple-500" />
               <span className="text-xs font-bold text-purple-500 dark:text-purple-400">
                 مدرس شما
               </span>
             </div>
-            <div className="flex items-start gap-4">
+
+            <div className="relative flex items-start gap-4 mb-5">
               <div className="relative shrink-0">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-lg ring-2 ring-purple-500/20">
+                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
                   <Image
                     src={mentor.photoUrl}
                     alt={mentor.name}
@@ -692,33 +701,77 @@ export default function SessionsPage() {
                 </div>
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <p className="text-sm font-bold text-[var(--dash-text)]">
-                    {mentor.name}
+                <p className="text-base font-extrabold text-[var(--dash-text)] leading-tight">
+                  {mentor.name}
+                </p>
+                {mentor.title && (
+                  <p className="text-[11px] text-purple-400 font-medium mt-1">
+                    {mentor.title}
                   </p>
-                  {mentor.certifications.map((c) => (
-                    <span
-                      key={c}
-                      className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 px-1.5 py-0.5 rounded font-medium">
-                      {c}
-                    </span>
-                  ))}
-                </div>
-                <div className="flex flex-wrap gap-x-4 gap-y-1.5">
-                  {mentor.experience && (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">{mentor.experience}</span>
-                    </div>
-                  )}
-                  {mentor.education && (
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-1 h-1 rounded-full bg-purple-400/50" />
-                      <span className="text-[11px] text-[var(--dash-muted)]">{mentor.education}</span>
-                    </div>
-                  )}
-                </div>
+                )}
+                {mentor.bio && (
+                  <p className="text-[11px] text-[var(--dash-muted)] mt-2 leading-relaxed line-clamp-3">
+                    {mentor.bio}
+                  </p>
+                )}
+                {mentor.certifications.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-3">
+                    {mentor.certifications.map((c) => (
+                      <span
+                        key={c}
+                        className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 px-1.5 py-0.5 rounded-md font-bold ring-1 ring-blue-500/15">
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
+            </div>
+
+            <div className="relative grid grid-cols-2 gap-3">
+              {mentor.languages.length > 0 && (
+                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Globe className="h-3 w-3 text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-400">زبان‌ها</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {mentor.languages.map((lang) => {
+                      const flag = languages.find((l) => l.label === lang)?.flag;
+                      return (
+                        <span
+                          key={lang}
+                          className="text-[10px] font-medium text-[var(--dash-text)] flex items-center gap-1">
+                          {flag && <span>{flag}</span>}
+                          {lang}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {mentor.experience && (
+                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <Clock className="h-3 w-3 text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-400">تجربه</span>
+                  </div>
+                  <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
+                    {mentor.experience}
+                  </p>
+                </div>
+              )}
+              {mentor.education && (
+                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8 col-span-2">
+                  <div className="flex items-center gap-1.5 mb-1.5">
+                    <BookOpen className="h-3 w-3 text-purple-400" />
+                    <span className="text-[10px] font-bold text-purple-400">تحصیلات</span>
+                  </div>
+                  <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
+                    {mentor.education}
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 

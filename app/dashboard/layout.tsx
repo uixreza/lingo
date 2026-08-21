@@ -5,6 +5,7 @@ import { authOptions, prisma, ensureLoyaltyBadge } from "@/lib/auth";
 import Sidebar from "@/components/dashboard/Sidebar";
 import Header from "@/components/dashboard/Header";
 import BanGuard from "@/components/dashboard/BanGuard";
+import SiteStatusGuard from "@/components/dashboard/SiteStatusGuard";
 import UserOnboarding from "@/components/dashboard/UserOnboarding";
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 import { RadioProvider } from "@/components/RadioProvider";
@@ -23,16 +24,16 @@ export default async function RootLayout({
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/");
 
-  const user = {
-    id: 1,
-    name: "رضا کمالی",
-    image: "",
-    role: "student",
-    balance: 20000,
-  };
-
   const userId = parseInt(session.user.id, 10);
   await ensureLoyaltyBadge(userId);
+
+  // Check site status — redirect non-admin users if shutdown or updating
+  if (session.user.role !== "Admin") {
+    const siteStatus = await prisma.siteStatus.findUnique({ where: { id: 1 } });
+    if (siteStatus?.shutdown || siteStatus?.updating) {
+      redirect("/status");
+    }
+  }
 
   const dbUser = await prisma.user.findUnique({
     where: { id: userId },
@@ -42,6 +43,15 @@ export default async function RootLayout({
   if (!dbUser || !dbUser.isActive) {
     redirect("/api/auth/exit");
   }
+
+  const user = {
+    id: userId,
+    name: session.user.fullname || "کاربر",
+    image: "",
+    role: session.user.role || "Client",
+    balance: 0,
+  };
+
   const yearsWithUs = Math.max(
     1,
     Math.floor(
@@ -52,6 +62,7 @@ export default async function RootLayout({
   return (
     <RadioProvider>
       <BanGuard />
+      {session.user.role !== "Admin" && <SiteStatusGuard />}
       {!dbUser.avatarSeed && <UserOnboarding />}
       <div
         className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"

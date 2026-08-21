@@ -378,3 +378,12 @@ model Mentor {
 
   @@map("mentors")
 }
+
+model SiteStatus {
+  id        Int      @id @default(1)
+  shutdown  Boolean  @default(false)
+  updating  Boolean  @default(false)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(3)
+
+  @@map("site_status")
+}

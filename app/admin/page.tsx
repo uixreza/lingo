@@ -32,6 +32,7 @@ import {
 import { useTheme } from "next-themes";
 import moment from "moment-jalaali";
 import MarqueeSection from "@/components/admin/MarqueeSection";
+import SiteControlSection from "@/components/admin/SiteControlSection";
 import type { AdminLogEntry } from "@/app/api/admin/logs/route";
 
 const emptySubscribe = () => () => {};
@@ -305,7 +306,7 @@ export default function DashboardPage() {
             </span>
             <button
               onClick={downloadLogs}
-              disabled={logs.length === 0}
+              disabled={!mounted || logs.length === 0}
               title="دانلود گزارش فعالیت‌ها"
               aria-label="دانلود گزارش فعالیت‌ها"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 text-sm font-semibold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
@@ -476,7 +477,11 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <MarqueeSection />
+      {/* Marquee & Site Control */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MarqueeSection />
+        <SiteControlSection />
+      </div>
 
       {/* Logs */}
       <motion.div

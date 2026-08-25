@@ -21,15 +21,18 @@ import {
   NotebookText,
   Pin,
   PinOff,
+  Sparkles,
+  Lock,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import Image from "next/image";
+
 import Avatar from "./Avatar";
 
 const menuItems = [
   { label: "خانه", href: "/dashboard", icon: Home },
   { label: "جلسات", href: "/dashboard/sessions", icon: GraduationCap },
   { label: "دفترچه", href: "/dashboard/notebook", icon: NotebookText },
+  { label: "دستیار AI", href: "/dashboard/ai", icon: Sparkles, locked: true },
   { label: "تیکت", href: "/dashboard/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/dashboard/account", icon: User },
 ];
@@ -114,12 +117,13 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 transition-all duration-150">
             <div className="relative">
               <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center ">
-                <Image
+                <img
                   src="/assets/img/sideIcon.png"
                   alt="Logo"
                   width={48}
                   height={48}
                   loading="eager"
+                  className="w-full h-full object-contain"
                 />
               </div>
             </div>
@@ -131,7 +135,7 @@ export default function Sidebar() {
                 Lingo <span className="text-green-500">Fam</span>{" "}
               </h1>
               <p className="text-[var(--sidebar-text)] text-sm whitespace-nowrap">
-                پلتفرم آموزش زبان
+                پلتفرم آموزش زبان آنلاین
               </p>
             </div>
           </div>
@@ -141,14 +145,20 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
+            const isLocked = 'locked' in item && item.locked;
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={isLocked ? "#" : item.href}
+                onClick={(e) => { if (isLocked) e.preventDefault(); }}
+                aria-disabled={isLocked}
+                tabIndex={isLocked ? -1 : undefined}
                 className={`group flex items-center px-4 py-3 rounded-xl font-medium relative overflow-hidden transition-all duration-150 ${
-                  isActive
-                    ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg scale-105"
-                    : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                  isLocked
+                    ? "opacity-40 cursor-not-allowed pointer-events-none"
+                    : isActive
+                      ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg scale-105"
+                      : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
                 }`}>
                 <div className="relative shrink-0">
                   <Icon
@@ -162,6 +172,9 @@ export default function Sidebar() {
                 <span className={`overflow-hidden transition-all duration-150 ${isExpanded ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
                   <span className={`whitespace-nowrap transition-all duration-150 ${isExpanded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"} ${isActive ? "font-bold" : "font-medium"}`}>
                     {item.label}
+                    {'locked' in item && item.locked && (
+                      <Lock className="inline-block w-3 h-3 mr-1.5 opacity-60" />
+                    )}
                   </span>
                 </span>
               </Link>
@@ -242,15 +255,20 @@ export default function Sidebar() {
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = item.icon;
+            const isLocked = 'locked' in item && item.locked;
             return (
               <Link
                 key={item.href}
-                href={item.href}
-                onClick={closeMobileSheet}
+                href={isLocked ? "#" : item.href}
+                onClick={(e) => { if (isLocked) { e.preventDefault(); return; } closeMobileSheet(); }}
+                aria-disabled={isLocked}
+                tabIndex={isLocked ? -1 : undefined}
                 className={`group flex items-center gap-3.5 px-3 py-3 rounded-2xl transition-all duration-150 ${
-                  isActive
-                    ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg"
-                    : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
+                  isLocked
+                    ? "opacity-40 cursor-not-allowed pointer-events-none"
+                    : isActive
+                      ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg"
+                      : "text-[var(--sidebar-text)] hover:bg-[var(--hover-bg)] hover:text-[var(--sidebar-text-hover)]"
                 }`}>
                 <span
                   className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-colors duration-150 ${
@@ -262,6 +280,9 @@ export default function Sidebar() {
                 </span>
                 <span className={`flex-1 text-base ${isActive ? "font-bold" : "font-medium"}`}>
                   {item.label}
+                  {'locked' in item && item.locked && (
+                    <Lock className="inline-block w-3.5 h-3.5 mr-1.5 opacity-60" />
+                  )}
                 </span>
                 <ChevronLeft
                   className={`w-4 h-4 shrink-0 transition-colors duration-150 ${

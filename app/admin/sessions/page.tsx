@@ -22,6 +22,7 @@ import {
   X,
   ClipboardCheck,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -227,6 +228,26 @@ export default function AdminSessionsPage() {
     }
   };
 
+  const handleDeletePanel = async () => {
+    setPanelSaving(true);
+    try {
+      const res = await fetch("/api/admin/panel-discussion", {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        setPanelTopic("");
+        setPanelLink("");
+        toast.success("پنل بحث پاک شد");
+      } else {
+        toast.error("خطا در حذف");
+      }
+    } catch {
+      toast.error("خطا در برقراری ارتباط");
+    } finally {
+      setPanelSaving(false);
+    }
+  };
+
   const filteredSessions = sessions.filter((s) => {
     const matchesFilter = filter === "all" || s.status === filter;
     const matchesSearch =
@@ -408,7 +429,16 @@ export default function AdminSessionsPage() {
               </div>
             )}
 
-            <div className="flex justify-end mt-4">
+            <div className="flex items-center justify-end gap-2 mt-4">
+              <motion.button
+                whileHover={panelSaving ? {} : { scale: 1.02 }}
+                whileTap={panelSaving ? {} : { scale: 0.98 }}
+                onClick={handleDeletePanel}
+                disabled={panelSaving || panelLoading}
+                className="px-5 py-2.5 rounded-xl text-sm font-bold text-red-500 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                <Trash2 className="h-4 w-4" />
+                پاک کردن
+              </motion.button>
               <motion.button
                 whileHover={panelSaving ? {} : { scale: 1.02 }}
                 whileTap={panelSaving ? {} : { scale: 0.98 }}

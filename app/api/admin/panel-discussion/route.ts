@@ -45,3 +45,17 @@ export async function PUT(req: Request) {
 
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE() {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user.role !== "Admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const record = await prisma.panelDiscussion.findFirst();
+  if (record) {
+    await prisma.panelDiscussion.delete({ where: { id: record.id } });
+  }
+
+  return NextResponse.json({ ok: true });
+}

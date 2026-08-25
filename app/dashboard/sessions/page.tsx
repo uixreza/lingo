@@ -208,6 +208,7 @@ export default function SessionsPage() {
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
   const [proExpanded, setProExpanded] = useState(false);
   const [panelTopic, setPanelTopic] = useState("");
+  const [panelLink, setPanelLink] = useState("");
   const monthGridsRef = useRef<HTMLDivElement>(null);
   const [showDateHelp, setShowDateHelp] = useState(false);
 
@@ -268,8 +269,9 @@ export default function SessionsPage() {
           }
         }
         if (panelRes.ok) {
-          const { topic } = await panelRes.json();
+          const { topic, link } = await panelRes.json();
           setPanelTopic(topic ?? "");
+          setPanelLink(link ?? "");
         }
       } catch (err) {
         console.error("Error fetching data:", err);
@@ -556,16 +558,33 @@ export default function SessionsPage() {
         )}
       </AnimatePresence>
 
-      <motion.button
-        whileHover={{ scale: 1.01 }}
-        whileTap={{ scale: 0.98 }}
-        className="relative w-full py-3 rounded-xl text-sm font-bold text-white transition-all duration-200 bg-gradient-to-l from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
-        onClick={() => toast.error("لینک جلسه جمعه هنوز قرار داده نشده است")}>
-        <span className="flex items-center justify-center gap-2">
-          <Video className="h-4 w-4" />
-          لینک جلسه جمعه قرار داده می‌شود
-        </span>
-      </motion.button>
+      {panelLink ? (
+        <a
+          href={panelLink}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full">
+          <motion.button
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
+            className="relative w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-200 bg-gradient-to-l from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40">
+            <span className="flex items-center justify-center gap-2">
+              <Video className="h-4 w-4" />
+              ورود به جلسه جمعه
+            </span>
+          </motion.button>
+        </a>
+      ) : (
+        <motion.button
+          whileHover={{ scale: 1.01 }}
+          whileTap={{ scale: 0.98 }}
+          className="relative w-full py-3.5 rounded-xl text-sm font-bold text-[var(--dash-muted)] transition-all duration-200 bg-[var(--hover-bg)] border border-[var(--dash-muted)]/15 cursor-not-allowed">
+          <span className="flex items-center justify-center gap-2">
+            <Clock className="h-4 w-4" />
+            لینک جلسه جمعه هنوز قرار داده نشده
+          </span>
+        </motion.button>
+      )}
     </div>
   );
 

@@ -142,11 +142,12 @@ export default function Sidebar() {
           <div className="flex items-center gap-3 transition-all duration-150">
             <div className="relative">
               <div className="w-12 h-12 rounded-md overflow-hidden flex items-center justify-center">
-                <Image
+                <img
                   src="/assets/img/sideIcon.png"
                   alt="Logo"
                   width={48}
                   height={48}
+                  className="w-full h-full object-contain"
                 />
               </div>
             </div>

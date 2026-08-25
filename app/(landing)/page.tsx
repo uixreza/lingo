@@ -100,7 +100,8 @@ export default function Home() {
         </div>
       ) : null}
 
-      <Link href="/lingotv">
+      {/* LingoTV button - hidden for now */}
+      {/* <Link href="/lingotv">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -122,7 +123,7 @@ export default function Home() {
           </span>
           <span className="text-xs font-bold text-green-400">LingoTV</span>
         </motion.button>
-      </Link>
+      </Link> */}
 
       <motion.section
         variants={container}

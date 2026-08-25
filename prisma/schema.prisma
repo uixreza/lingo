@@ -68,10 +68,12 @@ model Friend {
   @@map("friends")
 }
 
-model panelDiscussion {
+model PanelDiscussion {
   id            Int       @id @default(autoincrement())
   link          String?
   topic         String?
+
+  @@map("panel_discussion")
 }
 
 enum Badges {

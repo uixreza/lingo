@@ -174,7 +174,7 @@ export default function DashboardPage() {
                 router.push("/dashboard/sessions");
               }}
               disabled={navigating}
-              className="group relative flex flex-col items-center justify-center rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden cursor-pointer min-h-[80px] sm:min-h-0"
+              className="group relative flex flex-col items-center justify-center rounded-t-2xl rounded-b-none bg-gradient-to-br from-green-500 to-emerald-600 shadow-xl transition-all duration-300 hover:shadow-2xl hover:scale-[1.03] overflow-hidden cursor-pointer min-h-[80px] sm:min-h-0"
               style={{ flex: "2 1 0%" }}>
               <div
                 className="absolute inset-0 opacity-[0.07]"
@@ -185,7 +185,7 @@ export default function DashboardPage() {
                 }}
               />
               <div className="flex items-center gap-3">
-                <span className="text-3xl font-extrabold text-white tracking-tight">
+                <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                   درخواست جلسه
                 </span>
                 {navigating ? (
@@ -209,11 +209,19 @@ export default function DashboardPage() {
               <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </button>
             <Link href="/dashboard/ticket" className="block" style={{ flex: "1 1 0%" }}>
-              <button className="w-full h-full group relative flex items-center justify-center gap-2 rounded-2xl border border-[var(--dash-muted)]/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] hover:border-[var(--dash-muted)]/40 cursor-pointer min-h-[60px] sm:min-h-0">
-                <svg className="w-5 h-5 text-[var(--dash-muted)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <button className="w-full h-full group relative flex items-center justify-center gap-2 rounded-b-2xl rounded-t-none bg-gradient-to-br from-green-600/80 to-emerald-700/80 shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.03] overflow-hidden cursor-pointer min-h-[60px] sm:min-h-0">
+                <div
+                  className="absolute inset-0 opacity-[0.07]"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 0L30 15L15 30L0 15Z' fill='white' fill-opacity='0.4'/%3E%3C/svg%3E")`,
+                    backgroundSize: "30px 30px",
+                    backgroundRepeat: "repeat",
+                  }}
+                />
+                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
-                <span className="text-sm font-bold text-[var(--dash-text)]">
+                <span className="text-sm font-bold text-white">
                   پشتیبانی
                 </span>
               </button>

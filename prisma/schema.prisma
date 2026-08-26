@@ -21,13 +21,13 @@ model User {
   phone         String    @unique @db.VarChar(11)
   dateOfBirth   DateTime?  @map("date_of_birth") @db.Date
   avatarSeed    String?   @map("avatar_seed")
-  IsPro         Boolean   @map("is_pro") @default(true)
+  IsPro         Boolean   @map("is_pro") @default(false)
   fluencyLevel  FluencyLevel    @map("fluency_level") 
   passwordHash  String    @map("password_hash") @db.VarChar(255)
   isVerified    Boolean   @default(false) @map("is_verified")
   isActive      Boolean   @default(true) @map("is_active")
   role          Role      @default(Client) 
-  badges        Badges[]  @default([Pro])
+  badges        Badges[]  @default([Newbie])
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
   lastLoginAt   DateTime? @map("last_login_at")
@@ -77,6 +77,7 @@ model PanelDiscussion {
 }
 
 enum Badges {
+        Newbie
         Loyalty
         Pro
         Warrior

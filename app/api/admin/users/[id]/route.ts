@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 const FLUENCY_LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 const ROLES = ["Admin", "Teacher", "Client"] as const;
-const BADGES = ["Loyalty", "Pro", "Warrior"] as const;
+const BADGES = ["Newbie", "Loyalty", "Pro", "Warrior"] as const;
 
 export async function PATCH(
   request: Request,

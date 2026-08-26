@@ -69,7 +69,7 @@ export default function Auth() {
                 {tab === "login" ? (
                   <LoginForm close={close} />
                 ) : (
-                  <SignupForm close={close} />
+                  <SignupForm close={close} onSuccess={() => setTab("login")} />
                 )}
               </motion.div>
             </AnimatePresence>
@@ -402,7 +402,7 @@ function LoginForm({ close }: { close: () => void }) {
   );
 }
 
-function SignupForm({ close }: { close: () => void }) {
+function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => void }) {
   const [showOtp, setShowOtp] = useState(false);
   const [otp, setOtp] = useState<string[]>(Array(6).fill(""));
   const [timer, setTimer] = useState(300);
@@ -522,7 +522,7 @@ function SignupForm({ close }: { close: () => void }) {
         return;
       }
       toast.success("ثبت‌نام با موفقیت انجام شد. اکنون می‌توانید وارد شوید");
-      setTimeout(close, 1500);
+      setTimeout(onSuccess, 1500);
     } catch {
       toast.error("خطا در ارتباط با سرور");
     } finally {

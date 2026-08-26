@@ -478,14 +478,14 @@ export default function SessionsPage() {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="text-sm font-black text-[var(--dash-text)]">
-              کاربر ویژه (Pro)
+              پنل بحث آنلاین
             </span>
-            <span className="text-[10px] bg-purple-500/15 text-purple-500 px-1.5 py-0.5 rounded font-bold">
-              اشتراک فعال
+            <span className="text-[10px] bg-green-500/15 text-green-500 px-1.5 py-0.5 rounded font-bold">
+              هفتگی
             </span>
           </div>
           <h3 className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-purple-400 to-indigo-400">
-            پنل بحث آنلاین هفتگی
+            گفتگو و تمرین مکالمه
           </h3>
         </div>
         <motion.button

@@ -236,8 +236,11 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.2, duration: 0.8 }}
-        className="fixed left-4 hidden sm:block sm:left-10 bottom-0 z-10 pb-6 text-[10px] sm:text-xs text-[#555]">
-        © 2026 Lingofam
+        className="fixed bottom-0 left-0 right-0 hidden sm:flex items-center justify-between px-10 z-10 pb-6 text-[10px] sm:text-xs text-[#555]">
+        <span>© 2026 Lingofam</span>
+        <Link href="/policy" className="hover:text-white transition-colors">
+          قوانین و حریم خصوصی
+        </Link>
       </motion.footer>
     </main>
   );

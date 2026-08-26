@@ -8,6 +8,8 @@ import {
   ChevronLeft,
   Bell,
   Swords,
+  Sparkles,
+  Leaf,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -113,8 +115,18 @@ export default function Header({ user }: { user: User }) {
               )}
             </div>
 
-            {/* Pro & Loyalty Badges */}
+            {/* Badges */}
             <div className="flex items-center gap-2">
+              {user.badges?.includes("Newbie") && (
+                <div className="group relative">
+                  <div className="bg-green-500/15 text-green-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">
+                    <Leaf className="h-3 w-3" />
+                  </div>
+                  <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
+                    کاربر تازه‌وارد
+                  </div>
+                </div>
+              )}
               {user.badges?.includes("Pro") && (
                 <div className="group relative">
                   <div className="bg-purple-500/15 text-purple-400 rounded-lg p-1.5 shadow-lg hover:scale-110 transition-transform duration-200">

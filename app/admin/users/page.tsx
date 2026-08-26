@@ -16,6 +16,8 @@ import {
   Star,
   Gem,
   Swords,
+  Sparkles,
+  Leaf,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Avatar from "@/components/dashboard/Avatar";
@@ -66,6 +68,13 @@ const ROLE_LABEL: Record<UserRole, string> = {
 };
 
 const BADGE_DEFS = [
+  {
+    key: "Newbie",
+    label: "تازه‌وارد",
+    Icon: Leaf,
+    activeTile:
+      "bg-green-500/20 text-green-400 border-green-500/30 shadow-lg shadow-green-500/10",
+  },
   {
     key: "Pro",
     label: "کاربر ویژه",

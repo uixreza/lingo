@@ -222,7 +222,7 @@ export default function Home() {
             />
             <Image
               alt="mini Room"
-              src={"/miniRoom.png"}
+              src={"/miniRoom.webp"}
               width={600}
               height={600}
               className="relative select-none pointer-events-none w-full max-w-md lg:max-w-xl drop-shadow-2xl"

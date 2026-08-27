@@ -52,7 +52,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/assets/") ||
     url.pathname.startsWith("/fonts/") ||
     url.pathname.startsWith("/icons/") ||
-    url.pathname === "/mainIcon.png"
+    url.pathname === "/mainIcon.webp"
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {

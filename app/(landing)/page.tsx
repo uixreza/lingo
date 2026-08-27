@@ -100,7 +100,7 @@ export default function Home() {
         </div>
       ) : null}
 
-<a className="fixed top-20 right-4 lg:top-4 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image width={50} height={50} referrerPolicy='origin' className="border-none" src='https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
+<a className="fixed top-20 right-4 lg:top-4 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image unoptimized width={50} height={50} referrerPolicy='origin' className="border-none" src='https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
       {/* LingoTV button - hidden for now */}
       {/* <Link href="/lingotv">
         <motion.button

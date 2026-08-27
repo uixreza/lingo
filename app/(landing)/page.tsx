@@ -100,13 +100,7 @@ export default function Home() {
         </div>
       ) : null}
 
-      <div
-        className="fixed top-20 right-4 lg:top-4 z-40"
-        dangerouslySetInnerHTML={{
-          __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style='cursor:pointer' code='G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'></a>`,
-        }}
-      />
-
+<a className="fixed top-20 right-4 lg:top-4 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image width={50} height={50} referrerPolicy='origin' className="border-none" src='https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
       {/* LingoTV button - hidden for now */}
       {/* <Link href="/lingotv">
         <motion.button
@@ -200,33 +194,6 @@ export default function Home() {
             <div className="absolute w-[250px] sm:w-[350px] h-[250px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[80px] sm:blur-[100px] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-green-500/15 via-transparent to-transparent rounded-3xl blur-3xl" />
 
-            <motion.div
-              animate={{
-                scale: [1, 1.25, 1.45],
-                opacity: [0.15, 0.06, 0],
-              }}
-              transition={{
-                duration: 3.5,
-                repeat: Infinity,
-                ease: "easeOut",
-                delay: 0.6,
-              }}
-              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full border border-green-400/20 will-change-transform"
-            />
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{
-                duration: 14,
-                repeat: Infinity,
-                ease: "linear",
-              }}
-              className="absolute w-[270px] sm:w-[380px] h-[270px] sm:h-[380px] rounded-full border border-dashed border-green-400/15 will-change-transform"
-            />
-            <motion.div
-              animate={{ scale: [1, 1.12, 1] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute w-[240px] sm:w-[340px] h-[240px] sm:h-[340px] rounded-full bg-[#22c55e]/5 blur-2xl will-change-transform pointer-events-none"
-            />
             <Image
               alt="mini Room"
               src={"/miniRoom.webp"}

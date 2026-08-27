@@ -9,6 +9,9 @@ export const metadata: Metadata = {
   title: "Lingofam — زبان رو طبیعی یاد بگیر",
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+  other:{
+     'enamad': '69128356',
+  }
 };
 
 export default async function RootLayout({

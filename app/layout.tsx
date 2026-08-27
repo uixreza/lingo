@@ -5,7 +5,7 @@ import Loading from "./loading";
 import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
-  title: "69128356",
+  title: "Lingofam — زبان رو طبیعی یاد بگیر",
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
   applicationName: "لینگوفم",
@@ -18,9 +18,6 @@ export const metadata: Metadata = {
     icon: [{ url: "/mainIcon.webp", sizes: "any", type: "image/webp" }],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
-  other:{
-     'enamad': '69128356',
-  }
 };
 
 export const viewport: Viewport = {

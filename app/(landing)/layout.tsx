@@ -6,12 +6,9 @@ import Auth from "@/components/Auth";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 export const metadata: Metadata = {
-  title: "69128356",
+  title: "Lingofam — زبان رو طبیعی یاد بگیر",
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
-  other:{
-     'enamad': '69128356',
-  }
 };
 
 export default async function RootLayout({

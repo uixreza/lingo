@@ -147,7 +147,7 @@ export default function Home() {
             className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
             انگلیسی رو
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 animate-neon-flicker">
               تو خونه یاد بگیر
             </span>
           </motion.h1>
@@ -163,20 +163,20 @@ export default function Home() {
             className="mt-10 flex gap-4 justify-center lg:justify-start">
             <Link href="/dashboard/sessions">
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
+                whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(34,197,94,0.4)" }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => setStarting(true)}
                 disabled={starting}
-                className="px-8 py-3.5 bg-green-500 hover:bg-green-400 disabled:bg-green-500/60 text-black font-semibold rounded-2xl shadow-lg shadow-green-500/25 flex items-center gap-2">
+                className="px-8 py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200">
                 {starting && <Loader2 size={16} className="animate-spin" />}
                 {starting ? "در حال انتقال..." : "شروع کن"}
               </motion.button>
             </Link>
             <Link href="/about">
               <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.97 }}
-                className="px-8 py-3.5 border border-green-500/30 text-green-400 hover:bg-green-500/10 rounded-2xl">
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="px-8 py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200">
                 درباره من
               </motion.button>
             </Link>
@@ -197,9 +197,10 @@ export default function Home() {
             <Image
               alt="mini Room"
               src={"/miniRoom.webp"}
-              width={360}
-              height={360}
-              className="relative select-none pointer-events-none w-full max-w-xs lg:max-w-lg drop-shadow-2xl"
+              width={800}
+              height={800}
+              quality={100}
+              className="relative select-none pointer-events-none w-full max-w-xs lg:min-w-md drop-shadow-2xl"
               priority
             />
           </motion.div>

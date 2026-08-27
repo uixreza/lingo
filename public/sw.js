@@ -34,7 +34,7 @@ self.addEventListener("fetch", (event) => {
 
   if (url.pathname.includes("hmr") || url.pathname.includes("turbopack")) return;
 
-  if (request.mode === "navigate" && !url.pathname.includes(".")) {
+  if (request.mode === "navigate") {
     event.respondWith(
       fetch(request)
         .then((response) => {

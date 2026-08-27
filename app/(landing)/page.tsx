@@ -100,6 +100,13 @@ export default function Home() {
         </div>
       ) : null}
 
+      <div
+        className="fixed top-20 right-4 lg:top-4 z-40"
+        dangerouslySetInnerHTML={{
+          __html: `<a referrerpolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><img referrerpolicy='origin' src='https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style='cursor:pointer' code='G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'></a>`,
+        }}
+      />
+
       {/* LingoTV button - hidden for now */}
       {/* <Link href="/lingotv">
         <motion.button

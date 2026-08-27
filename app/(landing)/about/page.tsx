@@ -9,7 +9,6 @@ import {
   Award,
   Clock,
   Users,
-  ShieldCheck,
 } from "lucide-react";
 
 const fadeUp = {
@@ -154,37 +153,7 @@ export default function About() {
             ))}
           </div>
         </motion.div>
-
-        {/* Licenses */}
-        <motion.div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
-          <h2 className="text-white text-sm font-medium mb-4 flex items-center gap-2">
-            <ShieldCheck size={16} className="text-green-400" />
-            مجوزها
-          </h2>
-          <div className="flex items-center gap-4">
-            <a
-              referrerPolicy="origin"
-              target="_blank"
-              href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2">
-              <img
-                referrerPolicy="origin"
-                src="https://trustseal.enamad.ir/logo.aspx?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
-                alt="نماد اعتماد الکترونیکی"
-                style={{ cursor: "pointer" }}
-                code="G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
-              />
-            </a>
-          </div>
-        </motion.div>
       </motion.div>
-
-      <motion.footer
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1.2, duration: 0.8 }}
-        className="fixed left-4 hidden sm:block sm:left-10 bottom-0 z-10 pb-6 text-[10px] sm:text-xs text-[#555]">
-        © 2026 Lingofam
-      </motion.footer>
     </main>
   );
 }

@@ -1,11 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Snowfall from "react-snowfall";
+
+function useIsMobile() {
+  const subscribe = (onChange: () => void) => {
+    const mql = window.matchMedia("(max-width: 639px)");
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  };
+  const getSnapshot = () => window.matchMedia("(max-width: 639px)").matches;
+  return useSyncExternalStore(subscribe, getSnapshot, () => true);
+}
 
 const container = {
   hidden: {},
@@ -27,6 +37,7 @@ export default function Home() {
   const [starting, setStarting] = useState(false);
   const [christmas, setChristmas] = useState(false);
   const [imgKey, setImgKey] = useState(0);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -69,7 +80,7 @@ export default function Home() {
       {christmas && (
         <Snowfall
           color="#dee4fd"
-          snowflakeCount={200}
+          snowflakeCount={isMobile ? 40 : 200}
           speed={[0.5, 3]}
           wind={[-0.5, 2]}
           radius={[0.5, 3]}

@@ -175,8 +175,8 @@ export default function Home() {
             className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
             انگلیسی رو
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-300 animate-neon-flicker">
-              تو خونه یاد بگیر
+            <span className="animate-neon-flicker">
+              تو خونه یاد بگیر !؟
             </span>
           </motion.h1>
           <motion.p

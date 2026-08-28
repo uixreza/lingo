@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
-import { Rss, Calendar, User, Tag, FileText, X } from "lucide-react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { Rss, Calendar, User, Tag, FileText } from "lucide-react";
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.1 } },
@@ -63,22 +64,6 @@ function AuthorAvatar({
   );
 }
 
-function useMediaQuery(query: string) {
-  const [matches, setMatches] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(query).matches;
-  });
-
-  useEffect(() => {
-    const mql = window.matchMedia(query);
-    const onChange = (e: MediaQueryListEvent) => setMatches(e.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, [query]);
-
-  return matches;
-}
-
 function toPersianDigits(n: string) {
   return n.replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[parseInt(d)]);
 }
@@ -97,144 +82,9 @@ async function loadPosts() {
   }
 }
 
-function PostModal({ post, onClose }: { post: BlogPost; onClose: () => void }) {
-  const isMobile = useMediaQuery("(max-width: 640px)");
-
-  const words = post.content.replace(/<[^>]*>/g, "").trim().split(/\s+/).length;
-  const minutes = Math.max(1, Math.round(words / 200));
-
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = prev;
-      window.removeEventListener("keydown", onKey);
-    };
-  }, [onClose]);
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.25 }}
-      onClick={onClose}
-      className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center">
-      <button
-        onClick={onClose}
-        aria-label="بستن"
-        className="absolute top-4 end-4 z-20 p-2.5 rounded-full bg-black/50 border border-white/10 text-white hover:bg-black/70 hover:scale-105 transition-all duration-200">
-        <X className="h-4 w-4" />
-      </button>
-      <motion.div
-        role="dialog"
-        aria-modal="true"
-        onClick={(e) => e.stopPropagation()}
-        initial={
-          isMobile
-            ? { y: "100%", opacity: 1, scale: 1 }
-            : { opacity: 0, scale: 0.96, y: 24 }
-        }
-        animate={isMobile ? { y: 0, opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: 0 }}
-        exit={
-          isMobile
-            ? { y: "100%", opacity: 1, scale: 1 }
-            : { opacity: 0, scale: 0.96, y: 24 }
-        }
-        transition={{ duration: 0.3, ease: "easeOut" }}
-        className={`relative bg-[#0b0b0b] border-white/10 shadow-2xl overflow-hidden ${
-          isMobile
-            ? "w-full max-h-[88vh] overflow-y-auto rounded-t-3xl border-t"
-            : "w-full max-w-3xl max-h-[85vh] overflow-y-auto rounded-3xl border my-8"
-        }`}>
-        <div className="w-10 h-1 rounded-full bg-white/15 mx-auto mt-3 sm:hidden" />
-
-        {post.thumbnailUrl ? (
-          <div className="relative h-52 sm:h-72">
-            <Image
-              src={post.thumbnailUrl}
-              alt={post.title}
-              fill
-              unoptimized
-              sizes="(max-width: 640px) 100vw, 768px"
-              className="object-cover"
-            />
-            <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-black/60 backdrop-blur-md border border-white/10 rounded-lg px-2.5 py-1.5">
-              <AuthorAvatar
-                seed={post.authorAvatarSeed}
-                name={post.author}
-                size={30}
-              />
-              <span className="text-xs font-medium text-white whitespace-nowrap">
-                {post.author}
-              </span>
-            </div>
-          </div>
-        ) : (
-          <div
-            className={post.thumbnailGradient ? "relative h-40 sm:h-52" : ""}
-            style={
-              post.thumbnailGradient
-                ? { background: post.thumbnailGradient }
-                : undefined
-            }>
-            <div className="flex items-center gap-3 px-6 pt-6">
-              <AuthorAvatar
-                seed={post.authorAvatarSeed}
-                name={post.author}
-                size={34}
-              />
-              <span className="text-sm font-medium text-white">
-                {post.author}
-              </span>
-            </div>
-          </div>
-        )}
-
-        <div className="p-6 sm:p-8">
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1.5 mb-4">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 text-xs">
-                  <Tag className="h-3 w-3" />
-                  #{tag}
-                </span>
-              ))}
-            </div>
-          )}
-
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-white leading-snug tracking-tight">
-            {post.title}
-          </h2>
-
-          <div className="flex items-center gap-5 mt-4 text-sm text-[#666] flex-wrap">
-            <span className="flex items-center gap-1.5">
-              <Calendar className="h-4 w-4" />
-              {formatDate(post.date)}
-            </span>
-            <span>{minutes.toLocaleString("fa-IR")} دقیقه مطالعه</span>
-          </div>
-
-          <div
-            className="blog-post ProseMirror prose prose-invert max-w-none mt-6 text-right [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg leading-relaxed"
-            dangerouslySetInnerHTML={{ __html: post.content }}
-          />
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-}
-
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loaded, setLoaded] = useState(false);
-  const [selected, setSelected] = useState<BlogPost | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -242,11 +92,6 @@ export default function BlogPage() {
       if (!cancelled) {
         setPosts(data);
         setLoaded(true);
-        const slug = new URLSearchParams(window.location.search).get("post");
-        if (slug) {
-          const match = data.find((p) => p.slug === slug);
-          if (match) setSelected(match);
-        }
       }
     });
     return () => {
@@ -297,12 +142,11 @@ export default function BlogPage() {
             animate="show"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {posts.map((post) => (
-              <motion.article
-                key={post.id}
-                variants={item}
-                whileHover={{ y: -4 }}
-                onClick={() => setSelected(post)}
-                className="group bg-[#0b0b0b] border border-white/5 hover:border-green-500/30 rounded-2xl overflow-hidden transition-colors cursor-pointer h-full">
+              <Link key={post.id} href={`/blog/${post.slug}`}>
+                <motion.article
+                  variants={item}
+                  whileHover={{ y: -4 }}
+                  className="group bg-[#0b0b0b] border border-white/5 hover:border-green-500/30 rounded-2xl overflow-hidden transition-colors cursor-pointer h-full">
                 <div className="relative h-44 bg-[#111] overflow-hidden">
                   {post.thumbnailUrl ? (
                     <Image
@@ -363,20 +207,11 @@ export default function BlogPage() {
                   </div>
                 </div>
               </motion.article>
+              </Link>
             ))}
           </motion.div>
         )}
       </motion.section>
-
-      <AnimatePresence>
-        {selected && (
-          <PostModal
-            key={selected.id}
-            post={selected}
-            onClose={() => setSelected(null)}
-          />
-        )}
-      </AnimatePresence>
     </main>
   );
 }

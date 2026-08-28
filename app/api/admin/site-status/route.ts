@@ -18,6 +18,7 @@ export async function GET() {
   return NextResponse.json({
     shutdown: status.shutdown,
     updating: status.updating,
+    christmas: status.christmas,
   });
 }
 
@@ -36,6 +37,7 @@ export async function PUT(request: Request) {
 
   const shutdown = body.shutdown === true;
   const updating = body.updating === true;
+  const christmas = body.christmas === true;
 
   if (shutdown && updating) {
     return NextResponse.json(
@@ -47,11 +49,12 @@ export async function PUT(request: Request) {
   const status = await getOrCreate();
   const updated = await prisma.siteStatus.update({
     where: { id: status.id },
-    data: { shutdown, updating },
+    data: { shutdown, updating, christmas },
   });
 
   return NextResponse.json({
     shutdown: updated.shutdown,
     updating: updated.updating,
+    christmas: updated.christmas,
   });
 }

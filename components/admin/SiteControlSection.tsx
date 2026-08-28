@@ -1,12 +1,13 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Power, RefreshCw, Loader2, ShieldAlert, Wrench } from "lucide-react";
+import { Power, RefreshCw, Loader2, ShieldAlert, Wrench, Snowflake } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
 export default function SiteControlSection() {
   const [shutdown, setShutdown] = useState(false);
   const [updating, setUpdating] = useState(false);
+  const [christmas, setChristmas] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -18,6 +19,7 @@ export default function SiteControlSection() {
         if (!cancelled && d) {
           setShutdown(d.shutdown);
           setUpdating(d.updating);
+          setChristmas(d.christmas);
         }
       })
       .catch(() => {})
@@ -29,18 +31,25 @@ export default function SiteControlSection() {
     };
   }, []);
 
-  const toggle = async (mode: "shutdown" | "updating") => {
+  const toggle = async (mode: "shutdown" | "updating" | "christmas") => {
     if (saving) return;
     setSaving(true);
 
-    const newShutdown = mode === "shutdown" ? !shutdown : false;
-    const newUpdating = mode === "updating" ? !updating : false;
+    const newShutdown = mode === "shutdown" ? !shutdown : shutdown;
+    const newUpdating = mode === "updating" ? !updating : updating;
+    const newChristmas = mode === "christmas" ? !christmas : christmas;
+
+    if (newShutdown && newUpdating) {
+      toast.error("امکان فعال‌سازی هر دو حالت همزمان وجود ندارد");
+      setSaving(false);
+      return;
+    }
 
     try {
       const res = await fetch("/api/admin/site-status", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shutdown: newShutdown, updating: newUpdating }),
+        body: JSON.stringify({ shutdown: newShutdown, updating: newUpdating, christmas: newChristmas }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -50,7 +59,14 @@ export default function SiteControlSection() {
       const data = await res.json();
       setShutdown(data.shutdown);
       setUpdating(data.updating);
-      if (data.shutdown) {
+      setChristmas(data.christmas);
+      if (mode === "christmas") {
+        if (data.christmas) {
+          toast.success("تم کریسمس فعال شد");
+        } else {
+          toast.success("تم کریسمس غیرفعال شد");
+        }
+      } else if (data.shutdown) {
         toast.success("حالت تعطیل فعال شد — کاربران از داشبورد ریدایرکت می‌شوند");
       } else if (data.updating) {
         toast.success("حالت بروزرسانی فعال شد — کاربران به صفحه وضعیت هدایت می‌شوند");
@@ -233,6 +249,70 @@ export default function SiteControlSection() {
               <p className="text-xs text-amber-500 dark:text-amber-400 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                 کاربران به صفحه وضعیت ریدایرکت می‌شوند و پیام بروزرسانی را می‌بینند
+              </p>
+            </motion.div>
+          )}
+        </div>
+
+        {/* Christmas Theme Toggle */}
+        <div
+          className={`relative rounded-xl border p-4 transition-all duration-300 ${
+            christmas
+              ? "bg-sky-500/10 border-sky-500/30"
+              : "bg-[var(--dash-bg)]/60 border-[var(--dash-muted)]/10 hover:border-[var(--dash-muted)]/20"
+          }`}>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div
+                className={`p-2 rounded-xl shrink-0 transition-colors duration-300 ${
+                  christmas ? "bg-sky-500/20" : "bg-[var(--hover-bg)]"
+                }`}>
+                <Snowflake
+                  className={`h-5 w-5 transition-colors duration-300 ${
+                    christmas
+                      ? "text-sky-500"
+                      : "text-[var(--dash-muted)]"
+                  }`}
+                />
+              </div>
+              <div className="min-w-0">
+                <p
+                  className="text-sm font-bold"
+                  style={{ color: "var(--dash-text)" }}>
+                  تم کریسمس
+                </p>
+                <p
+                  className="text-xs mt-0.5"
+                  style={{ color: "var(--dash-muted)" }}>
+                  فعال‌سازی افکت برف و تغییر تصویر لندینگ
+                </p>
+              </div>
+            </div>
+            <button
+              onClick={() => toggle("christmas")}
+              disabled={saving}
+              className={`relative shrink-0 w-12 h-7 rounded-full transition-all duration-300 ${
+                christmas
+                  ? "bg-sky-500 shadow-lg shadow-sky-500/30"
+                  : "bg-[var(--hover-bg-strong)]"
+              } disabled:opacity-50`}>
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-md ${
+                  christmas ? "right-1" : "right-6"
+                }`}
+              />
+            </button>
+          </div>
+          {christmas && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              className="mt-3 pt-3 border-t border-sky-500/20">
+              <p className="text-xs text-sky-500 dark:text-sky-400 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
+                افکت برف در صفحه لندینگ فعال است و تصویر به حالت برفی تغییر می‌کند
               </p>
             </motion.div>
           )}

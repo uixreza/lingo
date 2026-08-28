@@ -7,8 +7,9 @@ export async function GET() {
     return NextResponse.json({
       shutdown: status?.shutdown ?? false,
       updating: status?.updating ?? false,
+      christmas: status?.christmas ?? false,
     });
   } catch {
-    return NextResponse.json({ shutdown: false, updating: false });
+    return NextResponse.json({ shutdown: false, updating: false, christmas: false });
   }
 }

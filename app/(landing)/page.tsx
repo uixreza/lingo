@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import Snowfall from "react-snowfall";
 
 const container = {
   hidden: {},
@@ -24,6 +25,8 @@ export default function Home() {
   const [marqueeTexts, setMarqueeTexts] = useState<string[]>([]);
   const [marqueeLoading, setMarqueeLoading] = useState(true);
   const [starting, setStarting] = useState(false);
+  const [christmas, setChristmas] = useState(false);
+  const [imgKey, setImgKey] = useState(0);
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -43,10 +46,35 @@ export default function Home() {
     fetchMarquee();
   }, []);
 
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const res = await fetch("/api/site-status", { cache: "no-store" });
+        if (res.ok) {
+          const data = await res.json();
+          setChristmas(data.christmas);
+          setImgKey(Date.now());
+        }
+      } catch {
+        // default to false
+      }
+    };
+    fetchStatus();
+  }, []);
+
   return (
     <main
       style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}
       className="relative min-h-screen bg-[#050505] overflow-hidden">
+      {christmas && (
+        <Snowfall
+          color="#dee4fd"
+          snowflakeCount={200}
+          speed={[0.5, 3]}
+          wind={[-0.5, 2]}
+          radius={[0.5, 3]}
+        />
+      )}
       <div className="absolute top-[-200px] left-[-10%] w-[800px] h-[800px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
       <div className="absolute top-[30%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />
       <div className="absolute top-[60%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#22c55e]/10 blur-[100px] pointer-events-none" />
@@ -195,8 +223,9 @@ export default function Home() {
             <div className="absolute inset-0 bg-gradient-to-tr from-green-500/15 via-transparent to-transparent rounded-3xl blur-3xl" />
 
             <Image
+              key={imgKey}
               alt="mini Room"
-              src={"/miniRoom.webp"}
+              src={christmas ? "/miniRoomSnow.webp" : "/miniRoom.webp"}
               width={800}
               height={800}
               quality={100}

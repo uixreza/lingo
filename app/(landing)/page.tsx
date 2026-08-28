@@ -192,7 +192,7 @@ export default function Home() {
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-6 text-lg text-[#888] w-2/3 max-w-xl leading-relaxed mx-auto lg:mx-0">
+            className="mt-6 text-lg text-[#888] w-5/6 max-w-xl leading-relaxed mx-auto lg:mx-0">
             با درس‌های تعاملی و تمرین‌های روزمره، انگلیسی رو سریع‌تر و عمیق‌تر
             یادبگیر.
           </motion.p>

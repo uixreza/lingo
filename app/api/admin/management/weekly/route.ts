@@ -113,6 +113,47 @@ export async function POST(request: Request) {
   }
 }
 
+export async function PUT(request: Request) {
+  const sess = await getServerSession(authOptions);
+  if (!sess?.user?.id || sess.user.role !== "Admin") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const { kind, id } = body;
+    const parsedId = parseInt(id, 10);
+
+    if (isNaN(parsedId)) {
+      return NextResponse.json({ error: "Invalid id" }, { status: 400 });
+    }
+
+    if (kind === "word") {
+      const updated = await prisma.wordOfDay.update({
+        where: { id: parsedId },
+        data: { updatedAt: new Date() },
+      });
+      return NextResponse.json(updated);
+    }
+
+    if (kind === "phrasalVerb") {
+      const updated = await prisma.phrasalVerbOfDay.update({
+        where: { id: parsedId },
+        data: { updatedAt: new Date() },
+      });
+      return NextResponse.json(updated);
+    }
+
+    return NextResponse.json({ error: "Invalid kind" }, { status: 400 });
+  } catch (err) {
+    console.error("Error activating content:", err);
+    return NextResponse.json(
+      { error: err instanceof Error ? err.message : "Unknown error" },
+      { status: 500 },
+    );
+  }
+}
+
 export async function DELETE(request: Request) {
   const sess = await getServerSession(authOptions);
   if (!sess?.user?.id || sess.user.role !== "Admin") {

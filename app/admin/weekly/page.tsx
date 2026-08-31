@@ -430,7 +430,15 @@ export default function WeeklyContentPage() {
                 items={words}
                 activeIndex={wordIndex}
                 onSelect={setWordIndex}
-                onActivate={(w) => toast.success(`"${w.word}" activated`)}
+                onActivate={async (w) => {
+                  const res = await fetch("/api/admin/management/weekly", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ kind: "word", id: w.id }),
+                  });
+                  if (res.ok) toast.success(`"${w.word}" activated`);
+                  else toast.error("Failed to activate");
+                }}
                 onDelete={(w) => setDeleteTarget({ kind: "word", id: w.id })}
                 getLabel={(w) => w.word}
                 color="green"
@@ -545,7 +553,15 @@ export default function WeeklyContentPage() {
                 items={phrasalVerbs}
                 activeIndex={phraseIndex}
                 onSelect={setPhraseIndex}
-                onActivate={(p) => toast.success(`"${p.phrasalVerb}" activated`)}
+                onActivate={async (p) => {
+                  const res = await fetch("/api/admin/management/weekly", {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ kind: "phrasalVerb", id: p.id }),
+                  });
+                  if (res.ok) toast.success(`"${p.phrasalVerb}" activated`);
+                  else toast.error("Failed to activate");
+                }}
                 onDelete={(p) =>
                   setDeleteTarget({ kind: "phrasalVerb", id: p.id })
                 }

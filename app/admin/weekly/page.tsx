@@ -5,7 +5,7 @@ import {
   BookOpen,
   Loader2,
   Plus,
-  Zap,
+  Save,
   Trash2,
   X,
   Check,
@@ -80,20 +80,6 @@ function WheelSelector<T extends { id: number; definition: string }>({
 
   return (
     <div className="relative h-72 flex flex-col items-center">
-      {/* Highlight bar for center */}
-      <div
-        className="absolute rounded-xl pointer-events-none transition-all duration-300"
-        style={{
-          top: "50%",
-          left: "5%",
-          right: "5%",
-          height: WHEEL_ITEM_HEIGHT - 8,
-          transform: "translateY(-50%)",
-          backgroundColor: isGreen ? "rgba(34,197,94,0.06)" : "rgba(168,85,247,0.06)",
-          border: `1px solid ${isGreen ? "rgba(34,197,94,0.25)" : "rgba(168,85,247,0.25)"}`,
-        }}
-      />
-
       {/* Top fade */}
       <div className="absolute top-0 inset-x-0 h-14 bg-gradient-to-b from-[var(--dash-sides)] to-transparent z-10 pointer-events-none rounded-t-2xl" />
       {/* Bottom fade */}
@@ -161,7 +147,7 @@ function WheelSelector<T extends { id: number; definition: string }>({
                         }}
                         className="p-1.5 rounded-lg hover:bg-[var(--hover-bg)] transition-colors"
                         aria-label="Activate">
-                        <Zap className="h-3.5 w-3.5 text-amber-500" />
+                        <Save className="h-4 w-4 text-white" />
                       </button>
                       <button
                         onClick={(e) => {
@@ -170,7 +156,7 @@ function WheelSelector<T extends { id: number; definition: string }>({
                         }}
                         className="p-1.5 rounded-lg hover:bg-red-500/10 transition-colors"
                         aria-label="Delete">
-                        <Trash2 className="h-3.5 w-3.5 text-red-500" />
+                        <Trash2 className="h-4 w-4 text-red-500" />
                       </button>
                     </div>
                   )}

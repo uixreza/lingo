@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Video,
   Globe,
+  MessageSquare,
   X,
   ClipboardCheck,
   ArrowRight,

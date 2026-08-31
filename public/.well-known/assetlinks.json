@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "ir.lingofam.twa",
+        "sha256_cert_fingerprints": ["2F:07:A6:59:50:37:76:0B:40:CB:91:A9:CA:1A:1B:A2:0C:BA:7D:D1:F0:AF:EE:9F:09:14:E9:1F:E7:A9:B6:DB"]
+      }
+    }]

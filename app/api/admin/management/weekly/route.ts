@@ -40,14 +40,7 @@ export async function POST(request: Request) {
         );
       }
 
-      let wordId = parseInt(id, 10);
-      if (isNaN(wordId)) {
-        const latest = await prisma.wordOfDay.findFirst({
-          orderBy: { updatedAt: "desc" },
-          select: { id: true },
-        });
-        wordId = latest?.id ?? NaN;
-      }
+      const wordId = parseInt(id, 10);
 
       if (!isNaN(wordId)) {
         const updated = await prisma.wordOfDay.update({
@@ -94,14 +87,7 @@ export async function POST(request: Request) {
         );
       }
 
-      let phraseId = parseInt(id, 10);
-      if (isNaN(phraseId)) {
-        const latest = await prisma.phrasalVerbOfDay.findFirst({
-          orderBy: { updatedAt: "desc" },
-          select: { id: true },
-        });
-        phraseId = latest?.id ?? NaN;
-      }
+      const phraseId = parseInt(id, 10);
 
       if (!isNaN(phraseId)) {
         const updated = await prisma.phrasalVerbOfDay.update({

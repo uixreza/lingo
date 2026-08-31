@@ -118,7 +118,7 @@ export default function SplashScreen() {
               </motion.div>
             </div>
             <div className="text-center">
-              <p className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+              <p className="text-2xl sm:text-3xl text-white tracking-tight" style={{ fontFamily: '"Poolary", sans-serif', fontWeight: 400 }}>
                 Lingo<span className="text-green-400">Fam</span>
               </p>
               <p className="text-xs sm:text-sm text-[#7a7a7a] mt-1.5">

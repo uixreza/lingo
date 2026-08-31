@@ -145,6 +145,14 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "Poolary";
+  src: url("/assets/fonts/Poolary/Poolary.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --font-sans: "Dana", sans-serif;
   --font-mono: "Dana", sans-serif;

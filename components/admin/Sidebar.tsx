@@ -20,6 +20,7 @@ import {
   Users,
   Pin,
   PinOff,
+  CalendarDays,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -29,6 +30,7 @@ const menuItems = [
   { label: "جلسات", href: "/admin/sessions", icon: GraduationCap },
   { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
   { label: "مدیریت کاربران", href: "/admin/users", icon: Users },
+  { label: "محتوای هفتگی", href: "/admin/weekly", icon: CalendarDays },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];
@@ -134,7 +136,7 @@ export default function Sidebar() {
       <aside
         className={`hidden lg:flex ${
           isExpanded ? "w-72" : "w-[5.5rem]"
-        } bg-[var(--sidebar-bg)] shadow-2xl flex-col transition-all duration-200 h-screen`}
+        } bg-[var(--sidebar-bg)] shadow-2xl flex-col transition-all duration-200 h-screen relative overflow-hidden`}
         dir="rtl"
         onMouseEnter={() => !isPinned && setIsHovered(true)}
         onMouseLeave={() => !isPinned && setIsHovered(false)}>
@@ -155,8 +157,8 @@ export default function Sidebar() {
               className={`overflow-hidden transition-all duration-150 ${
                 isExpanded ? "opacity-100 w-auto" : "opacity-0 w-0"
               }`}>
-              <h1 className="text-xl font-bold text-[var(--sidebar-heading)] whitespace-nowrap">
-                Lingo <span className="text-green-500">Fam</span>{" "}
+              <h1 className="text-xl text-[var(--sidebar-heading)] whitespace-nowrap" style={{ fontFamily: '"Poolary", sans-serif', fontWeight: 400 }}>
+                Lingo<span className="text-green-500">Fam</span>
               </h1>
               <p className="text-[var(--sidebar-text)] text-sm whitespace-nowrap">
                 پنل مدیریت

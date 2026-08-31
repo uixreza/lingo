@@ -119,7 +119,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ error: "Invalid kind" }, { status: 400 });
   } catch (err) {
-    console.error("Error saving daily content:", err);
+    console.error("Error saving weekly content:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unknown error" },
       { status: 500 },
@@ -152,7 +152,7 @@ export async function DELETE(request: Request) {
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Error deleting daily content:", err);
+    console.error("Error deleting weekly content:", err);
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Unknown error" },
       { status: 500 },

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
+import { sendOtpSms, checkOtpRateLimit } from "@/lib/sms";
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +10,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         { error: "شماره موبایل نامعتبر است" },
         { status: 400 },
+      );
+    }
+
+    const allowed = await checkOtpRateLimit(phone);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "درخواست‌های شما بیش از حد مجاز است؛ لطفاً چند دقیقه صبر کنید" },
+        { status: 429 },
       );
     }
 
@@ -37,10 +46,10 @@ export async function POST(req: NextRequest) {
       data: { phone, code, expiresAt },
     });
 
-    console.log(`Login OTP for ${phone}: ${code}`);
+    await sendOtpSms(phone, code, "login", user.fullname);
 
     return NextResponse.json(
-      { message: "کد تأیید ارسال شد", expiresIn: 300, code },
+      { message: "کد تأیید ارسال شد", expiresIn: 300 },
       { status: 200 },
     );
   } catch (error) {

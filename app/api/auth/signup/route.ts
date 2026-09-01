@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/auth";
 import { FluencyLevel } from "@/app/generated/prisma";
 import bcrypt from "bcryptjs";
+import { sendOtpSms, checkOtpRateLimit } from "@/lib/sms";
 
 export async function POST(req: NextRequest) {
   try {
@@ -107,6 +108,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    const allowed = await checkOtpRateLimit(phone);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: "درخواست‌های شما بیش از حد مجاز است؛ لطفاً چند دقیقه صبر کنید" },
+        { status: 429 }
+      );
+    }
+
     const code = String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
 
@@ -114,10 +123,10 @@ export async function POST(req: NextRequest) {
       data: { phone, code, expiresAt },
     });
 
-    console.log(`OTP for ${phone}: ${code}`);
+    await sendOtpSms(phone, code, "signup", fullname);
 
     return NextResponse.json(
-      { message: "کد تأیید ارسال شد", expiresIn: 300, code },
+      { message: "کد تأیید ارسال شد", expiresIn: 300 },
       { status: 200 }
     );
   } catch (error) {

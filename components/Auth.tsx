@@ -159,7 +159,6 @@ function LoginForm({ close }: { close: () => void }) {
         toast.error(data.error);
         return;
       }
-      if (data.code) console.log("Login OTP:", data.code);
       setShowOtp(true);
       setTimer(300);
       setOtp(Array(6).fill(""));
@@ -477,7 +476,6 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
         toast.error(data.error);
         return;
       }
-      if (data.code) console.log("OTP code:", data.code);
       setShowOtp(true);
       setTimer(300);
       setOtp(Array(6).fill(""));

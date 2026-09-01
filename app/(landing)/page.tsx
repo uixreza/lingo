@@ -6,6 +6,8 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import Snowfall from "react-snowfall";
+import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 function useIsMobile() {
   const subscribe = (onChange: () => void) => {
@@ -38,6 +40,8 @@ export default function Home() {
   const [christmas, setChristmas] = useState(false);
   const [imgKey, setImgKey] = useState(0);
   const isMobile = useIsMobile();
+  const { data: session } = useSession();
+  const { open: openAuth } = useAuth();
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -200,11 +204,18 @@ export default function Home() {
           <motion.div
             variants={item}
             className="mt-6 sm:mt-10 flex gap-3 sm:gap-4 justify-center lg:justify-start">
-            <Link href="/dashboard/sessions">
+            <Link href={session ? "/dashboard/sessions" : "#"}>
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(34,197,94,0.4)" }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => setStarting(true)}
+                onClick={(e) => {
+                  if (session) {
+                    setStarting(true);
+                  } else {
+                    e.preventDefault();
+                    openAuth();
+                  }
+                }}
                 disabled={starting}
                 className="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200 text-[0.9rem] sm:text-base">
                 {starting && <Loader2 size={16} className="animate-spin" />}
@@ -230,7 +241,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
             className="relative flex items-center justify-center">
-            <div className="absolute w-[200px] sm:w-[350px] h-[200px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[70px] sm:blur-[100px] pointer-events-none" />
+            <div className="absolute w-[220px] sm:w-[350px] h-[220px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[70px] sm:blur-[100px] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-green-500/15 via-transparent to-transparent rounded-3xl blur-3xl" />
 
             <Image
@@ -240,7 +251,7 @@ export default function Home() {
               width={800}
               height={800}
               quality={100}
-              className="relative select-none pointer-events-none w-full max-w-[260px] lg:min-w-md drop-shadow-2xl"
+              className="relative select-none pointer-events-none w-full max-w-[290px] lg:min-w-md drop-shadow-2xl"
               priority
             />
           </motion.div>

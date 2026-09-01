@@ -709,7 +709,8 @@ export default function SessionsPage() {
                         src={lang.flag}
                         alt={lang.label}
                         fill
-                        sizes="64px"
+                        sizes="300px"
+                        quality={100}
                         className="object-cover"
                       />
                     </div>

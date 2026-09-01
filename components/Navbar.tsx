@@ -87,7 +87,7 @@ export default function Navbar() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-1.5 sm:py-2 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/5 shadow-lg shadow-black/20 max-w-[95vw] sm:max-w-none">
+        className="fixed bottom-4 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-0.5 sm:gap-1 px-1.5 sm:px-2 py-2 sm:py-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/5 shadow-lg shadow-black/20 max-w-[95vw] sm:max-w-none">
         {links.map(({ label, icon: Icon, route }) => {
         const active = isActive(route);
         if (route.startsWith("http")) {

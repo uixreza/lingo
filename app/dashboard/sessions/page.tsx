@@ -589,7 +589,7 @@ export default function SessionsPage() {
   );
 
   return isLoading ? (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start pb-20 sm:pb-0">
       <div className="lg:col-span-3 rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)] shadow-lg p-6">
         <div className="flex items-center gap-3 mb-8">
           <div className="h-8 w-1 rounded-full bg-[var(--hover-bg-strong)] animate-pulse" />
@@ -628,7 +628,7 @@ export default function SessionsPage() {
       </div>
     </div>
   ) : (
-    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start pb-20 sm:pb-0">
       {/* Pro Section (mobile only - above form) */}
       <div className="lg:hidden">
         {ProCard}
@@ -709,6 +709,7 @@ export default function SessionsPage() {
                         src={lang.flag}
                         alt={lang.label}
                         fill
+                        sizes="64px"
                         className="object-cover"
                       />
                     </div>
@@ -776,14 +777,13 @@ export default function SessionsPage() {
                   </div>
                 )}
               </div>
-              <div className="relative shrink-0">
+              <div className="relative shrink-0 w-20 h-20">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
                   <Image
-                    src={mentor.photoUrl}
+                    src="/me.png"
                     alt={mentor.name}
                     width={256}
                     height={256}
-                    unoptimized={mentor.photoUrl !== "/me.png"}
                     className="w-full h-full object-cover"
                   />
                 </div>

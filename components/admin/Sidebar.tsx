@@ -21,6 +21,7 @@ import {
   Pin,
   PinOff,
   CalendarDays,
+  MessageSquare,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
@@ -31,6 +32,7 @@ const menuItems = [
   { label: "وبلاگ", href: "/admin/blog", icon: BookOpen },
   { label: "مدیریت کاربران", href: "/admin/users", icon: Users },
   { label: "محتوای هفتگی", href: "/admin/weekly", icon: CalendarDays },
+  { label: "پیامک", href: "/admin/sms", icon: MessageSquare },
   { label: "تیکت", href: "/admin/ticket", icon: ShieldCheck },
   { label: "حساب کاربری", href: "/admin/account", icon: User },
 ];

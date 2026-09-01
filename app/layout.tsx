@@ -38,7 +38,7 @@ export default function RootLayout({
     <html
       dir="rtl"
       lang="fa"
-      className={`h-full antialiased`}
+      className={`h-full antialiased bg-black`}
       suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         <Providers>{children}</Providers>

@@ -169,7 +169,7 @@ export default function Home() {
         variants={container}
         initial="hidden"
         animate="show"
-        className="relative z-10 flex flex-col-reverse lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 pt-24 sm:pt-28 lg:pt-8 pb-24 min-h-screen gap-2 sm:gap-10 lg:gap-16">
+        className="relative z-10 flex flex-col-reverse lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 lg:pt-8 pb-24 min-h-screen gap-2 sm:gap-10 lg:gap-16">
         <div className="flex-1 text-center lg:text-right">
           <motion.div
             variants={item}
@@ -183,7 +183,7 @@ export default function Home() {
           </motion.div>
           <motion.h1
             variants={item}
-            className="text-4xl sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+            className="text-[1.875rem] sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
             انگلیسی رو
             <br />
             <span className="animate-neon-flicker">
@@ -192,21 +192,21 @@ export default function Home() {
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-6 text-lg text-[#888] w-5/6 max-w-xl leading-relaxed mx-auto lg:mx-0">
+            className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-relaxed mx-auto lg:mx-0">
             با درس‌های تعاملی و تمرین‌های روزمره، انگلیسی رو سریع‌تر و عمیق‌تر
             یادبگیر.
           </motion.p>
 
           <motion.div
             variants={item}
-            className="mt-10 flex gap-4 justify-center lg:justify-start">
+            className="mt-6 sm:mt-10 flex gap-3 sm:gap-4 justify-center lg:justify-start">
             <Link href="/dashboard/sessions">
               <motion.button
                 whileHover={{ scale: 1.05, boxShadow: "0 0 30px rgba(34,197,94,0.4)" }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setStarting(true)}
                 disabled={starting}
-                className="px-8 py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200">
+                className="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200 text-[0.9rem] sm:text-base">
                 {starting && <Loader2 size={16} className="animate-spin" />}
                 {starting ? "در حال انتقال..." : "شروع کن"}
               </motion.button>
@@ -215,7 +215,7 @@ export default function Home() {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-8 py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200">
+                className="px-7 sm:px-8 py-3 sm:py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200 text-[0.9rem] sm:text-base">
                 درباره من
               </motion.button>
             </Link>
@@ -230,7 +230,7 @@ export default function Home() {
             animate={{ opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
             className="relative flex items-center justify-center">
-            <div className="absolute w-[250px] sm:w-[350px] h-[250px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[80px] sm:blur-[100px] pointer-events-none" />
+            <div className="absolute w-[200px] sm:w-[350px] h-[200px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[70px] sm:blur-[100px] pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-tr from-green-500/15 via-transparent to-transparent rounded-3xl blur-3xl" />
 
             <Image
@@ -240,7 +240,7 @@ export default function Home() {
               width={800}
               height={800}
               quality={100}
-              className="relative select-none pointer-events-none w-full max-w-xs lg:min-w-md drop-shadow-2xl"
+              className="relative select-none pointer-events-none w-full max-w-[260px] lg:min-w-md drop-shadow-2xl"
               priority
             />
           </motion.div>

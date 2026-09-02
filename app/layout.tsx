@@ -5,10 +5,38 @@ import Loading from "./loading";
 import SplashScreen from "@/components/SplashScreen";
 
 export const metadata: Metadata = {
-  title: "Lingofam — زبان رو طبیعی یاد بگیر",
+  title: {
+    default: "Lingofam — زبان رو طبیعی یاد بگیر",
+    template: "%s — لینگوفام",
+  },
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
   applicationName: "لینگوفم",
+  keywords: ["یادگیری زبان", "آموزش زبان", "لینگوفام", "زبان خارجی", "آموزش آنلاین", "LINGOFAM"],
+  authors: [{ name: "LINGOFAM" }],
+  creator: "LINGOFAM",
+  publisher: "LINGOFAM",
+  metadataBase: new URL("https://lingofam.ir"),
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    type: "website",
+    locale: "fa_IR",
+    url: "https://lingofam.ir",
+    siteName: "لینگوفام",
+    title: "Lingofam — زبان رو طبیعی یاد بگیر",
+    description:
+      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+    images: [{ url: "/mainIcon.webp", width: 1200, height: 630, alt: "لینگوفام" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Lingofam — زبان رو طبیعی یاد بگیر",
+    description:
+      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+    images: ["/mainIcon.webp"],
+  },
   appleWebApp: {
     capable: true,
     title: "لینگوفم",

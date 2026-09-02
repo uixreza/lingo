@@ -166,7 +166,7 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="flex flex-col gap-3 h-full">
+          <div className="flex flex-col gap-1 h-full">
             <button
               onClick={() => {
                 if (navigating) return;

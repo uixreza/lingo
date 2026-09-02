@@ -52,7 +52,8 @@ export default function WalletPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [formattedAmount, setFormattedAmount] = useState("");
   const [isCharging, setIsCharging] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"card-to-card" | "payment-gate">("card-to-card");
+  const [paymentMethod, setPaymentMethod] = useState<"card-to-card" | "payment-gate" | "digital-wallet">("card-to-card");
+  const [copiedAddress, setCopiedAddress] = useState(false);
   const [copiedCard, setCopiedCard] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
@@ -62,6 +63,12 @@ export default function WalletPage() {
     await navigator.clipboard.writeText("6219861910261931");
     setCopiedCard(true);
     setTimeout(() => setCopiedCard(false), 2000);
+  };
+
+  const copyWalletAddress = async () => {
+    await navigator.clipboard.writeText("TRCsu6HqMycpiYztLnyqSyrCJcNQsRviUS");
+    setCopiedAddress(true);
+    setTimeout(() => setCopiedAddress(false), 2000);
   };
 
   useEffect(() => {
@@ -584,7 +591,7 @@ export default function WalletPage() {
 
           {/* Payment Method Toggle */}
           <div className="flex gap-1.5 p-1.5 flex-1 bg-[var(--dash-sides)]/60 rounded-2xl border border-[var(--dash-muted)]/15 mb-6">
-              {(["card-to-card", "payment-gate"] as const).map((method) => {
+              {(["card-to-card", "digital-wallet", "payment-gate"] as const).map((method) => {
                 const locked = method === "payment-gate";
                 return (
                   <button
@@ -614,7 +621,9 @@ export default function WalletPage() {
                       {locked && <Lock size={13} />}
                       {method === "card-to-card"
                         ? "کارت به کارت"
-                        : "درگاه پرداخت"}
+                        : method === "digital-wallet"
+                          ? "کیف پول دیجیتال"
+                          : "درگاه پرداخت"}
                     </span>
                   </button>
                 );
@@ -733,7 +742,7 @@ export default function WalletPage() {
                   </div>
                 </div>
               </motion.div>
-            ) : (
+            ) : paymentMethod === "payment-gate" ? (
               <motion.div
                 key="payment-gate"
                 initial={{ opacity: 0, y: 8 }}
@@ -832,6 +841,112 @@ export default function WalletPage() {
                     <span className="text-green-600 dark:text-green-400 font-medium">
                       پرداخت شما به صورت کاملا امن انجام می‌شود
                     </span>
+                  </div>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="digital-wallet"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.2 }}>
+                {/* Digital Wallet Card */}
+                <div className="w-full max-w-md mx-auto mb-6">
+                  <div className="rounded-2xl p-6 shadow-2xl relative overflow-hidden" style={{ background: "linear-gradient(145deg, #0f172a 0%, #1e1b4b 50%, #0c4a6e 100%)" }}>
+                    {/* Circuit grid pattern */}
+                    <div className="absolute inset-0 opacity-[0.07]">
+                      <svg className="absolute inset-0 w-full h-full text-cyan-400" aria-hidden="true">
+                        <defs>
+                          <pattern id="circuit-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" />
+                            <circle cx="0" cy="0" r="1.5" fill="currentColor" />
+                          </pattern>
+                        </defs>
+                        <rect width="100%" height="100%" fill="url(#circuit-grid)" />
+                      </svg>
+                    </div>
+                    {/* Glowing orbs */}
+                    <div className="pointer-events-none absolute -top-12 -right-12 h-32 w-32 rounded-full bg-cyan-500/20 blur-3xl" />
+                    <div className="pointer-events-none absolute -bottom-16 -left-12 h-40 w-40 rounded-full bg-violet-500/15 blur-3xl" />
+                    {/* Top edge glow */}
+                    <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/60 to-transparent" />
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-8">
+                        <div className="p-2 rounded-xl bg-cyan-500/15 ring-1 ring-cyan-500/30">
+                          <Wallet className="h-5 w-5 text-cyan-400" />
+                        </div>
+                        <span className="px-2.5 py-1 rounded-full bg-cyan-500/10 ring-1 ring-cyan-500/25 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">TRC20</span>
+                      </div>
+                      <div className="mb-6">
+                        <p className="text-slate-400 text-xs mb-1.5">آدرس کیف پول</p>
+                        <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2.5 ring-1 ring-white/10">
+                          <p className="text-sm font-mono text-cyan-300 break-all flex-1" dir="ltr">
+                            TRCsu6HqMycpiYztLnyqSyrCJcNQsRviUS
+                          </p>
+                          <button onClick={copyWalletAddress} className="shrink-0 p-1.5 rounded-lg hover:bg-white/10 transition-colors">
+                            {copiedAddress ? (
+                              <Check className="h-4 w-4 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-4 w-4 text-slate-400" />
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-slate-400 text-xs mb-1">شبکه</p>
+                          <p className="text-sm font-bold text-white">TRON (TRC20)</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-slate-400 text-xs mb-1">ارز</p>
+                          <p className="text-sm font-bold text-cyan-300">USDT</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instructions */}
+                <div className="bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 rounded-xl p-5 mb-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="p-1.5 rounded-lg bg-blue-500/10">
+                      <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <span className="text-sm font-bold text-[var(--dash-text)]">راهنمای پرداخت</span>
+                  </div>
+                  <div className="space-y-3">
+                    <p className="text-sm text-[var(--dash-muted)] leading-relaxed">
+                      مبلغ مورد نظر خود را به آدرس کیف پول بالا واریز کرده و تصویر تراکنش را به همراه شماره تماس خود برای پشتیبانی ارسال کنید. تیم پشتیبانی درخواست شما را بررسی کرده و ظرف ۱ تا ۲ ساعت کاری موجودی را به حساب شما اضافه خواهد کرد.
+                    </p>
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+                      <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        توجه: فقط واریز USDT از طریق شبکه TRC20 مورد قبول است. از واریز از طریق شبکه‌های دیگر خودداری کنید.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-3 mt-4">
+                    <motion.a
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      href="https://t.me/lingofam_support"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
+                    >
+                      ارسال تراکنش از طریق تلگرام
+                    </motion.a>
+                    <motion.a
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      href="https://web.bale.ai/@lingofam"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-green-500 to-emerald-500 text-black text-sm font-bold rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300"
+                    >
+                      ارسال تراکنش از طریق بله
+                    </motion.a>
                   </div>
                 </div>
               </motion.div>

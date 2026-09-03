@@ -175,7 +175,7 @@ export default function WalletPage() {
     );
   };
 
-  const buildInvoiceNode = (inv: InvoiceItem, t: (key: string) => string) => {
+  const buildInvoiceNode = (inv: InvoiceItem, t: (...args: any[]) => string) => {
     const esc = (s: string) =>
       s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const div = document.createElement("div");

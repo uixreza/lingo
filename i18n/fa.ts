@@ -290,6 +290,12 @@ const fa = {
   "ticket.resolvedStatus": "حل شده",
   "ticket.closedStatus": "بسته شده",
   "ticket.noCategory": "سایر",
+  "ticket.fetchError": "بارگذاری تیکت‌ها ناموفق بود",
+  "ticket.createError": "ایجاد تیکت ناموفق بود",
+  "ticket.created": "تیکت با موفقیت ایجاد شد",
+  "ticket.connectionError": "خطا در اتصال. لطفاً دوباره تلاش کنید.",
+  "ticket.replyError": "ارسال پاسخ ناموفق بود",
+  "ticket.replySent": "پاسخ با موفقیت ارسال شد",
 
   // Dashboard - Wallet
   "wallet.currentBalance": "موجودی فعلی",
@@ -467,6 +473,7 @@ const fa = {
 
   // Language
   "lang.fa": "فارسی",
+  "lang.en": "English",
   "lang.tr": "türkçe",
 } as const;
 

@@ -82,7 +82,7 @@ function toFa(value: number | string) {
   return String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
 }
 
-function relativeTime(iso: string, t: (key: string) => string): string {
+function relativeTime(iso: string, t: (...args: any[]) => string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60000);
   if (minutes < 1) return t("notification.justNow");

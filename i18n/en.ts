@@ -290,6 +290,12 @@ const en = {
   "ticket.resolvedStatus": "Resolved",
   "ticket.closedStatus": "Closed",
   "ticket.noCategory": "Other",
+  "ticket.fetchError": "Failed to load tickets",
+  "ticket.createError": "Failed to create ticket",
+  "ticket.created": "Ticket created successfully",
+  "ticket.connectionError": "Connection error. Please try again.",
+  "ticket.replyError": "Failed to send reply",
+  "ticket.replySent": "Reply sent successfully",
 
   // Dashboard - Wallet
   "wallet.currentBalance": "Current Balance",
@@ -468,6 +474,7 @@ const en = {
   // Language
   "lang.fa": "فارسی",
   "lang.en": "English",
+  "lang.tr": "türkçe",
 } as const;
 
 export default en;

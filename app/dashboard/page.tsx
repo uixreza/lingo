@@ -159,7 +159,7 @@ export default function DashboardPage() {
               {t("dashboard.welcome")}
             </div>
             <h1 className="text-2xl font-bold text-[var(--dash-text)]">
-              خوش آمدید، {session.data?.user.fullname}!
+              {t("dashboard.welcomeUser").replace("{name}", session.data?.user.fullname || "")}
             </h1>
             <p className="text-[var(--dash-muted)] mt-2 text-sm sm:text-base">
               {t("dashboard.greeting")}

@@ -4,6 +4,7 @@ import { useSyncExternalStore, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { Download, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useLang } from "@/contexts/LanguageContext";
 
 const sheetVariants: Variants = {
   hidden: { y: "100%" },
@@ -47,6 +48,7 @@ export default function PWAInstallPrompt() {
   const isStandalone = useStandalone();
   const router = useRouter();
   const shownRef = useRef(false);
+  const { t } = useLang();
 
   useEffect(() => {
     if (isStandalone || isDesktop || shownRef.current) return;
@@ -90,30 +92,29 @@ export default function PWAInstallPrompt() {
               <span className="w-10 h-1.5 rounded-full bg-white/15" />
             </div>
             <div className="flex items-center gap-3 mb-4">
-              <span className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center">
+              <span className="w-10 h-10 rounded-xl bg-green-500/15 flex items-center justify-center shrink-0">
                 <Download className="w-5 h-5 text-green-400" />
               </span>
-              <h3 className="text-white font-bold text-base">دانلود اپلیکیشن لینگوفم</h3>
+              <h3 className="flex-1 min-w-0 text-white font-bold text-base">{t("pwa.title")}</h3>
               <button
                 onClick={dismiss}
-                className="mr-auto p-1.5 rounded-lg text-[#aaa] hover:text-white hover:bg-white/10 transition-colors">
+                className="me-auto p-1.5 rounded-lg text-[#aaa] hover:text-white hover:bg-white/10 transition-colors shrink-0">
                 <X size={16} />
               </button>
             </div>
             <p className="text-[#aaa] text-sm leading-relaxed mb-6">
-              با نصب اپلیکیشن لینگوفم، دسترسی سریع‌تر و تجربه‌ای بهتر
-              خواهید داشت. همین حالا دانلود کنید!
+              {t("pwa.description")}
             </p>
             <div className="flex gap-3">
               <button
                 onClick={dismiss}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[#aaa] hover:bg-white/10 hover:text-white text-sm font-medium transition-colors">
-                بعداً
+                {t("pwa.later")}
               </button>
               <button
                 onClick={goToDownload}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-black font-semibold text-sm text-center transition-colors">
-                دانلود
+                {t("pwa.download")}
               </button>
             </div>
           </motion.div>

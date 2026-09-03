@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Rss, Calendar, User, Tag, FileText } from "lucide-react";
+import { useLang } from "@/contexts/LanguageContext";
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.1 } },
@@ -85,6 +86,7 @@ async function loadPosts() {
 export default function BlogPage() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loaded, setLoaded] = useState(false);
+  const { t, locale } = useLang();
 
   useEffect(() => {
     let cancelled = false;
@@ -112,15 +114,15 @@ export default function BlogPage() {
         <motion.div
           variants={item}
           style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}
-          className="mb-14 text-right">
+          className={`mb-14 ${locale === "en" ? "text-left" : "text-right"}`}>
           <p className="text-green-400 text-sm font-medium tracking-wide mb-3">
-            وبلاگ لینگوفام
+            {t("blog.siteTitle")}
           </p>
           <h1 className="text-4xl sm:text-5xl font-extrabold text-white tracking-tight leading-[1.15]">
-            لینگوبلاگ
+            {t("blog.title")}
           </h1>
           <p className="mt-4 text-lg text-[#8a8a8a] leading-relaxed max-w-xl">
-            جدیدترین آموزش‌ها و نکته‌های یادگیری زبان
+            {t("blog.description")}
           </p>
         </motion.div>
 
@@ -133,7 +135,7 @@ export default function BlogPage() {
             variants={item}
             className="flex flex-col items-center text-center py-24">
             <FileText className="h-12 w-12 text-[#555] mb-4" />
-            <p className="text-[#888] text-lg">هنوز مقاله‌ای منتشر نشده است</p>
+            <p className="text-[#888] text-lg">{t("blog.empty")}</p>
           </motion.div>
         ) : (
           <motion.div

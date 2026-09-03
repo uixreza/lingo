@@ -43,7 +43,7 @@ export default function Home() {
   const isMobile = useIsMobile();
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
-  const { t, locale } = useLang();
+  const { t, locale, setLocale } = useLang();
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -98,9 +98,9 @@ export default function Home() {
 
       {marqueeLoading ? (
         <div
-          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3"
+          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3 gap-2"
           style={{ direction: "ltr" }}>
-          <div className="flex items-center gap-3 overflow-hidden w-full rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
+          <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
             <span className="shrink-0 flex items-center gap-2">
               <span className="w-7 h-7 rounded-lg bg-green-500/20 flex items-center justify-center animate-pulse">
                 <span className="w-3.5 h-3.5 rounded-sm bg-green-500/30" />
@@ -111,12 +111,21 @@ export default function Home() {
               <div className="h-2 w-36 bg-white/10 rounded-full animate-pulse" />
             </div>
           </div>
+          <button
+            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
+            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
+              locale === "en"
+                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
+                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
+            }`}>
+            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
+          </button>
         </div>
       ) : marqueeTexts.length > 0 ? (
         <div
-          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3"
+          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3 gap-2"
           style={{ direction: "ltr" }}>
-          <div className="flex items-center gap-3 overflow-hidden w-full rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
+          <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
             <span className="shrink-0 flex items-center gap-2 text-xs font-bold text-green-400">
               <span className="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center">
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,10 +151,29 @@ export default function Home() {
               </div>
             </div>
           </div>
+          <button
+            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
+            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
+              locale === "en"
+                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
+                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
+            }`}>
+            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
+          </button>
         </div>
-      ) : null}
+      ) : (
+          <button
+            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
+            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
+              locale === "en"
+                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
+                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
+            }`}>
+            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
+          </button>
+      )}
 
-<a className="fixed top-20 right-4 lg:top-4 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image unoptimized width={50} height={50} referrerPolicy='origin' className="border-none" src='https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
+<a className="fixed top-20 right-4 lg:top-16 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image unoptimized width={50} height={50} referrerPolicy='origin' className="border-none" src='https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
       {/* LingoTV button - hidden for now */}
       {/* <Link href="/lingotv">
         <motion.button
@@ -189,7 +217,7 @@ export default function Home() {
           </motion.div>
           <motion.h1
             variants={item}
-            className="text-[1.875rem] sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
+            className="text-[2.25rem] sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
             {t("home.heading1")}
             <br />
             <span className="animate-neon-flicker">

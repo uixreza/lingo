@@ -9,6 +9,7 @@ import {
   Swords,
   Sparkles,
   Leaf,
+  Bell,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -38,6 +39,7 @@ export default function Header({ user }: { user: User }) {
   } = user;
 
   const [realBalance, setRealBalance] = useState<number | null>(null);
+  const [hasUnread, setHasUnread] = useState(false);
 
   const fetchBalance = async () => {
     try {
@@ -58,6 +60,22 @@ export default function Header({ user }: { user: User }) {
     return () => {
       window.removeEventListener("balance-update", balanceHandler);
     };
+  }, []);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await fetch("/api/notifications");
+        if (res.ok) {
+          const data: { read: boolean }[] = await res.json();
+          setHasUnread(Array.isArray(data) && data.some((n) => !n.read));
+        }
+      } catch {}
+    };
+    fetchUnread();
+    const handler = () => fetchUnread();
+    window.addEventListener("notifications-read", handler);
+    return () => window.removeEventListener("notifications-read", handler);
   }, []);
 
   return (
@@ -168,7 +186,17 @@ export default function Header({ user }: { user: User }) {
 
         {/* Right: Balance */}
         <div className="flex items-center gap-2 sm:gap-4">
-{/* Balance Card */}
+          {/* Bell - large screens only */}
+          <Link
+            href="/dashboard/notification"
+            className="hidden lg:flex relative items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[var(--hover-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5">
+            <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)] group-hover:text-[var(--header-text)] transition-colors" />
+            {hasUnread && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--header-bg)]" />
+            )}
+          </Link>
+
+          {/* Balance Card */}
           <Link
             href="/dashboard/wallet"
             className="group relative flex items-center gap-2 sm:gap-3 overflow-hidden bg-gradient-to-l from-[var(--light-purple)]/15 via-[var(--hover-bg)] to-[var(--hover-bg)] rounded-xl sm:rounded-2xl px-3 py-2 sm:px-4 sm:py-3 ring-1 ring-purple-500/15 hover:ring-purple-400/40 hover:scale-105 transition-all duration-200 shadow-lg min-w-[100px] xs:min-w-[120px] sm:min-w-[140px]">
@@ -199,7 +227,7 @@ export default function Header({ user }: { user: User }) {
                 </div>
               </div>
 
-              <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-muted)] group-hover:text-[var(--header-text)] transition-colors shrink-0" />
+              <ChevronLeft className={`h-3 w-3 sm:h-4 sm:w-4 text-[var(--text-muted)] group-hover:text-[var(--header-text)] transition-colors shrink-0 ${locale === "en" ? "rotate-180" : ""}`} />
             </div>
           </Link>
         </div>

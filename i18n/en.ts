@@ -72,11 +72,12 @@ const en = {
   "header.yearsSuffix": "years with Lingofam",
 
   // Dashboard Page
-  "dashboard.welcome": "Welcome",
+  "dashboard.welcome": "Dashboard",
+  "dashboard.welcomeUser": "Welcome, {name}!",
   "dashboard.greeting": "Every day, a small step gets you closer to your goal!",
   "dashboard.requestSession": "Request Session",
   "dashboard.support": "Support",
-  "dashboard.notifications": "Notifications",
+  "dashboard.notifications": "Notice",
   "dashboard.upcomingSessions": "Upcoming Sessions",
   "dashboard.radio": "English Radio",
   "dashboard.radioSubtitle": "Improve your listening skills",
@@ -95,7 +96,7 @@ const en = {
   "dashboard.kids": "Kids",
   "dashboard.adults": "Adults",
   "dashboard.misc": "Misc",
-  "dashboard.downloadBook": "Download Book",
+  "dashboard.downloadBook": "Download",
   "dashboard.downloadAudio": "Download Audio",
   "dashboard.moreInfo": "More Info",
   "dashboard.downloadHint": "To download content, after installing the app, open the menu and select Manage Downloads to see the list of downloadable content.",
@@ -104,6 +105,12 @@ const en = {
   "dashboard.oaldDesc": "Oxford Advanced Learner's Dictionary — Full downloadable data inside the app",
   "dashboard.oaldSize": "76 MB",
   "dashboard.panelTitle": "Online Discussion Panel",
+
+  // PWA Install Prompt
+  "pwa.title": "Download Lingofam App",
+  "pwa.description": "By installing the Lingofam app, you'll have faster access and a better experience. Download now!",
+  "pwa.later": "Later",
+  "pwa.download": "Download",
 
   // Dashboard - Account
   "account.profile": "Profile",
@@ -441,13 +448,20 @@ const en = {
   "about.title": "About Me",
   "about.name": "Reza Kamali",
   "about.subtitle": "English Teacher | Web Developer",
-  "about.bio": "Reza Kamali holds a Master's degree in English from Bozok University and works as an English teacher and web developer. With over three years of teaching experience at various language schools, he has worked with students of different levels. His teaching approach is based on innovative and interactive methods, covering all four language skills to prepare students for practical, everyday use of English. In addition to teaching, he designs and develops language learning platforms.",
+  "about.bio": "Reza Kamali holds a Master's degree in English from Bozok University and works as an English teacher and web developer. With over five years of teaching experience at various language schools, he has worked with students of different levels. His teaching approach is based on innovative and interactive methods, covering all four language skills to prepare students for practical, everyday use of English. In addition to teaching, he designs and develops language learning platforms.",
   "about.years": "Years Experience",
   "about.students": "Students",
   "about.teachingHours": "Teaching Hours",
   "about.skills": "Skills",
   "about.skillTeacher": "English Teacher",
   "about.skillDev": "Web Developer",
+  "about.skillContent": "Content Creator",
+
+  // Landing - Blog
+  "blog.siteTitle": "Lingofam Blog",
+  "blog.title": "Lingoblog",
+  "blog.description": "Latest lessons and language learning tips",
+  "blog.empty": "No articles published yet",
 
   // Landing - Download
   "download.back": "Back to Home",

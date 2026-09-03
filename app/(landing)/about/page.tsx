@@ -9,6 +9,7 @@ import {
   Award,
   Clock,
   Users,
+  PenTool,
 } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
 
@@ -22,27 +23,17 @@ const container = {
   show: { transition: { staggerChildren: 0.1 } },
 };
 
-const skills = [
-  { label: "مدرس زبان انگلیسی", icon: GraduationCap },
-  { label: "توسعه‌دهنده وب", icon: Code },
-];
-
-const stats = [
-  { icon: Award, value: "۳+", label: "سال سابقه" },
-  { icon: Users, value: "۲۰۰+", label: "دانش‌آموز" },
-  { icon: Clock, value: "۳۰۰۰+", label: "ساعت تدریس" },
-];
-
 export default function About() {
-  const { t } = useLang();
+  const { t, locale } = useLang();
 
   const skills = [
     { label: t("about.skillTeacher"), icon: GraduationCap },
     { label: t("about.skillDev"), icon: Code },
+    { label: t("about.skillContent"), icon: PenTool },
   ];
 
   const stats = [
-    { icon: Award, value: "۳+", label: t("about.years") },
+    { icon: Award, value: "۵+", label: t("about.years") },
     { icon: Users, value: "۲۰۰+", label: t("about.students") },
     { icon: Clock, value: "۳۰۰۰+", label: t("about.teachingHours") },
   ];
@@ -65,21 +56,22 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="text-white/70 text-sm sm:text-base font-medium mb-2">
-            درباره من
+            {t("about.title")}
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-white text-3xl sm:text-5xl font-bold">
-            رضا کمالی
+            {t("about.name")}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-white/60 text-sm sm:text-base mt-2">
-            مدرس زبان انگلیسی | توسعه‌دهنده وب
+            className="text-white/60 text-sm sm:text-base mt-2"
+            dir={locale === "en" ? "ltr" : undefined}>
+            {t("about.subtitle")}
           </motion.p>
         </div>
       </div>
@@ -122,15 +114,8 @@ export default function About() {
 
         {/* Bio */}
         <motion.div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
-          <p className="text-[#aaa] text-base sm:text-lg leading-relaxed text-center sm:text-right">
-            رضا کمالی، مدرس زبان انگلیسی و توسعه‌دهنده وب، دارای مدرک کارشناسی
-            ارشد زبان انگلیسی از دانشگاه بجنورد است. وی بیش از سه سال سابقه
-            تدریس در آموزشگاه‌های متعدد را در کارنامه خود دارد و با زبان‌آموزان
-            در سطوح مختلف و با اهداف گوناگون همکاری کرده است. رویکرد آموزشی وی
-            مبتنی بر روش‌های نوین و تعاملی است؛ به‌گونه‌ای که ضمن پوشش کامل
-            مهارت‌های چهارگانه زبانی، زبان‌آموزان را برای استفاده عملی و
-            روزمره از زبان انگلیسی آماده می‌سازد. ایشان در کنار فعالیت‌های
-            آموزشی، به طراحی و توسعه پلتفرم‌های یادگیری زبان نیز اشتغال دارد.
+          <p dir={locale === "en" ? "ltr" : "rtl"} className={`text-[#aaa] text-base sm:text-lg leading-relaxed text-center ${locale === "en" ? "sm:text-left" : "sm:text-right"}`}>
+            {t("about.bio")}
           </p>
         </motion.div>
 
@@ -153,7 +138,7 @@ export default function About() {
         <motion.div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
           <h2 className="text-white text-sm font-medium mb-4 flex items-center gap-2">
             <BookOpen size={16} className="text-green-400" />
-            مهارت‌ها
+            {t("about.skills")}
           </h2>
           <div className="flex flex-wrap gap-3">
             {skills.map(({ label, icon: Icon }) => (

@@ -11,7 +11,6 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useLang } from "@/contexts/LanguageContext";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const bannedMsg =
   "حساب شما مسدود شده است؛ برای اطلاعات بیشتر با تیم پشتیبانی تماس بگیرید";
@@ -86,14 +85,6 @@ export default function Navbar() {
 
   return (
     <>
-      <motion.div
-        variants={item}
-        initial="hidden"
-        animate="show"
-        className="fixed top-20 left-4 z-50 sm:hidden">
-        <LanguageSwitcher />
-      </motion.div>
-
       <motion.nav
         variants={container}
         initial="hidden"
@@ -135,15 +126,6 @@ export default function Navbar() {
           </Link>
         );
       })}
-
-        <motion.div
-          variants={item}
-          className="w-px h-5 sm:h-6 bg-white/10 mx-0.5 sm:mx-1"
-        />
-
-        <motion.div variants={item} className="hidden sm:block">
-          <LanguageSwitcher />
-        </motion.div>
 
         <motion.div
           variants={item}

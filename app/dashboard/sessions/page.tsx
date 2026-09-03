@@ -843,12 +843,12 @@ export default function SessionsPage() {
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
                 ۲
               </span>
-              <label className="text-sm font-medium text-[var(--dash-muted)]">
+              <label className="flex-1 min-w-0 text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.dateTime")}
               </label>
               <button
                 onClick={() => setShowDateHelp(true)}
-                className="mr-auto p-1.5 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-green-500 hover:bg-[var(--hover-bg-strong)] transition-all duration-150"
+                className="me-auto p-1.5 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-green-500 hover:bg-[var(--hover-bg-strong)] transition-all duration-150"
                 aria-label={t("sessions.colorGuide")}>
                 <Info className="h-4 w-4" />
               </button>
@@ -1410,12 +1410,12 @@ export default function SessionsPage() {
               <div className="p-2.5 rounded-xl bg-purple-500/15 shrink-0">
                 <Info className="h-5 w-5 text-purple-400" />
               </div>
-              <h3 className="text-lg font-bold text-[var(--dash-text)]">
+              <h3 className="flex-1 min-w-0 text-lg font-bold text-[var(--dash-text)]">
                 {t("sessions.colorGuide")}
               </h3>
               <button
                 onClick={() => setShowDateHelp(false)}
-                className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
+                className="me-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
                 aria-label={t("sessions.closeGuide")}>
                 <X className="h-4 w-4" />
               </button>
@@ -1449,12 +1449,12 @@ export default function SessionsPage() {
             <div className="p-2.5 rounded-xl bg-purple-500/15 shrink-0">
               <Info className="h-5 w-5 text-purple-400" />
             </div>
-            <h3 className="text-lg font-bold text-[var(--dash-text)]">
+            <h3 className="flex-1 min-w-0 text-lg font-bold text-[var(--dash-text)]">
               {t("sessions.colorGuide")}
             </h3>
             <button
               onClick={() => setShowDateHelp(false)}
-              className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
+              className="me-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
               aria-label={t("sessions.closeGuide")}>
               <X className="h-4 w-4" />
             </button>

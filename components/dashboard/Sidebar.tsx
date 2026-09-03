@@ -175,7 +175,7 @@ export default function Sidebar() {
                   <span className={`whitespace-nowrap transition-all duration-150 ${isExpanded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"} ${isActive ? "font-bold" : "font-medium"}`}>
                     {item.label}
                     {'locked' in item && item.locked && (
-                      <Lock className="inline-block w-3 h-3 mr-1.5 opacity-60" />
+                      <Lock className="inline-block w-3 h-3 ms-3.5 opacity-60" />
                     )}
                   </span>
                 </span>
@@ -282,11 +282,11 @@ export default function Sidebar() {
                 <span className={`flex-1 text-base ${isActive ? "font-bold" : "font-medium"}`}>
                   {item.label}
                   {'locked' in item && item.locked && (
-                    <Lock className="inline-block w-3.5 h-3.5 mr-1.5 opacity-60" />
+                    <Lock className="inline-block w-3.5 h-3.5 ms-3.5 opacity-60" />
                   )}
                 </span>
                 <ChevronLeft
-                  className={`w-4 h-4 shrink-0 transition-colors duration-150 ${
+                  className={`w-4 h-4 shrink-0 transition-colors duration-150 ${locale === "en" ? "rotate-180" : ""} ${
                     isActive ? "text-white/70" : "text-[var(--sidebar-text)] opacity-40"
                   }`}
                 />

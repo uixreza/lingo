@@ -4,6 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import { Download, Smartphone, ArrowRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useLang } from "@/contexts/LanguageContext";
 
 const container: Variants = {
   hidden: { opacity: 0 },
@@ -19,8 +20,10 @@ const item: Variants = {
 };
 
 export default function DownloadPage() {
+  const { t, locale } = useLang();
+
   return (
-    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">
+    <div className="min-h-screen bg-[#050505] flex flex-col items-center justify-start px-4 pt-6 pb-16 relative overflow-hidden">
       {/* Glow blobs */}
       <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#22c55e]/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#4ade80]/5 blur-[140px] rounded-full pointer-events-none" />
@@ -34,9 +37,9 @@ export default function DownloadPage() {
         <motion.div variants={item} className="w-full">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-sm text-[#888] hover:text-white transition-colors">
-            <ArrowRight className="w-4 h-4" />
-            بازگشت به صفحه اصلی
+            className={`inline-flex items-center gap-1.5 text-sm text-[#888] hover:text-white transition-colors ${locale === "en" ? "flex-row" : "flex-row-reverse"}`}>
+            <ArrowRight className={`w-4 h-4 ${locale === "en" ? "rotate-180" : ""}`} />
+            {t("download.back")}
           </Link>
         </motion.div>
 
@@ -60,11 +63,10 @@ export default function DownloadPage() {
           <h1
             className="text-3xl font-bold text-white"
             style={{ fontFamily: "Morabba, sans-serif" }}>
-            دانلود لینگوفم
+            {t("download.title")}
           </h1>
           <p className="text-[#aaa] text-sm leading-relaxed max-w-xs mx-auto">
-            اپلیکیشن لینگوفم را روی گوشی اندرویدی خود نصب کنید و زبان را
-            طبیعی‌تر یاد بگیرید.
+            {t("download.description")}
           </p>
         </motion.div>
 
@@ -86,9 +88,9 @@ export default function DownloadPage() {
               />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-bold text-sm">دانلود از کافه‌بازار</p>
+              <p className="text-white font-bold text-sm">{t("download.cafeBazaar")}</p>
               <p className="text-[#888] text-xs mt-0.5">
-                نصب از طریق فروشگاه رسمی کافه‌بازار
+                {t("download.cafeBazaarDesc")}
               </p>
             </div>
             <Download className="w-5 h-5 text-green-400 shrink-0 group-hover:scale-110 transition-transform" />
@@ -103,9 +105,9 @@ export default function DownloadPage() {
               <Smartphone className="w-7 h-7 text-black" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-black font-bold text-sm">دانلود مستقیم APK</p>
+              <p className="text-black font-bold text-sm">{t("download.directApk")}</p>
               <p className="text-black/60 text-xs mt-0.5">
-                فایل نصبی مستقیم از سایت لینگوفم
+                {t("download.directApkDesc")}
               </p>
             </div>
             <Download className="w-5 h-5 text-black shrink-0 group-hover:scale-110 transition-transform" />
@@ -116,7 +118,7 @@ export default function DownloadPage() {
         <motion.p
           variants={item}
           className="text-[#555] text-xs text-center leading-relaxed">
-          نسخه اندروید ۵ به بالا پشتیبانی می‌شود
+          {t("download.versionNote")}
         </motion.p>
       </motion.div>
     </div>

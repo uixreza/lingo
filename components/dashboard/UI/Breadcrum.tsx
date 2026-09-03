@@ -92,10 +92,10 @@ export default function Breadcrumb() {
 
   if (breadcrumbItems.length <= 1) {
     return (
-      <div className="mb-6 flex justify-end">
+      <div className="mb-6 flex justify-start" dir="ltr">
         <Link
           href="/dashboard/notification"
-          className="relative p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5">
+          className="lg:hidden sticky end-0 z-10 p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5 ms-auto">
           <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
           {hasUnread && (
             <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />
@@ -106,8 +106,8 @@ export default function Breadcrumb() {
   }
 
   return (
-    <div className="mb-6 flex items-center justify-between">
-      <nav aria-label="Breadcrumb" dir="ltr">
+    <div className="mb-6 flex items-center justify-start" dir="ltr">
+      <nav aria-label="Breadcrumb" className="flex-1 min-w-0">
         <ol className="flex items-center gap-2 text-sm flex-wrap">
           {breadcrumbItems.map((item, index) => (
             <li key={item.href} className="flex items-center gap-2">
@@ -142,7 +142,7 @@ export default function Breadcrumb() {
 
       <Link
         href="/dashboard/notification"
-        className="relative p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5">
+        className="lg:hidden sticky end-0 z-10 p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5 shrink-0 ms-3">
         <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
         {hasUnread && (
           <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />

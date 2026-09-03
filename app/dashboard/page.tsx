@@ -605,7 +605,7 @@ function BookCard({
 }) {
   const { t } = useLang();
   return (
-    <div className="relative group rounded-none sm:rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
+    <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
       {/* Background Image with Fallback */}
       <div
         className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]"
@@ -626,7 +626,7 @@ function BookCard({
             href={book.bookUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex-[3] px-2 sm:px-3 py-2 sm:py-2.5 bg-green-500 text-black text-xs sm:text-sm font-medium rounded-none sm:rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
+            className="flex-[3] px-2 sm:px-3 py-2 sm:py-2.5 bg-green-500 text-black text-xs sm:text-sm font-medium rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
             {t("dashboard.downloadBook")}
           </a>
           {book.audioUrl && (
@@ -636,7 +636,7 @@ function BookCard({
               rel="noopener noreferrer"
               aria-label={t("dashboard.downloadAudio")}
               title={t("dashboard.downloadAudio")}
-              className="flex-1 h-9 sm:h-[42px] bg-white/20 text-white rounded-none sm:rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
+              className="flex-1 h-9 sm:h-[42px] bg-white/20 text-white rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
               <Volume2 className="w-4 h-4" />
             </a>
           )}

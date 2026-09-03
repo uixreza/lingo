@@ -2,11 +2,13 @@
 
 import { motion } from "framer-motion";
 import { MonitorPlay } from "lucide-react";
+import { useLang } from "@/contexts/LanguageContext";
 
 export default function LingoTVPage() {
+  const { locale } = useLang();
   return (
     <main
-      style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}
+      style={{ fontFamily: locale === "en" ? "'JetBrains Mono', 'Dana', monospace" : "'Morabba', 'Dana', sans-serif" }}
       className="relative min-h-screen bg-[#050505] overflow-hidden flex items-center justify-center">
       <div className="absolute top-[-150px] left-[10%] w-[600px] h-[600px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
       <div className="absolute bottom-[-150px] right-[10%] w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />

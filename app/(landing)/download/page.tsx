@@ -62,7 +62,7 @@ export default function DownloadPage() {
         <motion.div variants={item} className="text-center space-y-3">
           <h1
             className="text-3xl font-bold text-white"
-            style={{ fontFamily: "Morabba, sans-serif" }}>
+            style={{ fontFamily: locale === "en" ? "'JetBrains Mono', 'Dana', monospace" : "Morabba, sans-serif" }}>
             {t("download.title")}
           </h1>
           <p className="text-[#aaa] text-sm leading-relaxed max-w-xs mx-auto">

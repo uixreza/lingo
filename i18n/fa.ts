@@ -233,7 +233,7 @@ const fa = {
   "sessions.liveGroupChat": "گفتگوی گروهی زنده",
   "sessions.practice": "تمرین مکالمه",
   "sessions.joinFriday": "ورود به جلسه جمعه",
-  "sessions.linkNotPlaced": "لینک جلسه جمعه هنوز قرار داده نشده",
+  "sessions.linkNotPlaced": "لینک اضافه نشده",
   "sessions.noUpcoming": "جلسه پیش رویی ندارید.",
   "sessions.loading": "در حال بارگذاری...",
   "sessions.slotAlreadyReserved": "بازه انتخابی قبلاً رزرو شده است",

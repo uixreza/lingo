@@ -153,6 +153,38 @@
   font-display: swap;
 }
 
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrain/JetBrainsMono-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrain/JetBrainsMono-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrain/JetBrainsMono-SemiBold.ttf") format("truetype");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/assets/fonts/JetBrain/JetBrainsMono-Bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme inline {
   --font-sans: "Dana", sans-serif;
   --font-mono: "Dana", sans-serif;
@@ -189,7 +221,7 @@
   --dash-accent: #558467;
   --dash-text: #ffffff;
   --dash-muted: #aaaaaa;
-  --dash-bg: #1a1a1a;
+  --dash-bg: #151515;
   --sidebar-bg: #1e1e1e;
   --sidebar-text: #ffffff;
   --sidebar-text-hover: #e0e0e0;
@@ -623,5 +655,9 @@ html[lang="en"] .animate-neon-flicker {
   html[lang="en"] .animate-neon-flicker {
     letter-spacing: 0.05em;
   }
+}
+
+html[lang="en"] {
+  font-family: "JetBrains Mono", "Dana", monospace !important;
 }
 

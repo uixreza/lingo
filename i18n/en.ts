@@ -233,7 +233,7 @@ const en = {
   "sessions.liveGroupChat": "Live Group Chat",
   "sessions.practice": "Conversation Practice",
   "sessions.joinFriday": "Join Friday Session",
-  "sessions.linkNotPlaced": "Friday session link has not been added yet",
+  "sessions.linkNotPlaced": "Link not added yet",
   "sessions.noUpcoming": "No upcoming sessions.",
   "sessions.loading": "Loading...",
   "sessions.slotAlreadyReserved": "This time slot is already reserved",

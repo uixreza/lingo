@@ -487,7 +487,7 @@ export default function SessionsPage() {
               {t("sessions.weekly")}
             </span>
           </div>
-          <h3 className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-purple-400 to-indigo-400">
+          <h3 className="text-sm font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-purple-400 to-indigo-400">
             {t("sessions.weeklyDesc")}
           </h3>
         </div>

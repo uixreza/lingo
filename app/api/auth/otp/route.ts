@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
       data: { phone, code, expiresAt },
     });
 
-    await sendOtpSms(phone, code, "login", user.fullname);
+    await sendOtpSms(phone, code, user.fullname);
 
     return NextResponse.json(
       { message: "کد تأیید ارسال شد", expiresIn: 300 },
@@ -54,6 +54,10 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("OTP error:", error);
-    return NextResponse.json({ error: "خطای داخلی سرور" }, { status: 500 });
+    const message =
+      error instanceof Error && error.message.includes("SMS")
+        ? "ارسال پیامک با خطا مواجه شد؛ لطفاً دوباره تلاش کنید"
+        : "خطای داخلی سرور";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

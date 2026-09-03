@@ -123,7 +123,7 @@ export async function POST(req: NextRequest) {
       data: { phone, code, expiresAt },
     });
 
-    await sendOtpSms(phone, code, "signup", fullname);
+    await sendOtpSms(phone, code, fullname);
 
     return NextResponse.json(
       { message: "کد تأیید ارسال شد", expiresIn: 300 },
@@ -131,8 +131,12 @@ export async function POST(req: NextRequest) {
     );
   } catch (error) {
     console.error("Signup error:", error);
+    const message =
+      error instanceof Error && error.message.includes("SMS")
+        ? "ارسال پیامک با خطا مواجه شد؛ لطفاً دوباره تلاش کنید"
+        : "خطای داخلی سرور";
     return NextResponse.json(
-      { error: "خطای داخلی سرور" },
+      { error: message },
       { status: 500 }
     );
   }

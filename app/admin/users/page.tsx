@@ -18,6 +18,7 @@ import {
   Swords,
   Sparkles,
   Leaf,
+  UserPlus,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Avatar from "@/components/dashboard/Avatar";
@@ -180,6 +181,14 @@ export default function UserManagementPage() {
     user: UserItem;
   } | null>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
+
+  const [newClientOpen, setNewClientOpen] = useState(false);
+  const [newClientForm, setNewClientForm] = useState({
+    fullname: "",
+    phone: "",
+    password: "",
+  });
+  const [savingNewClient, setSavingNewClient] = useState(false);
 
   useEffect(() => {
     const id = window.setTimeout(() => setSearch(searchInput.trim()), 400);
@@ -363,6 +372,44 @@ export default function UserManagementPage() {
     }
   };
 
+  const saveNewClient = async () => {
+    if (savingNewClient) return;
+    if (!newClientForm.fullname.trim() || !newClientForm.phone.trim() || !newClientForm.password.trim()) {
+      toast.error("نام، شماره موبایل و رمز عبور الزامی است");
+      return;
+    }
+    if (newClientForm.password.trim().length < 8) {
+      toast.error("رمز عبور باید حداقل ۸ کاراکتر باشد");
+      return;
+    }
+    setSavingNewClient(true);
+    try {
+      const res = await fetch("/api/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fullname: newClientForm.fullname.trim(),
+          phone: newClientForm.phone.trim(),
+          password: newClientForm.password.trim(),
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.error || "خطا در ایجاد کاربر");
+        return;
+      }
+      setUsers((prev) => [data, ...prev]);
+      setTotal((prev) => prev + 1);
+      setNewClientOpen(false);
+      setNewClientForm({ fullname: "", phone: "", password: "" });
+      toast.success("کاربر جدید با موفقیت اضافه شد");
+    } catch {
+      toast.error("خطا در ارتباط با سرور");
+    } finally {
+      setSavingNewClient(false);
+    }
+  };
+
   if (loading) {
     return <PageSkeleton />;
   }
@@ -396,6 +443,13 @@ export default function UserManagementPage() {
               </button>
             )}
           </div>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setNewClientOpen(true)}
+            className="shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-black bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-200">
+            <UserPlus className="h-4 w-4" />
+            کاربر جدید
+          </motion.button>
           <span className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 dark:text-green-400">
             <Users className="h-3.5 w-3.5" />
             {toFa(total)} کاربر
@@ -619,6 +673,116 @@ export default function UserManagementPage() {
               همه کاربران نمایش داده شد
             </span>
           )}
+        </div>
+      )}
+
+      {/* New client sheet */}
+      {newClientOpen && (
+        <div className="fixed inset-0 z-[60] lg:flex lg:items-center lg:justify-center lg:p-4">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => {
+              setNewClientOpen(false);
+              setNewClientForm({ fullname: "", phone: "", password: "" });
+            }}
+          />
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed bottom-0 inset-x-0 z-[60] bg-[var(--dash-sides)]/95 backdrop-blur-xl border-t border-[var(--dash-muted)]/15 lg:border lg:rounded-2xl rounded-t-3xl shadow-2xl p-6 pb-8 max-h-[85dvh] overflow-y-auto lg:static lg:pb-6 lg:w-full lg:max-w-md">
+            <div className="flex justify-center pt-0 pb-3 lg:hidden">
+              <div className="w-12 h-1.5 bg-[var(--dash-muted)]/25 rounded-full" />
+            </div>
+
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-green-500/10">
+                  <UserPlus className="h-5 w-5 text-green-600 dark:text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                    افزودن کاربر جدید
+                  </h3>
+                  <p className="text-xs text-[var(--dash-muted)] mt-0.5">
+                    اطلاعات کاربر را وارد کنید
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setNewClientOpen(false);
+                  setNewClientForm({ fullname: "", phone: "", password: "" });
+                }}
+                className="p-2 rounded-lg text-[var(--dash-muted)] hover:bg-[var(--dash-muted)]/10 transition-colors">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className={labelClass}>نام و نام خانوادگی</label>
+                <input
+                  type="text"
+                  value={newClientForm.fullname}
+                  onChange={(e) =>
+                    setNewClientForm((prev) => ({
+                      ...prev,
+                      fullname: e.target.value,
+                    }))
+                  }
+                  className={inputClass}
+                  placeholder="نام کامل کاربر"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>شماره موبایل</label>
+                <input
+                  type="text"
+                  value={newClientForm.phone}
+                  onChange={(e) =>
+                    setNewClientForm((prev) => ({
+                      ...prev,
+                      phone: e.target.value,
+                    }))
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                  placeholder="09xxxxxxxxx"
+                  inputMode="numeric"
+                />
+              </div>
+              <div>
+                <label className={labelClass}>رمز عبور</label>
+                <input
+                  type="text"
+                  value={newClientForm.password}
+                  onChange={(e) =>
+                    setNewClientForm((prev) => ({
+                      ...prev,
+                      password: e.target.value,
+                    }))
+                  }
+                  className={inputClass}
+                  dir="ltr"
+                  placeholder="حداقل ۸ کاراکتر"
+                />
+              </div>
+
+              <motion.button
+                whileTap={savingNewClient ? {} : { scale: 0.98 }}
+                onClick={saveNewClient}
+                disabled={savingNewClient}
+                className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
+                {savingNewClient ? (
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                ) : (
+                  <Save className="h-5 w-5" />
+                )}
+                ذخیره کاربر
+              </motion.button>
+            </div>
+          </motion.div>
         </div>
       )}
 

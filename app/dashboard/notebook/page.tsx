@@ -4,6 +4,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, PenLine, X, Save, CloudUpload, NotebookText, CloudCheck, Loader2 } from "lucide-react";
 import toast from "react-hot-toast";
+import { useLang } from "@/contexts/LanguageContext";
+import { type TranslationKey } from "@/i18n";
 import RichTextEditor from "@/components/dashboard/UI/RichTextEditor";
 
 type Note = {
@@ -26,15 +28,15 @@ function toFa(value: number | string): string {
   return String(value).replace(/[0-9]/g, (d) => digits[+d]);
 }
 
-const timeAgo = (timestamp: number): string => {
+const timeAgo = (timestamp: number, t: (key: TranslationKey) => string): string => {
   const diff = Date.now() - timestamp;
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "همین حالا";
-  if (minutes < 60) return `${toFa(minutes)} دقیقه پیش`;
+  if (minutes < 1) return t("notebook.justNow");
+  if (minutes < 60) return t("notebook.minutesAgo").replace("{count}", toFa(minutes));
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${toFa(hours)} ساعت پیش`;
+  if (hours < 24) return t("notebook.hoursAgo").replace("{count}", toFa(hours));
   const days = Math.floor(hours / 24);
-  return `${toFa(days)} روز پیش`;
+  return t("notebook.daysAgo").replace("{count}", toFa(days));
 };
 
 const loadNotes = (): Note[] => {
@@ -90,6 +92,7 @@ export default function NotebookPage() {
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Note | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const { t, locale } = useLang();
 
   useEffect(() => {
     persistNotes(loadNotes());
@@ -196,9 +199,9 @@ export default function NotebookPage() {
       }
       persistNotes(notesCache.filter((note) => note.id !== target.id));
       setDeleteTarget(null);
-      toast.success("یادداشت حذف شد");
+      toast.success(t("notebook.noteDeleted"));
     } catch {
-      toast.error("خطا در حذف یادداشت از سرور");
+      toast.error(t("notebook.deleteError"));
     } finally {
       setDeleting(false);
     }
@@ -219,16 +222,16 @@ export default function NotebookPage() {
       persistNotes(
         notesCache.map((n) => (n.id === id ? { ...n, synced: true } : n)),
       );
-      toast.success("یادداشت در سرور ذخیره شد");
+      toast.success(t("notebook.noteSaved"));
     } catch {
-      toast.error("خطا در ذخیره یادداشت");
+      toast.error(t("notebook.saveError"));
     } finally {
       setSyncingId(null);
     }
   };
 
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir={locale === "en" ? "ltr" : "rtl"} className="space-y-6">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -239,11 +242,11 @@ export default function NotebookPage() {
             <NotebookText className="h-6 w-6 text-green-600 dark:text-green-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[var(--dash-text)]">
-              دفترچه
-            </h1>
+              <h1 className="text-xl font-bold text-[var(--dash-text)]">
+               {t("notebook.title")}
+             </h1>
             <span className="inline-flex items-center gap-1.5 mt-1 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-[var(--dash-muted)]/10 text-[var(--dash-muted)]">
-              {toFa(notes.length)} یادداشت
+              {t("notebook.count").replace("{count}", toFa(notes.length))}
             </span>
           </div>
         </div>
@@ -252,8 +255,8 @@ export default function NotebookPage() {
           whileTap={{ scale: 0.97 }}
           onClick={addNote}
           className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-bold text-black transition-all duration-300 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
-          <Plus className="h-4 w-4" />
-          یادداشت جدید
+           <Plus className="h-4 w-4" />
+           {t("notebook.newNote")}
         </motion.button>
       </motion.div>
 
@@ -268,12 +271,12 @@ export default function NotebookPage() {
             <NotebookText className="h-7 w-7 text-white" />
           </div>
           <div className="relative">
-            <p className="text-lg font-bold text-[var(--dash-text)]">
-              دفترچه‌تان خالی است
-            </p>
-            <p className="text-sm text-[var(--dash-muted)] mt-2 leading-6">
-              یادداشت‌ها در همین مرورگر ذخیره می‌شوند.
-            </p>
+             <p className="text-lg font-bold text-[var(--dash-text)]">
+               {t("notebook.empty")}
+             </p>
+             <p className="text-sm text-[var(--dash-muted)] mt-2 leading-6">
+               {t("notebook.emptyDesc")}
+             </p>
           </div>
         </motion.div>
       ) : (
@@ -306,28 +309,28 @@ export default function NotebookPage() {
                       {plainText(note.text)}
                     </p>
                   ) : (
-                    <p className="text-sm text-[var(--dash-muted)] leading-7">
-                      یادداشت بنویسید…
-                    </p>
+                     <p className="text-sm text-[var(--dash-muted)] leading-7">
+                       {t("notebook.writePlaceholder")}
+                     </p>
                   )}
                 </button>
                 <div className="flex items-center justify-between pt-2 border-t border-[var(--dash-muted)]/10">
                   <span className="text-[11px] text-[var(--dash-muted)]">
-                    {timeAgo(note.updatedAt)}
+                    {timeAgo(note.updatedAt, t)}
                   </span>
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => setEditingId(note.id)}
-                      aria-label="ویرایش یادداشت"
-                      title="ویرایش"
+                       aria-label={t("notebook.editNote")}
+                       title={t("notebook.editNote")}
                       className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-blue-500 hover:bg-blue-500/10 transition-colors duration-150">
                       <PenLine className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => saveNote(note.id)}
                       disabled={note.synced || syncingId === note.id}
-                      aria-label={note.synced ? "ذخیره شده" : "ذخیره در حساب"}
-                      title={note.synced ? "در حساب شما ذخیره شده است" : "ذخیره در حساب (دسترسی روی دستگاه‌های دیگر)"}
+                       aria-label={note.synced ? t("notebook.savedCloud") : t("notebook.saveToDb")}
+                       title={note.synced ? t("notebook.savedCloud") : t("notebook.saveToDb")}
                       className="p-2 rounded-lg text-[var(--dash-muted)] transition-colors duration-150 disabled:cursor-default enabled:hover:text-green-500 enabled:hover:bg-green-500/10">
                       {syncingId === note.id ? (
                         <Loader2 className="h-4 w-4 animate-spin" />
@@ -339,7 +342,7 @@ export default function NotebookPage() {
                     </button>
                     <button
                       onClick={() => setDeleteTarget(note)}
-                      aria-label="حذف یادداشت"
+                       aria-label={t("notebook.deleteNote")}
                       className="p-2 rounded-lg text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-colors duration-150">
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -372,11 +375,11 @@ export default function NotebookPage() {
               <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[var(--dash-muted)]/10">
                 <span className="inline-flex items-center gap-2 text-sm font-bold text-[var(--dash-text)]">
                   <NotebookText className="h-4 w-4 text-green-500" />
-                  {plainText(editingNote.text) ? "ویرایش یادداشت" : "نوشتن یادداشت"}
+                   {plainText(editingNote.text) ? t("notebook.editNote") : t("notebook.newNote")}
                 </span>
                 <button
                   onClick={closeEditor}
-                  aria-label="بستن"
+                   aria-label={t("notebook.cancel")}
                   className="p-2 rounded-xl text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:bg-[var(--hover-bg)] transition-all">
                   <X className="h-5 w-5" />
                 </button>
@@ -387,7 +390,7 @@ export default function NotebookPage() {
                   initialContent={editingNote.text}
                   autoFocus
                   onChange={(html) => updateNote(editingNote.id, html)}
-                  placeholder="یادداشت بنویسید…"
+                   placeholder={t("notebook.writePlaceholder")}
                   minHeight="300px"
                 />
               </div>
@@ -397,8 +400,8 @@ export default function NotebookPage() {
                   whileTap={{ scale: 0.99 }}
                   onClick={closeEditor}
                   className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl border border-[var(--dash-muted)]/30 text-[var(--dash-muted)] hover:bg-[var(--dash-bg)] hover:text-[var(--dash-text)] transition-all duration-300 font-medium">
-                  <Save className="h-4 w-4" />
-                  ذخیره محلی
+                   <Save className="h-4 w-4" />
+                   {t("notebook.saveLocal")}
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.01 }}
@@ -408,13 +411,13 @@ export default function NotebookPage() {
                   className="flex-1 inline-flex items-center justify-center gap-2 px-8 py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
                   {syncingId === editingNote.id ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      در حال ذخیره...
+                     <Loader2 className="h-4 w-4 animate-spin" />
+                       {t("notebook.saving")}
                     </>
                   ) : (
                     <>
-                      <CloudUpload className="h-4 w-4" />
-                      ذخیره در دیتابیس
+                       <CloudUpload className="h-4 w-4" />
+                       {t("notebook.saveToDb")}
                     </>
                   )}
                 </motion.button>
@@ -447,13 +450,13 @@ export default function NotebookPage() {
                   <Trash2 className="h-6 w-6 text-red-500" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                    حذف یادداشت
-                  </h3>
+                   <h3 className="text-lg font-bold text-[var(--dash-text)]">
+                     {t("notebook.deleteNote")}
+                   </h3>
                   <p className="text-sm text-[var(--dash-muted)] mt-1.5 leading-6">
-                    {deleteTarget.synced
-                      ? "این یادداشت از حساب شما هم حذف می‌شود و روی دستگاه‌های دیگر دیگر قابل دسترسی نیست."
-                      : "این یادداشت برای همیشه از همین مرورگر حذف می‌شود."}
+                     {deleteTarget.synced
+                       ? t("notebook.deleteConfirmAccount")
+                       : t("notebook.deleteConfirmLocal")}
                   </p>
                 </div>
               </div>
@@ -461,8 +464,8 @@ export default function NotebookPage() {
                 <button
                   onClick={() => !deleting && setDeleteTarget(null)}
                   disabled={deleting}
-                  className="rounded-xl px-4 py-3 text-sm font-bold text-[var(--dash-muted)] bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/15 transition-colors hover:bg-[var(--dash-bg)] disabled:opacity-50">
-                  انصراف
+                   className="rounded-xl px-4 py-3 text-sm font-bold text-[var(--dash-muted)] bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/15 transition-colors hover:bg-[var(--dash-bg)] disabled:opacity-50">
+                   {t("notebook.cancel")}
                 </button>
                 <button
                   onClick={confirmDelete}
@@ -470,12 +473,12 @@ export default function NotebookPage() {
                   className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold text-white bg-red-500 shadow-lg shadow-red-500/25 transition-colors hover:bg-red-600 disabled:opacity-50">
                   {deleting ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      در حال حذف…
+                       <Loader2 className="h-4 w-4 animate-spin" />
+                       {t("notebook.deleting")}
                     </>
-                  ) : (
-                    "حذف"
-                  )}
+                   ) : (
+                      t("notebook.delete")
+                   )}
                 </button>
               </div>
             </motion.div>

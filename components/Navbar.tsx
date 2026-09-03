@@ -10,6 +10,8 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useLang } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const bannedMsg =
   "حساب شما مسدود شده است؛ برای اطلاعات بیشتر با تیم پشتیبانی تماس بگیرید";
@@ -25,12 +27,6 @@ const dialogVariants: Variants = {
   show: { scale: 1, opacity: 1, y: 0, transition: { duration: 0.2 } },
   exit: { scale: 0.9, opacity: 0, y: 10, transition: { duration: 0.15 } },
 };
-
-const links = [
-  { label: "خانه", icon: House, route: "/" },
-  { label: "لینگوبلاگ", icon: LayoutDashboard, route: "/blog" },
-  { label: "پشتیبانی", icon: LifeBuoy, route: "https://t.me/lingofam_support" },
-];
 
 const container = {
   hidden: { y: 40, opacity: 0 },
@@ -66,6 +62,13 @@ export default function Navbar() {
   const pathname = usePathname();
   const [showSupportPrompt, setShowSupportPrompt] = useState(false);
   const isDesktop = useIsDesktop();
+  const { t } = useLang();
+
+  const links = [
+    { label: t("nav.home"), icon: House, route: "/" },
+    { label: t("nav.blog"), icon: LayoutDashboard, route: "/blog" },
+    { label: t("nav.support"), icon: LifeBuoy, route: "https://t.me/lingofam_support" },
+  ];
 
   useEffect(() => {
     if (window.location.search.includes("banned=1")) {
@@ -83,6 +86,14 @@ export default function Navbar() {
 
   return (
     <>
+      <motion.div
+        variants={item}
+        initial="hidden"
+        animate="show"
+        className="fixed top-20 left-4 z-50 sm:hidden">
+        <LanguageSwitcher />
+      </motion.div>
+
       <motion.nav
         variants={container}
         initial="hidden"
@@ -130,6 +141,15 @@ export default function Navbar() {
           className="w-px h-5 sm:h-6 bg-white/10 mx-0.5 sm:mx-1"
         />
 
+        <motion.div variants={item} className="hidden sm:block">
+          <LanguageSwitcher />
+        </motion.div>
+
+        <motion.div
+          variants={item}
+          className="w-px h-5 sm:h-6 bg-white/10 mx-0.5 sm:mx-1"
+        />
+
         {session?.user ? (
           <Link href="/dashboard">
             <motion.button
@@ -138,7 +158,7 @@ export default function Navbar() {
               whileTap={{ scale: 0.95 }}
               className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
               <User size={16} />
-              داشبورد
+              {t("nav.dashboard")}
             </motion.button>
           </Link>
         ) : (
@@ -149,7 +169,7 @@ export default function Navbar() {
             onClick={open}
             className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-4 py-2 rounded-xl bg-green-500 text-black font-semibold text-xs sm:text-sm hover:bg-green-400">
             <User size={16} />
-            ورود
+            {t("nav.login")}
           </motion.button>
         )}
       </motion.nav>
@@ -180,17 +200,17 @@ export default function Navbar() {
                   <LifeBuoy className="w-5 h-5 text-green-400" />
                 </span>
                 <h3 className="text-white font-bold text-base">
-                  پشتیبانی لینگوفام
+                  {t("support.title")}
                 </h3>
               </div>
               <p className="text-[#aaa] text-sm leading-relaxed mb-6">
-                شما به گفتگوی پشتیبانی تلگرام منتقل خواهید شد.
+                {t("support.message")}
               </p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowSupportPrompt(false)}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-[#aaa] hover:bg-white/10 hover:text-white text-sm font-medium transition-colors">
-                  بیخیال
+                  {t("support.cancel")}
                 </button>
                 <a
                   href="https://t.me/lingofam_support"
@@ -198,7 +218,7 @@ export default function Navbar() {
                   rel="noopener noreferrer"
                   onClick={() => setShowSupportPrompt(false)}
                   className="flex-1 px-4 py-2.5 rounded-xl bg-green-500 hover:bg-green-400 text-black font-semibold text-sm text-center transition-colors">
-                  ادامه
+                  {t("support.continue")}
                 </a>
               </div>
             </motion.div>

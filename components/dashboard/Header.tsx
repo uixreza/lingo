@@ -6,7 +6,6 @@ import {
   Gem,
   Zap,
   ChevronLeft,
-  Bell,
   Swords,
   Sparkles,
   Leaf,
@@ -15,6 +14,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Avatar from "./Avatar";
+import { useLang } from "@/contexts/LanguageContext";
 
 type User = {
   name: string;
@@ -28,6 +28,7 @@ type User = {
 export default function Header({ user }: { user: User }) {
   const { data: session } = useSession();
   const displayName = session?.user?.fullname || user.name;
+  const { t, locale, setLocale } = useLang();
 
   const {
     name: _name,
@@ -50,30 +51,12 @@ export default function Header({ user }: { user: User }) {
     }
   };
 
-  const [hasUnread, setHasUnread] = useState(false);
-
-  const fetchUnread = async () => {
-    try {
-      const res = await fetch("/api/notifications");
-      if (res.ok) {
-        const data: { read: boolean }[] = await res.json();
-        setHasUnread(Array.isArray(data) && data.some((n) => !n.read));
-      }
-    } catch {
-      // ignore
-    }
-  };
-
   useEffect(() => {
     fetchBalance();
-    fetchUnread();
     const balanceHandler = () => fetchBalance();
-    const unreadHandler = () => fetchUnread();
     window.addEventListener("balance-update", balanceHandler);
-    window.addEventListener("notifications-read", unreadHandler);
     return () => {
       window.removeEventListener("balance-update", balanceHandler);
-      window.removeEventListener("notifications-read", unreadHandler);
     };
   }, []);
 
@@ -81,7 +64,29 @@ export default function Header({ user }: { user: User }) {
     <header className="bg-[var(--header-bg)] backdrop-blur-2xl shadow-sm px-4 sm:px-6 py-3 sm:py-4">
       <div className="flex items-center justify-between">
         {/* Left: Profile with Gamification */}
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Language Toggle */}
+          <div className="flex flex-col rounded-xl overflow-hidden ring-1 ring-[var(--hover-bg-strong)]">
+            <button
+              onClick={() => setLocale("fa")}
+              className={`px-1.5 py-1 text-[10px] font-bold transition-all duration-200 ${
+                locale === "fa"
+                  ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg"
+                  : "bg-[var(--hover-bg)] text-[var(--icon-muted)] hover:text-[var(--header-text)]"
+              }`}>
+              FA
+            </button>
+            <button
+              onClick={() => setLocale("en")}
+              className={`px-1.5 py-1 text-[10px] font-bold transition-all duration-200 ${
+                locale === "en"
+                  ? "bg-gradient-to-l from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-lg"
+                  : "bg-[var(--hover-bg)] text-[var(--icon-muted)] hover:text-[var(--header-text)]"
+              }`}>
+              EN
+            </button>
+          </div>
+
           {/* Profile Image with Level Badge */}
           <div className="relative group">
             <div className="relative bg-[var(--hover-bg-strong)] rounded-2xl p-0.5">
@@ -91,7 +96,7 @@ export default function Header({ user }: { user: User }) {
                 className="rounded-xl w-12 h-12 sm:w-14 sm:h-14"
               />
               <div
-                title={`${years} سال همراه لینگوفم`}
+                title={`${years} ${t("header.yearsSuffix")}`}
                 className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
                 {years}
               </div>
@@ -123,7 +128,7 @@ export default function Header({ user }: { user: User }) {
                     <Leaf className="h-3 w-3" />
                   </div>
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                    کاربر تازه‌وارد
+                    {t("header.badgeNewbie")}
                   </div>
                 </div>
               )}
@@ -133,7 +138,7 @@ export default function Header({ user }: { user: User }) {
                     <Star className="h-3 w-3 fill-purple-400" />
                   </div>
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                    کاربر ویژه (Pro)
+                    {t("header.badgePro")}
                   </div>
                 </div>
               )}
@@ -143,7 +148,7 @@ export default function Header({ user }: { user: User }) {
                     <Gem className="h-3 w-3" />
                   </div>
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                    کاربر وفادار
+                    {t("header.badgeLoyalty")}
                   </div>
                 </div>
               )}
@@ -153,7 +158,7 @@ export default function Header({ user }: { user: User }) {
                     <Swords className="h-3 w-3" />
                   </div>
                   <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap shadow-lg z-10">
-                    رزمنده
+                    {t("header.badgeWarrior")}
                   </div>
                 </div>
               )}
@@ -161,18 +166,8 @@ export default function Header({ user }: { user: User }) {
           </div>
         </div>
 
-        {/* Right: Balance and Notifications */}
+        {/* Right: Balance */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Notifications */}
-          <Link
-            href={"/dashboard/notification"}
-            className="relative p-2 rounded-xl bg-[var(--hover-bg)]  hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg">
-            <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
-            {hasUnread && (
-              <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--header-bg)]" />
-            )}
-          </Link>
-
 {/* Balance Card */}
           <Link
             href="/dashboard/wallet"
@@ -189,7 +184,7 @@ export default function Header({ user }: { user: User }) {
 
               <div className="text-right flex-1 min-w-0">
                 <div className="text-[var(--text-muted)] text-[10px] xs:text-xs">
-                  موجودی
+                  {t("header.balance")}
                 </div>
                 <div className="text-[var(--header-text)] font-bold text-sm xs:text-base sm:text-lg leading-none truncate min-h-[1.25em]">
                   {realBalance === null ? (

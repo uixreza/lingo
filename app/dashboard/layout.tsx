@@ -10,6 +10,7 @@ import UserOnboarding from "@/components/dashboard/UserOnboarding";
 import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 import { RadioProvider } from "@/components/RadioProvider";
 import RadioButton from "@/components/dashboard/RadioButton";
+import DashboardShell from "@/components/dashboard/DashboardShell";
 
 export const metadata: Metadata = {
   title: "داشبورد",
@@ -64,9 +65,7 @@ export default async function RootLayout({
       <BanGuard />
       {session.user.role !== "Admin" && <SiteStatusGuard />}
       {!dbUser.avatarSeed && <UserOnboarding />}
-      <div
-        className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
-        dir="rtl">
+      <DashboardShell>
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Header */}
@@ -80,7 +79,7 @@ export default async function RootLayout({
         </div>
         {/* Sidebar */}
         <Sidebar />
-      </div>
+      </DashboardShell>
       <RadioButton />
     </RadioProvider>
   );

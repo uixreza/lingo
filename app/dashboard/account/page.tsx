@@ -30,6 +30,7 @@ import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
+import { useLang } from "@/contexts/LanguageContext";
 
 type RankingUser = {
   id: number;
@@ -168,6 +169,7 @@ function JalaliWheelPicker({
   value: DateObject | null;
   onChange: (value: DateObject) => void;
 }) {
+  const { t, locale } = useLang();
   const base =
     value ?? new DateObject({ calendar: persian, locale: persian_fa });
   const jYear = base.year;
@@ -205,13 +207,13 @@ function JalaliWheelPicker({
     <div className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)]/60 py-3">
       <div className="grid grid-cols-3 gap-2 px-5 pb-2">
         <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
-          روز
+          {t("account.day")}
         </p>
         <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
-          ماه
+          {t("account.month")}
         </p>
         <p className="text-center text-[10px] font-bold text-[var(--dash-muted)]">
-          سال
+          {t("account.year")}
         </p>
       </div>
       <div className="relative">
@@ -253,6 +255,7 @@ function JalaliWheelPicker({
 
 export default function AccountPage() {
   const { update: updateSession } = useSession();
+  const { t, locale } = useLang();
   const [activeTab, setActiveTab] = useState("profile");
   const [isLoading, setIsLoading] = useState(true);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -400,7 +403,7 @@ export default function AccountPage() {
         );
       setLevel(data.fluencyLevel ?? "");
       setIsPro(data.isPro ?? false);
-      toast.success("اطلاعات با موفقیت ذخیره شد");
+      toast.success(t("account.saved"));
       try {
         await updateSession({
           user: {
@@ -412,7 +415,7 @@ export default function AccountPage() {
         // session refresh failure shouldn't fail the save
       }
     } catch {
-      toast.error("خطا در ذخیره اطلاعات");
+      toast.error(t("account.saveError"));
     } finally {
       setSavingProfile(false);
     }
@@ -440,12 +443,12 @@ export default function AccountPage() {
   const handleChangePassword = async () => {
     if (savingPassword) return;
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("رمز عبور جدید و تکرار آن مطابقت ندارند");
+      toast.error(t("account.passwordMismatch"));
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      toast.error("رمز عبور باید حداقل ۶ کاراکتر باشد");
+      toast.error(t("account.passwordMinLength"));
       return;
     }
 
@@ -462,14 +465,14 @@ export default function AccountPage() {
         const err = await res.json();
         throw new Error(err.error);
       }
-      toast.success("رمز عبور با موفقیت تغییر کرد");
+      toast.success(t("account.passwordChanged"));
       setPasswordData({
         newPassword: "",
         confirmPassword: "",
       });
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "خطا در تغییر رمز عبور";
+        err instanceof Error ? err.message : t("account.passwordChangeError");
       toast.error(message);
     } finally {
       setSavingPassword(false);
@@ -521,13 +524,13 @@ export default function AccountPage() {
           prev.filter((r) => r.sender.id !== userId),
         );
       }
-      if (type === "add") toast.success("درخواست دوستی ارسال شد");
-      else if (type === "accept") toast.success("درخواست دوستی پذیرفته شد");
-      else if (type === "disconnect") toast.success("ارتباط قطع شد");
-      else toast.success("درخواست حذف شد");
+      if (type === "add") toast.success(t("account.friendRequestSent"));
+      else if (type === "accept") toast.success(t("account.friendAccepted"));
+      else if (type === "disconnect") toast.success(t("account.disconnected"));
+      else toast.success(t("account.requestDeleted"));
     } catch (err: unknown) {
       const message =
-        err instanceof Error ? err.message : "خطا در ارسال درخواست دوستی";
+        err instanceof Error ? err.message : t("account.friendError");
       toast.error(message);
     } finally {
       setFriendAction(null);
@@ -548,9 +551,9 @@ export default function AccountPage() {
   );
 
   const tabs: { id: string; label: string; icon: typeof User }[] = [
-    { id: "profile", label: "پروفایل", icon: User },
-    { id: "security", label: "امنیت", icon: Lock },
-    { id: "ranking", label: "رتبه‌بندی", icon: Trophy },
+    { id: "profile", label: t("account.profile"), icon: User },
+    { id: "security", label: t("account.security"), icon: Lock },
+    { id: "ranking", label: t("account.ranking"), icon: Trophy },
   ];
 
   if (isLoading) {
@@ -558,7 +561,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div dir="rtl">
+    <div dir={locale === "en" ? "ltr" : "rtl"}>
       <div className="max-w-5xl mx-auto py-8 space-y-6">
         {/* Save notice */}
         <div className="flex items-center backdrop-blur-3xl gap-2.5 bg-blue-500/10 rounded-xl px-4 py-3 ring-1 ring-blue-500/20">
@@ -566,7 +569,7 @@ export default function AccountPage() {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <p className="text-xs text-blue-400 leading-relaxed font-medium">
-            لطفاً برای ثبت تغییرات روی دکمه ذخیره کلیک کنید
+            {t("account.saveHint")}
           </p>
         </div>
 
@@ -608,7 +611,7 @@ export default function AccountPage() {
                     whileTap={{ scale: 0.9 }}
                     onClick={handleRotateAvatar}
                     className="absolute -bottom-1 -left-1 bg-[var(--dash-sides)] hover:bg-[var(--hover-bg-strong)] rounded-full p-1.5 shadow-lg transition-all duration-200 border border-[var(--hover-bg-strong)]"
-                    title="تغییر تصویر پروفایل">
+                    title={t("account.changeAvatar")}>
                     <RefreshCw className="h-4 w-4 text-[var(--dash-text)]" />
                   </motion.button>
                 </div>
@@ -618,12 +621,12 @@ export default function AccountPage() {
                 {isPro ? (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 text-purple-500 dark:text-purple-400 mt-1.5">
                     <Star className="h-3.5 w-3.5 fill-purple-400" />
-                    کاربر ویژه
+                    {t("account.proUser")}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 dark:text-green-400 mt-1.5">
                     <User className="h-3.5 w-3.5" />
-                    کاربر عادی
+                    {t("account.normalUser")}
                   </span>
                 )}
               </div>
@@ -679,10 +682,10 @@ export default function AccountPage() {
                           </div>
                           <div>
                             <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                              اطلاعات پروفایل
+                              {t("account.profileInfo")}
                             </h2>
                             <p className="text-xs text-[var(--dash-muted)] mt-1">
-                              مشخصات خود را ویرایش و به‌روزرسانی کنید
+                              {t("account.profileDesc")}
                             </p>
                           </div>
                         </div>
@@ -697,7 +700,7 @@ export default function AccountPage() {
                           ) : (
                             <Save className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                           )}
-                          {savingProfile ? "در حال ذخیره..." : "ذخیره"}
+                          {savingProfile ? t("account.saving") : t("account.save")}
                         </motion.button>
                       </div>
 
@@ -707,7 +710,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <User className="h-4 w-4 text-[var(--dash-accent)]" />
-                              نام کامل
+                              {t("account.fullName")}
                             </label>
                             <input
                               type="text"
@@ -721,7 +724,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <Mail className="h-4 w-4 text-[var(--dash-accent)]" />
-                              آدرس ایمیل
+                              {t("account.email")}
                             </label>
                             <input
                               type="email"
@@ -735,7 +738,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <Phone className="h-4 w-4 text-[var(--dash-accent)]" />
-                              شماره تلفن
+                              {t("account.phone")}
                             </label>
                             <input
                               type="tel"
@@ -750,7 +753,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <Calendar className="h-4 w-4 text-[var(--dash-accent)]" />
-                              تاریخ تولد
+                              {t("account.birthDate")}
                             </label>
                             <button
                               type="button"
@@ -764,7 +767,7 @@ export default function AccountPage() {
                                 }>
                                 {birthDate
                                   ? birthDate.format("YYYY/MM/DD")
-                                  : "انتخاب تاریخ تولد"}
+                                  : t("account.selectBirthDate")}
                               </span>
                               <span className="p-1.5 rounded-lg bg-green-500/10">
                                 <Calendar className="h-4 w-4 text-green-600 dark:text-green-400" />
@@ -779,7 +782,7 @@ export default function AccountPage() {
                         <div className={accentBar} />
                         <label className={labelClass}>
                           <Star className="h-4 w-4 text-[var(--dash-accent)]" />
-                          سطح زبان
+                          {t("account.languageLevel")}
                         </label>
                         <div className="flex flex-wrap gap-2">
                           {["A1", "A2", "B1", "B2", "C1", "C2"].map((lvl) => {
@@ -821,7 +824,7 @@ export default function AccountPage() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-2 mt-4 px-3.5 py-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25 hover:bg-sky-500/20 hover:ring-sky-500/40 transition-colors text-xs font-medium">
                           <Send className="h-3.5 w-3.5" />
-                          درخواست رایگان تعیین سطح (تلگرام)
+                          {t("account.freeLevelTest")}
                         </a>
                       </div>
                     </motion.div>
@@ -842,11 +845,11 @@ export default function AccountPage() {
                           <Trophy className="h-5 w-5 text-green-600 dark:text-green-400" />
                         </div>
                         <div>
-                          <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                            رتبه‌بندی کاربران
+                            <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                              {t("account.userRanking")}
                           </h2>
-                          <p className="text-xs text-[var(--dash-muted)] mt-1">
-                            بر اساس میزان پیشرفت در یادگیری
+                            <p className="text-xs text-[var(--dash-muted)] mt-1">
+                              {t("account.rankingDesc")}
                           </p>
                         </div>
                       </div>
@@ -858,7 +861,7 @@ export default function AccountPage() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="جستجوی کاربر..."
+                            placeholder={t("account.searchUser")}
                             className={`${inputClass} pr-11`}
                           />
                         </div>
@@ -874,7 +877,7 @@ export default function AccountPage() {
                             className="w-4 h-4 accent-green-500 cursor-pointer"
                           />
                           <span className="text-sm text-[var(--dash-text)]">
-                            فقط دوستان
+                            {t("account.friendsOnly")}
                           </span>
                         </motion.label>
                       </div>
@@ -885,7 +888,7 @@ export default function AccountPage() {
                           <div className="flex items-center gap-2">
                             <UserPlus className="h-4 w-4 text-amber-500" />
                             <h3 className="font-bold text-[var(--dash-text)] text-sm">
-                              درخواست‌های دوستی
+                              {t("account.friendRequests")}
                             </h3>
                             <span className="px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-500 text-xs font-bold">
                               {toFa(friendRequests.length)}
@@ -931,7 +934,7 @@ export default function AccountPage() {
                                   </p>
                                   <p className="text-xs text-amber-500/90 font-medium flex items-center gap-1">
                                     <Loader2 className="h-3 w-3" />
-                                    در انتظار تایید شما
+                                    {t("account.pendingApproval")}
                                   </p>
                                 </div>
                                 <motion.button
@@ -946,7 +949,7 @@ export default function AccountPage() {
                                   ) : (
                                     <UserPlus className="h-3.5 w-3.5" />
                                   )}
-                                  پذیرش
+                                  {t("account.accept")}
                                 </motion.button>
                                 <button
                                   onClick={() =>
@@ -954,7 +957,7 @@ export default function AccountPage() {
                                   }
                                   disabled={isBusy}
                                   className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                                  رد کردن
+                                  {t("account.reject")}
                                 </button>
                               </motion.div>
                             );
@@ -1029,12 +1032,12 @@ export default function AccountPage() {
                                     {user.fullname}
                                     {isCurrentUser && (
                                       <span className="text-xs font-medium text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full">
-                                        شما
+                                        {t("account.you")}
                                       </span>
                                     )}
                                   </p>
                                   <p className="text-xs text-[var(--dash-muted)] mt-1">
-                                    تاریخ عضویت: {user.joinDate}
+                                    {t("account.memberSince")} {user.joinDate}
                                   </p>
                                 </div>
                                 {!isCurrentUser && (
@@ -1043,14 +1046,14 @@ export default function AccountPage() {
                                       <button
                                         onClick={() => setDisconnectTarget(user)}
                                         className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-green-500/15 text-green-600 dark:text-green-400 hover:bg-red-500/15 hover:text-red-500 transition-all duration-200"
-                                        title="قطع ارتباط">
+                                        title={t("account.disconnect")}>
                                         <Unplug className="h-3.5 w-3.5" />
-                                        قطع ارتباط
+                                        {t("account.disconnect")}
                                       </button>
                                     ) : user.friendStatus === "pending" ? (
                                       <>
                                         <span className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)]">
-                                          در انتظار تایید
+                                          {t("account.pending")}
                                         </span>
                                         {!user.friendIncoming && (
                                           <button
@@ -1059,7 +1062,7 @@ export default function AccountPage() {
                                             }
                                             disabled={friendAction?.id === user.id}
                                             className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold bg-[var(--hover-bg-strong)] text-[var(--dash-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
-                                            لغو
+                                            {t("account.cancelRequest")}
                                           </button>
                                         )}
                                       </>
@@ -1078,7 +1081,7 @@ export default function AccountPage() {
                                         ) : (
                                           <UserPlus className="h-3.5 w-3.5" />
                                         )}
-                                        افزودن
+                                        {t("account.addFriend")}
                                       </motion.button>
                                     )}
                                   </div>
@@ -1090,8 +1093,8 @@ export default function AccountPage() {
                         {filteredRanking.length === 0 && (
                           <div className="rounded-2xl border border-[var(--dash-muted)]/15 bg-[var(--dash-bg)]/40 p-8 text-center text-[var(--dash-muted)]">
                             {searchQuery.trim()
-                              ? "کاربری با این نام پیدا نشد"
-                              : "کاربری برای نمایش وجود ندارد"}
+                              ? t("account.userNotFound")
+                              : t("account.noUsers")}
                           </div>
                         )}
                       </div>
@@ -1114,15 +1117,11 @@ export default function AccountPage() {
                                   <Unplug className="h-5 w-5 text-red-500" />
                                 </div>
                                 <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                                  قطع ارتباط
+                                  {t("account.disconnectTitle")}
                                 </h3>
                               </div>
                               <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-6">
-                                آیا از قطع ارتباط با{" "}
-                                <span className="font-bold text-[var(--dash-text)]">
-                                  «{disconnectTarget.fullname}»
-                                </span>{" "}
-                                مطمئن هستید؟
+                                {t("account.disconnectConfirm").replace("{name}", disconnectTarget.fullname)}
                               </p>
                               <div className="flex gap-3">
                                 <motion.button
@@ -1130,7 +1129,7 @@ export default function AccountPage() {
                                   onClick={() => setDisconnectTarget(null)}
                                   disabled={!!friendAction}
                                   className="flex-[2] py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25">
-                                  نه، منصرف شدم
+                                   {t("account.disconnectNo")}
                                 </motion.button>
                                 <button
                                   onClick={confirmDisconnect}
@@ -1139,7 +1138,7 @@ export default function AccountPage() {
                                   {friendAction?.type === "disconnect" && (
                                     <Loader2 className="h-4 w-4 animate-spin" />
                                   )}
-                                  بله، قطع ارتباط
+                                  {t("account.disconnectYes")}
                                 </button>
                               </div>
                             </motion.div>
@@ -1165,10 +1164,10 @@ export default function AccountPage() {
                         </div>
                         <div>
                           <h2 className="text-xl font-bold text-[var(--dash-text)]">
-                            تغییر رمز عبور
+                            {t("account.changePassword")}
                           </h2>
-                          <p className="text-xs text-[var(--dash-muted)] mt-1">
-                            رمز عبور خود را به‌صورت دوره‌ای تغییر دهید
+                            <p className="text-xs text-[var(--dash-muted)] mt-1">
+                              {t("account.changePasswordDesc")}
                           </p>
                         </div>
                       </div>
@@ -1179,7 +1178,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
-                              رمز عبور جدید
+                              {t("account.newPassword")}
                             </label>
                             <div className="relative">
                               <input
@@ -1188,7 +1187,7 @@ export default function AccountPage() {
                                 value={passwordData.newPassword}
                                 onChange={handlePasswordChange}
                                 className={`${inputClass} pl-11`}
-                                placeholder="رمز عبور جدید را وارد کنید"
+                                placeholder={t("account.newPasswordPlaceholder")}
                               />
                               <button
                                 type="button"
@@ -1208,7 +1207,7 @@ export default function AccountPage() {
                           <div>
                             <label className={labelClass}>
                               <Lock className="h-4 w-4 text-[var(--dash-accent)]" />
-                              تکرار رمز عبور جدید
+                              {t("account.confirmPassword")}
                             </label>
                             <div className="relative">
                               <input
@@ -1217,7 +1216,7 @@ export default function AccountPage() {
                                 value={passwordData.confirmPassword}
                                 onChange={handlePasswordChange}
                                 className={`${inputClass} pl-11`}
-                                placeholder="رمز عبور جدید را مجدد وارد کنید"
+                                placeholder={t("account.confirmPasswordPlaceholder")}
                               />
                               <button
                                 type="button"
@@ -1245,7 +1244,7 @@ export default function AccountPage() {
                         {savingPassword ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : null}
-                        {savingPassword ? "در حال تغییر..." : "تغییر رمز عبور"}
+                        {savingPassword ? t("account.changing") : t("account.changePassword")}
                       </motion.button>
                     </motion.div>
                   )}
@@ -1282,7 +1281,7 @@ export default function AccountPage() {
                   </span>
                   <div className="min-w-0">
                     <h3 className="text-base font-bold text-[var(--dash-text)]">
-                      تاریخ تولد
+                      {t("account.selectBirthDateModal")}
                     </h3>
                     <p className="text-xs text-[var(--dash-muted)] mt-0.5 truncate">
                       {birthDate ? birthDate.format("YYYY/MM/DD") : ""}
@@ -1293,7 +1292,7 @@ export default function AccountPage() {
                   whileTap={{ scale: 0.96 }}
                   onClick={() => setMobilePickerOpen(false)}
                   className="shrink-0 px-5 py-2.5 rounded-xl font-bold text-black bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25">
-                  تأیید
+                   {t("account.confirm")}
                 </motion.button>
               </div>
               <JalaliWheelPicker value={birthDate} onChange={setBirthDate} />

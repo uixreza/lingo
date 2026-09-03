@@ -605,6 +605,10 @@ body {
     0 0 80px rgba(34, 197, 94, 0.15);
 }
 
+html[lang="en"] .animate-neon-flicker {
+  letter-spacing: 0.05em;
+}
+
 @media (max-width: 639px) {
   .animate-neon-flicker {
     animation: none;
@@ -614,6 +618,10 @@ body {
       0 0 11px rgba(74, 222, 128, 0.4),
       0 0 20px rgba(74, 222, 128, 0.25),
       0 0 40px rgba(34, 197, 94, 0.15);
+  }
+
+  html[lang="en"] .animate-neon-flicker {
+    letter-spacing: 0.05em;
   }
 }
 

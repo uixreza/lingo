@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import Snowfall from "react-snowfall";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLang } from "@/contexts/LanguageContext";
 
 function useIsMobile() {
   const subscribe = (onChange: () => void) => {
@@ -42,6 +43,7 @@ export default function Home() {
   const isMobile = useIsMobile();
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
+  const { t, locale } = useLang();
 
   useEffect(() => {
     const fetchMarquee = async () => {
@@ -121,7 +123,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
                 </svg>
               </span>
-              اطلاعیه
+              {t("home.notice")}
             </span>
             <div className="relative flex-1 overflow-hidden min-w-0">
               <div className="flex w-max will-change-transform animate-marquee-reverse">
@@ -174,7 +176,7 @@ export default function Home() {
         initial="hidden"
         animate="show"
         className="relative z-10 flex flex-col-reverse lg:flex-row items-center max-w-7xl mx-auto px-4 sm:px-6 pt-20 sm:pt-28 lg:pt-8 pb-24 min-h-screen gap-2 sm:gap-10 lg:gap-16">
-        <div className="flex-1 text-center lg:text-right">
+        <div className={`flex-1 text-center ${locale === "en" ? "lg:text-left" : "lg:text-right"}`}>
           <motion.div
             variants={item}
             className="hidden sm:inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-green-500/20 bg-green-500/5 text-green-400 text-sm mb-8">
@@ -183,22 +185,21 @@ export default function Home() {
               transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               className="w-2 h-2 rounded-full bg-green-400"
             />
-            آموزش تعاملی زبان
+            {t("home.badge")}
           </motion.div>
           <motion.h1
             variants={item}
             className="text-[1.875rem] sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
-            انگلیسی رو
+            {t("home.heading1")}
             <br />
             <span className="animate-neon-flicker">
-              تو خونه یاد بگیر !؟
+              {t("home.heading2")}
             </span>
           </motion.h1>
           <motion.p
             variants={item}
             className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-relaxed mx-auto lg:mx-0">
-            با درس‌های تعاملی و تمرین‌های روزمره، انگلیسی رو سریع‌تر و عمیق‌تر
-            یادبگیر.
+            {t("home.subtitle")}
           </motion.p>
 
           <motion.div
@@ -219,7 +220,7 @@ export default function Home() {
                 disabled={starting}
                 className="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200 text-[0.9rem] sm:text-base">
                 {starting && <Loader2 size={16} className="animate-spin" />}
-                {starting ? "در حال انتقال..." : "شروع کن"}
+                {starting ? t("home.starting") : t("home.start")}
               </motion.button>
             </Link>
             <Link href="/about">
@@ -227,7 +228,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-7 sm:px-8 py-3 sm:py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200 text-[0.9rem] sm:text-base">
-                درباره من
+                {t("home.about")}
               </motion.button>
             </Link>
           </motion.div>
@@ -265,7 +266,7 @@ export default function Home() {
         className="fixed bottom-0 left-0 right-0 hidden sm:flex items-center justify-between px-10 z-10 pb-6 text-[10px] sm:text-xs text-[#555]">
         <span>© 2026 Lingofam</span>
         <Link href="/policy" className="hover:text-white transition-colors">
-          قوانین و حریم خصوصی
+          {t("home.policy")}
         </Link>
       </motion.footer>
     </main>

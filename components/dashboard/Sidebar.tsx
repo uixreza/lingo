@@ -27,15 +27,8 @@ import {
 import { useEffect, useState } from "react";
 
 import Avatar from "./Avatar";
-
-const menuItems = [
-  { label: "خانه", href: "/dashboard", icon: Home },
-  { label: "جلسات", href: "/dashboard/sessions", icon: GraduationCap },
-  { label: "دفترچه", href: "/dashboard/notebook", icon: NotebookText },
-  { label: "دستیار AI", href: "/dashboard/ai", icon: Sparkles, locked: true },
-  { label: "تیکت", href: "/dashboard/ticket", icon: ShieldCheck },
-  { label: "حساب کاربری", href: "/dashboard/account", icon: User },
-];
+import { useLang } from "@/contexts/LanguageContext";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Sidebar() {
   const pathname = usePathname();
@@ -46,6 +39,16 @@ export default function Sidebar() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const { t, locale } = useLang();
+
+  const menuItems = [
+    { label: t("sidebar.home"), href: "/dashboard", icon: Home },
+    { label: t("sidebar.sessions"), href: "/dashboard/sessions", icon: GraduationCap },
+    { label: t("sidebar.notebook"), href: "/dashboard/notebook", icon: NotebookText },
+    { label: t("sidebar.ai"), href: "/dashboard/ai", icon: Sparkles, locked: true },
+    { label: t("sidebar.ticket"), href: "/dashboard/ticket", icon: ShieldCheck },
+    { label: t("sidebar.account"), href: "/dashboard/account", icon: User },
+  ];
 
   const isMentors = pathname.startsWith("/mentors");
 
@@ -85,7 +88,7 @@ export default function Sidebar() {
   const MobileMenuButton = () => (
     <button
       onClick={() => setIsMobileOpen(true)}
-      className="lg:hidden fixed bottom-6 left-6 z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl"
+      className={`lg:hidden fixed bottom-6 ${locale === "en" ? "right-6" : "left-6"} z-40 p-4 rounded-2xl bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow-2xl backdrop-blur-sm transition-all duration-150 hover:scale-110 hover:shadow-xl`}
       aria-label="باز کردن منو">
       <Menu className="h-6 w-6" />
     </button>
@@ -110,7 +113,6 @@ export default function Sidebar() {
         className={`hidden lg:flex ${
           isExpanded ? "w-72" : "w-[5.5rem]"
         } bg-[var(--sidebar-bg)] shadow-2xl flex-col transition-all duration-200 h-screen relative overflow-hidden`}
-        dir="rtl"
         onMouseEnter={() => !isPinned && setIsHovered(true)}
         onMouseLeave={() => !isPinned && setIsHovered(false)}>
         <div className="py-6 px-4">
@@ -135,7 +137,7 @@ export default function Sidebar() {
                 Lingo<span className="text-green-500">Fam</span>
               </h1>
               <p className="text-[var(--sidebar-text)] text-sm whitespace-nowrap">
-                پلتفرم آموزش زبان آنلاین
+                {t("sidebar.platform")}
               </p>
             </div>
           </div>
@@ -169,7 +171,7 @@ export default function Sidebar() {
                     }`}
                   />
                 </div>
-                <span className={`overflow-hidden transition-all duration-150 ${isExpanded ? "max-w-[200px] mr-3" : "max-w-0 mr-0"}`}>
+                <span className={`overflow-hidden transition-all duration-150 ${isExpanded ? "max-w-[200px] ms-3" : "max-w-0 ms-0"}`}>
                   <span className={`whitespace-nowrap transition-all duration-150 ${isExpanded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"} ${isActive ? "font-bold" : "font-medium"}`}>
                     {item.label}
                     {'locked' in item && item.locked && (
@@ -186,8 +188,8 @@ export default function Sidebar() {
         <div className="p-3 space-y-1.5 mx-3 mb-3 rounded-2xl" style={{ backgroundColor: "color-mix(in srgb, var(--hover-bg) 50%, transparent)" }}>
           <button onClick={togglePin} className={`w-full group flex items-center ${isExpanded ? "" : "justify-center"} px-4 py-2.5 rounded-xl transition-all duration-150 ${isPinned ? "text-[var(--light-purple)]" : "text-[var(--sidebar-text)] hover:text-[var(--sidebar-text-hover)]"} hover:bg-[var(--hover-bg-strong)]`} aria-label="Pin sidebar">
             {isPinned ? <PinOff className="h-5 w-5 shrink-0" /> : <Pin className="h-5 w-5 shrink-0" />}
-            <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] mr-3 opacity-100 translate-x-0" : "max-w-0 mr-0 opacity-0 translate-x-4"}`}>
-              {isPinned ? "باز کردن قفل" : "قفل کردن"}
+              <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] ms-3 opacity-100 translate-x-0" : "max-w-0 ms-0 opacity-0 translate-x-4"}`}>
+                {isPinned ? t("sidebar.unpin") : t("sidebar.pin")}
             </span>
           </button>
 
@@ -197,23 +199,23 @@ export default function Sidebar() {
                 <Sun className={`absolute inset-0 w-5 h-5 transition-all duration-150 ${theme === "dark" ? "opacity-0 scale-0 rotate-90" : "opacity-100 scale-100 rotate-0"} group-hover:text-[var(--sidebar-text-hover)]`} />
                 <Moon className={`absolute inset-0 w-5 h-5 transition-all duration-150 ${theme === "dark" ? "opacity-100 scale-100 rotate-0" : "opacity-0 scale-0 -rotate-90"} group-hover:text-[var(--sidebar-text-hover)]`} />
               </div>
-              <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] mr-3 opacity-100 translate-x-0" : "max-w-0 mr-0 opacity-0 translate-x-4"}`}>
-                {theme === "dark" ? "تم روشن" : "تم تاریک"}
+              <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] ms-3 opacity-100 translate-x-0" : "max-w-0 ms-0 opacity-0 translate-x-4"}`}>
+                {theme === "dark" ? t("sidebar.lightMode") : t("sidebar.darkMode")}
               </span>
             </button>
           )}
           {session?.user?.role === "Admin" && (
             <Link href="/admin" className={`w-full group flex items-center ${isExpanded ? "" : "justify-center"} px-4 py-2.5 rounded-xl transition-all duration-150 text-[var(--sidebar-text)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--sidebar-text-hover)]`} aria-label="Admin panel">
               <BookOpen className="h-5 w-5 shrink-0" />
-              <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] mr-3 opacity-100 translate-x-0" : "max-w-0 mr-0 opacity-0 translate-x-4"}`}>
-                پنل مدیر
+              <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] ms-3 opacity-100 translate-x-0" : "max-w-0 ms-0 opacity-0 translate-x-4"}`}>
+                {t("sidebar.adminPanel")}
               </span>
             </Link>
           )}
           <button onClick={() => signOut({ callbackUrl: "/" })} className={`w-full group flex items-center ${isExpanded ? "" : "justify-center"} px-4 py-2.5 rounded-xl transition-all duration-150 text-[var(--danger)] hover:bg-[var(--danger-hover-bg)] hover:text-[var(--sidebar-text-hover)] hover:scale-105`}>
             <LogOut className="h-5 w-5 shrink-0" />
-            <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] mr-3 opacity-100 translate-x-0" : "max-w-0 mr-0 opacity-0 translate-x-4"}`}>
-              خروج از حساب
+            <span className={`overflow-hidden transition-all duration-150 whitespace-nowrap font-medium ${isExpanded ? "max-w-[200px] ms-3 opacity-100 translate-x-0" : "max-w-0 ms-0 opacity-0 translate-x-4"}`}>
+              {t("sidebar.logout")}
             </span>
           </button>
         </div>
@@ -225,7 +227,6 @@ export default function Sidebar() {
           lg:hidden fixed bottom-0 inset-x-0 z-[60] bg-[var(--sidebar-bg)]/95 backdrop-blur-2xl shadow-2xl rounded-t-3xl flex flex-col transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0.28,1)] max-h-[85dvh]
           ${isMobileOpen ? "translate-y-0" : "translate-y-full pointer-events-none"}
         `}
-        dir="rtl"
         aria-hidden={!isMobileOpen}>
         <div className="flex justify-center pt-3 pb-1">
           <div className="w-12 h-1.5 bg-white/25 rounded-full" />
@@ -241,7 +242,7 @@ export default function Sidebar() {
             <p className="text-base font-bold text-[var(--sidebar-heading)] truncate">
               {session?.user?.fullname || "کاربر لینگوفم"}
             </p>
-            <p className="text-xs text-[var(--sidebar-text)]">پنل کاربری شما</p>
+            <p className="text-xs text-[var(--sidebar-text)]">{t("sidebar.mobileUser")}</p>
           </div>
           <button
             onClick={closeMobileSheet}
@@ -303,7 +304,7 @@ export default function Sidebar() {
                 {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
               </span>
               <span className="text-base font-medium">
-                {theme === "dark" ? "فعال کردن تم روشن" : "فعال کردن تم تاریک"}
+                {theme === "dark" ? t("sidebar.mobileLight") : t("sidebar.mobileDark")}
               </span>
             </button>
           )}
@@ -317,7 +318,7 @@ export default function Sidebar() {
               <span className="w-10 h-10 rounded-xl bg-[var(--hover-bg)] flex items-center justify-center group-hover:bg-[var(--hover-bg-strong)] transition-colors duration-150">
                 <BookOpen className="w-5 h-5" />
               </span>
-              <span className="text-base font-medium">پنل مدیر</span>
+              <span className="text-base font-medium">{t("sidebar.adminPanel")}</span>
             </Link>
           )}
 
@@ -330,7 +331,7 @@ export default function Sidebar() {
             <span className="w-10 h-10 rounded-xl bg-[var(--danger-hover-bg)] flex items-center justify-center group-hover:bg-[var(--danger)] group-hover:text-white transition-colors duration-150">
               <LogOut className="w-5 h-5" />
             </span>
-            <span className="text-base font-medium">خروج از حساب کاربری</span>
+            <span className="text-base font-medium">{t("sidebar.mobileLogout")}</span>
           </button>
         </div>
       </aside>

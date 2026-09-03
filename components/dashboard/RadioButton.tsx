@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Play, Pause, Radio } from "lucide-react";
 import { useRadio } from "@/components/RadioProvider";
+import { useLang } from "@/contexts/LanguageContext";
 
 function EqualizerBars({ active }: { active: boolean }) {
   return (
@@ -26,15 +27,17 @@ function EqualizerBars({ active }: { active: boolean }) {
 export default function RadioButton() {
   const pathname = usePathname();
   const { playing, failed, toggle } = useRadio();
+  const { t, locale } = useLang();
 
   if (pathname === "/dashboard") return null;
 
   return (
     <button
       onClick={toggle}
-      aria-label={playing ? "توقف رادیو" : "پخش رادیو"}
-      title={playing ? "توقف رادیو" : "پخش رادیو"}
-      className={`fixed bottom-5 right-5 z-50 group flex items-center gap-2.5  pl-4 pr-2 py-1 rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-95
+      aria-label={playing ? t("dashboard.pauseRadio") : t("dashboard.playRadio")}
+      title={playing ? t("dashboard.pauseRadio") : t("dashboard.playRadio")}
+      dir="rtl"
+      className={`fixed bottom-5 ${locale === "en" ? "left-5" : "right-5"} z-50 group flex items-center gap-2.5  pl-4 pr-2 py-1 rounded-full transition-all duration-300 hover:scale-[1.03] active:scale-95
         bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/15 dark:border-white/10
         shadow-[0_8px_32px_rgba(0,0,0,0.12)] dark:shadow-[0_8px_32px_rgba(0,0,0,0.4)]
         ${playing ? "ring-1 ring-green-500/30 shadow-[0_0_20px_rgba(34,197,94,0.15)]" : ""}`}>
@@ -59,15 +62,15 @@ export default function RadioButton() {
         <span className="flex items-center gap-1.5">
           <EqualizerBars active={playing} />
           <span className="text-[11px] font-bold text-[var(--dash-text)] leading-none">
-            رادیو انگلیسی
+            {t("dashboard.radio")}
           </span>
         </span>
         <span className="text-[10px] text-[var(--dash-muted)] leading-none">
           {failed
-            ? "پخش در دسترس نیست"
+            ? t("dashboard.radioUnavailable")
             : playing
-              ? "در حال پخش زنده"
-              : "برای پخش لمس کنید"}
+              ? t("dashboard.playingLive")
+              : t("dashboard.playRadio")}
         </span>
       </span>
     </button>

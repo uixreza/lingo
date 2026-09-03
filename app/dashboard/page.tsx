@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRadio } from "@/components/RadioProvider";
+import { useLang } from "@/contexts/LanguageContext";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
 const kidsBooks = data.kids.items.map((item, i) => ({
   ...item,
@@ -68,6 +69,7 @@ export default function DashboardPage() {
     }[];
     privateSessions: number;
   } | null>(null);
+  const { t, locale } = useLang();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -131,7 +133,7 @@ export default function DashboardPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
               </svg>
             </span>
-            اطلاعیه
+            {t("dashboard.notifications")}
           </span>
           <div className="relative flex-1 overflow-hidden min-w-0">
             <div className="flex w-max animate-marquee-reverse">
@@ -154,13 +156,13 @@ export default function DashboardPage() {
         <div className="flex flex-col sm:flex-row justify-between items-start mb-6 gap-4">
           <div>
             <div className="inline-block px-4 py-1.5 rounded-full bg-green-500 text-black text-xs font-bold mb-3">
-              داشبورد شما
+              {t("dashboard.welcome")}
             </div>
             <h1 className="text-2xl font-bold text-[var(--dash-text)]">
               خوش آمدید، {session.data?.user.fullname}!
             </h1>
             <p className="text-[var(--dash-muted)] mt-2 text-sm sm:text-base">
-              هر روز یه قدم کوچیک به هدفت نزدیک‌تر شو!
+              {t("dashboard.greeting")}
             </p>
           </div>
         </div>
@@ -186,13 +188,13 @@ export default function DashboardPage() {
               />
               <div className="flex items-center gap-3">
                 <span className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
-                  درخواست جلسه
+                  {t("dashboard.requestSession")}
                 </span>
                 {navigating ? (
                   <Loader2 className="w-7 h-7 text-white animate-spin" />
                 ) : (
                   <svg
-                    className="w-7 h-7 text-white"
+                    className={`w-7 h-7 text-white ${locale === "en" ? "rotate-180" : ""}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -222,7 +224,7 @@ export default function DashboardPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
                 </svg>
                 <span className="text-sm font-bold text-white">
-                  پشتیبانی
+                  {t("dashboard.support")}
                 </span>
               </button>
             </Link>
@@ -254,10 +256,10 @@ export default function DashboardPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h2 className="text-lg font-bold text-[var(--dash-text)]">
-                فرهنگ لغت OALD
+                {t("dashboard.oaldTitle")}
               </h2>
               <span className="px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-500 text-[10px] font-bold">
-                اندروید
+                {t("dashboard.oaldPlatform")}
               </span>
             </div>
             <p className="text-sm text-[var(--dash-muted)] mb-3">
@@ -270,23 +272,23 @@ export default function DashboardPage() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-blue-600 text-white text-sm font-bold shadow-lg hover:shadow-xl hover:scale-[1.03] active:scale-95 transition-all duration-200">
                 <Download className="w-4 h-4" />
-                دانلود اپلیکیشن
+                {t("dashboard.downloadApp")}
               </a>
               <span className="flex items-center gap-1.5 text-xs text-[var(--dash-muted)]">
                 <HardDrive className="w-3.5 h-3.5" />
-                ۷۶ مگابایت
+                {t("dashboard.oaldSize")}
               </span>
               <button
                 onClick={() => setShowOaldInfo(!showOaldInfo)}
                 className="flex items-center gap-1.5 text-xs text-blue-500 hover:text-blue-400 font-medium transition-colors">
                 <Info className="w-3.5 h-3.5" />
-                توضیحات بیشتر
+                {t("dashboard.moreInfo")}
                 {showOaldInfo ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
               </button>
             </div>
             {showOaldInfo && (
               <div className="mt-3 p-3 rounded-xl bg-blue-500/5 border border-blue-500/10 text-sm text-[var(--dash-muted)] leading-relaxed">
-                برای دانلود محتوا، پس از نصب اپلیکیشن، منو را باز کرده و گزینه <span className="font-bold text-[var(--dash-text)]">Manage Downloads</span> را انتخاب کنید تا لیست محتوای قابل دانلود را مشاهده کنید.
+                {t("dashboard.downloadHint")}
               </div>
             )}
           </div>
@@ -296,7 +298,7 @@ export default function DashboardPage() {
       {/* Download Books Section */}
       <div className="bg-[var(--dash-sides)]/80 backdrop-blur-2xl rounded-2xl shadow-2xl p-6">
         <h2 className="text-xl font-bold text-[var(--dash-text)] mb-6">
-          دانلود کتاب‌های دوره
+          {t("dashboard.downloads")}
         </h2>
 
         {/* Group Tabs */}
@@ -308,7 +310,7 @@ export default function DashboardPage() {
                 ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
                 : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
             }`}>
-            کودکان
+            {t("dashboard.kids")}
           </button>
           <button
             onClick={() => setActiveGroup("adults")}
@@ -317,7 +319,7 @@ export default function DashboardPage() {
                 ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
                 : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
             }`}>
-            بزرگسالان
+            {t("dashboard.adults")}
           </button>
           <button
             onClick={() => setActiveGroup("etc")}
@@ -326,7 +328,7 @@ export default function DashboardPage() {
                 ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
                 : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
             }`}>
-            متفرقه
+            {t("dashboard.misc")}
           </button>
         </div>
 
@@ -444,6 +446,7 @@ function UpcomingSessionsCard({
   const upcoming = stats?.upcomingSessions ?? [];
   const next = upcoming[0];
   const moreCount = stats ? stats.upcomingCount - upcoming.length : 0;
+  const { t } = useLang();
 
   return (
     <Link
@@ -457,7 +460,7 @@ function UpcomingSessionsCard({
             <Calendar className="w-4 h-4 text-green-500" />
           </span>
           <h3 className="font-bold text-sm text-[var(--dash-text)]">
-            جلسات پیش رو
+            {t("dashboard.upcomingSessions")}
           </h3>
         </div>
         {stats && (
@@ -469,7 +472,7 @@ function UpcomingSessionsCard({
 
       {!stats ? (
         <p className="text-sm text-[var(--dash-muted)] py-1">
-          در حال بارگذاری...
+          {t("dashboard.loading")}
         </p>
       ) : next ? (
         <>
@@ -483,7 +486,7 @@ function UpcomingSessionsCard({
             <div className="flex items-center gap-2 text-sm">
               <Clock className="w-4 h-4 text-green-500 shrink-0" />
               <span className="font-medium text-[var(--dash-muted)]">
-                ساعت {next.time}
+                {t("dashboard.hour")} {next.time}
               </span>
             </div>
             <div className="flex items-center gap-2 text-sm">
@@ -495,14 +498,14 @@ function UpcomingSessionsCard({
           </div>
           {moreCount > 0 && (
             <p className="text-xs text-[var(--dash-muted)] mt-2">
-              و {moreCount.toLocaleString("fa-IR")} جلسه دیگر...
+              {t("dashboard.moreSessions").replace("{count}", String(moreCount))}
             </p>
           )}
         </>
       ) : (
         <div className="bg-[var(--hover-bg)] rounded-xl p-3">
           <p className="text-sm text-[var(--dash-muted)]">
-            جلسه پیش رویی ندارید.
+            {t("dashboard.noSessions")}
           </p>
         </div>
       )}
@@ -512,6 +515,7 @@ function UpcomingSessionsCard({
 
 function RadioCard() {
   const { playing, failed, toggle, accent, setAccent, station } = useRadio();
+  const { t } = useLang();
 
   return (
     <div className="relative flex flex-col justify-between rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-2xl shadow-2xl p-4 overflow-hidden">
@@ -523,13 +527,13 @@ function RadioCard() {
         </span>
         <div>
           <h3 className="font-bold text-sm text-[var(--dash-text)]">
-            رادیو انگلیسی
+            {t("dashboard.radio")}
           </h3>
           <p className="text-xs text-[var(--dash-muted)]">
-            تقویت مهارت شنیداری
+            {t("dashboard.radioSubtitle")}
           </p>
         </div>
-        <div className="mr-auto flex items-center gap-1 p-0.5 rounded-full bg-[var(--hover-bg)]">
+        <div className="ms-auto flex items-center gap-1 p-0.5 rounded-full bg-[var(--hover-bg)]">
           {(["UK", "US"] as const).map((a) => (
             <button
               key={a}
@@ -565,12 +569,12 @@ function RadioCard() {
           <div className="flex items-center gap-2">
             <p className="text-xs text-[var(--dash-muted)]">
               {failed
-                ? "پخش در دسترس نیست"
+                ? t("dashboard.radioUnavailable")
                 : playing
-                  ? "در حال پخش زنده..."
+                  ? t("dashboard.playingLive")
                   : accent === "US"
-                    ? "لهجه آمریکایی — اخبار و گفتگو"
-                    : "لهجه بریتانیایی — گفتگو و اخبار"}
+                    ? t("dashboard.americanAccent")
+                    : t("dashboard.britishAccent")}
             </p>
             {playing && (
               <span className="flex items-end gap-0.5 h-3" aria-hidden>
@@ -599,6 +603,7 @@ function BookCard({
     audioUrl: string;
   };
 }) {
+  const { t } = useLang();
   return (
     <div className="relative group rounded-none sm:rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
       {/* Background Image with Fallback */}
@@ -622,15 +627,15 @@ function BookCard({
             target="_blank"
             rel="noopener noreferrer"
             className="flex-[3] px-2 sm:px-3 py-2 sm:py-2.5 bg-green-500 text-black text-xs sm:text-sm font-medium rounded-none sm:rounded-xl hover:bg-green-400 transition-all duration-200 shadow-lg text-center block">
-            دانلود کتاب
+            {t("dashboard.downloadBook")}
           </a>
           {book.audioUrl && (
             <a
               href={book.audioUrl}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="دانلود فایل صوتی"
-              title="دانلود فایل صوتی"
+              aria-label={t("dashboard.downloadAudio")}
+              title={t("dashboard.downloadAudio")}
               className="flex-1 h-9 sm:h-[42px] bg-white/20 text-white rounded-none sm:rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
               <Volume2 className="w-4 h-4" />
             </a>

@@ -30,6 +30,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
 import HorizScrollbar from "@/components/dashboard/UI/HorizScrollbar";
+import { useLang } from "@/contexts/LanguageContext";
 
 const timeSlots = [
   { value: "08:30", label: "۰۸:۳۰ تا ۱۰:۰۰", period: "Morning" },
@@ -106,6 +107,7 @@ const cardClass =
   "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg";
 
 function DateLegend() {
+  const { t } = useLang();
   const Row = ({
     swatch,
     children,
@@ -126,7 +128,7 @@ function DateLegend() {
   return (
     <div className="space-y-2.5">
       <Row swatch={<div className="w-full h-full bg-purple-500/15 ring-1 ring-purple-500/40 rounded-lg" />}>
-        امروز
+        {t("sessions.today")}
       </Row>
       <Row
         swatch={
@@ -134,7 +136,7 @@ function DateLegend() {
             <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />
           </div>
         }>
-        جلسه تأیید شده
+        {t("sessions.sessionConfirmed")}
       </Row>
       <Row
         swatch={
@@ -142,7 +144,7 @@ function DateLegend() {
             <Loader2 className="h-3.5 w-3.5 text-black animate-spin" strokeWidth={3} />
           </div>
         }>
-        در انتظار بررسی
+        {t("sessions.sessionPending")}
       </Row>
       <Row
         swatch={
@@ -150,7 +152,7 @@ function DateLegend() {
             <Lock className="h-3 w-3 text-black" strokeWidth={2.5} />
           </div>
         }>
-        کاملاً رزرو شده
+        {t("sessions.fullyBooked")}
       </Row>
       <Row
         swatch={
@@ -160,13 +162,13 @@ function DateLegend() {
             </span>
           </div>
         }>
-        انتخاب شده (تعداد ساعت)
+        {t("sessions.selected")}
       </Row>
       <Row swatch={<div className="w-full h-full bg-[var(--hover-bg-strong)] rounded-lg" />}>
-        روز گذشته
+        {t("sessions.pastDay")}
       </Row>
       <Row swatch={<div className="w-full h-full bg-[var(--hover-bg)] rounded-lg" />}>
-        روز قابل رزرو
+        {t("sessions.bookableDay")}
       </Row>
     </div>
   );
@@ -211,6 +213,7 @@ export default function SessionsPage() {
   const [panelLink, setPanelLink] = useState("");
   const monthGridsRef = useRef<HTMLDivElement>(null);
   const [showDateHelp, setShowDateHelp] = useState(false);
+  const { t } = useLang();
 
   const handleCopyLink = async (id: number, link: string) => {
     await navigator.clipboard.writeText(link);
@@ -345,7 +348,7 @@ export default function SessionsPage() {
             }),
           });
           if (res.status === 402) {
-            toast.error("موجودی کیف پول کافی نیست");
+              toast.error(t("sessions.balanceInsufficient"));
             setTimeout(() => {
               window.location.href = "/dashboard/wallet";
             }, 1500);
@@ -358,7 +361,7 @@ export default function SessionsPage() {
           }
           if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            const msg = data.error || `خطا (کد ${res.status})`;
+            const msg = data.error || `Error (code ${res.status})`;
             setErrorMsg(msg);
             toast.error(msg);
             return;
@@ -369,19 +372,19 @@ export default function SessionsPage() {
         }
       }
       if (successCount === 0) {
-        setErrorMsg("بازه انتخابی قبلاً رزرو شده است");
-        toast.error("بازه انتخابی قبلاً رزرو شده است");
+        setErrorMsg(t("sessions.slotAlreadyReserved"));
+        toast.error(t("sessions.slotAlreadyReserved"));
         return;
       }
       setSelectedSlots({});
       setReason("");
-      toast.success(`درخواست ${successCount} جلسه با موفقیت ثبت شد`);
+      toast.success(t("sessions.requestSuccess").replace("{count}", String(successCount)));
       if (conflictCount > 0) {
-        toast.error(`${conflictCount} بازه به دلیل رزرو قبلی ثبت نشد`);
+        toast.error(t("sessions.slotsConflict").replace("{count}", String(conflictCount)));
       }
       window.dispatchEvent(new Event("balance-update"));
     } catch {
-      setErrorMsg("خطا در برقراری ارتباط");
+      setErrorMsg(t("sessions.connectionError"));
     } finally {
       setSubmitting(false);
     }
@@ -392,7 +395,7 @@ export default function SessionsPage() {
 
   const handleCancelClick = (req: SessionItem) => {
     if (req.status === "Approved") {
-      toast.error("این جلسه توسط استاد تأیید شده است و امکان لغو آن وجود ندارد");
+      toast.error(t("sessions.cannotCancelConfirmed"));
       return;
     }
     setCancelTarget(req);
@@ -407,7 +410,7 @@ export default function SessionsPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error || "خطا در لغو جلسه");
+        toast.error(data.error || t("sessions.cancelError"));
         return;
       }
       setRequests((prev) =>
@@ -416,10 +419,10 @@ export default function SessionsPage() {
         ),
       );
       setCancelTarget(null);
-      toast.success("جلسه لغو شد و مبلغ به کیف پول شما بازگشت");
+      toast.success(t("sessions.sessionCanceled"));
       window.dispatchEvent(new Event("balance-update"));
     } catch {
-      toast.error("خطا در برقراری ارتباط");
+      toast.error(t("sessions.connectionError"));
     } finally {
       setIsCanceling(false);
     }
@@ -454,9 +457,9 @@ export default function SessionsPage() {
     Canceled: "bg-red-500/10",
   };
   const statusLabel = {
-    Approved: "تأیید شده",
-    Pending: "در انتظار",
-    Canceled: "لغو شده",
+    Approved: t("sessions.confirmed"),
+    Pending: t("sessions.pending"),
+    Canceled: t("sessions.cancelled"),
   };
 
   const ProCard = (
@@ -478,20 +481,20 @@ export default function SessionsPage() {
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-center gap-2 mb-1">
             <span className="text-sm font-black text-[var(--dash-text)]">
-              پنل بحث آنلاین
+              {t("dashboard.panelTitle")}
             </span>
             <span className="text-[10px] bg-green-500/15 text-green-500 px-1.5 py-0.5 rounded font-bold">
-              هفتگی
+              {t("sessions.weekly")}
             </span>
           </div>
           <h3 className="text-base font-extrabold text-transparent bg-clip-text bg-gradient-to-l from-purple-400 to-indigo-400">
-            گفتگو و تمرین مکالمه
+            {t("sessions.weeklyDesc")}
           </h3>
         </div>
         <motion.button
           whileTap={{ scale: 0.9 }}
           onClick={() => setProExpanded((v) => !v)}
-          aria-label={proExpanded ? "بستن جزئیات" : "نمایش جزئیات"}
+          aria-label={proExpanded ? "Close details" : "Show details"}
           aria-expanded={proExpanded}
           className="shrink-0 p-2 rounded-lg bg-[var(--dash-bg)]/60 border border-purple-500/15 text-purple-400 hover:bg-purple-500/10 transition-colors">
           <ChevronDown
@@ -517,9 +520,9 @@ export default function SessionsPage() {
                 <CalendarDays className="h-4 w-4 text-purple-400" />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-bold text-[var(--dash-text)]">هر جمعه</p>
+                <p className="text-xs font-bold text-[var(--dash-text)]">{t("sessions.everyFriday")}</p>
                 <p className="text-[11px] text-[var(--dash-muted)] mt-0.5">
-                  ۱۰:۰۰ تا ۱۱:۳۰ — با مدرس {mentor.name}
+                  {t("sessions.fridayTime").replace("{name}", mentor.name)}
                 </p>
               </div>
               <div className="flex items-center gap-1 shrink-0 px-2 py-1 rounded-lg bg-purple-500/10">
@@ -535,7 +538,7 @@ export default function SessionsPage() {
                 <div className="flex items-center gap-1.5 mb-1">
                   <MessageSquare className="h-3.5 w-3.5 text-purple-400" />
                   <span className="text-[11px] font-bold text-purple-400">
-                    موضوع این هفته
+                    {t("sessions.thisWeekTopic")}
                   </span>
                 </div>
                 <p dir="ltr" className="text-sm font-bold text-[var(--dash-text)] leading-relaxed text-left">
@@ -547,11 +550,11 @@ export default function SessionsPage() {
             <div className="relative flex flex-wrap gap-1.5 mb-4">
               <span className="text-[10px] font-bold text-purple-500 bg-purple-500/10 px-2 py-1 rounded-md flex items-center gap-1">
                 <Users className="h-3 w-3" />
-                گفتگوی گروهی زنده
+                {t("sessions.liveGroupChat")}
               </span>
               <span className="text-[10px] font-bold text-indigo-500 bg-indigo-500/10 px-2 py-1 rounded-md flex items-center gap-1">
                 <BookOpen className="h-3 w-3" />
-                تمرین مکالمه
+                {t("sessions.practice")}
               </span>
             </div>
           </motion.div>
@@ -570,7 +573,7 @@ export default function SessionsPage() {
             className="relative w-full py-3.5 rounded-xl text-sm font-bold text-white transition-all duration-200 bg-gradient-to-l from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40">
             <span className="flex items-center justify-center gap-2">
               <Video className="h-4 w-4" />
-              ورود به جلسه جمعه
+              {t("sessions.joinFriday")}
             </span>
           </motion.button>
         </a>
@@ -581,7 +584,7 @@ export default function SessionsPage() {
           className="relative w-full py-3.5 rounded-xl text-sm font-bold text-[var(--dash-muted)] transition-all duration-200 bg-[var(--hover-bg)] border border-[var(--dash-muted)]/15 cursor-not-allowed">
           <span className="flex items-center justify-center gap-2">
             <Clock className="h-4 w-4" />
-            لینک جلسه جمعه هنوز قرار داده نشده
+            {t("sessions.linkNotPlaced")}
           </span>
         </motion.button>
       )}
@@ -651,7 +654,7 @@ export default function SessionsPage() {
                 />
               )}
               <span className="relative z-10">
-                {tab === "form" ? "درخواست جلسه" : "درخواست‌های من"}
+                {tab === "form" ? t("sessions.requestSession") : t("sessions.myRequests")}
               </span>
             </button>
           ))}
@@ -671,7 +674,7 @@ export default function SessionsPage() {
             <CalendarDays className="h-5 w-5 text-green-600 dark:text-green-400" />
           </div>
           <h2 className="text-xl font-bold text-[var(--dash-text)]">
-            درخواست جلسه خصوصی
+            {t("sessions.privateSession")}
           </h2>
         </div>
 
@@ -683,7 +686,7 @@ export default function SessionsPage() {
                 ۱
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
-                زبان مورد نظر
+                {t("sessions.language")}
               </label>
             </div>
             <div className="flex flex-row gap-3">
@@ -747,7 +750,7 @@ export default function SessionsPage() {
             <div className="relative flex items-center gap-2 mb-5">
               <div className="h-5 w-1 rounded-full bg-purple-500" />
               <span className="text-xs font-bold text-purple-500 dark:text-purple-400">
-                مدرس شما
+                {t("sessions.mentor")}
               </span>
             </div>
 
@@ -796,7 +799,7 @@ export default function SessionsPage() {
                 <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Globe className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">زبان‌ها</span>
+                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.languages")}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {mentor.languages.map((lang) => (
@@ -813,7 +816,7 @@ export default function SessionsPage() {
                 <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <Clock className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">تجربه</span>
+                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.experience")}</span>
                   </div>
                   <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
                     {mentor.experience}
@@ -824,7 +827,7 @@ export default function SessionsPage() {
                 <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8 col-span-2">
                   <div className="flex items-center gap-1.5 mb-1.5">
                     <BookOpen className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">تحصیلات</span>
+                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.education")}</span>
                   </div>
                   <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
                     {mentor.education}
@@ -841,12 +844,12 @@ export default function SessionsPage() {
                 ۲
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
-                تاریخ و ساعت جلسه
+                {t("sessions.dateTime")}
               </label>
               <button
                 onClick={() => setShowDateHelp(true)}
                 className="mr-auto p-1.5 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-green-500 hover:bg-[var(--hover-bg-strong)] transition-all duration-150"
-                aria-label="راهنمای رنگ روزها">
+                aria-label={t("sessions.colorGuide")}>
                 <Info className="h-4 w-4" />
               </button>
             </div>
@@ -959,7 +962,7 @@ export default function SessionsPage() {
                 ۳
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
-                توضیحات
+                {t("sessions.description")}
               </label>
             </div>
             <div className="relative">
@@ -967,7 +970,7 @@ export default function SessionsPage() {
               <textarea
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
-                placeholder="دلیل خود را برای یادگیری این زبان بنویسید..."
+                placeholder={t("sessions.descriptionPlaceholder")}
                 rows={3}
                 className="w-full bg-[var(--hover-bg)] text-[var(--dash-text)] rounded-xl px-4 py-3 pr-10 text-sm resize-none focus:outline-none focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60"
               />
@@ -980,10 +983,10 @@ export default function SessionsPage() {
               <div className="flex items-center justify-between mb-3 pb-3 border-b border-green-500/10">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
-                    {toPersianDigits(String(discountPercent))}٪ تخفیف
+                    {t("sessions.discount").replace("{percent}", toPersianDigits(String(discountPercent)))}
                   </span>
                   <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    قیمت اصلی
+                    {t("sessions.originalPrice")}
                   </span>
                 </div>
                 <div className="flex items-center gap-1.5">
@@ -991,7 +994,7 @@ export default function SessionsPage() {
                     {(totalSlots > 0 ? totalSlots * privatePrice : privatePrice).toLocaleString("fa-IR")}
                   </span>
                   <span className="text-xs text-[var(--dash-muted)]/60">
-                    تومان
+                    {t("sessions.toman")}
                   </span>
                 </div>
               </div>
@@ -1000,15 +1003,15 @@ export default function SessionsPage() {
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    تعداد جلسات
+                    {t("sessions.sessionCount")}
                   </span>
                   <span className="text-sm font-bold text-[var(--dash-text)]">
-                    {toFa(totalSlots)} جلسه
+                    {t("sessions.sessionUnit").replace("{count}", toFa(totalSlots))}
                   </span>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
                   <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    قیمت کل
+                    {t("sessions.totalPrice")}
                   </span>
                   <span className="text-2xl font-black text-[var(--dash-text)] text-left">
                     {privatePrice === null ? (
@@ -1022,7 +1025,7 @@ export default function SessionsPage() {
                     )}
                     {privatePrice !== null && (
                       <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                        تومان
+                        {t("sessions.toman")}
                       </span>
                     )}
                   </span>
@@ -1033,7 +1036,7 @@ export default function SessionsPage() {
                 <div className="flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                   <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    قیمت هر جلسه
+                    {t("sessions.pricePerSession")}
                   </span>
                 </div>
                 <span className="text-2xl font-black text-[var(--dash-text)] text-left">
@@ -1048,7 +1051,7 @@ export default function SessionsPage() {
                   )}
                   {privatePrice !== null && (
                     <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
-                      تومان
+                      {t("sessions.toman")}
                     </span>
                   )}
                 </span>
@@ -1058,13 +1061,13 @@ export default function SessionsPage() {
 
           {/* Fluency notice */}
           <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-            لطفاً قبل از ثبت درخواست، سطح زبان خود را در{" "}
+            {t("sessions.selectLevelHintBefore")}{" "}
             <Link
               href="/dashboard/account"
               className="font-bold text-green-600 dark:text-green-400 underline underline-offset-2 hover:opacity-80 transition-opacity">
-              حساب کاربری
+              {t("sessions.goToAccount")}
             </Link>{" "}
-            انتخاب کنید
+            {t("sessions.selectLevelHintAfter")}
           </p>
 
           {/* Submit */}
@@ -1081,12 +1084,12 @@ export default function SessionsPage() {
             {submitting ? (
               <span className="flex items-center justify-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin" />
-                در حال ثبت...
+                {t("sessions.submitting")}
               </span>
             ) : (
               <span className="flex items-center justify-center gap-2">
                 <Plus className="h-4 w-4" />
-                ثبت درخواست
+                {t("sessions.submitRequest")}
               </span>
             )}
           </motion.button>
@@ -1106,10 +1109,10 @@ export default function SessionsPage() {
         <div className={accentBar} />
         <div className="relative flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-[var(--dash-text)]">
-            درخواست‌های من
+            {t("sessions.myRequests")}
           </h2>
           <span className="text-xs bg-[var(--dash-bg)]/60 text-[var(--dash-muted)] px-3 py-1 rounded-full border border-[var(--dash-muted)]/10">
-            {toFa(requests.length)} مورد
+            {t("sessions.resultsCount").replace("{count}", toFa(requests.length))}
           </span>
         </div>
 
@@ -1136,7 +1139,7 @@ export default function SessionsPage() {
                   />
                 )}
                 <span className="relative z-10">
-                  {key === "all" ? "همه" : statusLabel[key]}
+                  {key === "all" ? t("sessions.all") : statusLabel[key]}
                 </span>
               </button>
             ),
@@ -1148,7 +1151,7 @@ export default function SessionsPage() {
             <div className="text-center py-16">
               <CalendarDays className="h-10 w-10 mx-auto text-[var(--dash-muted)]/40 mb-3" />
               <p className="text-[var(--dash-muted)] text-sm">
-                درخواستی یافت نشد
+                {t("sessions.noResults")}
               </p>
             </div>
           ) : null}
@@ -1172,7 +1175,7 @@ export default function SessionsPage() {
                           {req.language}
                         </p>
                         <span className="text-[10px] text-[var(--dash-muted)] bg-[var(--hover-bg)] px-2 py-0.5 rounded-full shrink-0">
-                          {req.type === "Private" ? "خصوصی" : "عمومی"}
+                          {req.type === "Private" ? t("sessions.private") : t("sessions.public")}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
@@ -1185,8 +1188,8 @@ export default function SessionsPage() {
                             onClick={() => handleCancelClick(req)}
                             title={
                               req.status === "Approved"
-                                ? "جلسه تأیید شده قابل لغو نیست"
-                                : "لغو جلسه"
+                                ? t("sessions.cannotCancelConfirmed")
+                                : t("sessions.cancelSession")
                             }
                             className={`p-1 rounded-lg transition-all duration-200 ${
                               req.status === "Approved"
@@ -1250,7 +1253,7 @@ export default function SessionsPage() {
                               }
                               className="shrink-0 p-2 rounded-lg text-[var(--dash-muted)] hover:bg-[var(--hover-bg)] transition-colors">
                               {copiedId === req.id ? (
-                                <span className="text-[10px] text-green-500 font-semibold">کپی شد</span>
+                                <span className="text-[10px] text-green-500 font-semibold">{t("sessions.linkCopied")}</span>
                               ) : (
                                 <Copy className="h-3.5 w-3.5" />
                               )}
@@ -1260,7 +1263,7 @@ export default function SessionsPage() {
                           <div className="flex items-center gap-2 bg-[var(--hover-bg)] rounded-lg px-3 py-2">
                             <Loader2 className="h-3.5 w-3.5 text-green-500 animate-spin shrink-0" />
                             <span className="text-xs text-[var(--dash-muted)]">
-                              لینک در تاریخ جلسه قرار داده می‌شود
+                              {t("sessions.linkNotReady")}
                             </span>
                           </div>
                         )}
@@ -1287,7 +1290,7 @@ export default function SessionsPage() {
                               e.preventDefault();
                           }}>
                           <Video className="h-3.5 w-3.5" />
-                          شرکت در کلاس
+                          {t("sessions.joinClass")}
                         </a>
                       </div>
                     )}
@@ -1320,7 +1323,7 @@ export default function SessionsPage() {
               </div>
               <div>
                 <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                  انتخاب ساعت جلسه
+                  {t("sessions.selectTime")}
                 </h3>
                 <p className="text-sm text-[var(--dash-muted)] mt-0.5">
                   {formatJalaliDate(slotPickerDate)}
@@ -1371,7 +1374,7 @@ export default function SessionsPage() {
                             </span>
                             {selected && !reserved && (
                               <span className="text-[10px] opacity-80">
-                                انتخاب شد
+                                {t("sessions.selected")}
                               </span>
                             )}
                           </motion.button>
@@ -1385,7 +1388,7 @@ export default function SessionsPage() {
               whileTap={{ scale: 0.98 }}
               onClick={() => setSlotPickerDate(null)}
               className="w-full mt-6 py-3 rounded-xl font-bold text-black transition-all duration-300 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
-              تأیید
+              {t("sessions.confirm")}
             </motion.button>
           </motion.div>
         </div>
@@ -1408,12 +1411,12 @@ export default function SessionsPage() {
                 <Info className="h-5 w-5 text-purple-400" />
               </div>
               <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                راهنمای رنگ روزها
+                {t("sessions.colorGuide")}
               </h3>
               <button
                 onClick={() => setShowDateHelp(false)}
                 className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
-                aria-label="بستن راهنما">
+                aria-label={t("sessions.closeGuide")}>
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -1447,12 +1450,12 @@ export default function SessionsPage() {
               <Info className="h-5 w-5 text-purple-400" />
             </div>
             <h3 className="text-lg font-bold text-[var(--dash-text)]">
-              راهنمای رنگ روزها
+              {t("sessions.colorGuide")}
             </h3>
             <button
               onClick={() => setShowDateHelp(false)}
               className="mr-auto p-2 rounded-lg bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)] transition-all duration-150"
-              aria-label="بستن راهنما">
+              aria-label={t("sessions.closeGuide")}>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -1477,18 +1480,18 @@ export default function SessionsPage() {
                 <XCircle className="h-5 w-5 text-red-500" />
               </div>
               <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                لغو جلسه
+                {t("sessions.cancelSession")}
               </h3>
             </div>
             <p className="text-sm text-[var(--dash-muted)] leading-relaxed mb-4">
-              آیا از لغو جلسه خود در تاریخ{" "}
+              {t("sessions.cancelConfirm")}{" "}
               <span className="font-bold text-[var(--dash-text)]">
                 {toPersianDigits(cancelTarget.date)}
               </span>{" "}
-              مطمئن هستید؟
+              {t("sessions.cancelConfirmEnd")}
             </p>
             <p className="text-[11px] text-[var(--dash-muted)] leading-relaxed mb-6">
-              «مبلغ این جلسه به کیف پول شما بازگردانده خواهد شد»
+              {t("sessions.cancelRefund")}
             </p>
             <div className="flex gap-3">
               <motion.button
@@ -1496,14 +1499,14 @@ export default function SessionsPage() {
                 onClick={() => setCancelTarget(null)}
                 disabled={isCanceling}
                 className="flex-[2] py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-60 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25">
-                نه، منصرف شدم
+                {t("sessions.cancelNo")}
               </motion.button>
               <button
                 onClick={confirmCancel}
                 disabled={isCanceling}
                 className="flex-1 py-3 rounded-xl bg-red-500/10 text-red-500 font-bold ring-1 ring-red-500/20 hover:bg-red-500/20 transition-all duration-200 disabled:opacity-60 flex items-center justify-center gap-2">
                 {isCanceling && <Loader2 className="h-4 w-4 animate-spin" />}
-                بله، لغو کن
+                {t("sessions.cancelYes")}
               </button>
             </div>
           </motion.div>

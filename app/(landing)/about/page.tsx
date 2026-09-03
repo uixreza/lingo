@@ -10,6 +10,7 @@ import {
   Clock,
   Users,
 } from "lucide-react";
+import { useLang } from "@/contexts/LanguageContext";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -33,6 +34,18 @@ const stats = [
 ];
 
 export default function About() {
+  const { t } = useLang();
+
+  const skills = [
+    { label: t("about.skillTeacher"), icon: GraduationCap },
+    { label: t("about.skillDev"), icon: Code },
+  ];
+
+  const stats = [
+    { icon: Award, value: "۳+", label: t("about.years") },
+    { icon: Users, value: "۲۰۰+", label: t("about.students") },
+    { icon: Clock, value: "۳۰۰۰+", label: t("about.teachingHours") },
+  ];
   return (
     <main className="relative min-h-screen bg-[#050505]">
       {/* Banner */}

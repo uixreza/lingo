@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { ListSkeleton } from "@/components/dashboard/Skeletons";
 import Avatar from "@/components/dashboard/Avatar";
+import { useLang } from "@/contexts/LanguageContext";
 
 // Types
 type TicketStatus = "open" | "in-progress" | "resolved" | "closed";
@@ -186,6 +187,7 @@ export default function TicketsPage() {
   const [activeTab, setActiveTab] = useState<StatusTab>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const repliesRef = useRef<HTMLDivElement>(null);
+  const { t, locale } = useLang();
 
   useEffect(() => {
     const run = async () => {
@@ -195,7 +197,7 @@ export default function TicketsPage() {
         const data = await res.json();
         setTickets(data);
       } catch {
-        toast.error("خطا در دریافت تیکت‌ها");
+        toast.error(t("ticket.fetchError"));
       } finally {
         setIsLoading(false);
       }
@@ -208,16 +210,16 @@ export default function TicketsPage() {
   }, [selectedTicket?.replies.length]);
 
   const categories = [
-    { value: "technical", label: "مشکل فنی", icon: "🔧" },
-    { value: "payment", label: "مشکل پرداخت", icon: "💰" },
-    { value: "content", label: "محتوا", icon: "📚" },
-    { value: "general", label: "سایر موارد", icon: "📝" },
+    { value: "technical", label: t("ticket.technical"), icon: "🔧" },
+    { value: "payment", label: t("ticket.payment"), icon: "💰" },
+    { value: "content", label: t("ticket.content"), icon: "📚" },
+    { value: "general", label: t("ticket.other"), icon: "📝" },
   ];
 
   const priorities: { value: TicketPriority; label: string }[] = [
-    { value: "low", label: "کم" },
-    { value: "medium", label: "متوسط" },
-    { value: "high", label: "بالا" },
+    { value: "low", label: t("ticket.low") },
+    { value: "medium", label: t("ticket.medium") },
+    { value: "high", label: t("ticket.high") },
   ];
 
   const filteredTickets = tickets.filter((ticket) => {
@@ -248,7 +250,7 @@ export default function TicketsPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error || "خطا در ثبت تیکت");
+        toast.error(data.error || t("ticket.createError"));
         return;
       }
       setTickets((prev) => [data, ...prev]);
@@ -259,9 +261,9 @@ export default function TicketsPage() {
       setNewTicketPriority("medium");
       setTicketStep(1);
       setIsCreatingTicket(false);
-      toast.success("تیکت با موفقیت ثبت شد");
+      toast.success(t("ticket.created"));
     } catch {
-      toast.error("خطا در برقراری ارتباط");
+      toast.error(t("ticket.connectionError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -279,7 +281,7 @@ export default function TicketsPage() {
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        toast.error(data.error || "خطا در ارسال پاسخ");
+        toast.error(data.error || t("ticket.replyError"));
         return;
       }
       const updated = data.ticket as Ticket;
@@ -288,9 +290,9 @@ export default function TicketsPage() {
       );
       setSelectedTicket(updated);
       setReplyMessage("");
-      toast.success("پاسخ با موفقیت ارسال شد");
+      toast.success(t("ticket.replySent"));
     } catch {
-      toast.error("خطا در برقراری ارتباط");
+      toast.error(t("ticket.connectionError"));
     } finally {
       setIsSendingReply(false);
     }
@@ -309,14 +311,14 @@ export default function TicketsPage() {
   const DetailStatusIcon = detailConfig ? detailConfig.icon : MessageSquare;
 
   return (
-    <div dir="rtl" className="min-h-screen py-6">
+    <div dir={locale === "en" ? "ltr" : "rtl"} className="min-h-screen py-6">
       <div className="max-w-7xl mx-auto">
         {/* Hero Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
           {(
             [
               {
-                label: "کل تیکت‌ها",
+                label: t("ticket.totalTickets"),
                 value: tabCounts.all,
                 icon: Inbox,
                 color: "text-blue-600 dark:text-blue-400",
@@ -324,7 +326,7 @@ export default function TicketsPage() {
                 accent: "from-blue-500/30",
               },
               {
-                label: "باز",
+                label: t("ticket.open"),
                 value: tabCounts.open,
                 icon: MessageSquare,
                 color: "text-blue-600 dark:text-blue-400",
@@ -332,7 +334,7 @@ export default function TicketsPage() {
                 accent: "from-blue-500/30",
               },
               {
-                label: "در حال بررسی",
+                label: t("ticket.inProgress"),
                 value: tabCounts["in-progress"],
                 icon: Hourglass,
                 color: "text-yellow-600 dark:text-yellow-400",
@@ -340,7 +342,7 @@ export default function TicketsPage() {
                 accent: "from-yellow-500/30",
               },
               {
-                label: "حل شده",
+                label: t("ticket.resolved"),
                 value: tabCounts.resolved,
                 icon: CheckCircle2,
                 color: "text-green-600 dark:text-green-400",
@@ -389,7 +391,7 @@ export default function TicketsPage() {
                   }}
                   className="w-full py-3 rounded-xl font-bold text-black transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
                   <MessageSquare className="h-5 w-5" />
-                  تیکت جدید
+                  {t("ticket.newTicket")}
                 </motion.button>
               </div>
 
@@ -401,7 +403,7 @@ export default function TicketsPage() {
                   </span>
                   <input
                     type="text"
-                    placeholder="جستجو در تیکت‌ها..."
+                    placeholder={t("ticket.search")}
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pr-11 pl-4 py-2.5 rounded-xl outline-none transition-all focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/60 text-right"
@@ -424,12 +426,12 @@ export default function TicketsPage() {
                     const isActive = activeTab === tab;
                     const label =
                       tab === "all"
-                        ? "همه"
+                        ? t("ticket.all")
                         : tab === "open"
-                          ? "باز"
+                          ? t("ticket.open")
                           : tab === "in-progress"
-                            ? "بررسی"
-                            : "حل شده";
+                            ? t("ticket.inProgress")
+                            : t("ticket.resolved");
                     return (
                       <button
                         key={tab}
@@ -473,7 +475,7 @@ export default function TicketsPage() {
                     <div className="mx-auto w-14 h-14 rounded-2xl bg-[var(--hover-bg)] flex items-center justify-center mb-3">
                       <MessageSquare className="h-6 w-6 opacity-60" />
                     </div>
-                    <p>تیکتی وجود ندارد</p>
+                    <p>{t("ticket.noTickets")}</p>
                   </div>
                 ) : (
                   <AnimatePresence initial={false}>
@@ -590,7 +592,7 @@ export default function TicketsPage() {
                             <Tag className="h-4 w-4" />
                             {
                               categoryIcons[selectedTicket.category]?.label ??
-                                "سایر"
+                                t("ticket.noCategory")
                             }
                           </span>
                         </div>
@@ -598,12 +600,12 @@ export default function TicketsPage() {
                       <div className="flex flex-wrap items-center gap-2">
                         <span
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${priorityConfig[selectedTicket.priority].bg} ${priorityConfig[selectedTicket.priority].color} ${priorityConfig[selectedTicket.priority].border}`}>
-                          اولویت: {priorityConfig[selectedTicket.priority].label}
+                           {t("ticket.priority")} {selectedTicket.priority === "low" ? t("ticket.low") : selectedTicket.priority === "medium" ? t("ticket.medium") : selectedTicket.priority === "high" ? t("ticket.high") : t("ticket.urgent")}
                         </span>
                         <span
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border ${detailConfig!.bg} ${detailConfig!.color} ${detailConfig!.border}`}>
                           <DetailStatusIcon className="h-3.5 w-3.5" />
-                          {statusConfig[selectedTicket.status].label}
+                          {selectedTicket.status === "open" ? t("ticket.open") : selectedTicket.status === "in-progress" ? t("ticket.inProgress") : selectedTicket.status === "resolved" ? t("ticket.resolved") : t("ticket.closedStatus")}
                         </span>
                       </div>
                     </div>
@@ -644,7 +646,7 @@ export default function TicketsPage() {
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 mt-3 px-3 py-1.5 rounded-lg bg-[var(--dash-bg)] border border-[var(--dash-muted)]/15 text-xs text-[var(--dash-muted)] hover:text-[var(--dash-accent)] transition-colors">
                             <Paperclip className="h-3.5 w-3.5" />
-                            پیوست تیکت
+                            {t("ticket.attachment")}
                           </a>
                         )}
                       </div>
@@ -659,13 +661,13 @@ export default function TicketsPage() {
                       className="font-bold mb-4 flex items-center gap-2"
                       style={{ color: "var(--dash-text)" }}>
                       <MessageSquare className="h-4 w-4 text-[var(--dash-accent)]" />
-                      پاسخ‌ها ({toFa(selectedTicket.replies.length)})
+                      {t("ticket.replies").replace("{count}", toFa(selectedTicket.replies.length))}
                     </h3>
                     {selectedTicket.replies.length === 0 ? (
                       <div
                         className="text-center py-8 text-sm"
                         style={{ color: "var(--dash-muted)" }}>
-                        هنوز پاسخی داده نشده است
+                        {t("ticket.noReplies")}
                       </div>
                     ) : (
                       <div className="space-y-4">
@@ -702,7 +704,7 @@ export default function TicketsPage() {
                                     {reply.userName}
                                     {reply.isAdmin && (
                                       <span className="text-[10px] px-2 py-0.5 rounded-full bg-green-500/15 text-green-600 dark:text-green-400 font-medium">
-                                        پشتیبان
+                                         {t("ticket.supportAgent")}
                                       </span>
                                     )}
                                   </span>
@@ -733,7 +735,7 @@ export default function TicketsPage() {
                           <textarea
                             value={replyMessage}
                             onChange={(e) => setReplyMessage(e.target.value)}
-                            placeholder="پاسخ خود را بنویسید..."
+                            placeholder={t("ticket.replyPlaceholder")}
                             rows={3}
                             className="flex-1 px-4 py-3 rounded-xl outline-none resize-none transition-all focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] bg-[var(--dash-bg)] text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]/60 border border-[var(--dash-muted)]/15"
                           />
@@ -752,7 +754,7 @@ export default function TicketsPage() {
                             ) : (
                               <Send size={18} />
                             )}
-                            ارسال
+                             {t("ticket.send")}
                           </motion.button>
                         </div>
                       </div>
@@ -764,7 +766,7 @@ export default function TicketsPage() {
                       className="px-6 pb-6 flex items-center justify-center gap-2 text-sm"
                       style={{ color: "var(--dash-muted)" }}>
                       <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      این تیکت بسته شده و امکان پاسخ‌گویی غیرفعال است
+                      {t("ticket.closed")}
                     </div>
                   ) : null}
                 </div>
@@ -783,13 +785,12 @@ export default function TicketsPage() {
                   <h3
                     className="text-lg font-semibold mb-2"
                     style={{ color: "var(--dash-text)" }}>
-                    تیکتی انتخاب نشده
+                     {t("ticket.noSelected")}
                   </h3>
                   <p
                     className="text-sm"
                     style={{ color: "var(--dash-muted)" }}>
-                    از فهرست روبه‌رو یک تیکت را انتخاب کنید تا جزئیات آن نمایش
-                    داده شود
+                    {t("ticket.selectFromList")}
                   </p>
                 </div>
               </motion.div>
@@ -821,19 +822,19 @@ export default function TicketsPage() {
                   <h2
                     className="text-lg font-bold"
                     style={{ color: "var(--dash-text)" }}>
-                    تیکت جدید
+                     {t("ticket.newTicket")}
                   </h2>
                   <p
                     className="text-xs mt-0.5"
                     style={{ color: "var(--dash-muted)" }}>
-                    مشکل یا سوال خود را مطرح کنید؛ در کوتاه‌ترین زمان پاسخ می‌دهیم.
+                     {t("ticket.createDesc")}
                   </p>
                 </div>
                 <button
                   onClick={() => setIsCreatingTicket(false)}
                   className="p-2 rounded-xl transition-all duration-200 hover:bg-[var(--dash-bg)] shrink-0"
                   style={{ color: "var(--dash-muted)" }}
-                  aria-label="بستن">
+                   aria-label={t("ticket.close")}>
                   <X size={18} />
                 </button>
               </div>
@@ -859,7 +860,7 @@ export default function TicketsPage() {
                         ? "text-green-500"
                         : "text-[var(--dash-muted)]"
                     }`}>
-                    ۱. اطلاعات اولیه
+                     {t("ticket.step1")}
                   </span>
                   <span
                     className={`text-[11px] font-bold ${
@@ -867,7 +868,7 @@ export default function TicketsPage() {
                         ? "text-green-500"
                         : "text-[var(--dash-muted)]"
                     }`}>
-                    ۲. متن تیکت
+                     {t("ticket.step2")}
                   </span>
                 </div>
               </div>
@@ -885,13 +886,13 @@ export default function TicketsPage() {
                       <label
                         className="block text-sm font-medium mb-2"
                         style={{ color: "var(--dash-text)" }}>
-                        عنوان تیکت
+                         {t("ticket.ticketTitle")}
                       </label>
                       <input
                         type="text"
                         value={newTicketTitle}
                         onChange={(e) => setNewTicketTitle(e.target.value)}
-                        placeholder="مثال: مشکل در دسترسی به دوره..."
+                        placeholder={t("ticket.titlePlaceholder")}
                         className={inputClass}
                       />
                     </div>
@@ -900,7 +901,7 @@ export default function TicketsPage() {
                       <label
                         className="block text-sm font-medium mb-2"
                         style={{ color: "var(--dash-text)" }}>
-                        دسته‌بندی
+                         {t("ticket.category")}
                       </label>
                       <div className="grid grid-cols-2 gap-2.5">
                         {categories.map((cat) => {
@@ -930,7 +931,7 @@ export default function TicketsPage() {
                       <label
                         className="block text-sm font-medium mb-2"
                         style={{ color: "var(--dash-text)" }}>
-                        اولویت
+                        {t("ticket.priority")}
                       </label>
                       <div className="grid grid-cols-3 gap-2">
                         {priorities.map((p) => {
@@ -975,7 +976,7 @@ export default function TicketsPage() {
                       <span
                         className="text-sm font-medium truncate flex-1"
                         style={{ color: "var(--dash-text)" }}>
-                        {newTicketTitle.trim() || "بدون عنوان"}
+                        {newTicketTitle.trim() || t("ticket.noTitle")}
                       </span>
                       <span
                         className={`px-2.5 py-1 rounded-full text-[11px] font-semibold shrink-0 border ${priorityConfig[newTicketPriority].bg} ${priorityConfig[newTicketPriority].color} ${priorityConfig[newTicketPriority].border}`}>
@@ -991,12 +992,12 @@ export default function TicketsPage() {
                       <label
                         className="block text-sm font-medium mb-2"
                         style={{ color: "var(--dash-text)" }}>
-                        توضیحات
+                         {t("ticket.fullDescription")}
                       </label>
                       <textarea
                         value={newTicketMessage}
                         onChange={(e) => setNewTicketMessage(e.target.value)}
-                        placeholder="مشکل خود را به طور کامل توضیح دهید..."
+                        placeholder={t("ticket.descPlaceholder")}
                         rows={5}
                         className={`${inputClass} resize-none`}
                       />
@@ -1015,7 +1016,7 @@ export default function TicketsPage() {
                     onClick={() => setTicketStep(2)}
                     disabled={!newTicketTitle.trim()}
                     className="w-full py-3 rounded-xl font-bold text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 bg-gradient-to-l from-green-500 to-emerald-500 shadow-lg shadow-green-500/25 hover:shadow-green-500/40">
-                    ادامه
+                     {t("ticket.continue")}
                     <ChevronLeft size={18} />
                   </motion.button>
                 </div>
@@ -1035,7 +1036,7 @@ export default function TicketsPage() {
                     {isSubmitting && (
                       <Loader2 size={18} className="animate-spin" />
                     )}
-                    ارسال تیکت
+                     {t("ticket.submitTicket")}
                   </motion.button>
                   <button
                     onClick={() => setTicketStep(1)}
@@ -1045,7 +1046,7 @@ export default function TicketsPage() {
                       color: "var(--dash-muted)",
                     }}>
                     <ChevronRight size={16} />
-                    بازگشت
+                     {t("ticket.back")}
                   </button>
                 </div>
               )}

@@ -21,6 +21,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
 import toast from "react-hot-toast";
+import { useLang } from "@/contexts/LanguageContext";
 
 type WalletData = {
   balance: number;
@@ -58,6 +59,7 @@ export default function WalletPage() {
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceItem | null>(null);
   const [downloadingId, setDownloadingId] = useState<number | null>(null);
   const [visibleInvoices, setVisibleInvoices] = useState(5);
+  const { t, locale } = useLang();
 
   const copyCardNumber = async () => {
     await navigator.clipboard.writeText("6219861910261931");
@@ -114,7 +116,7 @@ export default function WalletPage() {
   // Handle charge
   const handleCharge = async () => {
     if (!chargeAmount || parseInt(chargeAmount) === 0) {
-      alert("لطفا مبلغ مورد نظر را وارد کنید");
+      alert(t("wallet.enterAmount"));
       return;
     }
 
@@ -131,12 +133,12 @@ export default function WalletPage() {
   };
 
   const suggestedAmounts = [
-    { amount: 50000, label: "۵۰ هزار" },
-    { amount: 100000, label: "۱۰۰ هزار" },
-    { amount: 200000, label: "۲۰۰ هزار" },
-    { amount: 500000, label: "۵۰۰ هزار" },
-    { amount: 1000000, label: "۱ میلیون" },
-    { amount: 2000000, label: "۲ میلیون" },
+    { amount: 50000, label: t("wallet.amount50k") },
+    { amount: 100000, label: t("wallet.amount100k") },
+    { amount: 200000, label: t("wallet.amount200k") },
+    { amount: 500000, label: t("wallet.amount500k") },
+    { amount: 1000000, label: t("wallet.amount1m") },
+    { amount: 2000000, label: t("wallet.amount2m") },
   ];
 
   const formatDateTime = (iso: string) =>
@@ -145,23 +147,23 @@ export default function WalletPage() {
   const statusInfo = (status: string) => {
     const map: Record<string, { label: string; cls: string }> = {
       completed: {
-        label: "پرداخت شده",
+        label: t("wallet.statusPaid"),
         cls: "bg-green-500/10 text-green-600 dark:text-green-400",
       },
       paid: {
-        label: "پرداخت شده",
+        label: t("wallet.statusPaid"),
         cls: "bg-green-500/10 text-green-600 dark:text-green-400",
       },
       pending: {
-        label: "در انتظار",
+        label: t("wallet.statusPending"),
         cls: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
       },
       failed: {
-        label: "ناموفق",
+        label: t("wallet.statusFailed"),
         cls: "bg-red-500/10 text-red-600 dark:text-red-400",
       },
       refunded: {
-        label: "بازگشت داده شده",
+        label: t("wallet.statusRefunded"),
         cls: "bg-red-500/10 text-red-600 dark:text-red-400",
       },
     };
@@ -173,7 +175,7 @@ export default function WalletPage() {
     );
   };
 
-  const buildInvoiceNode = (inv: InvoiceItem) => {
+  const buildInvoiceNode = (inv: InvoiceItem, t: (key: string) => string) => {
     const esc = (s: string) =>
       s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
     const div = document.createElement("div");
@@ -188,7 +190,7 @@ export default function WalletPage() {
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #16a34a;padding-bottom:18px;">
         <div>
           <div style="font-size:26px;font-weight:800;color:#16a34a;">لینگو فام</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:4px;">فاکتور رسمی کیف پول</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">${t("wallet.invoiceSubheader")}</div>
         </div>
         <div style="text-align:left;">
           <div style="font-weight:800;font-size:16px;color:#111827;">INV-${inv.id}</div>
@@ -196,19 +198,19 @@ export default function WalletPage() {
         </div>
       </div>
       <table style="width:100%;border-collapse:collapse;margin-top:26px;">
-        ${row("شرح", esc(inv.description || "تراکنش کیف پول"))}
-        ${row("شماره پیگیری", esc(inv.referenceId || "-"))}
-        ${row("تاریخ تراکنش", esc(formatDateTime(inv.createdAt)))}
-        ${row("وضعیت", st)}
-        ${row("موجودی قبل", `${formatNumber(inv.balanceBefore)} تومان`)}
-        ${row("موجودی بعد", `${formatNumber(inv.balanceAfter)} تومان`)}
+        ${row(t("wallet.invoiceDesc"), esc(inv.description || t("wallet.invoiceDefaultDesc")))}
+        ${row(t("wallet.invoiceTracking"), esc(inv.referenceId || "-"))}
+        ${row(t("wallet.invoiceDate"), esc(formatDateTime(inv.createdAt)))}
+        ${row(t("wallet.statusPaid"), st)}
+        ${row(t("wallet.balanceBefore"), `${formatNumber(inv.balanceBefore)} ${t("wallet.toman")}`)}
+        ${row(t("wallet.balanceAfter"), `${formatNumber(inv.balanceAfter)} ${t("wallet.toman")}`)}
       </table>
       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:28px;padding:18px 22px;background:#f0fdf4;border:1px solid #86efac;border-radius:12px;">
-        <div style="font-size:14px;color:#374151;font-weight:700;">مبلغ فاکتور</div>
-        <div style="font-size:22px;font-weight:800;color:#16a34a;">${formatNumber(Math.abs(inv.amount))} تومان</div>
+        <div style="font-size:14px;color:#374151;font-weight:700;">${t("wallet.invoiceAmount")}</div>
+        <div style="font-size:22px;font-weight:800;color:#16a34a;">${formatNumber(Math.abs(inv.amount))} ${t("wallet.toman")}</div>
       </div>
       <div style="margin-top:30px;text-align:center;color:#9ca3af;font-size:11px;">
-        لینگو فام | پشتیبانی: t.me/lingofam_support
+        ${t("wallet.invoiceFooter")}
       </div>`;
     document.body.appendChild(div);
     return div;
@@ -221,7 +223,7 @@ export default function WalletPage() {
         import("jspdf"),
         import("html2canvas"),
       ]);
-      const node = buildInvoiceNode(inv);
+      const node = buildInvoiceNode(inv, t);
       if (document.fonts?.ready) await document.fonts.ready;
       const canvas = await html2canvas(node, {
         scale: 2,
@@ -282,17 +284,17 @@ export default function WalletPage() {
           <Info className="h-5 w-5 text-green-600 dark:text-green-400" />
         </div>
         <h3 className="font-bold text-[var(--dash-text)] text-lg">
-          راهنمای کیف پول
+          {t("wallet.paymentGuide")}
         </h3>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {[
-          "موجودی کیف پول برای ثبت نام در تمام دوره‌ها قابل استفاده است",
-          "پس از افزایش اعتبار، مبلغ بلافاصله به حساب شما اضافه می‌شود",
-          "امکان بازگشت وجه به کیف پول وجود ندارد",
-          "برای پیگیری تراکنش‌ها به بخش تاریخچه مراجعه کنید",
-          "حداقل مبلغ برای افزایش اعتبار ۱۰,۰۰۰ تومان می‌باشد",
-          "پشتیبانی ۲۴ ساعته برای مشکلات پرداخت",
+          t("wallet.guideItem1"),
+          t("wallet.guideItem2"),
+          t("wallet.guideItem3"),
+          t("wallet.guideItem4"),
+          t("wallet.guideItem5"),
+          t("wallet.guideItem6"),
         ].map((item, index) => (
           <motion.div
             key={index}
@@ -314,7 +316,7 @@ export default function WalletPage() {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start pb-24 lg:pb-0">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start pb-24 lg:pb-0" dir={locale === "en" ? "ltr" : "rtl"}>
         {/* Left column */}
         <div className="contents lg:flex lg:flex-col lg:gap-6 lg:col-start-1 lg:col-span-2">
           {/* Balance card */}
@@ -443,9 +445,9 @@ export default function WalletPage() {
                   <Wallet className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-white/95">موجودی فعلی</h2>
+                  <h2 className="text-base font-bold text-white/95">{t("wallet.currentBalance")}</h2>
                   <p className="text-[11px] text-white/40 mt-0.5">
-                    کیف پول لینگوفام
+                    {t("wallet.title")}
                   </p>
                 </div>
               </div>
@@ -455,7 +457,7 @@ export default function WalletPage() {
                     walletData?.isActive ? "bg-white" : "bg-red-400"
                   }`}
                 />
-                {walletData?.isActive ? "فعال" : "غیرفعال"}
+                {walletData?.isActive ? t("wallet.active") : t("wallet.inactive")}
               </span>
             </div>
 
@@ -465,22 +467,22 @@ export default function WalletPage() {
               </div>
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 ring-1 ring-white/15 text-white/80 text-xs font-medium">
                 <Shield className="h-3.5 w-3.5" />
-                تومان
+                {t("wallet.toman")}
               </span>
             </div>
 
             <div className="flex items-center justify-between gap-4 pt-4 border-t border-white/10">
               <div>
-                <p className="text-[10px] text-white/40 mb-1">آخرین شارژ</p>
+                <p className="text-[10px] text-white/40 mb-1">{t("wallet.lastCharge")}</p>
                 <p className="text-sm font-bold">
-                  {formatNumber(walletData?.lastCharge ?? 0)} تومان
+                  {formatNumber(walletData?.lastCharge ?? 0)} {t("wallet.toman")}
                 </p>
               </div>
               <div className="w-px h-8 bg-white/10" />
               <div className="text-left">
-                <p className="text-[10px] text-white/40 mb-1">تعداد تراکنش‌ها</p>
+                <p className="text-[10px] text-white/40 mb-1">{t("wallet.transactionCount")}</p>
                 <p className="text-sm font-bold">
-                  {formatNumber(walletData?.transactionCount ?? 0)} مورد
+                  {formatNumber(walletData?.transactionCount ?? 0)} {t("wallet.unit")}
                 </p>
               </div>
             </div>
@@ -499,13 +501,13 @@ export default function WalletPage() {
                 <FileText className="h-4 w-4 text-green-600 dark:text-green-400" />
               </div>
               <h3 className="font-bold text-[var(--dash-text)] text-lg">
-                فاکتورها
+                {t("wallet.invoices")}
               </h3>
             </div>
 
             {invoices.length === 0 ? (
               <div className="text-center py-8 text-sm text-[var(--dash-muted)]">
-                فاکتوری یافت نشد
+                {t("wallet.noInvoices")}
               </div>
             ) : (
               <>
@@ -527,7 +529,7 @@ export default function WalletPage() {
                             INV-{inv.id}
                           </div>
                           <div className="text-[11px] text-[var(--dash-muted)] truncate max-w-[150px]">
-                            {inv.description ?? "تراکنش کیف پول"}
+                            {inv.description ?? t("wallet.invoiceDefaultDesc")}
                           </div>
                         </div>
                       </div>
@@ -539,7 +541,7 @@ export default function WalletPage() {
                                 ? "text-green-600 dark:text-green-400"
                                 : "text-red-500"
                             }`}>
-                            {formatNumber(inv.amount)} تومان
+                            {formatNumber(inv.amount)} {t("wallet.toman")}
                           </div>
                           <span
                             className={`text-[9px] font-medium px-1.5 py-0.5 rounded-full ${st.cls}`}>
@@ -548,7 +550,7 @@ export default function WalletPage() {
                         </div>
                         <button
                           onClick={() => handleInvoiceView(inv)}
-                          title="مشاهده فاکتور"
+                          title={t("wallet.viewInvoice")}
                           className="p-2 rounded-xl bg-green-500/10 text-green-600 dark:text-green-400 hover:bg-green-500/20 transition-colors">
                           <Eye className="w-4 h-4" />
                         </button>
@@ -561,7 +563,7 @@ export default function WalletPage() {
                   <button
                     onClick={() => setVisibleInvoices((prev) => prev + 5)}
                     className="w-full mt-2.5 py-2.5 rounded-xl text-xs font-bold bg-[var(--dash-bg)]/60 border border-[var(--dash-muted)]/10 text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:border-green-500/40 transition-colors flex items-center justify-center gap-1.5">
-                    مشاهده بیشتر ({formatNumber(invoices.length - visibleInvoices)})
+                    {t("wallet.viewMore")} ({formatNumber(invoices.length - visibleInvoices)})
                     <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -584,8 +586,8 @@ export default function WalletPage() {
             <div className="p-2.5 rounded-xl bg-green-500/10">
               <CreditCard className="h-5 w-5 text-green-600 dark:text-green-400" />
             </div>
-            <h2 className="text-xl font-bold text-[var(--dash-text)]">
-              افزایش اعتبار
+              <h2 className="text-xl font-bold text-[var(--dash-text)]">
+                {t("wallet.charge")}
             </h2>
           </div>
 
@@ -598,7 +600,7 @@ export default function WalletPage() {
                     key={method}
                     onClick={() => {
                       if (locked) {
-                        toast("درگاه پرداخت در دست ساخت است");
+                        toast(t("wallet.paymentGateWaySoon"));
                         return;
                       }
                       setPaymentMethod(method);
@@ -620,10 +622,10 @@ export default function WalletPage() {
                     <span className="relative z-10 inline-flex items-center justify-center gap-1.5">
                       {locked && <Lock size={13} />}
                       {method === "card-to-card"
-                        ? "کارت به کارت"
+                        ? t("wallet.cardTransfer")
                         : method === "digital-wallet"
-                          ? "کیف پول دیجیتال"
-                          : "درگاه پرداخت"}
+                          ? t("wallet.digitalWallet")
+                          : t("wallet.paymentGateWay")}
                     </span>
                   </button>
                 );
@@ -679,7 +681,7 @@ export default function WalletPage() {
                         />
                       </div>
                       <div className="mb-6">
-                        <p className="text-[var(--dash-muted)] text-xs mb-1">شماره کارت</p>
+                        <p className="text-[var(--dash-muted)] text-xs mb-1">{t("wallet.cardNumber")}</p>
                         <div className="flex items-center gap-2">
                           <p className="text-xl font-mono tracking-widest text-[var(--dash-text)]" dir="ltr">
                             ۶۲۱۹ ۸۶۱۹ ۱۰۲۶ ۱۹۳۱
@@ -695,11 +697,11 @@ export default function WalletPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-[var(--dash-muted)] text-xs mb-1">نام صاحب حساب</p>
+                          <p className="text-[var(--dash-muted)] text-xs mb-1">{t("wallet.accountHolder")}</p>
                           <p className="text-sm font-bold text-[var(--dash-text)]">رضا کمالی</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[var(--dash-muted)] text-xs mb-1">بانک</p>
+                          <p className="text-[var(--dash-muted)] text-xs mb-1">{t("wallet.bank")}</p>
                           <p className="text-sm font-bold text-[var(--dash-text)]">سامان</p>
                         </div>
                       </div>
@@ -713,10 +715,10 @@ export default function WalletPage() {
                     <div className="p-1.5 rounded-lg bg-green-500/10">
                       <Info className="h-4 w-4 text-green-600 dark:text-green-400" />
                     </div>
-                    <span className="text-sm font-bold text-[var(--dash-text)]">راهنمای پرداخت</span>
+                    <span className="text-sm font-bold text-[var(--dash-text)]">{t("wallet.paymentGuide")}</span>
                   </div>
                   <p className="text-sm text-[var(--dash-muted)] leading-relaxed">
-                    مبلغ مورد نظر خود را به شماره کارت بالا واریز کرده و تصویر فیش واریزی را به همراه شماره تماس خود برای پشتیبانی ارسال کنید. تیم پشتیبانی درخواست شما را بررسی کرده و ظرف ۱ تا ۲ ساعت کاری موجودی را به حساب شما اضافه خواهد کرد.
+                    {t("wallet.paymentGuideCard")}
                   </p>
                   <div className="flex flex-wrap gap-3 mt-4">
                     <motion.a
@@ -727,7 +729,7 @@ export default function WalletPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
                     >
-                      ارسال فیش از طریق تلگرام
+                      {t("wallet.sendReceiptTelegram")}
                     </motion.a>
                     <motion.a
                       whileHover={{ scale: 1.02 }}
@@ -737,7 +739,7 @@ export default function WalletPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-green-500 to-emerald-500 text-black text-sm font-bold rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300"
                     >
-                      ارسال فیش از طریق بله
+                      {t("wallet.sendReceiptBale")}
                     </motion.a>
                   </div>
                 </div>
@@ -752,7 +754,7 @@ export default function WalletPage() {
                 {/* Amount Input */}
                 <div className="mb-6">
                   <label className="block text-sm font-medium mb-3 text-right text-[var(--dash-text)]">
-                    مبلغ مورد نظر (تومان)
+                    {t("wallet.amountLabel")}
                   </label>
                   <div className="relative">
                     <input
@@ -760,17 +762,17 @@ export default function WalletPage() {
                       inputMode="numeric"
                       value={formattedAmount}
                       onChange={handleAmountChange}
-                      placeholder="۰"
+                      placeholder="0"
                       className="w-full px-4 py-4 pr-24 rounded-2xl text-2xl font-bold text-left bg-[var(--hover-bg)] text-[var(--dash-text)] border border-transparent focus:outline-none focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all duration-200 placeholder:text-[var(--dash-muted)]/60"
                       dir="ltr"
                     />
                     <div className="absolute left-4 -top-5 transform -translate-y-1/2 text-[var(--dash-muted)] text-sm">
-                      تومان
+                      {t("wallet.toman")}
                     </div>
                   </div>
                   {chargeAmount && (
                     <p className="text-sm mt-2 text-right text-[var(--dash-muted)]">
-                      معادل: {formatNumber(parseInt(chargeAmount))} تومان
+                      {t("wallet.equivalent")}: {formatNumber(parseInt(chargeAmount))} {t("wallet.toman")}
                     </p>
                   )}
                 </div>
@@ -778,7 +780,7 @@ export default function WalletPage() {
                 {/* Suggested Amounts */}
                 <div className="mb-8">
                   <p className="text-sm font-medium mb-4 text-right text-[var(--dash-muted)]">
-                    مبالغ پیشنهادی:
+                    {t("wallet.suggestedAmounts")}:
                   </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                     {suggestedAmounts.map((item) => {
@@ -821,12 +823,12 @@ export default function WalletPage() {
                   {isCharging ? (
                     <span className="flex items-center justify-center gap-2">
                       <Loader2 className="h-5 w-5 animate-spin" />
-                      <span>در حال انتقال به درگاه پرداخت...</span>
+                      <span>{t("wallet.redirecting")}</span>
                     </span>
                   ) : (
                     <span className="flex items-center justify-center gap-2">
                       <Zap className="h-5 w-5" />
-                      <span>پرداخت و افزایش اعتبار</span>
+                      <span>{t("wallet.payAndCharge")}</span>
                     </span>
                   )}
                   {chargeEnabled && (
@@ -839,7 +841,7 @@ export default function WalletPage() {
                   <div className="flex items-center justify-center gap-3 text-sm">
                     <Shield className="h-5 w-5 text-green-500" />
                     <span className="text-green-600 dark:text-green-400 font-medium">
-                      پرداخت شما به صورت کاملا امن انجام می‌شود
+                      {t("wallet.securePayment")}
                     </span>
                   </div>
                 </div>
@@ -879,7 +881,7 @@ export default function WalletPage() {
                         <span className="px-2.5 py-1 rounded-full bg-cyan-500/10 ring-1 ring-cyan-500/25 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">TRC20</span>
                       </div>
                       <div className="mb-6">
-                        <p className="text-slate-400 text-xs mb-1.5">آدرس کیف پول</p>
+                        <p className="text-slate-400 text-xs mb-1.5">{t("wallet.walletAddress")}</p>
                         <div className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2.5 ring-1 ring-white/10">
                           <p className="text-sm font-mono text-cyan-300 break-all flex-1" dir="ltr">
                             TRCsu6HqMycpiYztLnyqSyrCJcNQsRviUS
@@ -895,11 +897,11 @@ export default function WalletPage() {
                       </div>
                       <div className="flex items-center justify-between">
                         <div>
-                          <p className="text-slate-400 text-xs mb-1">شبکه</p>
+                          <p className="text-slate-400 text-xs mb-1">{t("wallet.network")}</p>
                           <p className="text-sm font-bold text-white">TRON (TRC20)</p>
                         </div>
                         <div className="text-right">
-                          <p className="text-slate-400 text-xs mb-1">ارز</p>
+                          <p className="text-slate-400 text-xs mb-1">{t("wallet.currency")}</p>
                           <p className="text-sm font-bold text-cyan-300">USDT</p>
                         </div>
                       </div>
@@ -913,16 +915,16 @@ export default function WalletPage() {
                     <div className="p-1.5 rounded-lg bg-blue-500/10">
                       <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <span className="text-sm font-bold text-[var(--dash-text)]">راهنمای پرداخت</span>
+                    <span className="text-sm font-bold text-[var(--dash-text)]">{t("wallet.paymentGuide")}</span>
                   </div>
                   <div className="space-y-3">
                     <p className="text-sm text-[var(--dash-muted)] leading-relaxed">
-                      مبلغ مورد نظر خود را به آدرس کیف پول بالا واریز کرده و تصویر تراکنش را به همراه شماره تماس خود برای پشتیبانی ارسال کنید. تیم پشتیبانی درخواست شما را بررسی کرده و ظرف ۱ تا ۲ ساعت کاری موجودی را به حساب شما اضافه خواهد کرد.
+                      {t("wallet.paymentGuideCrypto")}
                     </p>
                     <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
                       <Info className="h-4 w-4 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
                       <p className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                        توجه: فقط واریز USDT از طریق شبکه TRC20 مورد قبول است. از واریز از طریق شبکه‌های دیگر خودداری کنید.
+                        {t("wallet.cryptoWarning")}
                       </p>
                     </div>
                   </div>
@@ -935,7 +937,7 @@ export default function WalletPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-blue-500 to-blue-600 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 transition-all duration-300"
                     >
-                      ارسال تراکنش از طریق تلگرام
+                      {t("wallet.sendCryptoTelegram")}
                     </motion.a>
                     <motion.a
                       whileHover={{ scale: 1.02 }}
@@ -945,7 +947,7 @@ export default function WalletPage() {
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-l from-green-500 to-emerald-500 text-black text-sm font-bold rounded-xl shadow-lg shadow-green-500/25 hover:shadow-green-500/40 transition-all duration-300"
                     >
-                      ارسال تراکنش از طریق بله
+                      {t("wallet.sendCryptoBale")}
                     </motion.a>
                   </div>
                 </div>
@@ -991,7 +993,7 @@ export default function WalletPage() {
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-[var(--dash-text)]">
-                    اطلاعات فاکتور
+                    {t("wallet.invoiceInfo")}
                   </h3>
                   <p className="text-xs text-[var(--dash-muted)] mt-0.5" dir="ltr">
                     INV-{selectedInvoice.id}
@@ -1008,28 +1010,28 @@ export default function WalletPage() {
             <div className="space-y-2.5">
               {[
                 {
-                  label: "شرح",
-                  value: selectedInvoice.description || "تراکنش کیف پول",
+                  label: t("wallet.invoiceDesc"),
+                  value: selectedInvoice.description || t("wallet.invoiceDefaultDesc"),
                 },
                 {
-                  label: "تاریخ",
+                  label: t("wallet.invoiceDate"),
                   value: formatDateTime(selectedInvoice.createdAt),
                 },
                 {
-                  label: "شماره پیگیری",
+                  label: t("wallet.invoiceTracking"),
                   value: selectedInvoice.referenceId || "-",
                 },
                 {
-                  label: "مبلغ",
-                  value: `${formatNumber(selectedInvoice.amount)} تومان`,
+                  label: t("wallet.invoiceAmount"),
+                  value: `${formatNumber(selectedInvoice.amount)} ${t("wallet.toman")}`,
                 },
                 {
-                  label: "موجودی قبل",
-                  value: `${formatNumber(selectedInvoice.balanceBefore)} تومان`,
+                  label: t("wallet.balanceBefore"),
+                  value: `${formatNumber(selectedInvoice.balanceBefore)} ${t("wallet.toman")}`,
                 },
                 {
-                  label: "موجودی بعد",
-                  value: `${formatNumber(selectedInvoice.balanceAfter)} تومان`,
+                  label: t("wallet.balanceAfter"),
+                  value: `${formatNumber(selectedInvoice.balanceAfter)} ${t("wallet.toman")}`,
                 },
               ].map((row) => (
                 <div
@@ -1048,7 +1050,7 @@ export default function WalletPage() {
                   {statusInfo(selectedInvoice.status).label}
                 </span>
                 <span className="text-sm font-bold text-green-600 dark:text-green-400">
-                  {formatNumber(Math.abs(selectedInvoice.amount))} تومان
+                  {formatNumber(Math.abs(selectedInvoice.amount))} {t("wallet.toman")}
                 </span>
               </div>
             </div>
@@ -1062,12 +1064,12 @@ export default function WalletPage() {
                 {downloadingId === selectedInvoice.id ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    در حال ساخت PDF...
+                    {t("wallet.creatingPdf")}...
                   </>
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    دانلود PDF
+                    {t("wallet.downloadPdf")}
                   </>
                 )}
               </motion.button>
@@ -1075,7 +1077,7 @@ export default function WalletPage() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setSelectedInvoice(null)}
                 className="px-6 py-3 rounded-xl font-bold bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-[var(--dash-text)] transition-colors">
-                بستن
+                {t("wallet.close")}
               </motion.button>
             </div>
           </motion.div>

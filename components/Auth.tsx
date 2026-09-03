@@ -8,12 +8,14 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import { useLang } from "@/contexts/LanguageContext";
 
 type Tab = "login" | "signup";
 
 export default function Auth() {
   const { isOpen, close } = useAuth();
   const [tab, setTab] = useState<Tab>("login");
+  const { t } = useLang();
 
   return (
     <AnimatePresence>
@@ -46,7 +48,7 @@ export default function Auth() {
                     ? "bg-green-500 text-black"
                     : "text-[#888] hover:text-white"
                 }`}>
-                ورود
+                {t("auth.login")}
               </motion.button>
               <motion.button
                 onClick={() => setTab("signup")}
@@ -55,7 +57,7 @@ export default function Auth() {
                     ? "bg-green-500 text-black"
                     : "text-[#888] hover:text-white"
                 }`}>
-                ثبت‌نام
+                {t("auth.signup")}
               </motion.button>
             </div>
 
@@ -92,6 +94,7 @@ function LoginForm({ close }: { close: () => void }) {
   const [timer, setTimer] = useState(300);
   const [loading, setLoading] = useState(false);
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const { t } = useLang();
 
   const canResend = timer <= 0;
   const otpCooldown = loginMode === "otp" && timer > 0;
@@ -129,7 +132,7 @@ function LoginForm({ close }: { close: () => void }) {
 
   const handleSwitchToOtp = () => {
     if (phone.length !== 11) {
-      setPhoneError("لطفاً ابتدا شماره موبایل خود را وارد کنید");
+      setPhoneError(t("auth.phoneRequired"));
       return;
     }
     setPhoneError("");
@@ -142,7 +145,7 @@ function LoginForm({ close }: { close: () => void }) {
 
   const handleRequestOtp = async () => {
     if (phone.length !== 11) {
-      setPhoneError("لطفاً ابتدا شماره موبایل خود را وارد کنید");
+      setPhoneError(t("auth.phoneRequired"));
       return;
     }
     setPhoneError("");
@@ -165,7 +168,7 @@ function LoginForm({ close }: { close: () => void }) {
       setTimeout(() => inputsRef.current[0]?.focus(), 100);
       toast.success(data.message);
     } catch {
-      toast.error("خطا در ارتباط با سرور");
+      toast.error(t("auth.serverError"));
     } finally {
       setLoading(false);
     }
@@ -209,19 +212,19 @@ function LoginForm({ close }: { close: () => void }) {
           );
           const status = await statusRes.json();
           if (status?.banned) {
-            setLoginError(bannedMsg);
-            toast.error(bannedMsg);
+            setLoginError(t("auth.banned"));
+            toast.error(t("auth.banned"));
             return;
           }
         } catch {
           // fall through to generic error
         }
-        setLoginError("شماره موبایل یا رمز عبور اشتباه است");
-        toast.error("شماره موبایل یا رمز عبور اشتباه است");
+        setLoginError(t("auth.loginError"));
+        toast.error(t("auth.loginError"));
         return;
       }
 
-      toast.success("با موفقیت وارد شدید");
+      toast.success(t("auth.success"));
       close();
       setTimeout(() => router.push("/dashboard"), 300);
     } catch {
@@ -238,10 +241,10 @@ function LoginForm({ close }: { close: () => void }) {
       variants={{ hidden: {}, show: { transition: { staggerChildren: 0.08 } } }}
       className="flex flex-col gap-5"
       onSubmit={handleSubmit}>
-      <Field label="شماره موبایل">
+      <Field label={t("auth.phone")}>
         <input
           type="tel"
-          placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
+          placeholder={t("auth.phonePlaceholder")}
           maxLength={11}
           value={phone}
           onChange={(e) => {
@@ -265,11 +268,11 @@ function LoginForm({ close }: { close: () => void }) {
       </Field>
 
       {loginMode === "password" ? (
-        <Field label="رمز عبور">
+        <Field label={t("auth.password")}>
           <input
             type="password"
             autoComplete="new-password"
-            placeholder="رمز عبور خود را وارد کنید"
+            placeholder={t("auth.passwordPlaceholder")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
@@ -280,7 +283,7 @@ function LoginForm({ close }: { close: () => void }) {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}>
-            <Field label="کد تأیید">
+            <Field label={t("auth.otp")}>
               <div
                 className="flex flex-row-reverse items-center justify-between gap-2 sm:gap-2.5"
                 onPaste={handleOtpPaste}>
@@ -312,11 +315,11 @@ function LoginForm({ close }: { close: () => void }) {
                     ) : (
                       <RefreshCw size={13} />
                     )}
-                    ارسال مجدد کد
+                    {t("auth.resendCode")}
                   </button>
                 ) : (
                   <span className="text-xs text-[#666]">
-                    ارسال مجدد تا {formatTime(timer)}
+                    {t("auth.resendCountdown")} {formatTime(timer)}
                   </span>
                 )}
               </div>
@@ -358,7 +361,7 @@ function LoginForm({ close }: { close: () => void }) {
               : "bg-green-500/30 text-black/40 cursor-not-allowed"
           }`}>
           {loading ? <Loader2 size={16} className="animate-spin" /> : null}
-          {loading ? "در حال ورود" : "ورود"}
+          {loading ? t("auth.loggingIn") : t("auth.login")}
         </motion.button>
         <motion.button
           variants={{
@@ -370,7 +373,7 @@ function LoginForm({ close }: { close: () => void }) {
           type="button"
           onClick={close}
           className="px-4 py-2 rounded-xl border border-white/10 text-[#888] hover:text-white hover:bg-white/5 text-xs font-medium">
-          انصراف
+          {t("auth.cancel")}
         </motion.button>
       </div>
 
@@ -379,7 +382,7 @@ function LoginForm({ close }: { close: () => void }) {
           <div className="w-full border-t border-white/5" />
         </div>
         <div className="relative flex justify-center">
-          <span className=" px-3 text-xs text-[#555]">سایر روش‌ها</span>
+          <span className=" px-3 text-xs text-[#555]">{t("auth.otherMethods")}</span>
         </div>
       </div>
 
@@ -395,7 +398,7 @@ function LoginForm({ close }: { close: () => void }) {
             ? "border-white/10 text-[#666] cursor-not-allowed"
             : "border-green-500/30 text-green-400 hover:bg-green-500/10 cursor-pointer"
         }`}>
-        {otpCooldown ? `ارسال مجدد تا ${formatTime(timer)}` : "ورود با کد یکبار مصرف"}
+        {otpCooldown ? `${t("auth.resendCountdown")} ${formatTime(timer)}` : t("auth.loginWithOtp")}
       </motion.button>
     </motion.form>
   );
@@ -414,6 +417,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState("");
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
+  const { t } = useLang();
 
   const canResend = timer <= 0;
 
@@ -459,7 +463,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
 
   const handleRequestCode = async () => {
     if (phone.length !== 11) {
-      setPhoneError("لطفاً ابتدا شماره موبایل خود را وارد کنید");
+      setPhoneError(t("auth.phoneRequired"));
       return;
     }
     setPhoneError("");
@@ -482,7 +486,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
       setTimeout(() => inputsRef.current[0]?.focus(), 100);
       toast.success(data.message);
     } catch {
-      toast.error("خطا در ارتباط با سرور");
+      toast.error(t("auth.serverError"));
     } finally {
       setSending(false);
     }
@@ -519,10 +523,10 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
         setOtpError(true);
         return;
       }
-      toast.success("ثبت‌نام با موفقیت انجام شد. اکنون می‌توانید وارد شوید");
+      toast.success(t("auth.signupSuccess"));
       setTimeout(onSuccess, 1500);
     } catch {
-      toast.error("خطا در ارتباط با سرور");
+      toast.error(t("auth.serverError"));
     } finally {
       setSubmitting(false);
     }
@@ -537,20 +541,20 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
       onSubmit={handleSubmit}>
       {!showOtp && (
         <>
-          <Field label="نام و نام خانوادگی">
+          <Field label={t("auth.fullName")}>
             <input
               type="text"
-              placeholder="نام و نام خانوادگی خود را وارد کنید"
+              placeholder={t("auth.fullNamePlaceholder")}
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-[#555] text-sm outline-none focus:border-green-500/50 transition-colors"
             />
           </Field>
 
-          <Field label="رمز عبور">
+          <Field label={t("auth.password")}>
             <input
               type="password"
-              placeholder="حداقل ۸ کاراکتر"
+              placeholder={t("auth.passwordMin")}
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -560,11 +564,11 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
         </>
       )}
 
-      <Field label="شماره موبایل">
+      <Field label={t("auth.phone")}>
         <div className="flex gap-2">
           <input
             type="tel"
-            placeholder="مثلاً ۰۹۱۲۳۴۵۶۷۸۹"
+            placeholder={t("auth.phonePlaceholder")}
             maxLength={11}
             value={phone}
             onChange={(e) => {
@@ -583,7 +587,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
             disabled={showOtp || sending}
             className="shrink-0 px-4 py-3 rounded-xl bg-green-500 hover:bg-green-400 disabled:bg-green-500/30 disabled:cursor-not-allowed text-black font-semibold text-sm transition-all duration-200 active:scale-[0.98] flex items-center gap-2">
             {sending ? <Loader2 size={16} className="animate-spin" /> : null}
-            {sending ? "در حال ارسال" : "دریافت کد"}
+            {sending ? t("auth.sending") : t("auth.getCode")}
           </button>
         </div>
         {phoneError && (
@@ -601,7 +605,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}>
-          <Field label="کد تأیید">
+          <Field label={t("auth.otp")}>
             <div
               className="flex flex-row-reverse items-center justify-between gap-2 sm:gap-2.5"
               onPaste={handleOtpPaste}>
@@ -633,11 +637,11 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
                   ) : (
                     <RefreshCw size={13} />
                   )}
-                  ارسال مجدد کد
+                  {t("auth.resendCode")}
                 </button>
               ) : (
                 <span className="text-xs text-[#666]">
-                  ارسال مجدد تا {formatTime(timer)}
+                  {t("auth.resendCountdown")} {formatTime(timer)}
                 </span>
               )}
             </div>
@@ -646,7 +650,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
                 initial={{ opacity: 0, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-red-400 text-xs mt-1.5 pr-1">
-                کد تأیید نامعتبر است
+                {t("auth.otpInvalid")}
               </motion.p>
             )}
           </Field>
@@ -664,9 +668,9 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
         />
         <span>
           <Link href="/policy" target="_blank" className="underline underline-offset-2 hover:text-green-400 transition-colors">
-            قوانین و مقررات
+            {t("auth.rules")}
           </Link>
-          {" را می‌پذیرم"}
+          {t("auth.agreePrefix")}
         </span>
       </motion.label>
 
@@ -686,7 +690,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
               : "bg-green-500/30 text-black/40 cursor-not-allowed"
           }`}>
           {submitting ? <Loader2 size={16} className="animate-spin" /> : null}
-          {submitting ? "در حال ثبت‌نام" : "ثبت‌نام"}
+          {submitting ? t("auth.registering") : t("auth.register")}
         </motion.button>
         <motion.button
           variants={{
@@ -698,7 +702,7 @@ function SignupForm({ close, onSuccess }: { close: () => void; onSuccess: () => 
           type="button"
           onClick={close}
           className="px-4 py-2 rounded-xl border border-white/10 text-[#888] hover:text-white hover:bg-white/5 text-xs font-medium">
-          انصراف
+          {t("auth.cancel")}
         </motion.button>
       </div>
     </motion.form>

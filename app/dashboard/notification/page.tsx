@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
+import { useLang } from "@/contexts/LanguageContext";
 
 type Notification = {
   id: string;
@@ -81,17 +82,17 @@ function toFa(value: number | string) {
   return String(value).replace(/\d/g, (d) => "۰۱۲۳۴۵۶۷۸۹"[+d]);
 }
 
-function relativeTime(iso: string) {
+function relativeTime(iso: string, t: (key: string) => string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const minutes = Math.floor(diff / 60000);
-  if (minutes < 1) return "چند لحظه پیش";
-  if (minutes < 60) return `${toFa(minutes)} دقیقه پیش`;
+  if (minutes < 1) return t("notification.justNow");
+  if (minutes < 60) return t("notification.minutesAgo").replace("{count}", toFa(minutes));
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${toFa(hours)} ساعت پیش`;
+  if (hours < 24) return t("notification.hoursAgo").replace("{count}", toFa(hours));
   const days = Math.floor(hours / 24);
-  if (days < 30) return `${toFa(days)} روز پیش`;
+  if (days < 30) return t("notification.daysAgo").replace("{count}", toFa(days));
   const months = Math.floor(days / 30);
-  return `${toFa(months)} ماه پیش`;
+  return t("notification.monthsAgo").replace("{count}", toFa(months));
 }
 
 function TypeIcon({ type }: { type: Notification["type"] }) {
@@ -108,6 +109,7 @@ export default function NotificationPage() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
+  const { t, locale } = useLang();
 
   useEffect(() => {
     let cancelled = false;
@@ -165,7 +167,7 @@ export default function NotificationPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div dir={locale === "en" ? "ltr" : "rtl"} className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <motion.section
         initial={{ opacity: 0, y: 16 }}
@@ -181,7 +183,7 @@ export default function NotificationPage() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-[var(--dash-text)]">
-                اعلان‌ها
+                {t("notification.title")}
               </h1>
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-500/10 text-green-600 dark:text-green-400">
@@ -189,7 +191,7 @@ export default function NotificationPage() {
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-60" />
                     <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
                   </span>
-                  {toFa(unreadCount)} اعلان خوانده نشده
+                  {t("notification.unread").replace("{count}", toFa(unreadCount))}
                 </span>
               </div>
             </div>
@@ -202,7 +204,7 @@ export default function NotificationPage() {
               disabled={unreadCount === 0}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-[var(--dash-text)] border border-[var(--dash-muted)]/20 dark:border-white/25 bg-[var(--dash-bg)]/40 hover:bg-[var(--dash-bg)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
               <CheckCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
-              خواندن همه
+              {t("notification.markAllRead")}
             </motion.button>
           </div>
         </div>
@@ -214,9 +216,9 @@ export default function NotificationPage() {
         animate={{ opacity: 1, y: 0 }}
         className="relative w-full inline-flex p-1.5 rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-xl border border-[var(--dash-muted)]/15 dark:border-white/20 shadow-lg">
         {[
-          { key: "all" as const, label: "همه", count: notifications.length },
-          { key: "unread" as const, label: "خوانده نشده", count: unreadCount },
-          { key: "read" as const, label: "خوانده شده", count: readCount },
+          { key: "all" as const, label: t("notification.all"), count: notifications.length },
+          { key: "unread" as const, label: t("notification.unreadFilter"), count: unreadCount },
+          { key: "read" as const, label: t("notification.readFilter"), count: readCount },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -256,14 +258,14 @@ export default function NotificationPage() {
               animate={{ opacity: 1, y: 0 }}
               className={`${cardClass} p-12 text-center`}>
               <BellOff className="h-14 w-14 text-[var(--dash-muted)] mx-auto mb-4" />
-              <h3 className="text-xl font-bold text-[var(--dash-text)] mb-2">
-                هیچ اعلانی یافت نشد
+                <h3 className="text-xl font-bold text-[var(--dash-text)] mb-2">
+                {t("notification.noNotifications")}
               </h3>
               <p className="text-[var(--dash-muted)] text-sm">
                 {filter === "all"
-                  ? "هنوز هیچ اعلانی دریافت نکرده‌اید."
+                  ? t("notification.emptyState")
                   : `هیچ اعلان ${
-                      filter === "unread" ? "خوانده نشده" : "خوانده شده"
+                      filter === "unread" ? t("notification.unreadFilter") : t("notification.readFilter")
                     }‌ای وجود ندارد.`}
               </p>
             </motion.div>
@@ -300,7 +302,7 @@ export default function NotificationPage() {
                           </h3>
                           {!notification.read && (
                             <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-green-500/10 text-green-600 dark:text-green-400">
-                              جدید
+                              {t("notification.new")}
                             </span>
                           )}
                         </div>
@@ -309,7 +311,7 @@ export default function NotificationPage() {
                         </p>
                         <div className="flex items-center gap-2 mt-2.5 text-xs text-[var(--dash-muted)]">
                           <Clock className="h-3.5 w-3.5" />
-                          <span>{relativeTime(notification.time)}</span>
+                          <span>{relativeTime(notification.time, t)}</span>
                           <span className="inline-flex items-center gap-1.5 font-medium px-2 py-0.5 rounded-full bg-[var(--dash-muted)]/10">
                             {
                               (TYPE_STYLES[notification.type] ?? TYPE_STYLES.info)
@@ -324,7 +326,7 @@ export default function NotificationPage() {
                           whileTap={{ scale: 0.9 }}
                           onClick={() => markAsRead(notification.id)}
                           className="p-2 rounded-lg text-green-600 dark:text-green-400 hover:bg-green-500/10 transition-colors duration-200 shrink-0"
-                          title="خوانده شد">
+                          title={t("notification.read")}>
                           <CheckCheck className="h-4 w-4" />
                         </motion.button>
                       )}
@@ -343,7 +345,7 @@ export default function NotificationPage() {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="px-6 py-3 rounded-xl text-sm font-semibold text-[var(--dash-text)] border border-[var(--dash-muted)]/20 dark:border-white/25 bg-[var(--dash-bg)]/40 hover:bg-[var(--dash-bg)] transition-all duration-200">
-            بارگذاری اعلان‌های بیشتر
+            {t("notification.loadMore")}
           </motion.button>
         </div>
       )}

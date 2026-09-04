@@ -67,6 +67,7 @@ export default function SplashScreen() {
           initial={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 1.08 }}
           transition={{ duration: 0.7, ease: "easeInOut" }}
+          dir="ltr"
           className="fixed inset-0 z-[999] bg-[#04070a] overflow-hidden flex items-center justify-center">
           {/* Green glares of light (static) */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[520px] h-[520px] rounded-full bg-[#22c55e]/15 blur-[140px] will-change-transform" />

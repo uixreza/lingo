@@ -442,7 +442,9 @@ const en = {
   "home.start": "Get Started",
   "home.starting": "Redirecting...",
   "home.about": "About Me",
+  "home.determineLevel": "Determine Level",
   "home.policy": "Privacy & Terms",
+  "home.download": "Download App",
 
   // Landing - About
   "about.title": "About Me",
@@ -484,6 +486,32 @@ const en = {
   "policy.bans": "Bans",
   "policy.responsibilities": "Responsibilities",
   "policy.userConsent": "User Consent",
+
+  // Landing - Quiz
+  "quiz.backToHome": "Back to Home",
+  "quiz.title": "English Level Placement Quiz",
+  "quiz.subtitle": "A quick 50-question test to determine your English level from A1 to C1.",
+  "quiz.timeLimit": "You have {minutes} minutes to complete it.",
+  "quiz.beforeStart": "Before you start:",
+  "quiz.rule1": "No dictionaries or phones allowed",
+  "quiz.rule2": "Work silently and independently",
+  "quiz.rule3": "Answer every question — guess if unsure",
+  "quiz.rule4": "This is not a pass or fail test",
+  "quiz.start": "Start Quiz",
+  "quiz.readingPassage": "Reading Passage",
+  "quiz.home": "Home",
+  "quiz.prev": "Prev",
+  "quiz.next": "Next",
+  "quiz.finish": "Finish",
+  "quiz.complete": "Quiz Complete",
+  "quiz.results": "Here are your results",
+  "quiz.reviewAnswers": "Review Answers",
+  "quiz.retake": "Retake",
+  "quiz.levelBeginner": "Beginner",
+  "quiz.levelElementary": "Elementary",
+  "quiz.levelIntermediate": "Intermediate",
+  "quiz.levelUpperIntermediate": "Upper-Intermediate",
+  "quiz.levelAdvanced": "Advanced",
 
   // Language
   "lang.fa": "فارسی",

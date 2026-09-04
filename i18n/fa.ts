@@ -442,7 +442,9 @@ const fa = {
   "home.start": "شروع کن",
   "home.starting": "در حال انتقال...",
   "home.about": "درباره من",
+  "home.determineLevel": "تایین سطح",
   "home.policy": "قوانین و حریم خصوصی",
+  "home.download": "دانلود اپلیکیشن",
 
   // Landing - About
   "about.title": "درباره من",
@@ -484,6 +486,32 @@ const fa = {
   "policy.bans": "ممنوعیت‌ها",
   "policy.responsibilities": "مسئولیت‌ها",
   "policy.userConsent": "رضایت کاربر",
+
+  // Landing - Quiz
+  "quiz.backToHome": "بازگشت به صفحه اصلی",
+  "quiz.title": "آزمون تعیین سطح زبان انگلیسی",
+  "quiz.subtitle": "یک آزمون ۵۰ سوالی سریع برای تعیین سطح زبان انگلیسی شما از A1 تا C1.",
+  "quiz.timeLimit": "شما {minutes} دقیقه زمان دارید.",
+  "quiz.beforeStart": "قبل از شروع:",
+  "quiz.rule1": "استفاده از دیکشنری و موبایل مجاز نیست",
+  "quiz.rule2": "به صورت سکوت و مستقل کار کنید",
+  "quiz.rule3": "به همه سوالات پاسخ دهید — حدس بزنید اگر مطمئن نیستید",
+  "quiz.rule4": "این آزمون قبولی یا مردودی ندارد",
+  "quiz.start": "شروع آزمون",
+  "quiz.readingPassage": "متن خواندنی",
+  "quiz.home": "خانه",
+  "quiz.prev": "قبلی",
+  "quiz.next": "بعدی",
+  "quiz.finish": "پایان",
+  "quiz.complete": "آزمون تمام شد",
+  "quiz.results": "نتایج شما",
+  "quiz.reviewAnswers": "بررسی پاسخ‌ها",
+  "quiz.retake": "آزمون مجدد",
+  "quiz.levelBeginner": "مبتدی",
+  "quiz.levelElementary": "ابتدایی",
+  "quiz.levelIntermediate": "متوسط",
+  "quiz.levelUpperIntermediate": "فوق متوسط",
+  "quiz.levelAdvanced": "پیشرفته",
 
   // Language
   "lang.fa": "فارسی",

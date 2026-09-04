@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Loader2, Download, ChevronDown } from "lucide-react";
 import Snowfall from "react-snowfall";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,6 +40,8 @@ export default function Home() {
   const [starting, setStarting] = useState(false);
   const [christmas, setChristmas] = useState(false);
   const [imgKey, setImgKey] = useState(0);
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
@@ -79,6 +81,14 @@ export default function Home() {
     fetchStatus();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <main
       style={{ fontFamily: locale === "en" ? "'JetBrains Mono', 'Dana', monospace" : "'Morabba', 'Dana', sans-serif" }}
@@ -96,84 +106,127 @@ export default function Home() {
       <div className="absolute top-[30%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#4ade80]/8 blur-[140px] pointer-events-none" />
       <div className="absolute top-[60%] left-[15%] w-[300px] h-[300px] rounded-full bg-[#22c55e]/10 blur-[100px] pointer-events-none" />
 
-      {marqueeLoading ? (
-        <div
-          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3 gap-2"
-          style={{ direction: "ltr" }}>
-          <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
-            <span className="shrink-0 flex items-center gap-2">
-              <span className="w-7 h-7 rounded-lg bg-green-500/20 flex items-center justify-center animate-pulse">
-                <span className="w-3.5 h-3.5 rounded-sm bg-green-500/30" />
-              </span>
-            </span>
-            <div className="flex-1 space-y-2">
-              <div className="h-2 w-16 bg-white/10 rounded-full animate-pulse" />
-              <div className="h-2 w-36 bg-white/10 rounded-full animate-pulse" />
-            </div>
+      {/* Top bar */}
+      <div
+        className="fixed top-4 left-0 right-0 z-40 flex items-center justify-between px-4 w-full"
+        style={{ direction: "ltr" }}
+      >
+        {/* Left: language dropdown + download + enamad */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Language dropdown */}
+          <div ref={langRef} className="relative">
+            <button
+              onClick={() => setLangOpen(!langOpen)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-white/10 hover:ring-white/25 text-[#aaa] hover:text-white transition-all duration-200"
+            >
+              <span className="text-sm leading-none">{locale === "fa" ? "🇮🇷" : "🇬🇧"}</span>
+              <span className="text-[11px] font-bold uppercase">{locale === "fa" ? "FA" : "EN"}</span>
+              <ChevronDown size={12} className={`transition-transform duration-200 ${langOpen ? "rotate-180" : ""}`} />
+            </button>
+            <AnimatePresence>
+              {langOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute top-full mt-1.5 left-0 bg-[#0d1412] border border-white/10 rounded-xl overflow-hidden shadow-xl shadow-black/40 min-w-[120px] z-50"
+                >
+                  {[
+                    { code: "fa" as const, flag: "🇮🇷", label: "فارسی" },
+                    { code: "en" as const, flag: "🇬🇧", label: "English" },
+                  ].map((l) => (
+                    <button
+                      key={l.code}
+                      onClick={() => { setLocale(l.code); setLangOpen(false); }}
+                      className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-xs transition-colors ${locale === l.code ? "bg-green-500/10 text-green-400" : "text-[#aaa] hover:bg-white/5 hover:text-white"}`}
+                    >
+                      <span className="text-sm">{l.flag}</span>
+                      <span className="font-medium">{l.label}</span>
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-          <button
-            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
-            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
-              locale === "en"
-                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
-                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
-            }`}>
-            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
-          </button>
+
+          {/* Download button */}
+          <Link
+            href="/download"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/20 text-green-400 hover:bg-green-500/10 hover:ring-green-500/40 transition-all duration-200"
+          >
+            <Download size={14} />
+            <span className="text-[11px] font-bold">{t("home.download")}</span>
+          </Link>
+
+          {/* Enamad seal — desktop only (left side) */}
+          <a
+            className="hidden sm:block border-none"
+            referrerPolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
+          >
+            <Image
+              unoptimized
+              width={40}
+              height={40}
+              referrerPolicy="origin"
+              className="border-none rounded-lg"
+              src="https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
+              alt=""
+              style={{ cursor: "pointer" }}
+            />
+          </a>
         </div>
-      ) : marqueeTexts.length > 0 ? (
-        <div
-          className="fixed top-4 left-0 z-40 flex justify-center lg:justify-start px-4 w-full lg:w-1/3 gap-2"
-          style={{ direction: "ltr" }}>
-          <div className="flex items-center gap-3 overflow-hidden flex-1 min-w-0 rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2.5">
-            <span className="shrink-0 flex items-center gap-2 text-xs font-bold text-green-400">
-              <span className="w-7 h-7 rounded-lg bg-green-500/15 flex items-center justify-center">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                </svg>
+
+        {/* Right: marquee (lg only) + enamad on mobile */}
+        <div className="flex items-center gap-2 flex-1 min-w-0 justify-end">
+          {/* Enamad seal — mobile only (right side) */}
+          <a
+            className="sm:hidden border-none"
+            referrerPolicy="origin"
+            target="_blank"
+            href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
+          >
+            <Image
+              unoptimized
+              width={40}
+              height={40}
+              referrerPolicy="origin"
+              className="border-none rounded-lg"
+              src="https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
+              alt=""
+              style={{ cursor: "pointer" }}
+            />
+          </a>
+          {!marqueeLoading && marqueeTexts.length > 0 && (
+            <div className="hidden lg:flex items-center gap-3 overflow-hidden flex-1 min-w-0 justify-end rounded-xl bg-[#0a0f0a]/80 backdrop-blur-xl ring-1 ring-green-500/15 px-4 py-2 max-w-xl">
+              <span className="shrink-0 flex items-center gap-2 text-xs font-bold text-green-400">
+                <span className="w-6 h-6 rounded-lg bg-green-500/15 flex items-center justify-center">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                  </svg>
+                </span>
+                {t("home.notice")}
               </span>
-              {t("home.notice")}
-            </span>
-            <div className="relative flex-1 overflow-hidden min-w-0">
-              <div className="flex w-max will-change-transform animate-marquee-reverse">
-                {[0, 1].map((dup) => (
-                  <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
-                    {marqueeTexts.map((msg, i) => (
-                      <span
-                        key={i}
-                        className="text-xs font-medium text-[#888] hover:text-white whitespace-nowrap px-6 flex items-center gap-2">
-                        {msg}
-                        <span className="w-1 h-1 rounded-full bg-green-500/60 shrink-0" />
-                      </span>
-                    ))}
-                  </div>
-                ))}
+              <div className="relative flex-1 overflow-hidden min-w-0">
+                <div className="flex w-max will-change-transform animate-marquee-reverse">
+                  {[0, 1].map((dup) => (
+                    <div key={dup} className="flex shrink-0 items-center" aria-hidden={dup === 1}>
+                      {marqueeTexts.map((msg, i) => (
+                        <span key={i} className="text-xs font-medium text-[#888] hover:text-white whitespace-nowrap px-6 flex items-center gap-2">
+                          {msg}
+                          <span className="w-1 h-1 rounded-full bg-green-500/60 shrink-0" />
+                        </span>
+                      ))}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
-          <button
-            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
-            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
-              locale === "en"
-                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
-                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
-            }`}>
-            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
-          </button>
+          )}
         </div>
-      ) : (
-          <button
-            onClick={() => setLocale(locale === "fa" ? "en" : "fa")}
-            className={`shrink-0 self-stretch rounded-xl backdrop-blur-xl ring-1 transition-all duration-200 px-4 py-2.5 ${
-              locale === "en"
-                ? "bg-[#0a0f0a]/80 ring-green-500/40 text-green-400 shadow-lg shadow-green-500/10"
-                : "bg-[#0a0f0a]/80 ring-green-500/15 text-[#888] hover:text-white"
-            }`}>
-            <span className="text-xs font-bold">{locale === "fa" ? "EN" : "FA"}</span>
-          </button>
-      )}
-
-<a className="fixed top-20 right-4 lg:top-3 z-40 border-none" referrerPolicy='origin' target='_blank' href='https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2'><Image unoptimized width={50} height={50} referrerPolicy='origin' className="border-none" src='https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2' alt='' style={{cursor:"pointer"}} /></a>
+      </div>
       {/* LingoTV button - hidden for now */}
       {/* <Link href="/lingotv">
         <motion.button
@@ -226,7 +279,7 @@ export default function Home() {
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-relaxed mx-auto lg:mx-0">
+            className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-snug mx-auto lg:mx-0">
             {t("home.subtitle")}
           </motion.p>
 
@@ -246,17 +299,20 @@ export default function Home() {
                   }
                 }}
                 disabled={starting}
-                className="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-full shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200 text-[0.9rem] sm:text-base">
+                className="px-7 sm:px-8 py-3 sm:py-3.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 disabled:from-green-500/60 disabled:to-emerald-400/60 text-black font-bold rounded-xl shadow-lg shadow-green-500/30 flex items-center gap-2 transition-all duration-200 text-[0.9rem] sm:text-base">
                 {starting && <Loader2 size={16} className="animate-spin" />}
                 {starting ? t("home.starting") : t("home.start")}
               </motion.button>
             </Link>
-            <Link href="/about">
+            <Link href="/test">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="px-7 sm:px-8 py-3 sm:py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200 text-[0.9rem] sm:text-base">
-                {t("home.about")}
+                className="relative px-7 sm:px-8 py-3 sm:py-3.5 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-xl backdrop-blur-sm transition-all duration-200 text-[0.9rem] sm:text-base">
+                <span className="absolute -top-2 -right-2 bg-green-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-md leading-none">
+                  {locale === "fa" ? "رایگان" : "FREE"}
+                </span>
+                {t("home.determineLevel")}
               </motion.button>
             </Link>
           </motion.div>
@@ -266,8 +322,8 @@ export default function Home() {
           variants={item}
           className="flex-1 flex justify-evenly">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, x: 40 }}
-            animate={{ opacity: 1, scale: 1, x: 0 }}
+            initial={isMobile ? false : { opacity: 0, scale: 0.9, x: 40 }}
+            animate={isMobile ? false : { opacity: 1, scale: 1, x: 0 }}
             transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
             className="relative flex items-center justify-center">
             <div className="absolute w-[220px] sm:w-[350px] h-[220px] sm:h-[350px] rounded-full bg-[#22c55e]/20 blur-[70px] sm:blur-[100px] pointer-events-none" />

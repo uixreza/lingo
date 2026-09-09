@@ -381,7 +381,7 @@ export default function TestPage() {
   const isReadingBlock = current >= 40 && current <= 44;
 
   return (
-    <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-[#050505] flex flex-col relative">
+    <div dir={isRtl ? "rtl" : "ltr"} className="min-h-screen bg-[#050505] flex flex-col relative overflow-x-hidden">
       <div className="absolute top-[-200px] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#22c55e]/15 blur-[180px] pointer-events-none" />
       {/* Top bar */}
       <div className="sticky top-0 z-40 bg-[#050505]/90 backdrop-blur-xl border-b border-white/5">
@@ -406,70 +406,136 @@ export default function TestPage() {
       </div>
 
       {/* Centered content: question + nav */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 gap-8">
-        <div className="w-full max-w-lg">
-          {isReadingBlock && current === 40 && (
+      <div className={`flex-1 flex flex-col items-center justify-center px-4 pb-24 sm:pb-8 gap-6 lg:flex-row lg:gap-0 lg:max-w-5xl lg:mx-auto`}>
+        {/* Reading Block Layout */}
+        {isReadingBlock ? (
+          <>
+            {/* Passage Panel */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6 p-5 rounded-2xl bg-[#0a0f0a] border border-green-500/10"
+              className="w-full lg:w-1/2 p-6 rounded-2xl lg:rounded-r-none bg-[#0a0f0a] border border-green-500/10 lg:border-r-0 order-1 lg:order-1 flex flex-col"
             >
-              <p className={`text-xs text-green-400 font-semibold mb-3 uppercase tracking-wider ${isRtl ? "text-right" : "text-left"}`}>{t("quiz.readingPassage")}</p>
-              <p className="text-sm text-[#aaa] leading-relaxed text-left" dir="ltr">{readingText}</p>
-            </motion.div>
-          )}
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current}
-              initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
-              transition={{ duration: 0.2 }}
-              className="space-y-6"
-            >
-              <div className={`flex items-start gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
-                <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded-lg mt-0.5 shrink-0">
-                  {current + 1}
-                </span>
-                <p className="text-white text-base sm:text-lg leading-relaxed" dir="ltr">{q.q}</p>
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-green-500 rounded-full" />
+                <p className={`text-xs text-green-400 font-semibold uppercase tracking-wider ${isRtl ? "text-right" : "text-left"}`}>{t("quiz.readingPassage")}</p>
               </div>
+              <div className="flex-1 overflow-y-auto max-h-[30vh] lg:max-h-[60vh]">
+                <p className="text-sm text-[#999] leading-relaxed text-left" dir="ltr">{readingText}</p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                <span className="text-[10px] text-[#555] uppercase tracking-wider">Reading Comprehension</span>
+                <span className="text-[10px] text-green-400/60 font-mono">{current - 39}/5</span>
+              </div>
+            </motion.div>
 
-              <div className={`space-y-2 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
-                {q.opts.map((opt, oi) => {
-                  const letter = letters[oi];
-                  const selected = answers[current] === letter;
-                  return (
-                    <button
-                      key={oi}
-                      onClick={() => selectAnswer(current, letter)}
-                      dir="ltr"
-                      className={`w-full px-4 py-3 rounded-xl border text-sm transition-all duration-150 flex items-center gap-3 ${isRtl ? "flex-row-reverse text-right" : "text-left"} ${
-                        selected
-                          ? "border-green-500/50 bg-green-500/10 text-green-400"
-                          : "border-white/5 bg-[#0a0a0a] text-[#aaa] hover:border-white/15 hover:bg-[#111]"
-                      }`}
-                    >
-                      <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${
-                        selected ? "border-green-500 bg-green-500 text-black" : "border-[#333] text-[#666]"
-                      }`}>
-                        {letter}
+            {/* Vertical Divider - Desktop */}
+            <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-white/10 to-transparent self-stretch" />
+
+            {/* Question Panel */}
+            <div className="w-full lg:w-1/2 order-2 lg:order-2">
+              <div className="lg:px-8">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={current}
+                    initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
+                    transition={{ duration: 0.2 }}
+                    className="space-y-5"
+                  >
+                    <div className={`flex items-start gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+                      <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2.5 py-1 rounded-lg mt-0.5 shrink-0">
+                        {current + 1}
                       </span>
-                      {opt}
-                    </button>
-                  );
-                })}
+                      <p className="text-white text-base sm:text-lg leading-relaxed" dir="ltr">{q.q}</p>
+                    </div>
+
+                    <div className={`space-y-2.5 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
+                      {q.opts.map((opt, oi) => {
+                        const letter = letters[oi];
+                        const selected = answers[current] === letter;
+                        return (
+                          <button
+                            key={oi}
+                            onClick={() => selectAnswer(current, letter)}
+                            dir="ltr"
+                            className={`w-full px-4 py-3.5 rounded-xl border text-sm transition-all duration-150 flex items-center gap-3 ${isRtl ? "flex-row-reverse text-right" : "text-left"} ${
+                              selected
+                                ? "border-green-500/50 bg-green-500/10 text-green-400"
+                                : "border-white/5 bg-[#0a0a0a] text-[#aaa] hover:border-white/15 hover:bg-[#111]"
+                            }`}
+                          >
+                            <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${
+                              selected ? "border-green-500 bg-green-500 text-black" : "border-[#333] text-[#666]"
+                            }`}>
+                              {letter}
+                            </span>
+                            {opt}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                </AnimatePresence>
               </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
+            </div>
+          </>
+        ) : (
+          /* Regular Question Layout */
+          <div className="w-full max-w-lg">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={current}
+                initial={{ opacity: 0, x: isRtl ? -20 : 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: isRtl ? 20 : -20 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-6"
+              >
+                <div className={`flex items-start gap-3 ${isRtl ? "flex-row-reverse" : ""}`}>
+                  <span className="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded-lg mt-0.5 shrink-0">
+                    {current + 1}
+                  </span>
+                  <p className="text-white text-base sm:text-lg leading-relaxed" dir="ltr">{q.q}</p>
+                </div>
+
+                <div className={`space-y-2 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
+                  {q.opts.map((opt, oi) => {
+                    const letter = letters[oi];
+                    const selected = answers[current] === letter;
+                    return (
+                      <button
+                        key={oi}
+                        onClick={() => selectAnswer(current, letter)}
+                        dir="ltr"
+                        className={`w-full px-4 py-3 rounded-xl border text-sm transition-all duration-150 flex items-center gap-3 ${isRtl ? "flex-row-reverse text-right" : "text-left"} ${
+                          selected
+                            ? "border-green-500/50 bg-green-500/10 text-green-400"
+                            : "border-white/5 bg-[#0a0a0a] text-[#aaa] hover:border-white/15 hover:bg-[#111]"
+                        }`}
+                      >
+                        <span className={`w-6 h-6 rounded-full border flex items-center justify-center text-xs font-bold shrink-0 ${
+                          selected ? "border-green-500 bg-green-500 text-black" : "border-[#333] text-[#666]"
+                        }`}>
+                          {letter}
+                        </span>
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        )}
       </div>
 
       {/* Bottom nav — fixed */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex justify-center pb-4 pointer-events-none">
-        <div className="bg-[#0a0f0a]/90 backdrop-blur-xl rounded-2xl ring-1 ring-white/10 px-5 py-3 flex flex-col items-center gap-3 pointer-events-auto">
+      <div className="fixed bottom-0 left-0 right-0 z-40 flex sm:justify-center justify-start pl-4 pb-3 sm:pb-4 pointer-events-none">
+        <div className="bg-[#0a0f0a]/90 backdrop-blur-xl rounded-2xl ring-1 ring-white/10 px-3 sm:px-5 py-2 sm:py-3 flex flex-col items-center gap-2 sm:gap-3 pointer-events-auto">
           {/* Dots / counter */}
-          <span className="sm:hidden text-xs font-mono text-[#666]">
+          <span className="sm:hidden text-[10px] font-mono text-[#666]">
             {current + 1}/{questions.length}
           </span>
           <div className="hidden sm:flex gap-1.5">
@@ -489,28 +555,28 @@ export default function TestPage() {
           </div>
 
           {/* Buttons */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={goPrev}
               disabled={current === 0}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+              className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all ${isRtl ? "flex-row-reverse" : ""}`}
             >
-              <ArrowLeft size={14} className={isRtl ? "rotate-180" : ""} /> {t("quiz.prev")}
+              <ArrowLeft size={12} className={isRtl ? "rotate-180" : ""} /> <span className="hidden sm:inline">{t("quiz.prev")}</span>
             </button>
 
             {current === 49 ? (
               <button
                 onClick={() => setFinished(true)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
               >
-                {t("quiz.finish")} <CheckCircle2 size={14} />
+                <span className="hidden sm:inline">{t("quiz.finish")}</span> <CheckCircle2 size={12} />
               </button>
             ) : (
               <button
                 onClick={goNext}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
               >
-                {t("quiz.next")} <ArrowRight size={14} className={isRtl ? "rotate-180" : ""} />
+                <span className="hidden sm:inline">{t("quiz.next")}</span> <ArrowRight size={12} className={isRtl ? "rotate-180" : ""} />
               </button>
             )}
           </div>

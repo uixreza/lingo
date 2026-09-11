@@ -18,7 +18,7 @@ import {
   Trophy,
   RefreshCw,
   Loader2,
-  Send,
+  ClipboardCheck,
   Star,
   Search,
   UserPlus,
@@ -31,6 +31,7 @@ import Avatar from "@/components/dashboard/Avatar";
 import { useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 import { useLang } from "@/contexts/LanguageContext";
+import Link from "next/link";
 
 type RankingUser = {
   id: number;
@@ -818,14 +819,12 @@ export default function AccountPage() {
                             );
                           })}
                         </div>
-                        <a
-                          href="https://t.me/lingofam_support"
-                          target="_blank"
-                          rel="noopener noreferrer"
+                        <Link
+                          href="/test"
                           className="inline-flex items-center gap-2 mt-4 px-3.5 py-2 rounded-xl bg-sky-500/10 text-sky-600 dark:text-sky-400 ring-1 ring-sky-500/25 hover:bg-sky-500/20 hover:ring-sky-500/40 transition-colors text-xs font-medium">
-                          <Send className="h-3.5 w-3.5" />
+                          <ClipboardCheck className="h-3.5 w-3.5" />
                           {t("account.freeLevelTest")}
-                        </a>
+                        </Link>
                       </div>
                     </motion.div>
                   )}

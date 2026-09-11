@@ -130,7 +130,7 @@ const en = {
   "account.birthDate": "Birth Date",
   "account.selectBirthDate": "Select Birth Date",
   "account.languageLevel": "Language Level",
-  "account.freeLevelTest": "Free Level Test (Telegram)",
+  "account.freeLevelTest": "Free Level Test",
   "account.userRanking": "User Ranking",
   "account.rankingDesc": "Based on learning progress",
   "account.searchUser": "Search users...",
@@ -512,6 +512,12 @@ const en = {
   "quiz.levelIntermediate": "Intermediate",
   "quiz.levelUpperIntermediate": "Upper-Intermediate",
   "quiz.levelAdvanced": "Advanced",
+  "quiz.saveResult": "Save Result",
+  "quiz.loginToSave": "Log in to save your result",
+  "quiz.resultSaved": "Result saved successfully!",
+  "quiz.saving": "Saving...",
+  "quiz.close": "Close",
+  "quiz.viewPassage": "View Passage",
 
   // Language
   "lang.fa": "فارسی",

@@ -130,7 +130,7 @@ const fa = {
   "account.birthDate": "تاریخ تولد",
   "account.selectBirthDate": "انتخاب تاریخ تولد",
   "account.languageLevel": "سطح زبان",
-  "account.freeLevelTest": "درخواست رایگان تعیین سطح (تلگرام)",
+  "account.freeLevelTest": "آزمون تعیین سطح رایگان",
   "account.userRanking": "رتبه‌بندی کاربران",
   "account.rankingDesc": "بر اساس میزان پیشرفت در یادگیری",
   "account.searchUser": "جستجوی کاربر...",
@@ -512,6 +512,12 @@ const fa = {
   "quiz.levelIntermediate": "متوسط",
   "quiz.levelUpperIntermediate": "فوق متوسط",
   "quiz.levelAdvanced": "پیشرفته",
+  "quiz.saveResult": "ذخیره نتیجه",
+  "quiz.loginToSave": "برای ذخیره نتیجه وارد شوید",
+  "quiz.resultSaved": "نتیجه با موفقیت ذخیره شد!",
+  "quiz.saving": "در حال ذخیره...",
+  "quiz.close": "بستن",
+  "quiz.viewPassage": "مشاهده متن",
 
   // Language
   "lang.fa": "فارسی",

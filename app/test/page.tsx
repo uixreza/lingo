@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Clock, CheckCircle2, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock, CheckCircle2, RotateCcw, Save } from "lucide-react";
 import Link from "next/link";
 import { useLang } from "@/contexts/LanguageContext";
+import { useSession } from "next-auth/react";
+import { useAuth } from "@/contexts/AuthContext";
 import confetti from "canvas-confetti";
+import toast from "react-hot-toast";
 
 function fireConfetti() {
   const colors = ["#22c55e", "#4ade80", "#86efac", "#bbf7d0", "#ffffff"];
@@ -116,6 +119,8 @@ const readingText = `The internet has revolutionized the way we communicate. In 
 export default function TestPage() {
   const { t, locale } = useLang();
   const isRtl = locale === "fa";
+  const { data: session } = useSession();
+  const { open: openAuth } = useAuth();
 
   const [started, setStarted] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -123,6 +128,10 @@ export default function TestPage() {
   const [timeLeft, setTimeLeft] = useState(TOTAL_TIME);
   const [finished, setFinished] = useState(false);
   const [showReview, setShowReview] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [showPassage, setShowPassage] = useState(false);
+  const [showPassageSheet, setShowPassageSheet] = useState(false);
 
   useEffect(() => {
     if (!started || finished) return;
@@ -134,6 +143,14 @@ export default function TestPage() {
   useEffect(() => {
     if (finished) fireConfetti();
   }, [finished]);
+
+  useEffect(() => {
+    if (started && !finished && current === 40) {
+      setShowPassage(true);
+    } else {
+      setShowPassage(false);
+    }
+  }, [started, finished, current]);
 
   const autoAdvancedRef = useRef(new Set<number>());
 
@@ -168,6 +185,29 @@ export default function TestPage() {
 
   const goNext = useCallback(() => setCurrent((p) => Math.min(p + 1, 49)), []);
   const goPrev = useCallback(() => setCurrent((p) => Math.max(p - 1, 0)), []);
+
+  const handleSaveResult = useCallback(async () => {
+    if (!session) {
+      openAuth();
+      return;
+    }
+    if (saving || saved) return;
+    setSaving(true);
+    try {
+      const res = await fetch("/api/account", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fluencyLevel: level.level }),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      setSaved(true);
+      toast.success(t("quiz.resultSaved"));
+    } catch {
+      toast.error("Failed to save result");
+    } finally {
+      setSaving(false);
+    }
+  }, [session, saving, saved, level.level, openAuth, t]);
 
   if (!started) {
     return (
@@ -250,6 +290,20 @@ export default function TestPage() {
                 </div>
                 <div className="flex gap-2">
                   <button
+                    onClick={handleSaveResult}
+                    disabled={saved}
+                    className={`flex-1 px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
+                      saved
+                        ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-default"
+                        : "bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10"
+                    }`}
+                  >
+                    <Save size={13} />
+                    {saved ? t("quiz.resultSaved") : saving ? t("quiz.saving") : session ? t("quiz.saveResult") : t("quiz.loginToSave")}
+                  </button>
+                </div>
+                <div className="flex gap-2">
+                  <button
                     onClick={() => {
                       autoAdvancedRef.current.clear();
                       setStarted(false);
@@ -258,6 +312,7 @@ export default function TestPage() {
                       setTimeLeft(TOTAL_TIME);
                       setFinished(false);
                       setShowReview(false);
+                      setSaved(false);
                     }}
                     className="flex-1 px-4 py-2.5 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-black font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all"
                   >
@@ -345,7 +400,19 @@ export default function TestPage() {
             </div>
           </div>
 
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-center flex-wrap">
+            <button
+              onClick={handleSaveResult}
+              disabled={saved}
+              className={`px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 transition-all duration-200 ${
+                saved
+                  ? "bg-green-500/20 text-green-400 border border-green-500/30 cursor-default"
+                  : "border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 backdrop-blur-sm"
+              }`}
+            >
+              <Save size={14} />
+              {saved ? t("quiz.resultSaved") : saving ? t("quiz.saving") : session ? t("quiz.saveResult") : t("quiz.loginToSave")}
+            </button>
             <button
               onClick={() => setShowReview(true)}
               className="px-6 py-3 border border-white/20 text-white/80 hover:text-white hover:border-white/40 hover:bg-white/5 rounded-full backdrop-blur-sm transition-all duration-200 text-sm"
@@ -361,6 +428,7 @@ export default function TestPage() {
                 setTimeLeft(TOTAL_TIME);
                 setFinished(false);
                 setShowReview(false);
+                setSaved(false);
               }}
               className={`px-6 py-3 bg-gradient-to-l from-green-500 to-emerald-400 hover:from-green-400 hover:to-emerald-300 text-black font-bold rounded-full shadow-lg shadow-green-500/30 transition-all duration-200 text-sm flex items-center gap-2 ${isRtl ? "flex-row-reverse" : ""}`}
             >
@@ -407,20 +475,41 @@ export default function TestPage() {
 
       {/* Centered content: question + nav */}
       <div className={`flex-1 flex flex-col items-center justify-center px-4 pb-24 sm:pb-8 gap-6 lg:flex-row lg:gap-0 lg:max-w-5xl lg:mx-auto`}>
-        {/* Reading Block Layout */}
-        {isReadingBlock ? (
-          <>
-            {/* Passage Panel */}
+        {/* Reading Passage Screen — mobile only */}
+        {showPassage && isReadingBlock && (
+          <div className="w-full max-w-lg lg:hidden">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-6"
+            >
+              <div className="bg-[#0a0f0a] rounded-2xl p-6 border border-green-500/10 space-y-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-4 bg-green-500 rounded-full" />
+                  <p className="text-xs text-green-400 font-semibold uppercase tracking-wider">
+                    {t("quiz.readingPassage")}
+                  </p>
+                </div>
+                <p className="text-sm text-[#999] leading-relaxed text-left" dir="ltr">{readingText}</p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+
+        {/* Reading Block — desktop side-by-side, hidden on mobile when showPassage */}
+        {isReadingBlock && (
+          <div className={`${showPassage ? "hidden lg:flex" : "flex"} w-full gap-0 lg:max-w-5xl`}>
+            {/* Passage Panel — desktop only */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="w-full lg:w-1/2 p-6 rounded-2xl lg:rounded-r-none bg-[#0a0f0a] border border-green-500/10 lg:border-r-0 order-1 lg:order-1 flex flex-col"
+              className="hidden lg:flex w-1/2 p-6 rounded-2xl rounded-r-none bg-[#0a0f0a] border border-green-500/10 border-r-0 flex-col"
             >
               <div className="flex items-center gap-2 mb-4">
                 <div className="w-1 h-4 bg-green-500 rounded-full" />
-                <p className={`text-xs text-green-400 font-semibold uppercase tracking-wider ${isRtl ? "text-right" : "text-left"}`}>{t("quiz.readingPassage")}</p>
+                <p className="text-xs text-green-400 font-semibold uppercase tracking-wider">{t("quiz.readingPassage")}</p>
               </div>
-              <div className="flex-1 overflow-y-auto max-h-[30vh] lg:max-h-[60vh]">
+              <div className="flex-1 overflow-y-auto max-h-[60vh]">
                 <p className="text-sm text-[#999] leading-relaxed text-left" dir="ltr">{readingText}</p>
               </div>
               <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
@@ -433,7 +522,7 @@ export default function TestPage() {
             <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-white/10 to-transparent self-stretch" />
 
             {/* Question Panel */}
-            <div className="w-full lg:w-1/2 order-2 lg:order-2">
+            <div className={`w-full ${showPassage ? "hidden lg:block lg:w-1/2" : "lg:w-1/2"}`}>
               <div className="lg:px-8">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -451,7 +540,7 @@ export default function TestPage() {
                       <p className="text-white text-base sm:text-lg leading-relaxed" dir="ltr">{q.q}</p>
                     </div>
 
-                    <div className={`space-y-2.5 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
+                    <div className={`w-full sm:w-[400px] space-y-2.5 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
                       {q.opts.map((opt, oi) => {
                         const letter = letters[oi];
                         const selected = answers[current] === letter;
@@ -476,13 +565,21 @@ export default function TestPage() {
                         );
                       })}
                     </div>
+                    <button
+                      onClick={() => setShowPassageSheet(true)}
+                      className={`w-full sm:w-[400px] py-2.5 rounded-xl border border-yellow-500/25 bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20 text-xs font-medium transition-all lg:hidden ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}
+                    >
+                      {t("quiz.viewPassage")}
+                    </button>
                   </motion.div>
                 </AnimatePresence>
               </div>
             </div>
-          </>
-        ) : (
-          /* Regular Question Layout */
+          </div>
+        )}
+
+        {/* Regular Question Layout */}
+        {!isReadingBlock && (
           <div className="w-full max-w-lg">
             <AnimatePresence mode="wait">
               <motion.div
@@ -500,7 +597,7 @@ export default function TestPage() {
                   <p className="text-white text-base sm:text-lg leading-relaxed" dir="ltr">{q.q}</p>
                 </div>
 
-                <div className={`space-y-2 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
+                <div className={`w-full sm:w-[400px] space-y-2 ${isRtl ? "sm:mr-9" : "sm:ml-9"}`}>
                   {q.opts.map((opt, oi) => {
                     const letter = letters[oi];
                     const selected = answers[current] === letter;
@@ -531,13 +628,44 @@ export default function TestPage() {
         )}
       </div>
 
+      {/* Passage Sheet — mobile popup */}
+      <AnimatePresence>
+        {showPassageSheet && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] lg:hidden"
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowPassageSheet(false)} />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="absolute bottom-0 inset-x-0 max-h-[80dvh] bg-[#0a0f0a] border-t border-white/10 rounded-t-3xl p-6 overflow-y-auto"
+            >
+              <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+              <div className="flex items-center gap-2 mb-4">
+                <div className="w-1 h-4 bg-green-500 rounded-full" />
+                <p className="text-xs text-green-400 font-semibold uppercase tracking-wider">{t("quiz.readingPassage")}</p>
+              </div>
+              <p className="text-sm text-[#999] leading-relaxed text-left" dir="ltr">{readingText}</p>
+              <button
+                onClick={() => setShowPassageSheet(false)}
+                className="w-full mt-6 py-3 rounded-xl bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 text-sm font-medium transition-all"
+              >
+                {t("quiz.close") ?? "Close"}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Bottom nav — fixed */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 flex sm:justify-center justify-start pl-4 pb-3 sm:pb-4 pointer-events-none">
-        <div className="bg-[#0a0f0a]/90 backdrop-blur-xl rounded-2xl ring-1 ring-white/10 px-3 sm:px-5 py-2 sm:py-3 flex flex-col items-center gap-2 sm:gap-3 pointer-events-auto">
-          {/* Dots / counter */}
-          <span className="sm:hidden text-[10px] font-mono text-[#666]">
-            {current + 1}/{questions.length}
-          </span>
+      <div className="fixed bottom-0 left-0 right-0 z-40 sm:flex sm:justify-center sm:pl-4 sm:pb-4 pointer-events-none">
+        <div className="sm:bg-[#0a0f0a]/90 sm:backdrop-blur-xl sm:rounded-2xl sm:ring-1 sm:ring-white/10 sm:px-5 sm:py-3 sm:flex sm:flex-col sm:items-center sm:gap-3 pointer-events-auto">
+          {/* Dots — desktop only */}
           <div className="hidden sm:flex gap-1.5">
             {questions.map((_, i) => (
               <button
@@ -554,29 +682,56 @@ export default function TestPage() {
             ))}
           </div>
 
-          {/* Buttons */}
-          <div className="flex items-center gap-2 sm:gap-4">
+          {/* Mobile: full-width bar — prev · number · next */}
+          <div className="flex items-center sm:hidden w-full bg-[#0a0f0a]/90 backdrop-blur-xl px-3 py-3 pointer-events-auto">
             <button
               onClick={goPrev}
               disabled={current === 0}
-              className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+              className={`flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 disabled:opacity-20 disabled:cursor-not-allowed transition-all ${isRtl ? "flex-row-reverse" : ""}`}
             >
-              <ArrowLeft size={12} className={isRtl ? "rotate-180" : ""} /> <span className="hidden sm:inline">{t("quiz.prev")}</span>
+              <ArrowLeft size={14} className={isRtl ? "rotate-180" : ""} />
+            </button>
+            <span className="px-4 text-xs font-mono text-[#888] shrink-0">{current + 1}/{questions.length}</span>
+            {current === 49 ? (
+              <button
+                onClick={() => setFinished(true)}
+                className={`flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-bold bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+              >
+                <CheckCircle2 size={14} />
+              </button>
+            ) : (
+              <button
+                onClick={showPassage ? () => setShowPassage(false) : goNext}
+                className={`flex-1 flex items-center justify-center gap-1 px-3 py-2.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+              >
+                {showPassage ? t("quiz.next") : <ArrowRight size={14} className={isRtl ? "rotate-180" : ""} />}
+              </button>
+            )}
+          </div>
+
+          {/* Desktop: buttons row */}
+          <div className="hidden sm:flex items-center gap-4">
+            <button
+              onClick={goPrev}
+              disabled={current === 0}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 disabled:opacity-20 disabled:cursor-not-allowed transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+            >
+              <ArrowLeft size={12} className={isRtl ? "rotate-180" : ""} /> {t("quiz.prev")}
             </button>
 
             {current === 49 ? (
               <button
                 onClick={() => setFinished(true)}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold bg-green-500/15 border border-green-500/30 text-green-400 hover:bg-green-500/25 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
               >
-                <span className="hidden sm:inline">{t("quiz.finish")}</span> <CheckCircle2 size={12} />
+                {t("quiz.finish")} <CheckCircle2 size={12} />
               </button>
             ) : (
               <button
                 onClick={goNext}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white/5 border border-white/10 text-[#aaa] hover:text-white hover:bg-white/10 hover:border-white/20 transition-all ${isRtl ? "flex-row-reverse" : ""}`}
               >
-                <span className="hidden sm:inline">{t("quiz.next")}</span> <ArrowRight size={12} className={isRtl ? "rotate-180" : ""} />
+                {t("quiz.next")} <ArrowRight size={12} className={isRtl ? "rotate-180" : ""} />
               </button>
             )}
           </div>

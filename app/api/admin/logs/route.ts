@@ -36,7 +36,7 @@ export async function GET() {
       take: 30,
     }),
     prisma.transaction.findMany({
-      where: { createdAt: { gte: since } },
+      where: { createdAt: { gte: since }, paymentMethod: { not: "Gift" } },
       select: {
         id: true,
         amount: true,

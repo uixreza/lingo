@@ -21,7 +21,7 @@ export async function GET() {
 
   const [transactions, totalStudents, totalSessions, paidSessions] = await Promise.all([
     prisma.transaction.findMany({
-      where: { status: "completed" },
+      where: { status: "completed", paymentMethod: { not: "Gift" } },
       select: {
         id: true,
         amount: true,

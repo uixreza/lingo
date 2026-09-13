@@ -18,6 +18,7 @@ export async function GET() {
         where: {
           createdAt: { gte: startOfMonth, lt: startOfNextMonth },
           status: "completed",
+          paymentMethod: { not: "Gift" },
         },
         select: { amount: true, createdAt: true },
       }),
@@ -30,6 +31,7 @@ export async function GET() {
         where: {
           createdAt: { gte: startOfMonth, lt: startOfNextMonth },
           status: "completed",
+          paymentMethod: { not: "Gift" },
         },
         select: { amount: true, createdAt: true },
         orderBy: { createdAt: "asc" },

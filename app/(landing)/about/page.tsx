@@ -10,8 +10,11 @@ import {
   Clock,
   Users,
   PenTool,
+  Briefcase,
+  Building2,
 } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
+import { useState, useEffect } from "react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -23,20 +26,82 @@ const container = {
   show: { transition: { staggerChildren: 0.1 } },
 };
 
+type MentorData = {
+  id: number;
+  name: string;
+  title: string | null;
+  photoUrl: string | null;
+  bio: string | null;
+  certifications: string[];
+  languages: string[];
+  experience: string | null;
+  education: string | null;
+};
+
+const CERT_LABELS: Record<string, { en: string; fa: string }> = {
+  TTC: { en: "TTC", fa: "TTC" },
+  TOEFL: { en: "TOEFL", fa: "تافل" },
+  TESOL: { en: "TESOL", fa: "تیsol" },
+  IELTS: { en: "IELTS", fa: "آیلتس" },
+  DUOLINGO: { en: "Duolingo", fa: "دوئولینگو" },
+};
+
+const LANG_LABELS: Record<string, { en: string; fa: string }> = {
+  English: { en: "English", fa: "انگلیسی" },
+  German: { en: "German", fa: "آلمانی" },
+  Turkish: { en: "Turkish", fa: "ترکی" },
+};
+
 export default function About() {
   const { t, locale } = useLang();
+  const [mentor, setMentor] = useState<MentorData | null>(null);
+
+  useEffect(() => {
+    fetch("/api/mentor")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.mentor) setMentor(d.mentor);
+      })
+      .catch(() => {});
+  }, []);
+
+  const displayName = mentor?.name || t("about.name");
+  const displayTitle = mentor?.title || t("about.subtitle");
+  const displayBio = mentor?.bio || t("about.bio");
+  const initials = displayName
+    .split(" ")
+    .map((w: string) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
 
   const skills = [
-    { label: t("about.skillTeacher"), icon: GraduationCap },
-    { label: t("about.skillDev"), icon: Code },
-    { label: t("about.skillContent"), icon: PenTool },
+    ...(mentor?.languages?.length
+      ? mentor.languages.map((lang) => ({
+          label: LANG_LABELS[lang]?.[locale as "en" | "fa"] || lang,
+          icon: BookOpen,
+        }))
+      : [
+          { label: t("about.skillTeacher"), icon: GraduationCap },
+          { label: t("about.skillDev"), icon: Code },
+          { label: t("about.skillContent"), icon: PenTool },
+        ]),
+    ...(mentor?.certifications?.length
+      ? mentor.certifications.map((cert) => ({
+          label: CERT_LABELS[cert]?.[locale as "en" | "fa"] || cert,
+          icon: Award,
+        }))
+      : []),
   ];
 
   const stats = [
-    { icon: Award, value: "۵+", label: t("about.years") },
+    ...(mentor?.experience
+      ? [{ icon: Briefcase, value: mentor.experience, label: t("about.years") }]
+      : [{ icon: Award, value: "۵+", label: t("about.years") }]),
     { icon: Users, value: "۲۰۰+", label: t("about.students") },
     { icon: Clock, value: "۳۰۰۰+", label: t("about.teachingHours") },
   ];
+
   return (
     <main className="relative min-h-screen bg-[#050505]">
       {/* Banner */}
@@ -63,7 +128,7 @@ export default function About() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
             className="text-white text-3xl sm:text-5xl font-bold">
-            {t("about.name")}
+            {displayName}
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 10 }}
@@ -71,7 +136,7 @@ export default function About() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-white/60 text-sm sm:text-base mt-2"
             dir={locale === "en" ? "ltr" : undefined}>
-            {t("about.subtitle")}
+            {displayTitle}
           </motion.p>
         </div>
       </div>
@@ -88,7 +153,7 @@ export default function About() {
             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-[#050505] shadow-xl">
               <Image
                 src="/me.png"
-                alt="رضا کمالی"
+                alt={displayName}
                 width={128}
                 height={128}
                 className="object-cover w-full h-full"
@@ -100,7 +165,7 @@ export default function About() {
                     const fallback = document.createElement("div");
                     fallback.className =
                       "w-full h-full flex items-center justify-center bg-gradient-to-br from-green-500/30 to-emerald-500/30 text-2xl font-bold text-green-400";
-                    fallback.textContent = "RK";
+                    fallback.textContent = initials;
                     parent.appendChild(fallback);
                   }
                 }}
@@ -115,8 +180,14 @@ export default function About() {
         {/* Bio */}
         <motion.div className="bg-white/[0.03] backdrop-blur-xl border border-white/[0.06] rounded-2xl p-6 sm:p-8 mb-6">
           <p dir={locale === "en" ? "ltr" : "rtl"} className={`text-[#aaa] text-base sm:text-lg leading-relaxed text-center ${locale === "en" ? "sm:text-left" : "sm:text-right"}`}>
-            {t("about.bio")}
+            {displayBio}
           </p>
+          {mentor?.education && (
+            <div className={`mt-4 pt-4 border-t border-white/[0.06] flex items-center gap-2 text-sm text-[#888] ${locale === "en" ? "justify-start" : "justify-end"}`}>
+              <Building2 size={14} className="text-green-400/70 shrink-0" />
+              <span>{mentor.education}</span>
+            </div>
+          )}
         </motion.div>
 
         {/* Stats */}

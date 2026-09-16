@@ -33,6 +33,7 @@ import { useTheme } from "next-themes";
 import moment from "moment-jalaali";
 import MarqueeSection from "@/components/admin/MarqueeSection";
 import SiteControlSection from "@/components/admin/SiteControlSection";
+import JalaaliHeatmap from "@/components/admin/JalaaliHeatmap";
 import type { AdminLogEntry } from "@/app/api/admin/logs/route";
 
 const emptySubscribe = () => () => {};
@@ -161,6 +162,10 @@ export default function DashboardPage() {
   const [loadingLogs, setLoadingLogs] = useState(true);
   const [visibleCount, setVisibleCount] = useState(LOG_PAGE_SIZE);
 
+  const [heatmapSessions, setHeatmapSessions] = useState<
+    { date: string; status: "Approved" | "Pending" | "Canceled" }[]
+  >([]);
+
   useEffect(() => {
     let cancelled = false;
     fetch("/api/admin/stats")
@@ -185,6 +190,19 @@ export default function DashboardPage() {
       .finally(() => {
         if (!cancelled) setLoadingLogs(false);
       });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/admin/sessions")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!cancelled && d) setHeatmapSessions(d);
+      })
+      .catch(() => {});
     return () => {
       cancelled = true;
     };
@@ -321,6 +339,10 @@ export default function DashboardPage() {
             <Sparkles className="h-3.5 w-3.5" />
             {mounted ? today : ""}
           </div>
+        </div>
+
+        <div className="relative z-10 mt-5">
+          <JalaaliHeatmap sessions={heatmapSessions} />
         </div>
       </motion.div>
 

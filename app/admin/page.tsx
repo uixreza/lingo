@@ -325,6 +325,7 @@ export default function DashboardPage() {
             <button
               onClick={downloadLogs}
               disabled={!mounted || logs.length === 0}
+              suppressHydrationWarning
               title="دانلود گزارش فعالیت‌ها"
               aria-label="دانلود گزارش فعالیت‌ها"
               className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/15 hover:bg-white/25 backdrop-blur-sm border border-white/20 text-sm font-semibold transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">

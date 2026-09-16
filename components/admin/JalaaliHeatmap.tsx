@@ -71,26 +71,26 @@ export default function JalaaliHeatmap({
   const todayStr = now.format("jYYYY/jMM/jDD");
 
   return (
-    <div className="rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 p-4">
+    <div className="rounded-2xl bg-black/10 dark:bg-white/10 backdrop-blur-sm border border-black/15 dark:border-white/15 p-4">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs font-bold text-white/90">
+        <h3 className="text-xs font-bold text-black/80 dark:text-white/90">
           تقویم جلسات
         </h3>
-        <div className="flex items-center gap-3 text-[9px] font-medium text-white/60">
+        <div className="flex items-center gap-3 text-[9px] font-medium text-black/50 dark:text-white/60">
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-white/30 ring-1 ring-white/40" />
+            <span className="w-2 h-2 rounded-sm bg-black/20 dark:bg-white/30 ring-1 ring-black/30 dark:ring-white/40" />
             امروز
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-green-400" />
+            <span className="w-2 h-2 rounded-sm bg-green-500" />
             تأیید شده
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-amber-400/50 ring-1 ring-amber-400/60" />
+            <span className="w-2 h-2 rounded-sm bg-amber-500/60 ring-1 ring-amber-500/70" />
             در انتظار
           </span>
           <span className="flex items-center gap-1">
-            <span className="w-2 h-2 rounded-sm bg-red-400/40 ring-1 ring-red-400/50" />
+            <span className="w-2 h-2 rounded-sm bg-red-500/50 ring-1 ring-red-500/60" />
             پر
           </span>
         </div>
@@ -122,7 +122,7 @@ export default function JalaaliHeatmap({
                       {weekDays.map((wd) => (
                         <div
                           key={wd}
-                          className="w-8 h-5 flex items-center justify-center text-[9px] font-bold text-white/40">
+                          className="w-8 h-5 flex items-center justify-center text-[9px] font-bold text-black/40 dark:text-white/40">
                           {wd}
                         </div>
                       ))}
@@ -149,22 +149,22 @@ export default function JalaaliHeatmap({
                           let cellClass = "";
                           if (isToday) {
                             cellClass =
-                              "bg-white/25 text-white ring-1 ring-white/50 font-bold";
+                              "bg-purple-600/20 dark:bg-white/25 text-purple-800 dark:text-white ring-1 ring-purple-500/40 dark:ring-white/50 font-bold";
                           } else if (isFullyReserved) {
                             cellClass =
-                              "bg-red-400/25 text-red-200 ring-1 ring-red-400/40";
+                              "bg-red-500/20 dark:bg-red-400/25 text-red-700 dark:text-red-200 ring-1 ring-red-400/50 dark:ring-red-400/40";
                           } else if (hasApproved) {
                             cellClass =
-                              "bg-green-400 text-black font-bold ring-1 ring-green-300/60";
+                              "bg-green-500 text-white dark:bg-green-400 dark:text-black font-bold ring-1 ring-green-400/60 dark:ring-green-300/60";
                           } else if (hasPending) {
                             cellClass =
-                              "bg-amber-400/25 text-amber-200 font-bold ring-1 ring-amber-400/40";
+                              "bg-amber-500/20 dark:bg-amber-400/25 text-amber-700 dark:text-amber-200 font-bold ring-1 ring-amber-400/50 dark:ring-amber-400/40";
                           } else if (isPast) {
                             cellClass =
-                              "bg-white/5 text-white/20";
+                              "bg-black/5 dark:bg-white/5 text-black/25 dark:text-white/20";
                           } else {
                             cellClass =
-                              "bg-white/8 text-white/60 hover:bg-white/15 hover:text-white/90 cursor-pointer";
+                              "bg-black/5 dark:bg-white/8 text-black/50 dark:text-white/60 hover:bg-black/10 dark:hover:bg-white/15 hover:text-black/70 dark:hover:text-white/90 cursor-pointer";
                           }
 
                           return (
@@ -176,35 +176,35 @@ export default function JalaaliHeatmap({
                               !hasApproved &&
                               !hasPending &&
                               !isFullyReserved ? (
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-white rounded-full flex items-center justify-center">
-                                  <span className="text-[6px] font-black text-purple-600 leading-none">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-purple-600 dark:bg-white rounded-full flex items-center justify-center">
+                                  <span className="text-[6px] font-black text-white dark:text-purple-600 leading-none">
                                     ✦
                                   </span>
                                 </div>
                               ) : isFullyReserved ? (
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-400 rounded-full flex items-center justify-center">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-red-500 dark:bg-red-400 rounded-full flex items-center justify-center">
                                   <Lock
-                                    className="h-1.5 w-1.5 text-black"
+                                    className="h-1.5 w-1.5 text-white dark:text-black"
                                     strokeWidth={3}
                                   />
                                 </div>
                               ) : hasApproved && !hasPending ? (
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-white rounded-full flex items-center justify-center">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-white dark:bg-white rounded-full flex items-center justify-center">
                                   <Check
                                     className="h-1.5 w-1.5 text-green-600"
                                     strokeWidth={3}
                                   />
                                 </div>
                               ) : hasPending ? (
-                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-400 rounded-full flex items-center justify-center">
+                                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-amber-500 dark:bg-amber-400 rounded-full flex items-center justify-center">
                                   <Loader2
-                                    className="h-1.5 w-1.5 text-black animate-spin"
+                                    className="h-1.5 w-1.5 text-white dark:text-black animate-spin"
                                     strokeWidth={3}
                                   />
                                 </div>
                               ) : sessionCount > 0 ? (
-                                <div className="absolute -bottom-0.5 -right-0.5 h-3 min-w-3 px-0.5 bg-green-400 rounded-full flex items-center justify-center">
-                                  <span className="text-[7px] font-black text-black leading-none">
+                                <div className="absolute -bottom-0.5 -right-0.5 h-3 min-w-3 px-0.5 bg-green-500 dark:bg-green-400 rounded-full flex items-center justify-center">
+                                  <span className="text-[7px] font-black text-white dark:text-black leading-none">
                                     {toPersianDigits(String(sessionCount))}
                                   </span>
                                 </div>
@@ -214,7 +214,7 @@ export default function JalaaliHeatmap({
                         })
                       )}
                     </div>
-                    <span className="text-[9px] font-bold text-white/50 mt-1">
+                    <span className="text-[9px] font-bold text-black/40 dark:text-white/50 mt-1">
                       {jMonthNames[jMonthIdx]}
                     </span>
                   </div>

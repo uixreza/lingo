@@ -191,7 +191,9 @@
 }
 
 :root {
-  --light-purple: #558467;
+  /* --light-purple: #b1d3b9;
+  --dark-purple: #9abfa3; */
+    --light-purple: #558467;
   --dark-purple: #3d6b52;
   --dash-sides: #EAECF0;
   --dash-accent: #b1d3b9;

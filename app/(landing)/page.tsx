@@ -270,16 +270,21 @@ export default function Home() {
           </motion.div>
           <motion.h1
             variants={item}
-            className="text-[2.25rem] sm:text-5xl md:text-7xl font-bold text-white leading-[1.1] tracking-tight">
-            {t("home.heading1")}
+            className="text-[2.25rem] sm:text-5xl md:text-7xl text-white leading-[1.1] tracking-tight">
+            <span style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), sans-serif" : "var(--font-lato-thin), sans-serif", fontWeight: locale === "fa" ? 300 : 100 }}>
+              {t("home.heading1")}
+            </span>
             <br />
-            <span className="animate-neon-flicker">
+            <span
+              className="animate-neon-flicker"
+              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-bold), sans-serif" : "var(--font-lato-bold), sans-serif", fontWeight: 700 }}>
               {t("home.heading2")}
             </span>
           </motion.h1>
           <motion.p
             variants={item}
-            className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-snug mx-auto lg:mx-0">
+            className="mt-4 sm:mt-6 text-base sm:text-lg text-[#888] w-5/6 max-w-xl leading-snug mx-auto lg:mx-0"
+            style={{ fontFamily: locale === "fa" ? "var(--font-morabba-regular), sans-serif" : "var(--font-lato-regular), sans-serif" }}>
             {t("home.subtitle")}
           </motion.p>
 

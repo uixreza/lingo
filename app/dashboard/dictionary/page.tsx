@@ -61,7 +61,7 @@ export default function DictionaryPage() {
     "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg";
 
   return (
-    <div className="space-y-6" dir="ltr">
+    <div className="space-y-6 pb-24" dir="ltr">
       <div>
         <h1 className="text-2xl font-extrabold text-[var(--dash-text)] flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-[var(--dash-accent)]" />

@@ -48,6 +48,17 @@ const fa = {
   "sidebar.home": "خانه",
   "sidebar.sessions": "جلسات",
   "sidebar.notebook": "دفترچه",
+  "sidebar.dictionary": "دیکشنری",
+
+  // Dictionary
+  "dict.search": "یک کلمه جستجو کنید...",
+  "dict.noResults": "نتیجه‌ای یافت نشد",
+  "dict.error": "مشکلی پیش آمد",
+  "dict.phonetic": "تلفظ",
+  "dict.meanings": "معانی",
+  "dict.example": "مثال",
+  "dict.synonyms": "مترادف‌ها",
+  "dict.antonyms": "متضادها",
   "sidebar.ai": "دستیار AI",
   "sidebar.ticket": "تیکت",
   "sidebar.account": "حساب کاربری",

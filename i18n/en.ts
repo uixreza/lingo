@@ -48,6 +48,17 @@ const en = {
   "sidebar.home": "Home",
   "sidebar.sessions": "Sessions",
   "sidebar.notebook": "Notebook",
+  "sidebar.dictionary": "Dictionary",
+
+  // Dictionary
+  "dict.search": "Search a word...",
+  "dict.noResults": "No results found",
+  "dict.error": "Something went wrong",
+  "dict.phonetic": "Phonetic",
+  "dict.meanings": "Meanings",
+  "dict.example": "Example",
+  "dict.synonyms": "Synonyms",
+  "dict.antonyms": "Antonyms",
   "sidebar.ai": "AI Assistant",
   "sidebar.ticket": "Support Ticket",
   "sidebar.account": "My Account",

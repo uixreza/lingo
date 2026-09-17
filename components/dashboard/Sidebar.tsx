@@ -23,6 +23,7 @@ import {
   PinOff,
   Sparkles,
   Lock,
+  BookMarked,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -45,6 +46,7 @@ export default function Sidebar() {
     { label: t("sidebar.home"), href: "/dashboard", icon: Home },
     { label: t("sidebar.sessions"), href: "/dashboard/sessions", icon: GraduationCap },
     { label: t("sidebar.notebook"), href: "/dashboard/notebook", icon: NotebookText },
+    { label: t("sidebar.dictionary"), href: "/dashboard/dictionary", icon: BookMarked },
     { label: t("sidebar.ai"), href: "/dashboard/ai", icon: Sparkles, locked: true },
     { label: t("sidebar.ticket"), href: "/dashboard/ticket", icon: ShieldCheck },
     { label: t("sidebar.account"), href: "/dashboard/account", icon: User },

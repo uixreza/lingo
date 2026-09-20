@@ -152,7 +152,7 @@ export default function About() {
           <div className="relative">
             <div className="w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden border-4 border-[#050505] shadow-xl">
               <Image
-                src="/me.png"
+                src="/me.jpg"
                 alt={displayName}
                 width={128}
                 height={128}

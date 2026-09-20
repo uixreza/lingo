@@ -47,7 +47,7 @@ const periodLabels = {
 
 const DEFAULT_MENTOR = {
   name: "رضا کمالی",
-  photoUrl: "/me.png",
+  photoUrl: "/me.jpg",
   title: "",
   bio: "",
   certifications: [] as string[],
@@ -784,7 +784,7 @@ export default function SessionsPage() {
               <div className="relative shrink-0 w-20 h-20">
                 <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
                   <Image
-                    src="/me.png"
+                    src="/me.jpg"
                     alt={mentor.name}
                     width={256}
                     height={256}

@@ -15,7 +15,7 @@ p.mentor
       id: 1,
       name: "رضا کمالی",
       title: "مدرس زبان انگلیسی",
-      photoUrl: "/me.png",
+      photoUrl: "/me.jpg",
       certifications: ["TTC"],
       experience: "۳ سال سابقه",
       education: "دانشگاه بجنورد",

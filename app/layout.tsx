@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
+import { getServerSession } from "next-auth";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
+import { authOptions } from "@/lib/auth";
 import Loading from "./loading";
 import SplashScreen from "@/components/SplashScreen";
 
@@ -57,11 +59,13 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getServerSession(authOptions);
+
   return (
     <html
       dir="rtl"
@@ -69,7 +73,7 @@ export default function RootLayout({
       className={`h-full antialiased bg-black`}
       suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <Providers>{children}</Providers>
+        <Providers session={session}>{children}</Providers>
         <SplashScreen />
       </body>
     </html>

@@ -100,7 +100,7 @@ export default function JalaaliHeatmap({
         <div className="relative">
           <div
             ref={scrollRef}
-            className="flex gap-5 overflow-x-auto pb-2"
+            className="flex gap-5 overflow-x-auto pb-2 lg:justify-center"
             style={{ direction: "ltr" }}>
             {(() => {
               const jNowYear = now.jYear();
@@ -118,11 +118,11 @@ export default function JalaaliHeatmap({
                   <div
                     key={`${jy}-${jMonthIdx}`}
                     className="flex flex-col items-center shrink-0">
-                    <div className="grid grid-cols-7 gap-0.5">
+                    <div className="grid grid-cols-7 gap-0.5 lg:gap-1">
                       {weekDays.map((wd) => (
                         <div
                           key={wd}
-                          className="w-8 h-5 flex items-center justify-center text-[9px] font-bold text-black/40 dark:text-white/40">
+                          className="w-8 h-5 lg:w-11 lg:h-7 flex items-center justify-center text-[9px] lg:text-[11px] font-bold text-black/40 dark:text-white/40">
                           {wd}
                         </div>
                       ))}
@@ -132,7 +132,7 @@ export default function JalaaliHeatmap({
                             return (
                               <div
                                 key={`e-${wi}-${di}`}
-                                className="w-8 h-8"
+                                className="w-8 h-8 lg:w-11 lg:h-11"
                               />
                             );
                           const dateStr = jToDateStr(jy, jMonthIdx, day);
@@ -170,7 +170,7 @@ export default function JalaaliHeatmap({
                           return (
                             <div
                               key={dateStr}
-                              className={`relative w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-medium transition-all duration-150 ${cellClass}`}>
+                              className={`relative w-8 h-8 lg:w-11 lg:h-11 rounded-lg flex items-center justify-center text-[11px] lg:text-sm font-medium transition-all duration-150 ${cellClass}`}>
                               {day}
                               {isToday &&
                               !hasApproved &&

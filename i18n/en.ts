@@ -207,6 +207,7 @@ const en = {
   "sessions.mode": "Session Mode",
   "sessions.online": "Online",
   "sessions.inClass": "In-Class",
+  "sessions.inClassCity": "Bojnurd city only",
   "sessions.onlineHint": "The session is held online via your private class link.",
   "sessions.inClassHint": "The session is held in person.",
   "sessions.inClassExtraLabel": "Per in-class session:",

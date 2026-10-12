@@ -207,6 +207,7 @@ const fa = {
   "sessions.mode": "نوع برگزاری جلسه",
   "sessions.online": "آنلاین",
   "sessions.inClass": "حضوری",
+  "sessions.inClassCity": "فقط شهر بجنورد",
   "sessions.onlineHint": "جلسه به‌صورت آنلاین و از طریق لینک اختصاصی برگزار می‌شود.",
   "sessions.inClassHint": "جلسه به‌صورت حضوری برگزار می‌شود.",
   "sessions.inClassExtraLabel": "برای هر جلسه حضوری:",

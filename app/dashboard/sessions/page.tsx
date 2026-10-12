@@ -874,13 +874,20 @@ export default function SessionsPage() {
                     whileTap={{ scale: 0.97 }}
                     onClick={() => setMode(opt.id)}
                     aria-pressed={selected}
-                    className={`relative flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-bold transition-all duration-200 ${
+                    className={`relative flex flex-col items-center justify-center gap-0.5 h-12 px-2 rounded-xl text-sm font-bold leading-tight transition-all duration-200 ${
                       selected
                         ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25"
                         : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-[var(--dash-text)] ring-1 ring-[var(--dash-muted)]/15"
                     }`}>
-                    <opt.icon className="h-4 w-4" />
-                    {opt.label}
+                    <span className="flex items-center gap-2">
+                      <opt.icon className="h-4 w-4" />
+                      {opt.label}
+                    </span>
+                    {opt.id === "InClass" && (
+                      <span className="text-[10px] font-semibold opacity-80">
+                        {t("sessions.inClassCity")}
+                      </span>
+                    )}
                   </motion.button>
                 );
               })}

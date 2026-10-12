@@ -242,6 +242,7 @@ model Session {
   cancelledAt       DateTime? @map("cancelled_at") @db.Timestamp(3)
   updatedAt         DateTime  @updatedAt @map("updated_at") @db.Timestamp(3)
   sessionType       SessionType @map("session_type")  @default(Private)
+  mode              SessionMode @default(Online)
   user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   sessionAuditLog   SessionAuditLog[]
@@ -263,11 +264,17 @@ enum SessionType {
   Public
 }
 
+enum SessionMode {
+  Online
+  InClass
+}
+
 model SessionPrice {
-    id              Int       @id @default(autoincrement())
-    privatePrice    BigInt    @map("private_price") @default(350000) 
-    subscriptionPrice   BigInt @map("subscription_price") @default(50000)
-    discountPercent Int       @map("discount_percent") @default(0)
+    id                 Int    @id @default(autoincrement())
+    privatePrice       BigInt @map("private_price") @default(350000)
+    subscriptionPrice  BigInt @map("subscription_price") @default(50000)
+    discountPercent    Int    @map("discount_percent") @default(0)
+    inClassExtra       Int    @map("in_class_extra") @default(100)
 }
 
 model Transaction {

@@ -23,6 +23,7 @@ import {
   ClipboardCheck,
   ArrowRight,
   Trash2,
+  MapPin,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
@@ -40,6 +41,7 @@ interface SessionRequest {
   language: string;
   level: string;
   type: "Public" | "Private";
+  mode?: "Online" | "InClass";
   reason?: string;
   status: SessionStatus;
   meetLink: string;
@@ -453,7 +455,8 @@ export default function AdminSessionsPage() {
                                 className="text-xs mb-1"
                                 style={{ color: "var(--dash-muted)" }}>
                                 {session.language} • سطح {session.level} •{" "}
-                                {session.type === "Private" ? "خصوصی" : "عمومی"}
+                                {session.type === "Private" ? "خصوصی" : "عمومی"}{" "}
+                                • {session.mode === "InClass" ? "حضوری" : "آنلاین"}
                               </p>
                               <div
                                 className="flex items-center gap-3 text-[11px]"
@@ -570,6 +573,14 @@ export default function AdminSessionsPage() {
                             selectedSession.type === "Public"
                               ? "جلسه عمومی"
                               : "جلسه خصوصی",
+                        },
+                        {
+                          icon: selectedSession.mode === "InClass" ? MapPin : Video,
+                          label: "نوع برگزاری",
+                          value:
+                            selectedSession.mode === "InClass"
+                              ? "حضوری"
+                              : "آنلاین",
                         },
                         {
                           icon: ClipboardCheck,

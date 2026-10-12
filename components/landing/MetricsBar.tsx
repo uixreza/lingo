@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLang } from "@/contexts/LanguageContext";
 
@@ -10,8 +11,42 @@ const metrics = [
   { key: "heritage", color: "text-[#3cfd8a]" },
 ] as const;
 
+function extractYears(experience: string | null | undefined): number | null {
+  if (!experience) return null;
+  const normalized = experience
+    .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+    .replace(/[٠-٩]/g, (d) => String("٠١٢٣٤٥٦٧٨٩".indexOf(d)));
+  const match = normalized.match(/\d+/);
+  if (!match) return null;
+  const years = parseInt(match[0], 10);
+  return Number.isFinite(years) && years > 0 ? years : null;
+}
+
 export default function MetricsBar() {
   const { t, locale } = useLang();
+  const [years, setYears] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchExperience = async () => {
+      try {
+        const res = await fetch("/api/mentor", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        setYears(extractYears(data?.mentor?.experience));
+      } catch {
+        // keep the static fallback value
+      }
+    };
+    fetchExperience();
+  }, []);
+
+  const metricValue = (key: (typeof metrics)[number]["key"]) => {
+    if (key === "heritage" && years !== null) {
+      const n = new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(years);
+      return `+${n} ${t("landing.metrics.yearsUnit")}`;
+    }
+    return t(`landing.metrics.${key}`);
+  };
 
   return (
     <section className="w-full max-w-[1280px] mx-auto px-5 lg:px-10 py-4">
@@ -28,7 +63,7 @@ export default function MetricsBar() {
             <span
               className={`text-[34px] leading-tight font-semibold ${m.color}`}
               style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
-              {t(`landing.metrics.${m.key}`)}
+              {metricValue(m.key)}
             </span>
             <span className="text-[13px] text-[#bacbb9]">
               {t(`landing.metrics.${m.key}Label`)}

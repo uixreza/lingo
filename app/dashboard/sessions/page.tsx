@@ -25,6 +25,7 @@ import {
   Info,
   Globe,
   User,
+  MapPin,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
@@ -96,6 +97,7 @@ type SessionItem = {
   time: string;
   language: string;
   type: string;
+  mode?: "Online" | "InClass";
   status: "Approved" | "Pending" | "Canceled";
   meetLink?: string | null;
   reason?: string | null;
@@ -205,6 +207,8 @@ export default function SessionsPage() {
   const [privatePrice, setPrivatePrice] = useState<number | null>(null);
   const [mobileTab, setMobileTab] = useState<"form" | "list">("form");
   const [discountPercent, setDiscountPercent] = useState(0);
+  const [inClassExtra, setInClassExtra] = useState(0);
+  const [mode, setMode] = useState<"Online" | "InClass">("Online");
   const [cancelTarget, setCancelTarget] = useState<SessionItem | null>(null);
   const [isCanceling, setIsCanceling] = useState(false);
   const [mentor, setMentor] = useState(DEFAULT_MENTOR);
@@ -241,9 +245,11 @@ export default function SessionsPage() {
           setReservedSlots(data.reservedSlots ?? []);
         }
         if (priceRes.ok) {
-          const { privatePrice, discountPercent } = await priceRes.json();
+          const { privatePrice, discountPercent, inClassExtra } =
+            await priceRes.json();
           setPrivatePrice(privatePrice);
           setDiscountPercent(discountPercent ?? 0);
+          setInClassExtra(inClassExtra ?? 0);
         }
           if (mentorRes.ok) {
           const { mentor } = await mentorRes.json();
@@ -297,6 +303,11 @@ export default function SessionsPage() {
       ? Math.round((p * (100 - discountPercent)) / 100)
       : p;
 
+  const extraPerSession = mode === "InClass" ? inClassExtra : 0;
+
+  const pricePerSession = (p: number) =>
+    discountedPrice(p) + extraPerSession;
+
   const canSubmit =
     language &&
     availableLanguages.has(
@@ -344,6 +355,7 @@ export default function SessionsPage() {
               language:
                 languages.find((l) => l.id === language)?.label || "English",
               sessionType: "Private",
+              mode,
               reasonForLearning: reason || null,
             }),
           });
@@ -837,11 +849,72 @@ export default function SessionsPage() {
             </div>
           </div>
 
-          {/* Date & Time */}
+          {/* Session mode */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
                 ۲
+              </span>
+              <label className="text-sm font-medium text-[var(--dash-muted)]">
+                {t("sessions.mode")}
+              </label>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {(
+                [
+                  { id: "Online", icon: Video, label: t("sessions.online") },
+                  { id: "InClass", icon: MapPin, label: t("sessions.inClass") },
+                ] as const
+              ).map((opt) => {
+                const selected = mode === opt.id;
+                return (
+                  <motion.button
+                    key={opt.id}
+                    type="button"
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setMode(opt.id)}
+                    aria-pressed={selected}
+                    className={`relative flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-bold transition-all duration-200 ${
+                      selected
+                        ? "bg-gradient-to-l from-green-500 to-emerald-500 text-black shadow-lg shadow-green-500/25"
+                        : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-[var(--dash-text)] ring-1 ring-[var(--dash-muted)]/15"
+                    }`}>
+                    <opt.icon className="h-4 w-4" />
+                    {opt.label}
+                  </motion.button>
+                );
+              })}
+            </div>
+            <p className="mt-2 text-xs text-[var(--dash-muted)]/70">
+              {mode === "InClass" ? (
+                extraPerSession > 0 ? (
+                  <>
+                    {t("sessions.inClassExtraLabel")}{" "}
+                    <span className="font-extrabold text-[15px] text-[#05df72] dark:text-green-400">
+                      +{extraPerSession.toLocaleString("fa-IR")}{" "}
+                      {t("sessions.toman")}
+                    </span>
+                  </>
+                ) : (
+                  t("sessions.inClassHint")
+                )
+              ) : (
+                t("sessions.onlineHint")
+              )}
+            </p>
+            {mode === "InClass" && (
+              <p className="mt-2 flex items-start gap-1.5 text-[11px] leading-[18px] text-[var(--dash-muted)]/70 bg-[var(--hover-bg)]/60 ring-1 ring-[var(--dash-muted)]/10 rounded-lg px-3 py-2">
+                <Info className="h-3.5 w-3.5 mt-0.5 shrink-0 text-green-500" />
+                <span>{t("sessions.approvalDetailsNote")}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Date & Time */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
+                ۳
               </span>
               <label className="flex-1 min-w-0 text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.dateTime")}
@@ -959,7 +1032,7 @@ export default function SessionsPage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
-                ۳
+                ۴
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.description")}
@@ -1009,6 +1082,17 @@ export default function SessionsPage() {
                     {t("sessions.sessionUnit").replace("{count}", toFa(totalSlots))}
                   </span>
                 </div>
+                {extraPerSession > 0 && (
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      {t("sessions.inClassExtra")}
+                    </span>
+                    <span className="text-sm font-bold text-[var(--dash-text)]">
+                      +{extraPerSession.toLocaleString("fa-IR")}{" "}
+                      {t("sessions.toman")}
+                    </span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
                   <span className="text-sm font-medium text-[var(--dash-muted)]">
                     {t("sessions.totalPrice")}
@@ -1021,7 +1105,7 @@ export default function SessionsPage() {
                         <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </span>
                     ) : (
-                      (totalSlots * discountedPrice(privatePrice)).toLocaleString("fa-IR")
+                      (totalSlots * pricePerSession(privatePrice)).toLocaleString("fa-IR")
                     )}
                     {privatePrice !== null && (
                       <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
@@ -1032,29 +1116,42 @@ export default function SessionsPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                  <span className="text-sm font-medium text-[var(--dash-muted)]">
-                    {t("sessions.pricePerSession")}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      {t("sessions.pricePerSession")}
+                    </span>
+                  </div>
+                  <span className="text-2xl font-black text-[var(--dash-text)] text-left">
+                    {privatePrice === null ? (
+                      <span className="flex items-end gap-1" dir="ltr">
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                      </span>
+                    ) : (
+                      pricePerSession(privatePrice).toLocaleString("fa-IR")
+                    )}
+                    {privatePrice !== null && (
+                      <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                        {t("sessions.toman")}
+                      </span>
+                    )}
                   </span>
                 </div>
-                <span className="text-2xl font-black text-[var(--dash-text)] text-left">
-                  {privatePrice === null ? (
-                    <span className="flex items-end gap-1" dir="ltr">
-                      <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                      <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                      <span className="w-1.5 h-1.5 bg-[var(--dash-text)] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                {extraPerSession > 0 && (
+                  <div className="flex items-center justify-between pt-2 border-t border-green-500/10">
+                    <span className="text-sm font-medium text-[var(--dash-muted)]">
+                      {t("sessions.inClassExtra")}
                     </span>
-                  ) : (
-                    discountedPrice(privatePrice).toLocaleString("fa-IR")
-                  )}
-                  {privatePrice !== null && (
-                    <span className="text-xs font-bold text-[var(--dash-muted)] mr-1">
+                    <span className="text-sm font-bold text-[var(--dash-text)]">
+                      +{extraPerSession.toLocaleString("fa-IR")}{" "}
                       {t("sessions.toman")}
                     </span>
-                  )}
-                </span>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1176,6 +1273,16 @@ export default function SessionsPage() {
                         </p>
                         <span className="text-[10px] text-[var(--dash-muted)] bg-[var(--hover-bg)] px-2 py-0.5 rounded-full shrink-0">
                           {req.type === "Private" ? t("sessions.private") : t("sessions.public")}
+                        </span>
+                        <span className="text-[10px] text-[var(--dash-muted)] bg-[var(--hover-bg)] px-2 py-0.5 rounded-full shrink-0 flex items-center gap-1">
+                          {req.mode === "InClass" ? (
+                            <MapPin className="h-3 w-3" />
+                          ) : (
+                            <Video className="h-3 w-3" />
+                          )}
+                          {req.mode === "InClass"
+                            ? t("sessions.inClass")
+                            : t("sessions.online")}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">

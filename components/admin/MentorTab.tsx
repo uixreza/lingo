@@ -67,6 +67,7 @@ export default function MentorTab() {
   const [accountName, setAccountName] = useState("");
   const [priceInput, setPriceInput] = useState("");
   const [discountPercentInput, setDiscountPercentInput] = useState("");
+  const [inClassExtraInput, setInClassExtraInput] = useState("");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -101,6 +102,9 @@ export default function MentorTab() {
         }
         if (typeof d.discountPercent === "number") {
           setDiscountPercentInput(String(d.discountPercent));
+        }
+        if (typeof d.inClassExtra === "number") {
+          setInClassExtraInput(String(d.inClassExtra));
         }
       })
       .catch(() => {});
@@ -191,11 +195,23 @@ export default function MentorTab() {
       toast.error("درصد تخفیف باید بین ۰ تا ۱۰۰ باشد");
       return false;
     }
+    const extraDigits = inClassExtraInput
+      .replace(/[۰-۹]/g, (d) => String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)))
+      .replace(/\D/g, "");
+    const inClassExtra = extraDigits === "" ? 0 : parseInt(extraDigits, 10);
+    if (!Number.isFinite(inClassExtra) || inClassExtra < 0) {
+      toast.error("قیمت کلاس حضوری معتبر نیست");
+      return false;
+    }
     try {
       const res = await fetch("/api/sessions/price", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ privatePrice: p, discountPercent: discount }),
+        body: JSON.stringify({
+          privatePrice: p,
+          discountPercent: discount,
+          inClassExtra,
+        }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok) {
@@ -207,6 +223,9 @@ export default function MentorTab() {
       }
       if (typeof data?.discountPercent === "number") {
         setDiscountPercentInput(String(data.discountPercent));
+      }
+      if (typeof data?.inClassExtra === "number") {
+        setInClassExtraInput(String(data.inClassExtra));
       }
       return true;
     } catch {
@@ -280,8 +299,8 @@ export default function MentorTab() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 items-start">
-        {/* Side column: photo + languages */}
-        <div className="space-y-6">
+        {/* Side column: photo + languages (side by side on large screens) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
           <div className={cardClass}>
             <div className={accentBar} />
             <div className="flex items-center gap-2 mb-4">
@@ -562,8 +581,44 @@ export default function MentorTab() {
                 این تخفیف هنگام رزرو کلاس خصوصی به دانشجو نمایش داده می‌شود
               </p>
             </div>
+
+            <div className="mt-5 pt-5 border-t border-[var(--dash-muted)]/10">
+              <label className={labelClass}>قیمت کلاس حضوری (مبلغ اضافه)</label>
+              <div className="relative max-w-sm">
+                <input
+                  value={inClassExtraInput}
+                  onChange={(e) =>
+                    setInClassExtraInput(
+                      e.target.value.replace(/[^0-9۰-۹]/g, ""),
+                    )
+                  }
+                  inputMode="numeric"
+                  placeholder="مثلاً 100"
+                  className={`${inputClass} pl-16`}
+                />
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs text-[var(--dash-muted)] font-medium">
+                  تومان
+                </span>
+              </div>
+              <div className="mt-2 text-xs text-[var(--dash-muted)]">
+                {inClassExtraInput.replace(/[۰-۹]/g, (d) =>
+                  String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+                )
+                  ? `هر جلسه حضوری + ${Number(
+                      inClassExtraInput
+                        .replace(/[۰-۹]/g, (d) =>
+                          String("۰۱۲۳۴۵۶۷۸۹".indexOf(d)),
+                        )
+                        .replace(/\D/g, ""),
+                    ).toLocaleString("fa-IR")} تومان`
+                  : "۰ به معنای بدون هزینه اضافه است"}
+              </div>
+              <p className="mt-1 text-xs text-[var(--dash-muted)]/70">
+                هنگام انتخاب «حضوری» در فرم رزرو، به قیمت هر جلسه اضافه می‌شود
+              </p>
+            </div>
             <p className="mt-3 text-xs text-[var(--dash-muted)]/70">
-              این مبلغ هنگام رزرو کلاس خصوصی از دانشجو دریافت می‌شود
+              این مبلغ هنگام رزرو کلاس خصوصی آنلاین از دانشجو دریافت می‌شود
             </p>
           </div>
         </div>

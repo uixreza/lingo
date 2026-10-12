@@ -22,6 +22,7 @@ export async function GET() {
         language: true,
         sessionType: true,
         status: true,
+        mode: true,
         meetUrl: true,
         reasonForLearning: true,
         sessionNote: true,
@@ -45,6 +46,7 @@ export async function GET() {
       time: `${pad(timeHours)}:${pad(timeMinutes)}`,
       language: s.language,
       type: s.sessionType,
+      mode: s.mode,
       status: s.status,
       meetLink: s.meetUrl,
       reason: s.reasonForLearning,
@@ -68,6 +70,7 @@ export async function POST(request: Request) {
   const userId = parseInt(sess.user.id, 10);
   const body = await request.json();
   const { sessionDate, startTime, language, sessionType, reasonForLearning } = body;
+  const mode = body.mode === "InClass" ? "InClass" : "Online";
 
   if (!sessionDate || !startTime || !sessionType) {
     if (sessionType !== "Public") {
@@ -117,14 +120,18 @@ export async function POST(request: Request) {
   // Fallbacks mirror the price GET route so they can never diverge.
   const sessionPrice = await prisma.sessionPrice.findFirst();
   const discountPercent = Number(sessionPrice?.discountPercent ?? 0);
+  const inClassExtra =
+    sessionType === "Private" && mode === "InClass"
+      ? Number(sessionPrice?.inClassExtra ?? 100)
+      : 0;
   const rawAmount =
     sessionType === "Private"
       ? Number(sessionPrice?.privatePrice ?? 350000)
       : Number(sessionPrice?.subscriptionPrice ?? 150000);
   const amountPaid =
-    sessionType === "Private" && discountPercent > 0
+    (sessionType === "Private" && discountPercent > 0
       ? Math.round((rawAmount * (100 - discountPercent)) / 100)
-      : rawAmount;
+      : rawAmount) + inClassExtra;
 
   // Free session (admin set price to 0): no wallet interaction
   if (amountPaid <= 0) {
@@ -136,6 +143,7 @@ export async function POST(request: Request) {
           startTime: timeDate,
           language: language || "English",
           sessionType: sessionType === "Private" ? "Private" : "Public",
+          mode,
           reasonForLearning: reasonForLearning || null,
           amountPaid: 0,
           status: "Pending",
@@ -149,6 +157,7 @@ export async function POST(request: Request) {
         time: `${String(created.startTime.getHours()).padStart(2, "0")}:${String(created.startTime.getMinutes()).padStart(2, "0")}`,
         language: created.language,
         type: created.sessionType,
+        mode: created.mode,
         status: created.status,
         reason: created.reasonForLearning,
       }, { status: 201 });
@@ -210,6 +219,7 @@ export async function POST(request: Request) {
           startTime: timeDate,
           language: language || "English",
           sessionType: sessionType === "Private" ? "Private" : "Public",
+          mode,
           reasonForLearning: reasonForLearning || null,
           amountPaid,
           status: "Pending",
@@ -235,6 +245,7 @@ export async function POST(request: Request) {
       time: `${String(created.startTime.getHours()).padStart(2, "0")}:${String(created.startTime.getMinutes()).padStart(2, "0")}`,
       language: created.language,
       type: created.sessionType,
+      mode: created.mode,
       status: created.status,
       reason: created.reasonForLearning,
     }, { status: 201 });

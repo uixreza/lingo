@@ -6,6 +6,7 @@ import { useLang } from "@/contexts/LanguageContext";
 
 import LandingNavbar from "@/components/landing/LandingNavbar";
 import HeroSection from "@/components/landing/HeroSection";
+import IntroVideoSection from "@/components/landing/IntroVideoSection";
 import MetricsBar from "@/components/landing/MetricsBar";
 import FounderSection from "@/components/landing/FounderSection";
 import PlatformPillars from "@/components/landing/PlatformPillars";
@@ -68,6 +69,7 @@ export default function Home() {
 
       <LandingNavbar />
       <HeroSection christmas={christmas} />
+      <IntroVideoSection />
       <MetricsBar />
       <FounderSection />
       <PlatformPillars />

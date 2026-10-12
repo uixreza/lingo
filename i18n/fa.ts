@@ -542,6 +542,7 @@ const fa = {
 
   // Landing - Bioluminescent EdTech
   "landing.nav.courses": "دوره‌ها",
+  "landing.nav.blog": "لینگوبلاگ",
   "landing.nav.methodology": "روش تدریس",
   "landing.nav.founder": "درباره مدرس",
   "landing.nav.levelTest": "تعیین سطح",
@@ -559,6 +560,14 @@ const fa = {
   "landing.hero.fluency": "زبان‌ها",
   "landing.hero.fluencyValue": "۳",
   "landing.hero.fluencyLabel": "EN / TR / DE",
+  "landing.intro.label": "برای تازه‌واردها",
+  "landing.intro.headline": "ویدیو معرفی لینگوفم",
+  "landing.intro.subtitle":
+    "در چند دقیقه ببینید لینگوفم چطور کار می‌کند — قبل از شروع اولین کلاستان.",
+  "landing.intro.play": "پخش ویدیو",
+  "landing.intro.pause": "توقف ویدیو",
+  "landing.intro.mock": "ویدیو نمایشی",
+  "landing.intro.playingNote": "پخش نمایشی — ویدیوی واقعی به‌زودی اضافه می‌شود",
   "landing.metrics.students": "A1–C2",
   "landing.metrics.studentsLabel": "سیستم سطح‌بندی CEFR",
   "landing.metrics.ielts": "خصوصی",

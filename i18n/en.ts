@@ -542,6 +542,7 @@ const en = {
 
   // Landing - Bioluminescent EdTech
   "landing.nav.courses": "Courses",
+  "landing.nav.blog": "LingoBlog",
   "landing.nav.methodology": "Methodology",
   "landing.nav.founder": "Meet the Founder",
   "landing.nav.levelTest": "Level Test",
@@ -559,6 +560,14 @@ const en = {
   "landing.hero.fluency": "Languages",
   "landing.hero.fluencyValue": "3",
   "landing.hero.fluencyLabel": "EN / TR / DE",
+  "landing.intro.label": "For Newcomers",
+  "landing.intro.headline": "LingoFam Introduction Video",
+  "landing.intro.subtitle":
+    "See how LingoFam works in a few minutes — before you start your first class.",
+  "landing.intro.play": "Play Video",
+  "landing.intro.pause": "Pause Video",
+  "landing.intro.mock": "Demo Video",
+  "landing.intro.playingNote": "Demo playback — the real video is coming soon",
   "landing.metrics.students": "A1–C2",
   "landing.metrics.studentsLabel": "CEFR Level System",
   "landing.metrics.ielts": "Private",

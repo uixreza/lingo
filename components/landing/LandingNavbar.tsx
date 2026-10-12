@@ -29,7 +29,7 @@ export default function LandingNavbar() {
     { label: t("landing.nav.courses"), href: "/courses" },
     { label: t("landing.nav.methodology"), href: "/about" },
     { label: t("landing.nav.founder"), href: "/about" },
-    { label: "LingoBlog", href: "/blog" },
+    { label: t("landing.nav.blog"), href: "/blog" },
     { label: t("landing.nav.levelTest"), href: "/test" },
   ];
 
@@ -42,7 +42,9 @@ export default function LandingNavbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
             <Image src="/mainIcon.webp" alt="LingoFam" width={28} height={28} className="w-7 h-7" />
-            <span className="text-lg font-bold text-white tracking-tight">
+            <span
+              className="text-lg text-white tracking-tight"
+              style={{ fontFamily: '"Poolary", sans-serif', fontWeight: 400 }}>
               Lingo<span className="text-[#05df72]">Fam</span>
             </span>
           </Link>

@@ -551,7 +551,7 @@ const en = {
   "landing.hero.fluencyLabel": "EN / TR / DE",
   "landing.metrics.students": "A1–C2",
   "landing.metrics.studentsLabel": "CEFR Level System",
-  "landing.metrics.ielts": "1-on-1",
+  "landing.metrics.ielts": "Private",
   "landing.metrics.ieltsLabel": "Private Tutoring Sessions",
   "landing.metrics.ai": "3",
   "landing.metrics.aiLabel": "Languages Supported",

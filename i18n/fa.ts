@@ -551,7 +551,7 @@ const fa = {
   "landing.hero.fluencyLabel": "EN / TR / DE",
   "landing.metrics.students": "A1–C2",
   "landing.metrics.studentsLabel": "سیستم سطح‌بندی CEFR",
-  "landing.metrics.ielts": "۱-on-۱",
+  "landing.metrics.ielts": "خصوصی",
   "landing.metrics.ieltsLabel": "کلاس خصوصی با مدرس",
   "landing.metrics.ai": "۳",
   "landing.metrics.aiLabel": "زبان پشتیبانی‌شده",

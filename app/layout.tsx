@@ -9,12 +9,12 @@ import SplashScreen from "@/components/SplashScreen";
 export const metadata: Metadata = {
   title: {
     default: "Lingofam — زبان رو طبیعی یاد بگیر",
-    template: "%s — لینگوفام",
+    template: "%s — لینگوفم",
   },
   description:
     "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
   applicationName: "لینگوفم",
-  keywords: ["یادگیری زبان", "آموزش زبان", "لینگوفام", "زبان خارجی", "آموزش آنلاین", "LINGOFAM"],
+  keywords: ["یادگیری زبان", "آموزش زبان", "لینگوفم", "زبان خارجی", "آموزش آنلاین", "LINGOFAM"],
   authors: [{ name: "LINGOFAM" }],
   creator: "LINGOFAM",
   publisher: "LINGOFAM",
@@ -26,11 +26,11 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fa_IR",
     url: "https://lingofam.ir",
-    siteName: "لینگوفام",
+    siteName: "لینگوفم",
     title: "Lingofam — زبان رو طبیعی یاد بگیر",
     description:
       "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
-    images: [{ url: "/mainIcon.webp", width: 1200, height: 630, alt: "لینگوفام" }],
+    images: [{ url: "/mainIcon.webp", width: 1200, height: 630, alt: "لینگوفم" }],
   },
   twitter: {
     card: "summary_large_image",

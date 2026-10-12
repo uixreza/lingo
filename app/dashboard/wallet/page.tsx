@@ -189,7 +189,7 @@ export default function WalletPage() {
     div.innerHTML = `
       <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #16a34a;padding-bottom:18px;">
         <div>
-          <div style="font-size:26px;font-weight:800;color:#16a34a;">لینگو فام</div>
+          <div style="font-size:26px;font-weight:800;color:#16a34a;">لینگوفم</div>
           <div style="font-size:12px;color:#6b7280;margin-top:4px;">${t("wallet.invoiceSubheader")}</div>
         </div>
         <div style="text-align:left;">

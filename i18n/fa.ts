@@ -7,7 +7,7 @@ const fa = {
   "nav.login": "ورود",
 
   // Support prompt
-  "support.title": "پشتیبانی لینگوفام",
+  "support.title": "پشتیبانی لینگوفم",
   "support.message": "شما به گفتگوی پشتیبانی تلگرام منتقل خواهید شد.",
   "support.cancel": "بیخیال",
   "support.continue": "ادامه",
@@ -327,7 +327,7 @@ const fa = {
 
   // Dashboard - Wallet
   "wallet.currentBalance": "موجودی فعلی",
-  "wallet.title": "کیف پول لینگوفام",
+  "wallet.title": "کیف پول لینگوفم",
   "wallet.active": "فعال",
   "wallet.inactive": "غیرفعال",
   "wallet.lastCharge": "آخرین شارژ",
@@ -384,9 +384,9 @@ const fa = {
   "wallet.statusPending": "در انتظار",
   "wallet.statusFailed": "ناموفق",
   "wallet.statusRefunded": "بازگشت داده شده",
-  "wallet.invoiceHeader": "لینگو فام",
+  "wallet.invoiceHeader": "لینگوفم",
   "wallet.invoiceSubheader": "فاکتور رسمی کیف پول",
-  "wallet.invoiceFooter": "لینگو فام | پشتیبانی: t.me/lingofam_support",
+  "wallet.invoiceFooter": "لینگوفم | پشتیبانی: t.me/lingofam_support",
   "wallet.toman": "تومان",
   "wallet.equivalent": "معادل:",
   "wallet.guideItem1": "موجودی کیف پول برای ثبت نام در تمام دوره‌ها قابل استفاده است",
@@ -481,7 +481,7 @@ const fa = {
   "about.skillContent": "تولید محتوا",
 
   // Landing - Blog
-  "blog.siteTitle": "وبلاگ لینگوفام",
+  "blog.siteTitle": "وبلاگ لینگوفم",
   "blog.title": "لینگوبلاگ",
   "blog.description": "جدیدترین آموزش‌ها و نکته‌های یادگیری زبان",
   "blog.empty": "هنوز مقاله‌ای منتشر نشده است",
@@ -648,7 +648,7 @@ const fa = {
   "landing.footer.sslDesc": "پروتکل حریم خصوصی",
   "landing.footer.mastery": "کلاس خصوصی ۱-on-۱",
   "landing.footer.masteryDesc": "تدریس شخصی‌سازی‌شده",
-  "landing.footer.copyright": "© ۲۰۲۶ لینگوفام. تمامی حقوق محفوظ است.",
+  "landing.footer.copyright": "© ۲۰۲۶ لینگوفم. تمامی حقوق محفوظ است.",
   "landing.footer.privacy": "حریم خصوصی",
   "landing.footer.terms": "شرایط استفاده",
   "landing.footer.security": "نمای کلی امنیت",

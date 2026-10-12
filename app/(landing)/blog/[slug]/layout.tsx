@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     });
 
     if (!post) {
-      return { title: "مقاله یافت نشد — لینگوفام" };
+      return { title: "مقاله یافت نشد — لینگوفم" };
     }
 
     const description = post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160);
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const ogImage = post.thumbnailUrl || "https://lingofam.ir/mainIcon.webp";
 
     return {
-      title: `${post.title} — لینگوفام`,
+      title: `${post.title} — لینگوفم`,
       description,
       keywords: post.tags ?? [],
       authors: [{ name: post.author.fullname }],
@@ -43,7 +43,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         modifiedTime: post.updatedAt?.toISOString(),
         authors: [post.author.fullname],
         images: [{ url: ogImage, width: 1200, height: 630, alt: post.title }],
-        siteName: "لینگوفام",
+        siteName: "لینگوفم",
         locale: "fa_IR",
       },
       twitter: {
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       },
     };
   } catch {
-    return { title: "مقاله — لینگوفام" };
+    return { title: "مقاله — لینگوفم" };
   }
 }
 
@@ -104,7 +104,7 @@ export default async function BlogSlugLayout({
         },
         publisher: {
           "@type": "Organization",
-          name: "لینگوفام",
+          name: "لینگوفم",
           logo: {
             "@type": "ImageObject",
             url: "https://lingofam.ir/mainIcon.webp",

@@ -30,7 +30,7 @@ export default function LingoTVPage() {
         </h1>
 
         <p className="mt-6 text-base sm:text-lg text-[#888] max-w-md leading-relaxed">
-          ویدیوهای آموزشی، پادکست‌ها و محتوای ویدیویی جذاب لینگو‌فام به‌زودی اینجا
+          ویدیوهای آموزشی، پادکست‌ها و محتوای ویدیویی جذاب لینگوفم به‌زودی اینجا
           منتشر می‌شود.
         </p>
       </div>

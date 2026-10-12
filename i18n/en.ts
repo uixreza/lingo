@@ -633,6 +633,26 @@ const en = {
   "landing.footer.terms": "Terms of Service",
   "landing.footer.security": "Security Overview",
 
+  // Courses
+  "courses.label": "LingoFam Courses",
+  "courses.headline": "Our Courses",
+  "courses.subtitle": "Structured courses with a clear plan, hands-on practice, and direct tutor support — from A1 to C2.",
+  "courses.buy": "Buy Course",
+  "courses.currency": "Toman",
+  "courses.lessonsUnit": "lessons",
+  "courses.weeksUnit": "weeks",
+  "courses.level": "Level",
+  "courses.hot": "Bestseller",
+  "courses.checkoutSoon": "Checkout is coming soon — your order has been recorded.",
+  "courses.general.title": "General English",
+  "courses.general.desc": "A complete speaking, grammar, and vocabulary course to build a strong foundation, with weekly practice and tutor feedback.",
+  "courses.ielts.title": "IELTS Preparation",
+  "courses.ielts.desc": "Strategies for all four skills, official sample analysis, and mock tests scored by your tutor.",
+  "courses.business.title": "Business English",
+  "courses.business.desc": "Office conversations, formal emails, and presentations for the workplace — ideal for professionals and students.",
+  "courses.german.title": "German A1",
+  "courses.german.desc": "From zero to A1 with correct pronunciation, sentence structure, and everyday conversation.",
+
   // Language
   "lang.fa": "فارسی",
   "lang.en": "English",

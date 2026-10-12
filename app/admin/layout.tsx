@@ -10,6 +10,7 @@ import Breadcrum from "@/components/dashboard/UI/Breadcrum";
 export const metadata: Metadata = {
   title: "داشبورد",
   description: "صفحه داشبورد لینگوفم",
+  robots: { index: false, follow: false },
 };
 
 export default async function RootLayout({

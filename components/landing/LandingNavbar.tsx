@@ -26,7 +26,7 @@ export default function LandingNavbar() {
   }, []);
 
   const navLinks = [
-    { label: t("landing.nav.courses"), href: "/test" },
+    { label: t("landing.nav.courses"), href: "/courses" },
     { label: t("landing.nav.methodology"), href: "/about" },
     { label: t("landing.nav.founder"), href: "/about" },
     { label: "LingoBlog", href: "/blog" },

@@ -633,6 +633,26 @@ const fa = {
   "landing.footer.terms": "شرایط استفاده",
   "landing.footer.security": "نمای کلی امنیت",
 
+  // Courses
+  "courses.label": "دوره‌های لینگوفم",
+  "courses.headline": "دوره‌های آموزشی",
+  "courses.subtitle": "دوره‌های جامع با برنامه مشخص، تمرین عملی و پشتیبانی مستقیم مدرس — از سطح A1 تا C2.",
+  "courses.buy": "خرید دوره",
+  "courses.currency": "تومان",
+  "courses.lessonsUnit": "درس",
+  "courses.weeksUnit": "هفته",
+  "courses.level": "سطح",
+  "courses.hot": "پرفروش",
+  "courses.checkoutSoon": "درگاه پرداخت به‌زودی فعال می‌شود؛ سفارش شما ثبت شد.",
+  "courses.general.title": "انگلیسی عمومی",
+  "courses.general.desc": "دوره جامع مکالمه، گرامر و واژگان برای ساختن پایه‌ای محکم؛ با تمرین هفتگی و بازخورد مستقیم مدرس.",
+  "courses.ielts.title": "آمادگی آیلتس",
+  "courses.ielts.desc": "استراتژی هر چهار مهارت، تحلیل نمونه‌سوالات رسمی و آزمون آزمایشی با نمره‌دهی مدرس.",
+  "courses.business.title": "انگلیسی تجاری",
+  "courses.business.desc": "مکالمه‌های اداری، ایمیل رسمی و ارائه کاری برای محیط کار؛ مناسب شاغلان و دانشجویان.",
+  "courses.german.title": "آلمانی سطح A1",
+  "courses.german.desc": "از صفر تا A1 با تلفظ درست، ساختار جمله و مکالمه‌های روزمره؛ پایه‌ای مطمئن برای شروع.",
+
   // Language
   "lang.fa": "فارسی",
   "lang.en": "English",

@@ -15,6 +15,7 @@ import DashboardShell from "@/components/dashboard/DashboardShell";
 export const metadata: Metadata = {
   title: "داشبورد",
   description: "صفحه داشبورد لینگوفم",
+  robots: { index: false, follow: false },
 };
 
 export default async function RootLayout({

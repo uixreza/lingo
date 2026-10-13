@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Image from "next/image";
 import {
   useEditor,
@@ -66,13 +66,41 @@ import {
   Loader2,
   PencilRuler,
   Tag,
+  Search,
+  Pilcrow,
+  PilcrowLeft,
+  PilcrowRight,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 
+const blockDirectionAttribute = {
+  dir: {
+    default: null,
+    parseHTML: (element: HTMLElement) => {
+      const dir = element.getAttribute("dir");
+      return dir === "rtl" || dir === "ltr" || dir === "auto" ? dir : null;
+    },
+    renderHTML: (attributes: { dir?: string | null }) =>
+      attributes.dir ? { dir: attributes.dir } : {},
+  },
+};
+
+const DirectionParagraph = Paragraph.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...blockDirectionAttribute };
+  },
+});
+
+const DirectionHeading = Heading.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...blockDirectionAttribute };
+  },
+});
+
 const extensions = [
   Document,
-  Paragraph,
+  DirectionParagraph,
   Text,
   History,
   Bold,
@@ -80,7 +108,7 @@ const extensions = [
   Underline,
   Strike,
   Code,
-  Heading.configure({ levels: [1, 2, 3] }),
+  DirectionHeading.configure({ levels: [1, 2, 3] }),
   BulletList,
   OrderedList,
   ListItem,
@@ -103,6 +131,7 @@ type BlogPost = {
   thumbnailGradient: string | null;
   title: string;
   summary: string;
+  metaDescription?: string | null;
   author: string;
   createdAt: string;
   date: string;
@@ -135,6 +164,46 @@ function toFa(value: number | string): string {
   return String(value).replace(/[0-9]/g, (d) => digits[+d]);
 }
 
+const STICKY_GAP = 24;
+
+function useBottomSticky<T extends HTMLElement>() {
+  const [el, setEl] = useState<T | null>(null);
+  const [top, setTop] = useState<number>(STICKY_GAP);
+
+  const ref = useCallback((node: T | null) => setEl(node), []);
+
+  useEffect(() => {
+    if (!el) return;
+
+    let scrollParent: HTMLElement | null = el.parentElement;
+    while (scrollParent) {
+      const overflowY = getComputedStyle(scrollParent).overflowY;
+      if (overflowY === "auto" || overflowY === "scroll") break;
+      scrollParent = scrollParent.parentElement;
+    }
+
+    const update = () => {
+      const viewportHeight = scrollParent?.clientHeight ?? window.innerHeight;
+      setTop(
+        Math.max(STICKY_GAP, viewportHeight - el.offsetHeight - STICKY_GAP),
+      );
+    };
+
+    update();
+
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    window.addEventListener("resize", update);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", update);
+    };
+  }, [el]);
+
+  return { ref, style: { top } as React.CSSProperties };
+}
+
 type ToolItem = {
   key: string;
   icon: LucideIcon;
@@ -153,9 +222,15 @@ const toolButtonClass = (active: boolean) =>
 
 const toolGroupDivider = "w-px h-6 bg-[var(--dash-muted)]/20 mx-1.5";
 
-function Toolbar({ editor }: { editor: Editor | null }) {
-  if (!editor) return null;
+type ToolGroup = { key: string; items: ToolItem[] };
 
+function currentBlockDir(editor: Editor): string | null {
+  const type = editor.isActive("heading") ? "heading" : "paragraph";
+  const dir = editor.getAttributes(type).dir;
+  return typeof dir === "string" ? dir : null;
+}
+
+function createToolGroups(editor: Editor): ToolGroup[] {
   const setLink = () => {
     const previousUrl = editor.getAttributes("link").href as string | undefined;
     const url = window.prompt(
@@ -175,144 +250,169 @@ function Toolbar({ editor }: { editor: Editor | null }) {
       .run();
   };
 
-  const groups: ToolItem[][] = [
-    [
-      {
-        key: "undo",
-        icon: Undo2,
-        label: "واگرد",
-        onClick: () => editor.chain().focus().undo().run(),
-        disabled: !editor.can().chain().undo().run(),
-      },
-      {
-        key: "redo",
-        icon: Redo2,
-        label: "بازگردانی",
-        onClick: () => editor.chain().focus().redo().run(),
-        disabled: !editor.can().chain().redo().run(),
-      },
-    ],
-    [
-      { key: "bold", icon: BoldIcon, label: "ضخیم", onClick: () => editor.chain().focus().toggleBold().run(), isActive: () => editor.isActive("bold") },
-      { key: "italic", icon: ItalicIcon, label: "ایتالیک", onClick: () => editor.chain().focus().toggleItalic().run(), isActive: () => editor.isActive("italic") },
-      { key: "underline", icon: UnderlineIcon, label: "زیرخط", onClick: () => editor.chain().focus().toggleUnderline().run(), isActive: () => editor.isActive("underline") },
-      { key: "strike", icon: Strikethrough, label: "خط خورده", onClick: () => editor.chain().focus().toggleStrike().run(), isActive: () => editor.isActive("strike") },
-      { key: "code", icon: CodeIcon, label: "کد", onClick: () => editor.chain().focus().toggleCode().run(), isActive: () => editor.isActive("code") },
-    ],
-    [
-      { key: "h1", icon: Heading1, label: "عنوان ۱", onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), isActive: () => editor.isActive("heading", { level: 1 }) },
-      { key: "h2", icon: Heading2, label: "عنوان ۲", onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), isActive: () => editor.isActive("heading", { level: 2 }) },
-      { key: "h3", icon: Heading3, label: "عنوان ۳", onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), isActive: () => editor.isActive("heading", { level: 3 }) },
-    ],
-    [
-      { key: "bullet", icon: List, label: "لیست نقطه‌ای", onClick: () => editor.chain().focus().toggleBulletList().run(), isActive: () => editor.isActive("bulletList") },
-      { key: "ordered", icon: ListOrdered, label: "لیست شماره‌دار", onClick: () => editor.chain().focus().toggleOrderedList().run(), isActive: () => editor.isActive("orderedList") },
-      { key: "quote", icon: TextQuote, label: "نقل‌قول", onClick: () => editor.chain().focus().toggleBlockquote().run(), isActive: () => editor.isActive("blockquote") },
-      { key: "codeblock", icon: Code2, label: "بلوک کد", onClick: () => editor.chain().focus().toggleCodeBlock().run(), isActive: () => editor.isActive("codeBlock") },
-    ],
-    [
-      {
-        key: "link",
-        icon: Link2,
-        label: "لینک",
-        onClick: setLink,
-        isActive: () => editor.isActive("link"),
-      },
-      {
-        key: "unlink",
-        icon: Unlink,
-        label: "حذف لینک",
-        onClick: () => editor.chain().focus().extendMarkRange("link").unsetLink().run(),
-        disabled: !editor.isActive("link"),
-      },
-    ],
-    [
-      { key: "align-right", icon: AlignRight, label: "چپ‌چین", onClick: () => editor.chain().focus().setTextAlign("right").run(), isActive: () => editor.isActive({ textAlign: "right" }) },
-      { key: "align-center", icon: AlignCenter, label: "وسط‌چین", onClick: () => editor.chain().focus().setTextAlign("center").run(), isActive: () => editor.isActive({ textAlign: "center" }) },
-      { key: "align-left", icon: AlignLeft, label: "راست‌چین", onClick: () => editor.chain().focus().setTextAlign("left").run(), isActive: () => editor.isActive({ textAlign: "left" }) },
-    ],
-    [
-      {
-        key: "hr",
-        icon: Minus,
-        label: "خط جداکننده",
-        onClick: () => editor.chain().focus().setHorizontalRule().run(),
-      },
-      {
-        key: "clear",
-        icon: Eraser,
-        label: "پاک‌سازی قالب",
-        onClick: () =>
-          editor.chain().focus().unsetAllMarks().clearNodes().run(),
-      },
-    ],
+  const setDirection = (direction: "rtl" | "ltr" | "auto") => {
+    const chain = editor.chain().focus();
+    if (direction === "auto") {
+      chain.unsetTextDirection().run();
+    } else {
+      chain.setTextDirection(direction).run();
+    }
+  };
+
+  return [
+    {
+      key: "history",
+      items: [
+        {
+          key: "undo",
+          icon: Undo2,
+          label: "واگرد",
+          onClick: () => editor.chain().focus().undo().run(),
+          disabled: !editor.can().chain().undo().run(),
+        },
+        {
+          key: "redo",
+          icon: Redo2,
+          label: "بازگردانی",
+          onClick: () => editor.chain().focus().redo().run(),
+          disabled: !editor.can().chain().redo().run(),
+        },
+      ],
+    },
+    {
+      key: "marks",
+      items: [
+        { key: "bold", icon: BoldIcon, label: "ضخیم", onClick: () => editor.chain().focus().toggleBold().run(), isActive: () => editor.isActive("bold") },
+        { key: "italic", icon: ItalicIcon, label: "ایتالیک", onClick: () => editor.chain().focus().toggleItalic().run(), isActive: () => editor.isActive("italic") },
+        { key: "underline", icon: UnderlineIcon, label: "زیرخط", onClick: () => editor.chain().focus().toggleUnderline().run(), isActive: () => editor.isActive("underline") },
+        { key: "strike", icon: Strikethrough, label: "خط خورده", onClick: () => editor.chain().focus().toggleStrike().run(), isActive: () => editor.isActive("strike") },
+        { key: "code", icon: CodeIcon, label: "کد", onClick: () => editor.chain().focus().toggleCode().run(), isActive: () => editor.isActive("code") },
+      ],
+    },
+    {
+      key: "headings",
+      items: [
+        { key: "h1", icon: Heading1, label: "عنوان ۱", onClick: () => editor.chain().focus().toggleHeading({ level: 1 }).run(), isActive: () => editor.isActive("heading", { level: 1 }) },
+        { key: "h2", icon: Heading2, label: "عنوان ۲", onClick: () => editor.chain().focus().toggleHeading({ level: 2 }).run(), isActive: () => editor.isActive("heading", { level: 2 }) },
+        { key: "h3", icon: Heading3, label: "عنوان ۳", onClick: () => editor.chain().focus().toggleHeading({ level: 3 }).run(), isActive: () => editor.isActive("heading", { level: 3 }) },
+      ],
+    },
+    {
+      key: "lists",
+      items: [
+        { key: "bullet", icon: List, label: "لیست نقطه‌ای", onClick: () => editor.chain().focus().toggleBulletList().run(), isActive: () => editor.isActive("bulletList") },
+        { key: "ordered", icon: ListOrdered, label: "لیست شماره‌دار", onClick: () => editor.chain().focus().toggleOrderedList().run(), isActive: () => editor.isActive("orderedList") },
+        { key: "quote", icon: TextQuote, label: "نقل‌قول", onClick: () => editor.chain().focus().toggleBlockquote().run(), isActive: () => editor.isActive("blockquote") },
+        { key: "codeblock", icon: Code2, label: "بلوک کد", onClick: () => editor.chain().focus().toggleCodeBlock().run(), isActive: () => editor.isActive("codeBlock") },
+      ],
+    },
+    {
+      key: "link",
+      items: [
+        {
+          key: "link",
+          icon: Link2,
+          label: "لینک",
+          onClick: setLink,
+          isActive: () => editor.isActive("link"),
+        },
+        {
+          key: "unlink",
+          icon: Unlink,
+          label: "حذف لینک",
+          onClick: () => editor.chain().focus().extendMarkRange("link").unsetLink().run(),
+          disabled: !editor.isActive("link"),
+        },
+      ],
+    },
+    {
+      key: "align",
+      items: [
+        { key: "align-right", icon: AlignRight, label: "چپ‌چین", onClick: () => editor.chain().focus().setTextAlign("right").run(), isActive: () => editor.isActive({ textAlign: "right" }) },
+        { key: "align-center", icon: AlignCenter, label: "وسط‌چین", onClick: () => editor.chain().focus().setTextAlign("center").run(), isActive: () => editor.isActive({ textAlign: "center" }) },
+        { key: "align-left", icon: AlignLeft, label: "راست‌چین", onClick: () => editor.chain().focus().setTextAlign("left").run(), isActive: () => editor.isActive({ textAlign: "left" }) },
+      ],
+    },
+    {
+      key: "direction",
+      items: [
+        { key: "dir-rtl", icon: PilcrowLeft, label: "جهت راست به چپ (RTL)", onClick: () => setDirection("rtl"), isActive: () => currentBlockDir(editor) === "rtl" },
+        { key: "dir-ltr", icon: PilcrowRight, label: "جهت چپ به راست (LTR)", onClick: () => setDirection("ltr"), isActive: () => currentBlockDir(editor) === "ltr" },
+        { key: "dir-auto", icon: Pilcrow, label: "جهت خودکار", onClick: () => setDirection("auto"), isActive: () => currentBlockDir(editor) === null },
+      ],
+    },
+    {
+      key: "blocks",
+      items: [
+        {
+          key: "hr",
+          icon: Minus,
+          label: "خط جداکننده",
+          onClick: () => editor.chain().focus().setHorizontalRule().run(),
+        },
+        {
+          key: "clear",
+          icon: Eraser,
+          label: "پاک‌سازی قالب",
+          onClick: () =>
+            editor.chain().focus().unsetAllMarks().clearNodes().run(),
+        },
+      ],
+    },
   ];
+}
+
+function ToolGroupRow({
+  group,
+  withDivider,
+}: {
+  group: ToolGroup;
+  withDivider: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-1">
+      {withDivider && <div className={toolGroupDivider} />}
+      {group.items.map((tool) => (
+        <button
+          key={tool.key}
+          onClick={tool.onClick}
+          disabled={tool.disabled}
+          title={tool.label}
+          aria-label={tool.label}
+          className={toolButtonClass(tool.isActive?.() ?? false)}>
+          <tool.icon className="h-4 w-4" />
+        </button>
+      ))}
+    </div>
+  );
+}
+
+function Toolbar({ editor }: { editor: Editor | null }) {
+  if (!editor) return null;
+
+  const groups = createToolGroups(editor);
 
   return (
     <div className="flex items-center gap-1 px-3 py-2 border-b border-[var(--dash-muted)]/20 bg-[var(--dash-sides)]/50 flex-wrap sticky top-0 z-10 backdrop-blur-xl">
       {groups.map((group, gi) => (
-        <div key={gi} className="flex items-center gap-1">
-          {gi > 0 && <div className={toolGroupDivider} />}
-          {group.map((tool) => (
-            <button
-              key={tool.key}
-              onClick={tool.onClick}
-              disabled={tool.disabled}
-              title={tool.label}
-              aria-label={tool.label}
-              className={toolButtonClass(tool.isActive?.() ?? false)}>
-              <tool.icon className="h-4 w-4" />
-            </button>
-          ))}
-        </div>
+        <ToolGroupRow key={group.key} group={group} withDivider={gi > 0} />
       ))}
     </div>
   );
 }
 
 function BubbleToolbar({ editor }: { editor: Editor }) {
-  const setLink = () => {
-    const previousUrl = editor.getAttributes("link").href as string | undefined;
-    const url = window.prompt(
-      "آدرس لینک را وارد کنید",
-      previousUrl ?? "https://",
-    );
-    if (url === null) return;
-    if (url === "") {
-      editor.chain().focus().extendMarkRange("link").unsetLink().run();
-      return;
-    }
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange("link")
-      .setLink({ href: url })
-      .run();
-  };
-
-  const items: ToolItem[] = [
-    { key: "bold", icon: BoldIcon, label: "ضخیم", onClick: () => editor.chain().focus().toggleBold().run(), isActive: () => editor.isActive("bold") },
-    { key: "italic", icon: ItalicIcon, label: "ایتالیک", onClick: () => editor.chain().focus().toggleItalic().run(), isActive: () => editor.isActive("italic") },
-    { key: "underline", icon: UnderlineIcon, label: "زیرخط", onClick: () => editor.chain().focus().toggleUnderline().run(), isActive: () => editor.isActive("underline") },
-    { key: "strike", icon: Strikethrough, label: "خط خورده", onClick: () => editor.chain().focus().toggleStrike().run(), isActive: () => editor.isActive("strike") },
-    { key: "code", icon: CodeIcon, label: "کد", onClick: () => editor.chain().focus().toggleCode().run(), isActive: () => editor.isActive("code") },
-    { key: "link", icon: Link2, label: "لینک", onClick: setLink, isActive: () => editor.isActive("link") },
-  ];
+  const groups = createToolGroups(editor).filter(
+    (group) => group.key !== "history",
+  );
 
   return (
     <BubbleMenu
       editor={editor}
       options={{ placement: "top" }}
-      className="flex items-center gap-0.5 rounded-xl border border-[var(--dash-muted)]/20 bg-[var(--dash-sides)] p-1 shadow-2xl">
-      {items.map((item) => (
-        <button
-          key={item.key}
-          onClick={item.onClick}
-          title={item.label}
-          aria-label={item.label}
-          className={toolButtonClass(item.isActive?.() ?? false)}>
-          <item.icon className="h-4 w-4" />
-        </button>
+      className="flex flex-wrap items-center justify-center gap-1 max-w-[min(40rem,92vw)] rounded-xl border border-[var(--dash-muted)]/20 bg-[var(--dash-sides)] p-1.5 shadow-2xl">
+      {groups.map((group, gi) => (
+        <ToolGroupRow key={group.key} group={group} withDivider={gi > 0} />
       ))}
     </BubbleMenu>
   );
@@ -340,10 +440,14 @@ function EditPostModal({
   );
   const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState<string[]>(post.tags ?? []);
+  const [metaDescription, setMetaDescription] = useState(
+    post.metaDescription ?? "",
+  );
   const [tagInput, setTagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [savingAs, setSavingAs] = useState<"draft" | "publish" | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { ref: metaSideRef, style: metaSideStyle } = useBottomSticky<HTMLDivElement>();
 
   const editor = useEditor({
     extensions,
@@ -400,6 +504,7 @@ function EditPostModal({
           thumbnailUrl: thumbnail,
           thumbnailGradient: gradient,
           tags,
+          metaDescription,
           status: asDraft ? "Draft" : "Published",
         }),
       });
@@ -463,7 +568,10 @@ function EditPostModal({
         <div className="flex-1 overflow-y-auto p-6">
           <div className="grid lg:grid-cols-3 gap-6 items-start">
             {/* Meta */}
-            <div className="lg:col-span-1 space-y-5">
+            <div
+              ref={metaSideRef}
+              style={metaSideStyle}
+              className="lg:col-span-1 space-y-5 self-start lg:sticky lg:top-6">
               {/* Thumbnail */}
               <div>
                 <label className="flex items-center gap-2 text-sm font-semibold text-[var(--dash-text)] mb-2">
@@ -597,6 +705,30 @@ function EditPostModal({
                   />
                 </div>
               </div>
+
+              {/* Meta description */}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-semibold text-[var(--dash-text)] mb-2">
+                  <Search className="h-4 w-4 text-[var(--dash-accent)]" />
+                  توضیح متا (سئو)
+                </label>
+                <textarea
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  maxLength={160}
+                  rows={3}
+                  placeholder="توضیح کوتاه و جذاب برای نمایش در نتایج جستجو..."
+                  className="w-full resize-none bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm outline-none border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60"
+                />
+                <p
+                  className="mt-1.5 flex items-center justify-between gap-2 text-xs"
+                  style={{ color: "var(--dash-muted)" }}>
+                  <span>در نتایج جستجو و پیش‌نمایش لینک نمایش داده می‌شود</span>
+                  <span className="tabular-nums shrink-0">
+                    {toFa(metaDescription.length)} / ۱۶۰
+                  </span>
+                </p>
+              </div>
             </div>
 
             {/* Editor */}
@@ -673,6 +805,7 @@ export default function BlogPage() {
   const [gradient, setGradient] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [metaDescription, setMetaDescription] = useState("");
   const [tagInput, setTagInput] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -682,6 +815,7 @@ export default function BlogPage() {
   const [confirmDelete, setConfirmDelete] = useState<BlogPost | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { ref: metaSideRef, style: metaSideStyle } = useBottomSticky<HTMLDivElement>();
 
   const editor = useEditor({
     extensions,
@@ -721,6 +855,7 @@ export default function BlogPage() {
     setThumbnail(null);
     setGradient(null);
     setTags([]);
+    setMetaDescription("");
     setTagInput("");
     editor?.commands.clearContent();
   };
@@ -773,6 +908,7 @@ export default function BlogPage() {
           thumbnailUrl: thumbnail,
           thumbnailGradient: gradient,
           tags,
+          metaDescription,
           status: asDraft ? "Draft" : "Published",
         }),
       });
@@ -788,6 +924,7 @@ export default function BlogPage() {
       setThumbnail(null);
       setGradient(null);
       setTags([]);
+      setMetaDescription("");
       setTagInput("");
       editor.commands.clearContent();
       if (tab === "list") await loadPosts();
@@ -900,10 +1037,12 @@ export default function BlogPage() {
             className="grid lg:grid-cols-3 gap-6 items-start">
             {/* Side: Meta (first on mobile, left column on desktop) */}
             <motion.div
+              ref={metaSideRef}
+              style={metaSideStyle}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1, duration: 0.35 }}
-              className="lg:col-span-1 lg:order-2 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg p-5 space-y-5">
+              className="lg:col-span-1 lg:order-2 self-start lg:sticky lg:top-6 relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg p-5 space-y-5">
               <div className="pointer-events-none absolute -top-24 -right-10 h-48 w-48 rounded-full bg-[var(--dash-accent)]/15 blur-3xl" />
               {/* Thumbnail */}
               <div className="relative">
@@ -1039,6 +1178,30 @@ export default function BlogPage() {
                     className="flex-1 min-w-[110px] bg-transparent outline-none text-sm text-[var(--dash-text)] placeholder:text-[var(--dash-muted)]"
                   />
                 </div>
+              </div>
+
+              {/* Meta description */}
+              <div className="relative">
+                <label className="flex items-center gap-2 text-sm font-semibold text-[var(--dash-text)] mb-2">
+                  <Search className="h-4 w-4 text-[var(--dash-accent)]" />
+                  توضیح متا (سئو)
+                </label>
+                <textarea
+                  value={metaDescription}
+                  onChange={(e) => setMetaDescription(e.target.value)}
+                  maxLength={160}
+                  rows={3}
+                  placeholder="توضیح کوتاه و جذاب برای نمایش در نتایج جستجو..."
+                  className="w-full resize-none bg-[var(--dash-bg)]/70 text-[var(--dash-text)] rounded-xl px-4 py-3 text-sm outline-none border border-[var(--dash-muted)]/15 focus:shadow-[0_0_0_4px_rgba(34,197,94,0.22)] transition-all placeholder:text-[var(--dash-muted)]/60"
+                />
+                <p
+                  className="mt-1.5 flex items-center justify-between gap-2 text-xs"
+                  style={{ color: "var(--dash-muted)" }}>
+                  <span>در نتایج جستجو و پیش‌نمایش لینک نمایش داده می‌شود</span>
+                  <span className="tabular-nums shrink-0">
+                    {toFa(metaDescription.length)} / ۱۶۰
+                  </span>
+                </p>
               </div>
 
               {/* Actions */}

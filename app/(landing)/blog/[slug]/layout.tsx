@@ -14,6 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       select: {
         title: true,
         content: true,
+        metaDescription: true,
         tags: true,
         publishedAt: true,
         updatedAt: true,
@@ -26,7 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       return { title: "مقاله یافت نشد — لینگوفم" };
     }
 
-    const description = post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160);
+    const description =
+      post.metaDescription?.trim() ||
+      post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160);
 
     const ogImage = post.thumbnailUrl || "https://lingofam.ir/mainIcon.webp";
 
@@ -77,6 +80,7 @@ export default async function BlogSlugLayout({
       select: {
         title: true,
         content: true,
+        metaDescription: true,
         publishedAt: true,
         updatedAt: true,
         thumbnailUrl: true,
@@ -86,7 +90,9 @@ export default async function BlogSlugLayout({
     });
 
     if (post) {
-      const description = post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160);
+      const description =
+        post.metaDescription?.trim() ||
+        post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160);
       const image = post.thumbnailUrl || "https://lingofam.ir/mainIcon.webp";
 
       jsonLd = {

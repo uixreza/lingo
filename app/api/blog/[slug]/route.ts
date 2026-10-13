@@ -18,6 +18,7 @@ export async function GET(
         thumbnailGradient: true,
         tags: true,
         content: true,
+        metaDescription: true,
         publishedAt: true,
         author: { select: { fullname: true, avatarSeed: true } },
       },
@@ -34,7 +35,9 @@ export async function GET(
       thumbnailUrl: post.thumbnailUrl,
       thumbnailGradient: post.thumbnailGradient,
       tags: post.tags,
-      summary: post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160),
+      summary:
+        post.metaDescription?.trim() ||
+        post.content.replace(/<[^>]*>/g, "").trim().slice(0, 160),
       content: post.content,
       date: moment(post.publishedAt).format("jDD/jMM/jYYYY"),
       author: post.author.fullname,

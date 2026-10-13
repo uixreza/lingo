@@ -16,6 +16,7 @@ function serializePost(post: {
   publishedAt: Date | null;
   updatedAt: Date;
   content: string;
+  metaDescription: string | null;
   author: { fullname: string; email: string | null };
 }) {
   return {
@@ -31,7 +32,10 @@ function serializePost(post: {
     date: moment(post.createdAt).format("jYYYY/jMM/jDD"),
     isPublished: post.status === "Published",
     content: post.content,
-    summary: post.content.replace(/<[^>]*>/g, "").trim().slice(0, 140),
+    metaDescription: post.metaDescription,
+    summary:
+      post.metaDescription?.trim() ||
+      post.content.replace(/<[^>]*>/g, "").trim().slice(0, 140),
     author: post.author.fullname,
   };
 }
@@ -160,6 +164,14 @@ export async function PUT(
     ? body.tags.filter((t): t is string => typeof t === "string").slice(0, 10)
     : [];
   const status = body.status === "Published" ? "Published" : "Draft";
+  const metaDescription =
+    typeof body.metaDescription === "string" ? body.metaDescription.trim() : "";
+  if (metaDescription.length > 160) {
+    return NextResponse.json(
+      { error: "توضیح متا نباید بیشتر از ۱۶۰ کاراکتر باشد" },
+      { status: 400 },
+    );
+  }
 
   try {
     const post = await prisma.post.findUnique({ where: { id: postId } });
@@ -172,6 +184,7 @@ export async function PUT(
       data: {
         title,
         content,
+        metaDescription: metaDescription || null,
         thumbnailUrl,
         thumbnailGradient,
         tags,

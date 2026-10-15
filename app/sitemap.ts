@@ -3,6 +3,10 @@ import { prisma } from "@/lib/auth";
 
 const BASE_URL = "https://lingofam.ir";
 
+// Regenerate sitemap periodically so newly published posts appear
+// even if an on-demand revalidation was missed.
+export const revalidate = 3600;
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 

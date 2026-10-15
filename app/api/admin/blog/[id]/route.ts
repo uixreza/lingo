@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions, prisma } from "@/lib/auth";
 import { deleteImage } from "@/lib/storage";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import moment from "moment-jalaali";
 
 function serializePost(post: {
@@ -114,6 +115,10 @@ export async function PATCH(
       include: { author: { select: { fullname: true, email: true } } },
     });
 
+    if (status !== post.status) {
+      revalidatePath("/sitemap.xml");
+    }
+
     return NextResponse.json(serializePost(updated));
   } catch (err) {
     console.error("Error updating post:", err);
@@ -195,6 +200,10 @@ export async function PUT(
       include: { author: { select: { fullname: true, email: true } } },
     });
 
+    if (status !== post.status) {
+      revalidatePath("/sitemap.xml");
+    }
+
     return NextResponse.json(serializePost(updated));
   } catch (err) {
     console.error("Error updating post:", err);
@@ -225,6 +234,9 @@ export async function DELETE(
     await prisma.post.delete({ where: { id: postId } });
     if (post.thumbnailUrl) {
       await deleteImage(post.thumbnailUrl);
+    }
+    if (post.status === "Published") {
+      revalidatePath("/sitemap.xml");
     }
     return NextResponse.json({ ok: true });
   } catch {

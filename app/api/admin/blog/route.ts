@@ -1,6 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions, prisma } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import moment from "moment-jalaali";
 
 function slugify(title: string): string {
@@ -128,6 +129,10 @@ export async function POST(request: Request) {
         author: { select: { fullname: true, email: true } },
       },
     });
+
+    if (statusEnum === "Published") {
+      revalidatePath("/sitemap.xml");
+    }
 
     return NextResponse.json(serializePost(post), { status: 201 });
   } catch (err) {

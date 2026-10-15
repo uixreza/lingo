@@ -98,6 +98,24 @@ const DirectionHeading = Heading.extend({
   },
 });
 
+const DirectionListItem = ListItem.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...blockDirectionAttribute };
+  },
+});
+
+const DirectionBulletList = BulletList.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...blockDirectionAttribute };
+  },
+});
+
+const DirectionOrderedList = OrderedList.extend({
+  addAttributes() {
+    return { ...this.parent?.(), ...blockDirectionAttribute };
+  },
+});
+
 const extensions = [
   Document,
   DirectionParagraph,
@@ -109,9 +127,9 @@ const extensions = [
   Strike,
   Code,
   DirectionHeading.configure({ levels: [1, 2, 3] }),
-  BulletList,
-  OrderedList,
-  ListItem,
+  DirectionBulletList,
+  DirectionOrderedList,
+  DirectionListItem,
   Blockquote,
   CodeBlock,
   HorizontalRule,

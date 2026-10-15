@@ -143,7 +143,7 @@ export default function BlogPage() {
             initial="hidden"
             animate="show"
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {posts.map((post) => (
+            {posts.map((post, index) => (
               <Link key={post.id} href={`/blog/${post.slug}`}>
                 <motion.article
                   variants={item}
@@ -170,6 +170,14 @@ export default function BlogPage() {
                       <Rss className="h-10 w-10 text-white/40" />
                     </div>
                   )}
+                  <span
+                    className={`absolute top-3 z-10 h-8 w-8 flex items-center justify-center rounded-lg border border-green-500/30 bg-black/60 backdrop-blur-sm text-sm font-bold text-green-400 tabular-nums ${
+                      locale === "en" ? "left-3" : "right-3"
+                    }`}>
+                    {locale === "en"
+                      ? index + 1
+                      : toPersianDigits(String(index + 1))}
+                  </span>
                 </div>
 
                 <div className="p-5">

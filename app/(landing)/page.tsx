@@ -11,6 +11,7 @@ import MetricsBar from "@/components/landing/MetricsBar";
 import FounderSection from "@/components/landing/FounderSection";
 import PlatformPillars from "@/components/landing/PlatformPillars";
 import DiagnosticWidget from "@/components/landing/DiagnosticWidget";
+import FaqSection from "@/components/landing/FaqSection";
 import ConversionFooter from "@/components/landing/ConversionFooter";
 
 function useIsMobile() {
@@ -74,6 +75,7 @@ export default function Home() {
       <FounderSection />
       <PlatformPillars />
       <DiagnosticWidget />
+      <FaqSection />
       <ConversionFooter />
     </main>
   );

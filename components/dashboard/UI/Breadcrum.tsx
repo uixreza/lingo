@@ -102,10 +102,14 @@ export default function Breadcrumb() {
           <Link
             href="/dashboard/basket"
             aria-label={t("header.basket")}
-            className="relative lg:hidden p-2 rounded-xl bg-[#facc15]/10 ring-1 ring-[#facc15]/30 hover:bg-[#facc15]/20 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg">
+            className={`relative lg:hidden p-2 rounded-xl border border-white/5 transition-all duration-200 group shadow-lg ${
+              basketCount > 0
+                ? "bg-orange-500/10 hover:bg-orange-500/20 ring-1 ring-orange-500/40 text-[#fb923c] hover:text-[#fdba74]"
+                : "bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"
+            }`}>
             <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
             {basketCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#f97316] px-1 text-[10px] font-bold leading-none text-[#1a0c00]">
                 {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
               </span>
             )}
@@ -163,10 +167,14 @@ export default function Breadcrumb() {
         <Link
           href="/dashboard/basket"
           aria-label={t("header.basket")}
-          className="relative lg:hidden p-2 rounded-xl bg-[#facc15]/10 ring-1 ring-[#facc15]/30 hover:bg-[#facc15]/20 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg">
+          className={`relative lg:hidden p-2 rounded-xl border border-white/5 transition-all duration-200 group shadow-lg ${
+            basketCount > 0
+              ? "bg-orange-500/10 hover:bg-orange-500/20 ring-1 ring-orange-500/40 text-[#fb923c] hover:text-[#fdba74]"
+              : "bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] text-[var(--icon-muted)]"
+          }`}>
           <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
           {basketCount > 0 && (
-            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#f97316] px-1 text-[10px] font-bold leading-none text-[#1a0c00]">
               {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
             </span>
           )}

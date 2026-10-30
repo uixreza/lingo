@@ -87,28 +87,37 @@ export default function ConversionFooter() {
             <div className="lg:col-span-2 flex flex-col gap-4">
               <div className="flex items-center gap-2">
                 <Image src="/mainIcon.webp" alt="LingoFam" width={28} height={28} className="w-7 h-7" />
-                <span className="text-[22px] font-bold text-[#dde5dd] tracking-tight">
+                <span
+                  className="text-[22px] text-[#dde5dd] tracking-tight"
+                  style={{ fontFamily: '"Poolary", sans-serif', fontWeight: 400 }}>
                   Lingo<span className="text-[#46fc8b]">Fam</span>
                 </span>
               </div>
               <p className="text-[13px] leading-[20px] text-[#bacbb9] max-w-sm">
                 {t("landing.footer.desc")}
               </p>
-              <a
-                referrerPolicy="origin"
-                target="_blank"
-                href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
-                className="mt-1">
+              <div className="mt-1 flex items-center gap-3">
+                <a referrerPolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2">
+                  <Image
+                    unoptimized
+                    width={40}
+                    height={40}
+                    referrerPolicy="origin"
+                    className="border-none rounded-lg"
+                    src="https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
+                    alt="Enamad Trust Seal"
+                  />
+                </a>
                 <Image
                   unoptimized
                   width={40}
                   height={40}
                   referrerPolicy="origin"
                   className="border-none rounded-lg"
-                  src="https://ailinabrishami.com/wp-content/uploads/2025/01/%D9%84%D9%88%DA%AF%D9%88-%D8%A7%DB%8C%D9%86%D9%85%D8%A7%D8%AF.webp?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2"
-                  alt="Enamad Trust Seal"
+                  src="https://silvernight.ir/wp-content/uploads/2024/06/snapppay-logo.png"
+                  alt="SnapPay"
                 />
-              </a>
+              </div>
             </div>
 
             {/* Learning Tracks */}

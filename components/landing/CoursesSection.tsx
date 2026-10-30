@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/i18n";
 import {
@@ -58,7 +59,7 @@ function CourseCard({
   t: (key: TranslationKey) => string;
   locale: string;
   formatPrice: (value: number) => string;
-  onBuy: () => void;
+  onBuy: (key: CourseKey) => void;
 }) {
   const discount = courseDiscount(course);
   const Icon = courseIcons[course.key];
@@ -148,7 +149,7 @@ function CourseCard({
             : t("courses.price.standard")}
         </span>
 
-        <button type="button" onClick={onBuy} className={`${cta} mt-1.5`}>
+        <button type="button" onClick={() => onBuy(course.key)} className={`${cta} mt-1.5`}>
           <span className="inline-flex items-center justify-center gap-2">
             <Lock size={15} strokeWidth={2.5} />
             {t("courses.buy")}
@@ -163,6 +164,7 @@ export default function CoursesSection() {
   const { t, locale } = useLang();
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
+  const { add, has } = useCart();
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -174,12 +176,17 @@ export default function CoursesSection() {
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(value);
 
-  const handleBuy = () => {
+  const handleBuy = (key: CourseKey) => {
     if (!session?.user) {
       openAuth();
       return;
     }
-    setToast(t("courses.checkoutSoon"));
+    if (has(key)) {
+      setToast(t("dashboard.courses.added"));
+      return;
+    }
+    add(key);
+    setToast(t("basket.addedToast"));
   };
 
   return (

@@ -704,12 +704,17 @@ const fa = {
   "courses.trust.guarantee.desc": "۷ روز مهلت بازگشت بدون قید و شرط",
 
   // Dashboard Courses & Basket
-  "dashboard.courses.title": "دوره‌های آموزشی",
+  "dashboard.courses.title": "دوره‌های من",
   "dashboard.courses.subtitle":
-    "دوره‌ها را به سبد خرید اضافه کنید و هر وقت آماده شدید خرید را انجام دهید.",
+    "دوره‌هایی که خریداری کرده‌اید و هر وقت بخواهید می‌توانید ادامه دهید.",
   "dashboard.courses.add": "افزودن به سبد",
   "dashboard.courses.added": "در سبد خرید",
   "dashboard.courses.viewBasket": "مشاهده سبد",
+  "dashboard.courses.owned": "خریداری شده",
+  "dashboard.courses.continue": "ادامه دوره",
+  "dashboard.courses.progress": "پیشرفت دوره",
+  "dashboard.courses.empty": "هنوز دوره‌ای خریداری نکرده‌اید.",
+  "dashboard.courses.emptyCta": "مشاهده دوره‌ها",
   "basket.title": "سبد خرید",
   "basket.subtitle": "دوره‌های انتخاب‌شده شما برای خرید نهایی",
   "basket.items": "{count} دوره",
@@ -718,6 +723,7 @@ const fa = {
   "basket.remove": "حذف از سبد",
   "basket.total": "مجموع قابل پرداخت",
   "basket.checkout": "تکمیل خرید و پرداخت",
+  "basket.snapPay": "پرداخت اقساطی با اسنپ‌پی",
   "basket.addedToast": "دوره به سبد خرید اضافه شد.",
   "basket.removedToast": "دوره از سبد خرید حذف شد.",
 

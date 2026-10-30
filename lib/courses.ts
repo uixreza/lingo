@@ -57,3 +57,16 @@ export function courseDiscount(course: Course): number {
   if (course.oldPrice <= 0) return 0;
   return Math.round(((course.oldPrice - course.price) / course.oldPrice) * 100);
 }
+
+export const purchasedCourses: readonly { key: CourseKey; progress: number }[] = [];
+
+export function getPurchasedCourses(): { course: Course; progress: number }[] {
+  return purchasedCourses
+    .map(({ key, progress }) => {
+      const course = getCourse(key);
+      return course ? { course, progress } : null;
+    })
+    .filter(
+      (entry): entry is { course: Course; progress: number } => entry !== null,
+    );
+}

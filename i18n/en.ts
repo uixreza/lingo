@@ -704,12 +704,17 @@ const en = {
   "courses.trust.guarantee.desc": "7 days no-questions-asked refund",
 
   // Dashboard Courses & Basket
-  "dashboard.courses.title": "Courses",
+  "dashboard.courses.title": "My Courses",
   "dashboard.courses.subtitle":
-    "Add courses to your basket and check out whenever you're ready.",
+    "Courses you've purchased — continue anytime you like.",
   "dashboard.courses.add": "Add to Basket",
   "dashboard.courses.added": "In Basket",
   "dashboard.courses.viewBasket": "View Basket",
+  "dashboard.courses.owned": "Purchased",
+  "dashboard.courses.continue": "Continue Course",
+  "dashboard.courses.progress": "Course progress",
+  "dashboard.courses.empty": "You haven't purchased any courses yet.",
+  "dashboard.courses.emptyCta": "Browse Courses",
   "basket.title": "Your Basket",
   "basket.subtitle": "Selected courses ready for checkout",
   "basket.items": "{count} courses",
@@ -718,6 +723,7 @@ const en = {
   "basket.remove": "Remove",
   "basket.total": "Total",
   "basket.checkout": "Proceed to Checkout",
+  "basket.snapPay": "Pay in installments with SnapPay",
   "basket.addedToast": "Course added to your basket.",
   "basket.removedToast": "Course removed from your basket.",
 

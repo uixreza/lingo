@@ -199,14 +199,18 @@ export default function Header({ user }: { user: User }) {
             )}
           </Link>
 
-          {/* Basket - yellow theme, large screens only */}
+          {/* Basket - same as bell, turns orange when it has items */}
           <Link
             href="/dashboard/basket"
             aria-label={t("header.basket")}
-            className="hidden lg:flex relative items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#facc15]/10 hover:bg-[#facc15]/20 ring-1 ring-[#facc15]/30 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg shadow-[#facc15]/10">
+            className={`hidden lg:flex relative items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl transition-all duration-200 group shadow-lg border border-white/5 ${
+              basketCount > 0
+                ? "bg-orange-500/10 hover:bg-orange-500/20 ring-1 ring-orange-500/40 text-[#fb923c] hover:text-[#fdba74]"
+                : "bg-[var(--hover-bg)] hover:bg-[var(--hover-bg-strong)] text-[var(--icon-muted)] group-hover:text-[var(--header-text)]"
+            }`}>
             <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5 transition-colors" />
             {basketCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--header-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--header-bg)] bg-[#f97316] px-1 text-[10px] font-bold leading-none text-[#1a0c00]">
                 {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
               </span>
             )}

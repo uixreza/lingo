@@ -5,20 +5,18 @@ import { motion } from "framer-motion";
 import {
   BookOpen,
   Briefcase,
-  Check,
+  CheckCircle2,
   Clock,
-  Flame,
   Globe,
   Layers,
-  Plus,
+  Play,
   ShoppingBasket,
   Target,
   type LucideIcon,
 } from "lucide-react";
-import toast from "react-hot-toast";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
-import { courses, courseDiscount, type CourseKey } from "@/lib/courses";
+import { getPurchasedCourses, type CourseKey } from "@/lib/courses";
 
 const courseIcons: Record<CourseKey, LucideIcon> = {
   general: BookOpen,
@@ -29,16 +27,12 @@ const courseIcons: Record<CourseKey, LucideIcon> = {
 
 export default function DashboardCoursesPage() {
   const { t, locale } = useLang();
-  const { has, add, count } = useCart();
+  const { count } = useCart();
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(value);
 
-  const handleAdd = (key: CourseKey) => {
-    if (has(key)) return;
-    add(key);
-    toast.success(t("basket.addedToast"));
-  };
+  const owned = getPurchasedCourses();
 
   return (
     <div className="space-y-6 pb-24">
@@ -65,108 +59,99 @@ export default function DashboardCoursesPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
-        {courses.map((course, index) => {
-          const Icon = courseIcons[course.key];
-          const discount = courseDiscount(course);
-          const inBasket = has(course.key);
+      {owned.length === 0 ? (
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-[#05df72]/20 bg-[var(--dash-sides)]/80 px-6 py-16 text-center shadow-lg backdrop-blur-xl">
+          <span className="flex h-16 w-16 items-center justify-center rounded-full bg-[#05df72]/10 text-[#00693a] ring-1 ring-[#05df72]/25 dark:text-[#05df72]">
+            <BookOpen className="h-7 w-7" />
+          </span>
+          <p className="text-sm text-[var(--dash-muted)]">
+            {t("dashboard.courses.empty")}
+          </p>
+          <Link
+            href="/courses"
+            className="inline-flex items-center gap-2 rounded-xl bg-[#05df72] px-5 py-2.5 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98]">
+            {t("dashboard.courses.emptyCta")}
+          </Link>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          {owned.map(({ course, progress }, index) => {
+            const Icon = courseIcons[course.key];
 
-          return (
-            <motion.article
-              key={course.key}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, delay: index * 0.06 }}
-              className={`relative flex flex-col rounded-2xl border bg-[var(--dash-sides)]/80 p-5 shadow-lg backdrop-blur-xl transition-all duration-200 ${
-                course.hot
-                  ? "border-[#05df72]/45 shadow-[#05df72]/10"
-                  : "border-[var(--dash-muted)]/15 hover:border-[#05df72]/40"
-              }`}>
-              {course.hot && (
-                <span className="absolute -top-3 start-4 z-10 inline-flex items-center gap-1 rounded-full bg-[#05df72] px-2.5 py-1 text-[11px] font-bold text-[#003918] shadow-[0_6px_16px_rgba(5,223,114,0.3)]">
-                  <Flame size={12} strokeWidth={2.5} />
-                  {t("courses.hot")}
+            return (
+              <motion.article
+                key={course.key}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, delay: index * 0.06 }}
+                className="group relative flex flex-col rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[var(--dash-sides)] via-[var(--dash-sides)] to-[var(--dash-sides)]/70 p-5 shadow-lg shadow-black/20 backdrop-blur-xl transition-colors duration-300 hover:border-[#05df72]/40">
+                <span className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[#05df72]/10 opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-100" />
+
+                <span className="absolute -top-3 start-4 z-10 inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#05df72] to-[#4edea3] px-2.5 py-1 text-[11px] font-bold text-[#003918] shadow-[0_6px_16px_rgba(5,223,114,0.3)]">
+                  <CheckCircle2 size={12} strokeWidth={2.5} />
+                  {t("dashboard.courses.owned")}
                 </span>
-              )}
 
-              <div className="flex items-center justify-between gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#05df72]/10 text-[#00693a] ring-1 ring-[#05df72]/25 dark:text-[#05df72]">
-                  <Icon className="h-5 w-5" />
-                </span>
-                <span className="rounded-full border border-[var(--dash-muted)]/25 bg-[var(--hover-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--dash-text)]">
-                  {course.level}
-                </span>
-              </div>
-
-              <div className="mt-4 flex flex-col gap-1.5">
-                <h2 className="text-[17px] font-bold leading-snug text-[var(--dash-text)]">
-                  {t(`courses.${course.key}.title`)}
-                </h2>
-                <p className="line-clamp-2 text-[13px] leading-6 text-[var(--dash-muted)]">
-                  {t(`courses.${course.key}.desc`)}
-                </p>
-              </div>
-
-              <ul className="mt-4 flex flex-wrap items-center gap-2">
-                <li className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-muted)]/15 bg-[var(--hover-bg)] px-2 py-1 text-[11px] text-[var(--dash-muted)]">
-                  <Layers size={12} className="text-[var(--dash-accent)]" />
-                  CEFR
-                </li>
-                <li className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-muted)]/15 bg-[var(--hover-bg)] px-2 py-1 text-[11px] text-[var(--dash-muted)]">
-                  <Clock size={12} className="text-[var(--dash-accent)]" />
-                  {formatPrice(course.weeks)} {t("courses.weeksUnit")}
-                </li>
-                <li className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--dash-muted)]/15 bg-[var(--hover-bg)] px-2 py-1 text-[11px] text-[var(--dash-muted)]">
-                  <BookOpen size={12} className="text-[var(--dash-accent)]" />
-                  {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
-                </li>
-              </ul>
-
-              <div className="mt-auto flex flex-col gap-2 pt-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  {discount > 0 && (
-                    <span className="rounded-md border border-[var(--danger)]/30 bg-[var(--danger-hover-bg)] px-1.5 py-0.5 text-[11px] font-bold text-[var(--danger)]">
-                      {formatPrice(discount)}
-                      {locale === "fa" ? "٪" : "%"} {t("courses.discount")}
-                    </span>
-                  )}
-                  {course.oldPrice > 0 && (
-                    <span className="text-[12px] tabular-nums text-[var(--dash-muted)] line-through">
-                      {formatPrice(course.oldPrice)}
-                    </span>
-                  )}
-                </div>
-
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-[22px] font-extrabold tabular-nums text-[var(--dash-text)]">
-                    {formatPrice(course.price)}
+                <div className="relative flex items-center justify-between gap-3 pt-2">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#05df72] to-[#4edea3] text-[#003918] shadow-[0_8px_24px_rgba(5,223,114,0.3)]">
+                    <Icon className="h-5 w-5" strokeWidth={2.25} />
                   </span>
-                  <span className="text-[12px] text-[var(--dash-muted)]">
-                    {t("courses.currency")}
+                  <span className="rounded-full border border-[#05df72]/25 bg-[#05df72]/10 px-2.5 py-1 text-[11px] font-semibold text-[#00693a] dark:text-[#46fc8b]">
+                    {course.level}
                   </span>
                 </div>
 
-                {inBasket ? (
+                <div className="relative mt-4 flex flex-col gap-1.5">
+                  <h2 className="text-[17px] font-bold leading-snug text-[var(--dash-text)]">
+                    {t(`courses.${course.key}.title`)}
+                  </h2>
+                  <p className="line-clamp-2 text-[13px] leading-6 text-[var(--dash-muted)]">
+                    {t(`courses.${course.key}.desc`)}
+                  </p>
+                </div>
+
+                <ul className="relative mt-4 flex flex-wrap items-center gap-2">
+                  <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-[var(--dash-muted)]">
+                    <Layers size={12} className="text-[#4edea3]" />
+                    CEFR
+                  </li>
+                  <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-[var(--dash-muted)]">
+                    <Clock size={12} className="text-[#4edea3]" />
+                    {formatPrice(course.weeks)} {t("courses.weeksUnit")}
+                  </li>
+                  <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] text-[var(--dash-muted)]">
+                    <BookOpen size={12} className="text-[#4edea3]" />
+                    {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
+                  </li>
+                </ul>
+
+                <div className="relative mt-auto pt-5">
+                  <div className="flex items-center justify-between text-[11px] font-semibold text-[var(--dash-muted)]">
+                    <span>{t("dashboard.courses.progress")}</span>
+                    <span className="tabular-nums text-[var(--dash-text)]">
+                      {formatPrice(progress)}
+                      {locale === "fa" ? "٪" : "%"}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 w-full overflow-hidden rounded-full bg-[var(--hover-bg)]">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#05df72] to-[#4edea3]"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+
                   <Link
-                    href="/dashboard/basket"
-                    className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#05df72] px-4 py-2.5 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98]">
-                    <Check size={16} strokeWidth={2.5} />
-                    {t("dashboard.courses.added")}
+                    href="/dashboard/sessions"
+                    className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#05df72] px-4 py-2.5 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98] shadow-[0_0_20px_rgba(5,223,114,0.25)]">
+                    <Play size={15} strokeWidth={2.5} />
+                    {t("dashboard.courses.continue")}
                   </Link>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() => handleAdd(course.key)}
-                    className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-[#05df72]/45 bg-[var(--hover-bg)] px-4 py-2.5 text-sm font-bold text-[var(--dash-text)] transition-all duration-200 hover:bg-[#05df72]/10 active:scale-[0.98]">
-                    <Plus size={16} strokeWidth={2.5} />
-                    {t("dashboard.courses.add")}
-                  </button>
-                )}
-              </div>
-            </motion.article>
-          );
-        })}
-      </div>
+                </div>
+              </motion.article>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

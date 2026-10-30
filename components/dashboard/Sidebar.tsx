@@ -29,6 +29,7 @@ import { useEffect, useState } from "react";
 
 import Avatar from "./Avatar";
 import { useLang } from "@/contexts/LanguageContext";
+import { purchasedCourses } from "@/lib/courses";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Sidebar() {
@@ -41,13 +42,14 @@ export default function Sidebar() {
   const [isHovered, setIsHovered] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const { t, locale } = useLang();
+  const numberFormat = locale === "fa" ? "fa-IR" : "en-US";
 
   const menuItems = [
     { label: t("sidebar.home"), href: "/dashboard", icon: Home },
     { label: t("sidebar.sessions"), href: "/dashboard/sessions", icon: GraduationCap },
     { label: t("sidebar.notebook"), href: "/dashboard/notebook", icon: NotebookText },
     { label: t("sidebar.dictionary"), href: "/dashboard/dictionary", icon: BookMarked },
-    { label: t("sidebar.courses"), href: "/dashboard/courses", icon: BookOpen },
+    { label: t("sidebar.courses"), href: "/dashboard/courses", icon: BookOpen, count: purchasedCourses.length.toLocaleString(numberFormat) },
     { label: t("sidebar.ai"), href: "/dashboard/ai", icon: Sparkles, locked: true },
     { label: t("sidebar.ticket"), href: "/dashboard/ticket", icon: ShieldCheck },
     { label: t("sidebar.account"), href: "/dashboard/account", icon: User },
@@ -177,6 +179,9 @@ export default function Sidebar() {
                 <span className={`overflow-hidden transition-all duration-150 ${isExpanded ? "max-w-[200px] ms-3" : "max-w-0 ms-0"}`}>
                   <span className={`whitespace-nowrap transition-all duration-150 ${isExpanded ? "opacity-100 translate-x-0" : "opacity-0 translate-x-4"} ${isActive ? "font-bold" : "font-medium"}`}>
                     {item.label}
+                    {"count" in item && (
+                      <span className="ms-1.5 opacity-80">({item.count})</span>
+                    )}
                     {'locked' in item && item.locked && (
                       <Lock className="inline-block w-3 h-3 ms-3.5 opacity-60" />
                     )}
@@ -284,6 +289,9 @@ export default function Sidebar() {
                 </span>
                 <span className={`flex-1 text-base ${isActive ? "font-bold" : "font-medium"}`}>
                   {item.label}
+                  {"count" in item && (
+                    <span className="ms-1.5 opacity-80">({item.count})</span>
+                  )}
                   {'locked' in item && item.locked && (
                     <Lock className="inline-block w-3.5 h-3.5 ms-3.5 opacity-60" />
                   )}

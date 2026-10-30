@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -52,7 +53,7 @@ export default function BasketPage() {
           </span>
           <p className="text-sm text-[var(--dash-muted)]">{t("basket.empty")}</p>
           <Link
-            href="/dashboard/courses"
+            href="/courses"
             className="inline-flex items-center gap-2 rounded-xl bg-[#05df72] px-5 py-2.5 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98]">
             {t("basket.emptyCta")}
             <ArrowLeft className="h-4 w-4" />
@@ -88,61 +89,71 @@ export default function BasketPage() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, x: 40 }}
                   transition={{ duration: 0.25 }}
-                  className="flex items-center gap-4 rounded-2xl border border-[#05df72]/20 bg-[var(--dash-sides)]/80 p-4 shadow-lg backdrop-blur-xl">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#05df72]/10 text-[#00693a] ring-1 ring-[#05df72]/25 dark:text-[#05df72]">
-                    <Icon className="h-5 w-5" />
-                  </span>
+                  className="group relative overflow-hidden rounded-3xl border border-white/[0.07] bg-gradient-to-br from-[var(--dash-sides)] via-[var(--dash-sides)] to-[var(--dash-sides)]/70 p-4 shadow-lg shadow-black/20 backdrop-blur-xl transition-colors duration-300 hover:border-[#05df72]/40 sm:p-5">
+                  <span className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-[#05df72]/10 opacity-0 blur-3xl transition-opacity duration-300 group-hover:opacity-100" />
 
-                  <div className="min-w-0 flex-1">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="truncate text-[15px] font-bold text-[var(--dash-text)]">
-                        {t(`courses.${course.key}.title`)}
-                      </h2>
-                      {course.hot && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#05df72]/15 px-2 py-0.5 text-[10px] font-bold text-[#00693a] dark:text-[#05df72]">
-                          <Flame size={10} strokeWidth={2.5} />
-                          {t("courses.hot")}
+                  <div className="relative flex items-center gap-3 sm:gap-4">
+                    <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#05df72] to-[#4edea3] text-[#003918] shadow-[0_8px_24px_rgba(5,223,114,0.3)] transition-transform duration-300 group-hover:-translate-y-0.5">
+                      <Icon className="h-5 w-5" strokeWidth={2.25} />
+                    </span>
+
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="truncate text-[15px] font-bold text-[var(--dash-text)]">
+                          {t(`courses.${course.key}.title`)}
+                        </h2>
+                        {course.hot && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-[#05df72] to-[#4edea3] px-2 py-0.5 text-[10px] font-extrabold text-[#003918]">
+                            <Flame size={10} strokeWidth={2.5} />
+                            {t("courses.hot")}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span className="rounded-full border border-[#05df72]/25 bg-[#05df72]/10 px-2 py-0.5 font-semibold text-[#00693a] dark:text-[#46fc8b]">
+                          {course.level}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[var(--dash-muted)]">
+                          {formatPrice(course.weeks)} {t("courses.weeksUnit")}
+                        </span>
+                        <span className="rounded-full border border-white/10 bg-white/5 px-2 py-0.5 text-[var(--dash-muted)]">
+                          {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex shrink-0 flex-col items-end gap-1">
+                      {course.oldPrice > course.price && (
+                        <span className="text-[11px] font-medium tabular-nums text-[var(--dash-muted)] line-through">
+                          {formatPrice(course.oldPrice)}
+                        </span>
+                      )}
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-extrabold tabular-nums text-[var(--dash-text)]">
+                          {formatPrice(course.price)}
+                        </span>
+                        <span className="text-[10px] text-[var(--dash-muted)]">
+                          {t("courses.currency")}
+                        </span>
+                      </div>
+                      {discount > 0 && (
+                        <span className="rounded-md bg-gradient-to-r from-[#05df72]/15 to-[#4edea3]/15 px-1.5 py-0.5 text-[10px] font-bold text-[#00693a] dark:text-[#46fc8b]">
+                          {formatPrice(discount)}
+                          {locale === "fa" ? "٪" : "%"} {t("courses.discount")}
                         </span>
                       )}
                     </div>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-[var(--dash-muted)]">
-                      <span>
-                        {t("courses.level")} {course.level}
-                      </span>
-                      <span>
-                        {formatPrice(course.weeks)} {t("courses.weeksUnit")}
-                      </span>
-                      <span>
-                        {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
-                      </span>
-                    </div>
-                  </div>
 
-                  <div className="flex shrink-0 flex-col items-end gap-1">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[17px] font-extrabold tabular-nums text-[var(--dash-text)]">
-                        {formatPrice(course.price)}
-                      </span>
-                      <span className="text-[11px] text-[var(--dash-muted)]">
-                        {t("courses.currency")}
-                      </span>
-                    </div>
-                    {discount > 0 && (
-                      <span className="rounded-md border border-[var(--danger)]/30 bg-[var(--danger-hover-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--danger)]">
-                        {formatPrice(discount)}
-                        {locale === "fa" ? "٪" : "%"} {t("courses.discount")}
-                      </span>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleRemove(course.key)}
+                      aria-label={t("basket.remove")}
+                      title={t("basket.remove")}
+                      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/10 bg-white/5 text-[var(--dash-muted)] transition-all duration-200 hover:-rotate-6 hover:border-[var(--danger)]/40 hover:bg-[var(--danger-hover-bg)] hover:text-[var(--danger)]">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handleRemove(course.key)}
-                    aria-label={t("basket.remove")}
-                    title={t("basket.remove")}
-                    className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[var(--danger)]/30 bg-[var(--danger-hover-bg)] text-[var(--danger)] transition-all duration-200 hover:bg-[var(--danger)] hover:text-black">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
                 </motion.div>
               );
             })}
@@ -174,13 +185,36 @@ export default function BasketPage() {
           <button
             type="button"
             onClick={() => toast(t("courses.checkoutSoon"))}
-            className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#05df72] px-4 py-3 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98] shadow-[0_0_24px_rgba(5,223,114,0.3)]">
+            className="relative mt-5 flex w-full items-center justify-center rounded-2xl bg-[#2563eb] py-3 pr-20 pl-4 text-white transition-all duration-200 hover:bg-[#1d4ed8] active:scale-[0.98] shadow-[0_0_24px_rgba(37,99,235,0.35)]">
+            <Image
+              unoptimized
+              src="https://snapppay.ir/wp-content/uploads/2025/02/Icon-1024x1024.png"
+              alt="SnapPay"
+              width={44}
+              height={44}
+              className="absolute right-3 top-1/2 h-7 w-7 -translate-y-1/2"
+            />
+            <span className="min-w-0 flex-1 text-center">
+              <span className="block text-[13px] font-bold">
+                {t("basket.snapPay")}
+              </span>
+              <span className="block text-[11px] font-medium text-white/85">
+                {formatPrice(4)} × {formatPrice(Math.ceil(total / 4))}{" "}
+                {t("courses.currency")}
+              </span>
+            </span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => toast(t("courses.checkoutSoon"))}
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#05df72] px-4 py-3 text-sm font-bold text-[#003918] transition-all duration-200 hover:bg-[#3cfd8a] active:scale-[0.98] shadow-[0_0_24px_rgba(5,223,114,0.3)]">
             <CreditCard size={16} strokeWidth={2.5} />
             {t("basket.checkout")}
           </button>
 
           <Link
-            href="/dashboard/courses"
+            href="/courses"
             className="mt-3 block text-center text-xs font-medium text-[var(--dash-muted)] transition-colors hover:text-[var(--dash-text)]">
             {t("basket.emptyCta")}
           </Link>

@@ -17,10 +17,10 @@ export default function CoursesPage() {
             ? "var(--font-plus-jakarta), 'Dana', sans-serif"
             : "var(--font-morabba-light), 'Dana', sans-serif",
       }}
-      className="relative min-h-screen bg-[#09100c] overflow-hidden">
+      className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#0b1410] via-[#09100c] to-[#060b08]">
       {/* Ambient blurs */}
-      <div className="absolute top-[-200px] left-[-10%] w-[800px] h-[800px] rounded-full bg-[#05df72]/8 blur-[180px] pointer-events-none" />
-      <div className="absolute top-[30%] left-[55%] -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-[#46fc8b]/5 blur-[140px] pointer-events-none" />
+      <div className="pointer-events-none absolute top-[-200px] left-[-10%] h-[800px] w-[800px] rounded-full bg-[#05df72]/8 blur-[180px]" />
+      <div className="pointer-events-none absolute top-[30%] left-[55%] h-[500px] w-[500px] -translate-x-1/2 rounded-full bg-[#46fc8b]/5 blur-[140px]" />
 
       <LandingNavbar />
       <CoursesSection />

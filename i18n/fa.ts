@@ -49,6 +49,7 @@ const fa = {
   "sidebar.sessions": "جلسات",
   "sidebar.notebook": "دفترچه",
   "sidebar.dictionary": "دیکشنری",
+  "sidebar.courses": "دوره‌ها",
 
   // Dictionary
   "dict.search": "یک کلمه جستجو کنید...",
@@ -76,6 +77,7 @@ const fa = {
 
   // Dashboard Header
   "header.balance": "موجودی",
+  "header.basket": "سبد خرید",
   "header.badgeNewbie": "کاربر تازه‌وارد",
   "header.badgePro": "کاربر ویژه (Pro)",
   "header.badgeLoyalty": "کاربر وفادار",
@@ -687,6 +689,37 @@ const fa = {
   "courses.business.desc": "مکالمه‌های اداری، ایمیل رسمی و ارائه کاری برای محیط کار؛ مناسب شاغلان و دانشجویان.",
   "courses.german.title": "آلمانی سطح A1",
   "courses.german.desc": "از صفر تا A1 با تلفظ درست، ساختار جمله و مکالمه‌های روزمره؛ پایه‌ای مطمئن برای شروع.",
+  "courses.badge": "ثبت‌نام زودهنگام با تخفیف ویژه",
+  "courses.headlineAccent": "از صفر تا تسلط",
+  "courses.price.discounted": "قیمت ویژه ثبت‌نام",
+  "courses.price.standard": "قیمت استاندارد",
+  "courses.discount": "تخفیف",
+  "courses.trust.lifetime.title": "دسترسی مادام‌العمر",
+  "courses.trust.lifetime.desc": "همیشه به جلسات و منابع دسترسی دارید",
+  "courses.trust.mentor.title": "پشتیبانی مستقیم مدرس",
+  "courses.trust.mentor.desc": "پاسخ سؤال‌ها در طول دوره",
+  "courses.trust.certificate.title": "گواهی پایان دوره",
+  "courses.trust.certificate.desc": "گواهی معتبر پس از اتمام دوره",
+  "courses.trust.guarantee.title": "ضمانت بازگشت وجه",
+  "courses.trust.guarantee.desc": "۷ روز مهلت بازگشت بدون قید و شرط",
+
+  // Dashboard Courses & Basket
+  "dashboard.courses.title": "دوره‌های آموزشی",
+  "dashboard.courses.subtitle":
+    "دوره‌ها را به سبد خرید اضافه کنید و هر وقت آماده شدید خرید را انجام دهید.",
+  "dashboard.courses.add": "افزودن به سبد",
+  "dashboard.courses.added": "در سبد خرید",
+  "dashboard.courses.viewBasket": "مشاهده سبد",
+  "basket.title": "سبد خرید",
+  "basket.subtitle": "دوره‌های انتخاب‌شده شما برای خرید نهایی",
+  "basket.items": "{count} دوره",
+  "basket.empty": "سبد خرید شما خالی است.",
+  "basket.emptyCta": "مشاهده دوره‌ها",
+  "basket.remove": "حذف از سبد",
+  "basket.total": "مجموع قابل پرداخت",
+  "basket.checkout": "تکمیل خرید و پرداخت",
+  "basket.addedToast": "دوره به سبد خرید اضافه شد.",
+  "basket.removedToast": "دوره از سبد خرید حذف شد.",
 
   // Language
   "lang.fa": "فارسی",

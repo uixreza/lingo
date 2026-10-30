@@ -49,6 +49,7 @@ const en = {
   "sidebar.sessions": "Sessions",
   "sidebar.notebook": "Notebook",
   "sidebar.dictionary": "Dictionary",
+  "sidebar.courses": "Courses",
 
   // Dictionary
   "dict.search": "Search a word...",
@@ -76,6 +77,7 @@ const en = {
 
   // Dashboard Header
   "header.balance": "Balance",
+  "header.basket": "Basket",
   "header.badgeNewbie": "New User",
   "header.badgePro": "Pro User",
   "header.badgeLoyalty": "Loyal User",
@@ -687,6 +689,37 @@ const en = {
   "courses.business.desc": "Office conversations, formal emails, and presentations for the workplace — ideal for professionals and students.",
   "courses.german.title": "German A1",
   "courses.german.desc": "From zero to A1 with correct pronunciation, sentence structure, and everyday conversation.",
+  "courses.badge": "Early enrollment with special pricing",
+  "courses.headlineAccent": "From Zero to Fluency",
+  "courses.price.discounted": "Enrollment price",
+  "courses.price.standard": "Standard price",
+  "courses.discount": "off",
+  "courses.trust.lifetime.title": "Lifetime Access",
+  "courses.trust.lifetime.desc": "Lessons and materials stay available forever",
+  "courses.trust.mentor.title": "Direct Tutor Support",
+  "courses.trust.mentor.desc": "Your tutor answers you during the course",
+  "courses.trust.certificate.title": "Certificate of Completion",
+  "courses.trust.certificate.desc": "Recognized certificate when you finish",
+  "courses.trust.guarantee.title": "Money-back Guarantee",
+  "courses.trust.guarantee.desc": "7 days no-questions-asked refund",
+
+  // Dashboard Courses & Basket
+  "dashboard.courses.title": "Courses",
+  "dashboard.courses.subtitle":
+    "Add courses to your basket and check out whenever you're ready.",
+  "dashboard.courses.add": "Add to Basket",
+  "dashboard.courses.added": "In Basket",
+  "dashboard.courses.viewBasket": "View Basket",
+  "basket.title": "Your Basket",
+  "basket.subtitle": "Selected courses ready for checkout",
+  "basket.items": "{count} courses",
+  "basket.empty": "Your basket is empty.",
+  "basket.emptyCta": "Browse Courses",
+  "basket.remove": "Remove",
+  "basket.total": "Total",
+  "basket.checkout": "Proceed to Checkout",
+  "basket.addedToast": "Course added to your basket.",
+  "basket.removedToast": "Course removed from your basket.",
 
   // Language
   "lang.fa": "فارسی",

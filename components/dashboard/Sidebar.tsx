@@ -47,6 +47,7 @@ export default function Sidebar() {
     { label: t("sidebar.sessions"), href: "/dashboard/sessions", icon: GraduationCap },
     { label: t("sidebar.notebook"), href: "/dashboard/notebook", icon: NotebookText },
     { label: t("sidebar.dictionary"), href: "/dashboard/dictionary", icon: BookMarked },
+    { label: t("sidebar.courses"), href: "/dashboard/courses", icon: BookOpen },
     { label: t("sidebar.ai"), href: "/dashboard/ai", icon: Sparkles, locked: true },
     { label: t("sidebar.ticket"), href: "/dashboard/ticket", icon: ShieldCheck },
     { label: t("sidebar.account"), href: "/dashboard/account", icon: User },

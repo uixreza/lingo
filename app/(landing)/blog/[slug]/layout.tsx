@@ -1,17 +1,20 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getPublishedPost } from "@/lib/blog";
+import { getPublishedPost, normalizeSlug } from "@/lib/blog";
 
 type Props = {
   params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+  const slug = normalizeSlug(rawSlug);
   const post = await getPublishedPost(slug);
 
   if (!post) {
-    notFound();
+    return {
+      title: "مقاله یافت نشد — لینگوفم",
+      robots: { index: false, follow: false },
+    };
   }
 
   const description =

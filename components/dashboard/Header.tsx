@@ -10,12 +10,14 @@ import {
   Sparkles,
   Leaf,
   Bell,
+  ShoppingBasket,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Avatar from "./Avatar";
 import { useLang } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
 
 type User = {
   name: string;
@@ -40,6 +42,7 @@ export default function Header({ user }: { user: User }) {
 
   const [realBalance, setRealBalance] = useState<number | null>(null);
   const [hasUnread, setHasUnread] = useState(false);
+  const { count: basketCount } = useCart();
 
   const fetchBalance = async () => {
     try {
@@ -193,6 +196,19 @@ export default function Header({ user }: { user: User }) {
             <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)] group-hover:text-[var(--header-text)] transition-colors" />
             {hasUnread && (
               <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--header-bg)]" />
+            )}
+          </Link>
+
+          {/* Basket - yellow theme, large screens only */}
+          <Link
+            href="/dashboard/basket"
+            aria-label={t("header.basket")}
+            className="hidden lg:flex relative items-center justify-center p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-[#facc15]/10 hover:bg-[#facc15]/20 ring-1 ring-[#facc15]/30 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg shadow-[#facc15]/10">
+            <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5 transition-colors" />
+            {basketCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--header-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+                {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
+              </span>
             )}
           </Link>
 

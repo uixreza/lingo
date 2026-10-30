@@ -57,6 +57,14 @@ function summarize(post: RawPost): string {
   );
 }
 
+export function normalizeSlug(raw: string): string {
+  try {
+    return decodeURIComponent(raw);
+  } catch {
+    return raw;
+  }
+}
+
 export const getPublishedPosts = cache(async (): Promise<RawPost[]> => {
   try {
     return await prisma.post.findMany({
@@ -64,20 +72,27 @@ export const getPublishedPosts = cache(async (): Promise<RawPost[]> => {
       orderBy: { publishedAt: "desc" },
       select: postSelect,
     });
-  } catch {
-    return [];
+  } catch (err) {
+    console.error("[blog] getPublishedPosts failed:", err);
+    throw err;
   }
 });
 
 export const getPublishedPost = cache(
-  async (slug: string): Promise<RawPost | null> => {
+  async (rawSlug: string): Promise<RawPost | null> => {
+    const slug = normalizeSlug(rawSlug);
     try {
-      return await prisma.post.findFirst({
+      const post = await prisma.post.findFirst({
         where: { slug, status: "Published" },
         select: postSelect,
       });
-    } catch {
-      return null;
+      if (!post) {
+        console.log(`[blog] post not found for slug=${JSON.stringify(slug)}`);
+      }
+      return post;
+    } catch (err) {
+      console.error("[blog] getPublishedPost failed for slug:", slug, err);
+      throw err;
     }
   },
 );
@@ -89,8 +104,9 @@ export const getPublishedSlugs = cache(async (): Promise<string[]> => {
       select: { slug: true },
     });
     return posts.map((post) => post.slug);
-  } catch {
-    return [];
+  } catch (err) {
+    console.error("[blog] getPublishedSlugs failed:", err);
+    throw err;
   }
 });
 

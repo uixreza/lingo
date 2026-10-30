@@ -2,49 +2,162 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { BookOpen, Clock, Layers, ShoppingBag, Flame, User } from "lucide-react";
+import {
+  Award,
+  BookOpen,
+  Briefcase,
+  Clock,
+  Flame,
+  Globe,
+  Headset,
+  Infinity,
+  Layers,
+  Lock,
+  ShieldCheck,
+  Target,
+  User,
+  type LucideIcon,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
+import type { TranslationKey } from "@/i18n";
+import {
+  courseDiscount,
+  courses,
+  type Course,
+  type CourseKey,
+} from "@/lib/courses";
 
-const courses = [
-  {
-    key: "general",
-    price: 1490000,
-    oldPrice: 1900000,
-    lessons: 24,
-    weeks: 8,
-    level: "A1–B1",
-    hot: true,
-  },
-  {
-    key: "ielts",
-    price: 2950000,
-    oldPrice: 3600000,
-    lessons: 36,
-    weeks: 10,
-    level: "B1–C1",
-    hot: false,
-  },
-  {
-    key: "business",
-    price: 1850000,
-    oldPrice: 0,
-    lessons: 20,
-    weeks: 6,
-    level: "B1–B2",
-    hot: false,
-  },
-  {
-    key: "german",
-    price: 1250000,
-    oldPrice: 1600000,
-    lessons: 18,
-    weeks: 8,
-    level: "A1–A2",
-    hot: false,
-  },
+const courseIcons: Record<CourseKey, LucideIcon> = {
+  general: BookOpen,
+  ielts: Target,
+  business: Briefcase,
+  german: Globe,
+};
+
+const trustItems = [
+  { key: "lifetime", Icon: Infinity },
+  { key: "mentor", Icon: Headset },
+  { key: "certificate", Icon: Award },
+  { key: "guarantee", Icon: ShieldCheck },
 ] as const;
+
+function CourseCard({
+  course,
+  index,
+  className = "",
+  t,
+  locale,
+  formatPrice,
+  onBuy,
+}: {
+  course: Course;
+  index: number;
+  className?: string;
+  t: (key: TranslationKey) => string;
+  locale: string;
+  formatPrice: (value: number) => string;
+  onBuy: () => void;
+}) {
+  const discount = courseDiscount(course);
+  const Icon = courseIcons[course.key];
+
+  const skin = course.hot
+    ? "border-[#05df72]/40 bg-[#1a211d] shadow-[0_0_44px_rgba(5,223,114,0.12)] hover:border-[#05df72]/60"
+    : "border-white/[0.08] bg-[#161d19] hover:border-[#05df72]/30 hover:bg-[#1a211d]";
+
+  const cta = course.hot
+    ? "w-full rounded-xl bg-[#05df72] px-5 py-3 text-[14px] font-bold text-[#003918] transition-all duration-300 hover:bg-[#3cfd8a] hover:shadow-[0_0_28px_rgba(5,223,114,0.45)] active:scale-[0.98]"
+    : "w-full rounded-xl border border-[#05df72]/35 bg-white/[0.03] px-5 py-3 text-[14px] font-semibold text-[#46fc8b] transition-all duration-300 hover:border-[#05df72] hover:bg-[#05df72]/10 active:scale-[0.98]";
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 24 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.15 }}
+      transition={{ duration: 0.45, delay: index * 0.08 }}
+      className={`group relative flex flex-col rounded-2xl border p-5 transition-all duration-300 sm:p-6 ${skin} ${className}`}>
+      {course.hot && (
+        <span className="absolute -top-3.5 start-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#05df72] px-3 py-1 text-[11px] font-bold text-[#003918] shadow-[0_6px_18px_rgba(5,223,114,0.35)]">
+          <Flame size={12} strokeWidth={2.5} />
+          {t("courses.hot")}
+        </span>
+      )}
+
+      <div className="flex items-center justify-between gap-3">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-[#09100c] text-[#46fc8b] transition-transform duration-300 group-hover:-translate-y-0.5">
+          <Icon size={20} />
+        </span>
+        <span className="rounded-full border border-[#4edea3]/25 bg-[#4edea3]/10 px-2.5 py-1 text-[11px] font-semibold text-[#4edea3]">
+          {course.level}
+        </span>
+      </div>
+
+      <div className="mt-4 flex flex-col gap-1.5">
+        <h3 className="text-[19px] font-bold leading-snug text-white">
+          {t(`courses.${course.key}.title`)}
+        </h3>
+        <p className="line-clamp-2 text-[13px] leading-6 text-[#bacbb9]">
+          {t(`courses.${course.key}.desc`)}
+        </p>
+      </div>
+
+      <ul className="mt-4 flex flex-wrap items-center gap-2">
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
+          <Layers size={12} className="text-[#4edea3]" />
+          CEFR
+        </li>
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
+          <Clock size={12} className="text-[#4edea3]" />
+          {formatPrice(course.weeks)} {t("courses.weeksUnit")}
+        </li>
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
+          <BookOpen size={12} className="text-[#4edea3]" />
+          {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
+        </li>
+      </ul>
+
+      <div className="mt-auto flex flex-col gap-2.5 pt-6">
+        <div className="flex flex-wrap items-center gap-2">
+          {discount > 0 && (
+            <span className="rounded-md border border-[#ef9a9a]/30 bg-[#ef9a9a]/10 px-1.5 py-0.5 text-[11px] font-bold text-[#ef9a9a]">
+              {formatPrice(discount)}
+              {locale === "fa" ? "٪" : "%"} {t("courses.discount")}
+            </span>
+          )}
+          {course.oldPrice > 0 && (
+            <span className="text-[12px] tabular-nums text-[#7c8b7d] line-through">
+              {formatPrice(course.oldPrice)}
+            </span>
+          )}
+        </div>
+
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[26px] font-extrabold tabular-nums text-[#46fc8b]">
+            {formatPrice(course.price)}
+          </span>
+          <span className="text-[12px] text-[#bacbb9]">
+            {t("courses.currency")}
+          </span>
+        </div>
+
+        <span className="text-[11px] text-[#859585]">
+          {course.oldPrice > 0
+            ? t("courses.price.discounted")
+            : t("courses.price.standard")}
+        </span>
+
+        <button type="button" onClick={onBuy} className={`${cta} mt-1.5`}>
+          <span className="inline-flex items-center justify-center gap-2">
+            <Lock size={15} strokeWidth={2.5} />
+            {t("courses.buy")}
+          </span>
+        </button>
+      </div>
+    </motion.article>
+  );
+}
 
 export default function CoursesSection() {
   const { t, locale } = useLang();
@@ -70,107 +183,85 @@ export default function CoursesSection() {
   };
 
   return (
-    <section className="relative w-full max-w-[1280px] mx-auto px-5 lg:px-10 pt-28 lg:pt-24 pb-16 lg:pb-20">
-      <div className="flex flex-col gap-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-          <div>
-            <span className="text-[12px] font-semibold text-[#46fc8b] uppercase tracking-widest">
-              {t("courses.label")}
+    <section className="relative mx-auto w-full max-w-[1320px] px-4 pb-16 pt-28 sm:px-6 lg:px-10 lg:pb-20 lg:pt-24">
+      <div className="pointer-events-none absolute left-1/2 top-1/4 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#05df72]/[0.07] blur-[150px]" />
+
+      {/* Section 1 — Hero header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+        className="relative mx-auto flex max-w-2xl flex-col items-center gap-4 text-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 text-[12px] font-medium text-[#dde5dd]">
+          <span className="h-1.5 w-1.5 rounded-full bg-[#05df72]" />
+          {t("courses.badge")}
+        </span>
+
+        <h1 className="text-[30px] font-extrabold leading-tight tracking-tight text-white sm:text-[38px] lg:text-[44px]">
+          {t("courses.headline")}{" "}
+          <span className="text-[#05df72]">{t("courses.headlineAccent")}</span>
+        </h1>
+
+        <p className="max-w-xl text-[15px] leading-7 text-[#bacbb9]">
+          {t("courses.subtitle")}
+        </p>
+      </motion.div>
+
+      {/* Section 2 — Course cards (desktop 4-column grid) */}
+      <div className="relative mt-12 hidden grid-cols-4 items-stretch gap-6 lg:grid">
+        {courses.map((course, index) => (
+          <CourseCard
+            key={course.key}
+            course={course}
+            index={index}
+            t={t}
+            locale={locale}
+            formatPrice={formatPrice}
+            onBuy={handleBuy}
+          />
+        ))}
+      </div>
+
+      {/* Section 2 — Course cards (mobile snap carousel) */}
+      <div className="relative -mx-4 mt-9 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 lg:hidden">
+        {courses.map((course, index) => (
+          <CourseCard
+            key={course.key}
+            course={course}
+            index={index}
+            className="w-[84%] shrink-0 snap-start"
+            t={t}
+            locale={locale}
+            formatPrice={formatPrice}
+            onBuy={handleBuy}
+          />
+        ))}
+      </div>
+
+      {/* Section 3 — Trust / value propositions */}
+      <div className="relative mt-7 grid grid-cols-2 gap-3 sm:gap-4 lg:mt-10 lg:grid-cols-4 lg:gap-6">
+        {trustItems.map((item, index) => (
+          <motion.div
+            key={item.key}
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.4, delay: index * 0.06 }}
+            className="flex flex-col items-center gap-2.5 rounded-xl border border-white/[0.08] bg-[#161d19]/80 p-4 text-center backdrop-blur-sm lg:p-5">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#05df72]/10 text-[#05df72] ring-1 ring-[#05df72]/20">
+              <item.Icon size={18} />
             </span>
-            <h1
-              className="text-[30px] lg:text-[40px] leading-tight font-semibold text-[#dde5dd] tracking-tight"
-              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
-              {t("courses.headline")}
-            </h1>
-          </div>
-          <p className="text-[15px] leading-[24px] text-[#bacbb9] max-w-md">
-            {t("courses.subtitle")}
-          </p>
-        </motion.div>
-
-        {/* Course cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {courses.map((c, i) => (
-            <motion.article
-              key={c.key}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: i * 0.1 }}
-              className="relative p-6 rounded-2xl bg-[#1a211d] ring-1 ring-white/5 flex flex-col gap-4 hover:bg-[#242c27] hover:ring-[#05df72]/30 transition-all shadow-lg group">
-              {c.hot && (
-                <span className="absolute -top-3 start-5 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-[#0d1412] ring-1 ring-[#05df72]/40 text-[11px] font-semibold text-[#46fc8b] shadow-[0_0_16px_rgba(70,252,139,0.25)]">
-                  <Flame size={12} />
-                  {t("courses.hot")}
-                </span>
-              )}
-
-              <div className="flex items-center justify-between gap-2">
-                <span className="px-2.5 py-1 rounded-full bg-[#09100c] text-[11px] text-[#4edea3]">
-                  {t("courses.level")} {c.level}
-                </span>
-                <span className="w-10 h-10 rounded-xl bg-[#2f3732] flex items-center justify-center text-[#46fc8b] group-hover:scale-110 transition-transform">
-                  <BookOpen size={20} />
-                </span>
-              </div>
-
-              <div className="flex flex-col gap-1">
-                <h2 className="text-[20px] font-semibold text-[#dde5dd]">
-                  {t(`courses.${c.key}.title`)}
-                </h2>
-                <p className="text-[13px] leading-[21px] text-[#bacbb9]">
-                  {t(`courses.${c.key}.desc`)}
-                </p>
-              </div>
-
-              <ul className="flex flex-wrap items-center gap-2 text-[11px] text-[#bacbb9]">
-                <li className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#09100c]">
-                  <BookOpen size={12} className="text-[#46fc8b]" />
-                  {formatPrice(c.lessons)} {t("courses.lessonsUnit")}
-                </li>
-                <li className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#09100c]">
-                  <Clock size={12} className="text-[#46fc8b]" />
-                  {formatPrice(c.weeks)} {t("courses.weeksUnit")}
-                </li>
-                <li className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#09100c]">
-                  <Layers size={12} className="text-[#46fc8b]" />
-                  CEFR
-                </li>
-              </ul>
-
-              <div className="mt-auto pt-2 flex flex-col gap-3">
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 min-w-0">
-                  <div className="flex items-baseline gap-1.5 min-w-0">
-                    <span className="text-[22px] lg:text-[24px] font-semibold text-[#46fc8b] tabular-nums whitespace-nowrap">
-                      {formatPrice(c.price)}
-                    </span>
-                    <span className="text-[12px] text-[#bacbb9] whitespace-nowrap">
-                      {t("courses.currency")}
-                    </span>
-                  </div>
-                  {c.oldPrice > 0 && (
-                    <span className="text-[12px] text-[#7c8b7d] line-through tabular-nums whitespace-nowrap">
-                      {formatPrice(c.oldPrice)}
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={handleBuy}
-                  className="w-full px-5 py-3 rounded-xl bg-[#05df72] text-[#003918] font-semibold text-[14px] shadow-[0_0_26px_rgba(70,252,139,0.35)] hover:shadow-[0_0_36px_rgba(70,252,139,0.6)] hover:bg-[#3cfd8a] transition-all duration-300 flex items-center justify-center gap-2">
-                  <ShoppingBag size={16} />
-                  {t("courses.buy")}
-                </button>
-              </div>
-            </motion.article>
-          ))}
-        </div>
+            <div className="min-w-0">
+              <p className="text-[13px] font-bold text-white">
+                {t(`courses.trust.${item.key}.title`)}
+              </p>
+              <p className="mt-1 text-[11px] leading-5 text-[#859585]">
+                {t(`courses.trust.${item.key}.desc`)}
+              </p>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
       {/* Mock checkout toast */}
@@ -180,8 +271,8 @@ export default function CoursesSection() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 sm:bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-3 rounded-xl bg-[#0d1412] border border-white/10 shadow-xl text-[13px] text-[#dde5dd]">
-            <User size={14} className="text-[#46fc8b] shrink-0" />
+            className="fixed bottom-24 sm:bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-[#0d1412] px-4 py-3 text-[13px] text-[#dde5dd] shadow-xl">
+            <User size={14} className="shrink-0 text-[#46fc8b]" />
             <span>{toast}</span>
           </motion.div>
         )}

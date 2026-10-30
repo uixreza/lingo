@@ -2,7 +2,9 @@ import { notFound } from "next/navigation";
 import BlogPostView from "@/components/landing/BlogPostView";
 import {
   getPublishedPost,
+  getPublishedPosts,
   getPublishedSlugs,
+  toPostCard,
   toPostDetail,
 } from "@/lib/blog";
 
@@ -24,5 +26,11 @@ export default async function BlogPostPage({
 
   if (!post) notFound();
 
-  return <BlogPostView post={toPostDetail(post)} />;
+  const allPosts = await getPublishedPosts();
+  const related = allPosts
+    .filter((item) => item.slug !== post.slug)
+    .slice(0, 4)
+    .map(toPostCard);
+
+  return <BlogPostView post={toPostDetail(post)} related={related} />;
 }

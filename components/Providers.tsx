@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
 import { Toaster } from "react-hot-toast";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { CartProvider } from "@/contexts/CartContext";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -24,7 +25,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <LanguageProvider>
-      <SessionProvider>
+      <CartProvider>
+        <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
           <Toaster
@@ -41,7 +43,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
             }}
           />
         </ThemeProvider>
-      </SessionProvider>
+        </SessionProvider>
+      </CartProvider>
     </LanguageProvider>
   );
 }

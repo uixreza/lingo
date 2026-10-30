@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronRight, Home, Bell } from "lucide-react";
+import { ChevronRight, Home, Bell, ShoppingBasket } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useLang } from "@/contexts/LanguageContext";
+import { useCart } from "@/contexts/CartContext";
 
 // Custom hook for breadcrumb logic
 function useBreadcrumbs() {
@@ -12,6 +14,7 @@ function useBreadcrumbs() {
   const breadcrumbLabels: { [key: string]: string } = {
     dashboard: "Dashboard",
     courses: "Courses",
+    basket: "Basket",
     profile: "Profile",
     settings: "Settings",
     payments: "Payments",
@@ -71,6 +74,8 @@ function useBreadcrumbs() {
 export default function Breadcrumb() {
   const breadcrumbItems = useBreadcrumbs();
   const [hasUnread, setHasUnread] = useState(false);
+  const { t, locale } = useLang();
+  const { count: basketCount } = useCart();
 
   useEffect(() => {
     const fetchUnread = async () => {
@@ -93,14 +98,28 @@ export default function Breadcrumb() {
   if (breadcrumbItems.length <= 1) {
     return (
       <div className="mb-6 flex justify-start" dir="ltr">
-        <Link
-          href="/dashboard/notification"
-          className="lg:hidden sticky end-0 z-10 p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5 ms-auto">
-          <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
-          {hasUnread && (
-            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />
-          )}
-        </Link>
+        <div className="flex items-center gap-2 ms-auto">
+          <Link
+            href="/dashboard/basket"
+            aria-label={t("header.basket")}
+            className="relative lg:hidden p-2 rounded-xl bg-[#facc15]/10 ring-1 ring-[#facc15]/30 hover:bg-[#facc15]/20 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg">
+            <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
+            {basketCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+                {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            href="/dashboard/notification"
+            className="relative lg:hidden p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5">
+            <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
+            {hasUnread && (
+              <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />
+            )}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -140,14 +159,28 @@ export default function Breadcrumb() {
         </ol>
       </nav>
 
-      <Link
-        href="/dashboard/notification"
-        className="lg:hidden sticky end-0 z-10 p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5 shrink-0 ms-3">
-        <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
-        {hasUnread && (
-          <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />
-        )}
-      </Link>
+      <div className="flex items-center gap-2 shrink-0 ms-3">
+        <Link
+          href="/dashboard/basket"
+          aria-label={t("header.basket")}
+          className="relative lg:hidden p-2 rounded-xl bg-[#facc15]/10 ring-1 ring-[#facc15]/30 hover:bg-[#facc15]/20 hover:ring-[#facc15]/60 text-[#facc15] hover:text-[#fde047] transition-all duration-200 group shadow-lg">
+          <ShoppingBasket className="h-4 w-4 sm:h-5 sm:w-5" />
+          {basketCount > 0 && (
+            <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-[16px] items-center justify-center rounded-full border-2 border-[var(--dash-bg)] bg-[#facc15] px-1 text-[10px] font-bold leading-none text-[#1a1400]">
+              {basketCount.toLocaleString(locale === "fa" ? "fa-IR" : "en-US")}
+            </span>
+          )}
+        </Link>
+
+        <Link
+          href="/dashboard/notification"
+          className="relative lg:hidden p-2 rounded-xl bg-[var(--header-bg)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200 group shadow-lg border border-white/5">
+          <Bell className="h-4 w-4 sm:h-5 sm:w-5 text-[var(--icon-muted)]" />
+          {hasUnread && (
+            <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full border-2 border-[var(--dash-bg)]" />
+          )}
+        </Link>
+      </div>
     </div>
   );
 }

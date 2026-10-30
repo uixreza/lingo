@@ -671,6 +671,11 @@ html[lang="en"] {
 .animate-float { animation: float 4s ease-in-out infinite; }
 .animate-float-delay { animation: float 4s ease-in-out 1s infinite; }
 
+@keyframes video-badge-pop {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.2) rotate(-8deg); }
+}
+
 @keyframes glow-pulse {
   0%, 100% { box-shadow: 0 0 20px rgba(5,223,114,0.3); }
   50% { box-shadow: 0 0 35px rgba(5,223,114,0.55); }

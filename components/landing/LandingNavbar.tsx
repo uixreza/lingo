@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, Download, User } from "lucide-react";
+import { ChevronDown, Download, User, Video } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
@@ -26,11 +26,10 @@ export default function LandingNavbar() {
   }, []);
 
   const navLinks = [
-    { label: t("landing.nav.courses"), href: "/courses" },
-    { label: t("landing.nav.methodology"), href: "/about" },
-    { label: t("landing.nav.founder"), href: "/about" },
-    { label: t("landing.nav.blog"), href: "/blog" },
-    { label: t("landing.nav.levelTest"), href: "/test" },
+    { label: t("landing.nav.courses"), href: "/courses", icon: Video },
+    { label: t("landing.nav.founder"), href: "/about", icon: undefined },
+    { label: t("landing.nav.blog"), href: "/blog", icon: undefined },
+    { label: t("landing.nav.levelTest"), href: "/test", icon: undefined },
   ];
 
   return (
@@ -55,8 +54,17 @@ export default function LandingNavbar() {
               <Link
                 key={link.label}
                 href={link.href}
-                className="px-3 py-2 rounded-lg text-[13px] font-medium text-[#9ebaaa] hover:text-white hover:bg-white/5 transition-colors">
+                className="relative px-3 py-2 rounded-lg text-[13px] font-medium text-[#9ebaaa] hover:text-white hover:bg-white/5 transition-colors">
                 {link.label}
+                {link.icon && (
+                  <span className="absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#0d1412] ring-1 ring-[#05df72]/50 text-[#05df72]">
+                    <link.icon
+                      size={9}
+                      strokeWidth={2.5}
+                      className="animate-[video-badge-pop_1.8s_ease-in-out_infinite]"
+                    />
+                  </span>
+                )}
               </Link>
             ))}
           </nav>

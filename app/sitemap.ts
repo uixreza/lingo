@@ -7,61 +7,63 @@ const BASE_URL = "https://lingofam.ir";
 // even if an on-demand revalidation was missed.
 export const revalidate = 3600;
 
+const staticLastModified = new Date();
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
 
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: BASE_URL,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
       url: `${BASE_URL}/about`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
       url: `${BASE_URL}/courses`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/blog`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
       url: `${BASE_URL}/test`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${BASE_URL}/download`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${BASE_URL}/lingotv`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "monthly",
       priority: 0.7,
     },
     {
       url: `${BASE_URL}/policy`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "yearly",
       priority: 0.3,
     },
     {
       url: `${BASE_URL}/status`,
-      lastModified: now,
+      lastModified: staticLastModified,
       changeFrequency: "daily",
       priority: 0.4,
     },

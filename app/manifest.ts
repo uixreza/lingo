@@ -2,10 +2,10 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "لینگوفم — زبان رو طبیعی یاد بگیر",
+    name: "لینگوفم — زبان رو به‌صورت عملی یاد بگیر",
     short_name: "لینگوفم",
     description:
-      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به شیوه‌ای عملی و جذاب",
     id: "/",
     start_url: "/",
     scope: "/",

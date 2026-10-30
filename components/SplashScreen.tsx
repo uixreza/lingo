@@ -123,7 +123,7 @@ export default function SplashScreen() {
                 Lingo<span className="text-green-400">Fam</span>
               </p>
               <p className="text-xs sm:text-sm text-[#7a7a7a] mt-1.5">
-                زبان رو طبیعی یاد بگیر
+                زبان رو به‌صورت عملی یاد بگیر
               </p>
             </div>
             <div className="flex items-center gap-1.5 mt-1">

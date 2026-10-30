@@ -1,18 +1,29 @@
 import type { Metadata } from "next";
 
+const title = "درباره ما";
+const description =
+  "آشنایی با تیم لینگوفم، پلتفرم تعاملی یادگیری زبان‌های خارجی به شیوه‌ای عملی و جذاب";
+
 export const metadata: Metadata = {
-  title: "درباره ما",
-  description:
-    "آشنایی با تیم لینگوفم، پلتفرم تعاملی یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+  title,
+  description,
   alternates: {
-    canonical: "https://lingofam.ir/about",
+    canonical: "/about",
   },
   openGraph: {
-    title: "درباره ما — لینگوفم",
-    description:
-      "آشنایی با تیم لینگوفم، پلتفرم تعاملی یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
-    url: "https://lingofam.ir/about",
+    title: `${title} — لینگوفم`,
+    description,
+    url: "/about",
     type: "website",
+    locale: "fa_IR",
+    siteName: "لینگوفم",
+    images: [{ url: "/mainIcon.webp", width: 1200, height: 630, alt: "لینگوفم" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${title} — لینگوفم`,
+    description,
+    images: ["/mainIcon.webp"],
   },
 };
 

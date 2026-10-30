@@ -550,7 +550,7 @@ const fa = {
   "landing.hero.badge": "آموزش تعاملی زبان • کلاس خصوصی",
   "landing.hero.heading1": "انگلیسی رو",
   "landing.hero.heading2": "تو خونه یاد بگیر !؟",
-  "landing.hero.subtitle": "زبان رو طبیعی یاد بگیر با کلاس‌های خصوصی، تعیین سطح CEFR رایگان، فرهنگ لغت، محتوای روزانه و جامعه حامی — همه در یک پلتفرم.",
+  "landing.hero.subtitle": "زبان رو به‌صورت عملی یاد بگیر با کلاس‌های خصوصی، تعیین سطح CEFR رایگان، فرهنگ لغت، محتوای روزانه و جامعه حامی — همه در یک پلتفرم.",
   "landing.hero.start": "شروع رایگان",
   "landing.hero.determineLevel": "تعیین سطح",
   "landing.hero.free": "رایگان",

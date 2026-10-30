@@ -550,7 +550,7 @@ const en = {
   "landing.hero.badge": "Interactive Language Learning • 1-on-1 Private Tutoring",
   "landing.hero.heading1": "Master English",
   "landing.hero.heading2": "At Home!?",
-  "landing.hero.subtitle": "Learn languages naturally with private 1-on-1 sessions, a free CEFR level test, dictionary, daily content, and a supportive community — all in one platform.",
+  "landing.hero.subtitle": "Learn languages in a practical way with private 1-on-1 sessions, a free CEFR level test, dictionary, daily content, and a supportive community — all in one platform.",
   "landing.hero.start": "Start Learning Free",
   "landing.hero.determineLevel": "Determine Level",
   "landing.hero.free": "Free",

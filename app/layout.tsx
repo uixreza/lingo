@@ -1,42 +1,68 @@
 import type { Metadata, Viewport } from "next";
-import { getServerSession } from "next-auth";
 import "./globals.css";
 import { Providers } from "@/components/Providers";
-import { authOptions } from "@/lib/auth";
-import Loading from "./loading";
 import SplashScreen from "@/components/SplashScreen";
+
+const SITE_URL = "https://lingofam.ir";
+
+const googleSiteVerification = process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION;
+
+const siteJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "لینگوفم",
+      alternateName: "LINGOFAM",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/mainIcon.webp`,
+      },
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "لینگوفم",
+      inLanguage: "fa",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   title: {
-    default: "Lingofam — زبان رو طبیعی یاد بگیر",
+    default: "Lingofam — زبان رو به‌صورت عملی یاد بگیر",
     template: "%s — لینگوفم",
   },
   description:
-    "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+    "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به شیوه‌ای عملی و جذاب",
   applicationName: "لینگوفم",
   keywords: ["یادگیری زبان", "آموزش زبان", "لینگوفم", "زبان خارجی", "آموزش آنلاین", "LINGOFAM"],
   authors: [{ name: "LINGOFAM" }],
   creator: "LINGOFAM",
   publisher: "LINGOFAM",
-  metadataBase: new URL("https://lingofam.ir"),
-  alternates: {
-    canonical: "/",
-  },
+  metadataBase: new URL(SITE_URL),
+  ...(googleSiteVerification
+    ? { verification: { google: googleSiteVerification } }
+    : {}),
   openGraph: {
     type: "website",
     locale: "fa_IR",
     url: "https://lingofam.ir",
     siteName: "لینگوفم",
-    title: "Lingofam — زبان رو طبیعی یاد بگیر",
+    title: "Lingofam — زبان رو به‌صورت عملی یاد بگیر",
     description:
-      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به شیوه‌ای عملی و جذاب",
     images: [{ url: "/mainIcon.webp", width: 1200, height: 630, alt: "لینگوفم" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Lingofam — زبان رو طبیعی یاد بگیر",
+    title: "Lingofam — زبان رو به‌صورت عملی یاد بگیر",
     description:
-      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به روشی طبیعی و جذاب",
+      "یک پلتفرم تعاملی برای یادگیری زبان‌های خارجی به شیوه‌ای عملی و جذاب",
     images: ["/mainIcon.webp"],
   },
   appleWebApp: {
@@ -59,13 +85,11 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await getServerSession(authOptions);
-
   return (
     <html
       dir="rtl"
@@ -73,7 +97,13 @@ export default async function RootLayout({
       className={`h-full antialiased bg-black`}
       suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
-        <Providers session={session}>{children}</Providers>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(siteJsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+        <Providers>{children}</Providers>
         <SplashScreen />
       </body>
     </html>

@@ -43,7 +43,7 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
             </span>
           </motion.div>
 
-          <motion.div variants={item} className="flex flex-col gap-1">
+          <motion.h1 variants={item} className="flex flex-col gap-1">
             <span
               className="text-4xl sm:text-5xl md:text-[56px] leading-[1.1] tracking-tight text-[#dde5dd]"
               style={{
@@ -66,7 +66,7 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
               }}>
               {t("landing.hero.heading2")}
             </span>
-          </motion.div>
+          </motion.h1>
 
           <motion.p
             variants={item}

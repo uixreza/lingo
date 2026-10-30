@@ -3,17 +3,10 @@
 import { useEffect } from "react";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import type { Session } from "next-auth";
 import { Toaster } from "react-hot-toast";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 
-export function Providers({
-  children,
-  session,
-}: {
-  children: React.ReactNode;
-  session: Session | null;
-}) {
+export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
@@ -31,7 +24,7 @@ export function Providers({
 
   return (
     <LanguageProvider>
-      <SessionProvider session={session}>
+      <SessionProvider>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           {children}
           <Toaster

@@ -9,6 +9,7 @@ const en = {
   // Support prompt
   "support.title": "Lingofam Support",
   "support.message": "You will be redirected to the Telegram support chat.",
+  "support.inTouch": "Also you can be in touch by",
   "support.cancel": "Cancel",
   "support.continue": "Continue",
 

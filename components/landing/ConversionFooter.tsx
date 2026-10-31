@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, Download, Shield, Award, Lock } from "lucide-react";
+import { ArrowRight, Download, Shield, Award, Lock, Phone, Mail } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLang } from "@/contexts/LanguageContext";
@@ -96,6 +96,20 @@ export default function ConversionFooter() {
               <p className="text-[13px] leading-[20px] text-[#bacbb9] max-w-sm">
                 {t("landing.footer.desc")}
               </p>
+              <a
+                href="tel:09388628892"
+                className="flex items-center gap-2 text-[13px] text-[#bacbb9] hover:text-[#46fc8b] transition-colors w-fit"
+                dir="ltr">
+                <Phone size={14} className="text-[#46fc8b] shrink-0" />
+                <span>09388628892</span>
+              </a>
+              <a
+                href="mailto:lingofam@atomicmail.io"
+                className="flex items-center gap-2 text-[13px] text-[#bacbb9] hover:text-[#46fc8b] transition-colors w-fit"
+                dir="ltr">
+                <Mail size={14} className="text-[#46fc8b] shrink-0" />
+                <span>lingofam@atomicmail.io</span>
+              </a>
               <div className="mt-1 flex items-center gap-3">
                 <a referrerPolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2">
                   <Image

@@ -9,6 +9,7 @@ const fa = {
   // Support prompt
   "support.title": "پشتیبانی لینگوفم",
   "support.message": "شما به گفتگوی پشتیبانی تلگرام منتقل خواهید شد.",
+  "support.inTouch": "همچنین می‌توانید از طریق",
   "support.cancel": "بیخیال",
   "support.continue": "ادامه",
 

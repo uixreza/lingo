@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useSyncExternalStore } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-import { House, LayoutDashboard, LifeBuoy, User } from "lucide-react";
+import { House, LayoutDashboard, LifeBuoy, User, Phone, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -185,9 +185,42 @@ export default function Navbar() {
                   {t("support.title")}
                 </h3>
               </div>
-              <p className="text-[#aaa] text-sm leading-relaxed mb-6">
+              <p className="text-[#aaa] text-sm leading-relaxed mb-4">
                 {t("support.message")}
               </p>
+              <div className="mb-6">
+                <div className="flex items-center gap-3 mb-3">
+                  <span className="h-px flex-1 bg-white/10" />
+                  <span className="text-[11px] uppercase tracking-wider text-[#7d8c7d] whitespace-nowrap">
+                    {t("support.inTouch")}
+                  </span>
+                  <span className="h-px flex-1 bg-white/10" />
+                </div>
+                <div className="grid grid-cols-2 rounded-xl bg-white/5 border border-white/10 overflow-hidden divide-x divide-white/10" dir="ltr">
+                  <a
+                    href="tel:09388628892"
+                    className="flex flex-col items-center gap-1 px-2 py-3 text-center hover:bg-green-500/10 transition-colors group">
+                    <Phone
+                      size={15}
+                      className="text-green-400 group-hover:scale-110 transition-transform"
+                    />
+                    <span className="text-[12px] text-[#aaa] group-hover:text-white">
+                      09388628892
+                    </span>
+                  </a>
+                  <a
+                    href="mailto:lingofam@atomicmail.io"
+                    className="flex flex-col items-center gap-1 px-2 py-3 text-center hover:bg-green-500/10 transition-colors group">
+                    <Mail
+                      size={15}
+                      className="text-green-400 group-hover:scale-110 transition-transform"
+                    />
+                    <span className="text-[12px] text-[#aaa] group-hover:text-white break-all">
+                      lingofam@atomicmail.io
+                    </span>
+                  </a>
+                </div>
+              </div>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowSupportPrompt(false)}

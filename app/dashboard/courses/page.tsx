@@ -4,14 +4,12 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import {
   BookOpen,
-  Briefcase,
   CheckCircle2,
   Clock,
-  Globe,
   Layers,
   Play,
   ShoppingBasket,
-  Target,
+  SpellCheck,
   type LucideIcon,
 } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
@@ -20,9 +18,7 @@ import { getPurchasedCourses, type CourseKey } from "@/lib/courses";
 
 const courseIcons: Record<CourseKey, LucideIcon> = {
   general: BookOpen,
-  ielts: Target,
-  business: Briefcase,
-  german: Globe,
+  grammar: SpellCheck,
 };
 
 export default function DashboardCoursesPage() {

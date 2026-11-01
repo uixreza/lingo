@@ -96,20 +96,25 @@ export default function ConversionFooter() {
               <p className="text-[13px] leading-[20px] text-[#bacbb9] max-w-sm">
                 {t("landing.footer.desc")}
               </p>
-              <a
-                href="tel:09388628892"
-                className="flex items-center gap-2 text-[13px] text-[#bacbb9] hover:text-[#46fc8b] transition-colors w-fit"
-                dir="ltr">
-                <Phone size={14} className="text-[#46fc8b] shrink-0" />
-                <span>09388628892</span>
-              </a>
-              <a
-                href="mailto:lingofam@atomicmail.io"
-                className="flex items-center gap-2 text-[13px] text-[#bacbb9] hover:text-[#46fc8b] transition-colors w-fit"
-                dir="ltr">
-                <Mail size={14} className="text-[#46fc8b] shrink-0" />
-                <span>lingofam@atomicmail.io</span>
-              </a>
+              <div className="mt-1 flex flex-col gap-2 w-fit rounded-2xl border border-white/10 bg-white/[0.03] p-3">
+                <span className="text-[11px] uppercase tracking-widest text-[#859585] px-1">
+                  {t("landing.footer.contact")}
+                </span>
+                <div className="flex flex-wrap items-center gap-2" dir="ltr">
+                  <a
+                    href="tel:09388628892"
+                    className="group flex items-center gap-2 rounded-xl bg-[#46fc8b]/10 px-3 py-2 text-[12px] text-[#dde5dd] transition-colors hover:bg-[#46fc8b]/20">
+                    <Phone size={13} className="text-[#46fc8b] shrink-0" />
+                    <span className="tracking-wide">09388628892</span>
+                  </a>
+                  <a
+                    href="mailto:lingofam@atomicmail.io"
+                    className="group flex items-center gap-2 rounded-xl bg-white/5 px-3 py-2 text-[12px] text-[#dde5dd] transition-colors hover:bg-white/10">
+                    <Mail size={13} className="text-[#46fc8b] shrink-0" />
+                    <span className="tracking-wide">lingofam@atomicmail.io</span>
+                  </a>
+                </div>
+              </div>
               <div className="mt-1 flex items-center gap-3">
                 <a referrerPolicy="origin" target="_blank" href="https://trustseal.enamad.ir/?id=7486730&Code=G77bF9erLIXFjYTYnvtJqtyzzNcQsep2">
                   <Image

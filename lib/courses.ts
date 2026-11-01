@@ -1,4 +1,4 @@
-export type CourseKey = "general" | "ielts" | "business" | "german";
+export type CourseKey = "general" | "grammar";
 
 export type Course = {
   key: CourseKey;
@@ -8,6 +8,7 @@ export type Course = {
   weeks: number;
   level: string;
   hot: boolean;
+  thumbnail: string;
 };
 
 export const courses: readonly Course[] = [
@@ -19,33 +20,17 @@ export const courses: readonly Course[] = [
     weeks: 8,
     level: "A1–B1",
     hot: true,
+    thumbnail: "/assets/img/Courses/GeneralEN.webp",
   },
   {
-    key: "ielts",
-    price: 2950000,
-    oldPrice: 3600000,
-    lessons: 36,
-    weeks: 10,
-    level: "B1–C1",
-    hot: false,
-  },
-  {
-    key: "business",
-    price: 1850000,
-    oldPrice: 0,
-    lessons: 20,
-    weeks: 6,
-    level: "B1–B2",
-    hot: false,
-  },
-  {
-    key: "german",
+    key: "grammar",
     price: 1250000,
     oldPrice: 1600000,
     lessons: 18,
     weeks: 8,
-    level: "A1–A2",
+    level: "A1–B1",
     hot: false,
+    thumbnail: "/assets/img/Courses/GrammarEN.webp",
   },
 ];
 

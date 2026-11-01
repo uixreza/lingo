@@ -1,41 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   Award,
   BookOpen,
-  Briefcase,
   Clock,
   Flame,
-  Globe,
   Headset,
   Infinity,
   Layers,
-  Lock,
+  Search,
   ShieldCheck,
-  Target,
-  User,
-  type LucideIcon,
 } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { useAuth } from "@/contexts/AuthContext";
-import { useCart } from "@/contexts/CartContext";
 import { useLang } from "@/contexts/LanguageContext";
 import type { TranslationKey } from "@/i18n";
-import {
-  courseDiscount,
-  courses,
-  type Course,
-  type CourseKey,
-} from "@/lib/courses";
-
-const courseIcons: Record<CourseKey, LucideIcon> = {
-  general: BookOpen,
-  ielts: Target,
-  business: Briefcase,
-  german: Globe,
-};
+import { courses, type Course } from "@/lib/courses";
 
 const trustItems = [
   { key: "lifetime", Icon: Infinity },
@@ -47,30 +28,17 @@ const trustItems = [
 function CourseCard({
   course,
   index,
-  className = "",
   t,
-  locale,
   formatPrice,
-  onBuy,
 }: {
   course: Course;
   index: number;
-  className?: string;
   t: (key: TranslationKey) => string;
-  locale: string;
   formatPrice: (value: number) => string;
-  onBuy: (key: CourseKey) => void;
 }) {
-  const discount = courseDiscount(course);
-  const Icon = courseIcons[course.key];
-
   const skin = course.hot
     ? "border-[#05df72]/40 bg-[#1a211d] shadow-[0_0_44px_rgba(5,223,114,0.12)] hover:border-[#05df72]/60"
     : "border-white/[0.08] bg-[#161d19] hover:border-[#05df72]/30 hover:bg-[#1a211d]";
-
-  const cta = course.hot
-    ? "w-full rounded-xl bg-[#05df72] px-5 py-3 text-[14px] font-bold text-[#003918] transition-all duration-300 hover:bg-[#3cfd8a] hover:shadow-[0_0_28px_rgba(5,223,114,0.45)] active:scale-[0.98]"
-    : "w-full rounded-xl border border-[#05df72]/35 bg-white/[0.03] px-5 py-3 text-[14px] font-semibold text-[#46fc8b] transition-all duration-300 hover:border-[#05df72] hover:bg-[#05df72]/10 active:scale-[0.98]";
 
   return (
     <motion.article
@@ -78,116 +46,91 @@ function CourseCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.15 }}
       transition={{ duration: 0.45, delay: index * 0.08 }}
-      className={`group relative flex flex-col rounded-2xl border p-5 transition-all duration-300 sm:p-6 ${skin} ${className}`}>
-      {course.hot && (
-        <span className="absolute -top-3.5 start-5 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#05df72] px-3 py-1 text-[11px] font-bold text-[#003918] shadow-[0_6px_18px_rgba(5,223,114,0.35)]">
-          <Flame size={12} strokeWidth={2.5} />
-          {t("courses.hot")}
-        </span>
-      )}
-
-      <div className="flex items-center justify-between gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-white/[0.06] bg-[#09100c] text-[#46fc8b] transition-transform duration-300 group-hover:-translate-y-0.5">
-          <Icon size={20} />
-        </span>
-        <span className="rounded-full border border-[#4edea3]/25 bg-[#4edea3]/10 px-2.5 py-1 text-[11px] font-semibold text-[#4edea3]">
+      className={`group relative flex flex-col rounded-2xl border p-5 transition-all duration-300 sm:p-6 ${skin}`}>
+      <div className="relative -mx-5 -mt-5 mb-5 overflow-hidden rounded-t-2xl sm:-mx-6 sm:-mt-6">
+        <Image
+          src={course.thumbnail}
+          alt={t(`courses.${course.key}.title`)}
+          width={400}
+          height={300}
+          className="h-64 w-full object-cover object-center transition-transform duration-500 group-hover:scale-[1.04] sm:h-72"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#161d19] via-transparent to-transparent" />
+        <span className="absolute top-3 end-3 rounded-full border border-[#4edea3]/25 bg-[#09100c]/80 px-3 py-1 text-[12px] font-semibold text-[#4edea3] backdrop-blur-sm">
           {course.level}
         </span>
+        {course.hot && (
+          <span className="absolute top-3 start-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-[#05df72] px-3 py-1 text-[11px] font-bold text-[#003918] shadow-[0_6px_18px_rgba(5,223,114,0.35)]">
+            <Flame size={12} strokeWidth={2.5} />
+            {t("courses.hot")}
+          </span>
+        )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-1.5">
-        <h3 className="text-[19px] font-bold leading-snug text-white">
+      <div className="flex flex-col gap-2">
+        <h3 className="text-[20px] font-extrabold leading-snug text-white sm:text-[22px]">
           {t(`courses.${course.key}.title`)}
         </h3>
-        <p className="line-clamp-2 text-[13px] leading-6 text-[#bacbb9]">
+        <p className="text-[14px] leading-7 text-[#bacbb9]">
           {t(`courses.${course.key}.desc`)}
         </p>
       </div>
 
-      <ul className="mt-4 flex flex-wrap items-center gap-2">
-        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
-          <Layers size={12} className="text-[#4edea3]" />
+      <ul className="mt-5 flex flex-wrap items-center gap-2">
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[12px] text-[#bacbb9]">
+          <Layers size={13} className="text-[#4edea3]" />
           CEFR
         </li>
-        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
-          <Clock size={12} className="text-[#4edea3]" />
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[12px] text-[#bacbb9]">
+          <Clock size={13} className="text-[#4edea3]" />
           {formatPrice(course.weeks)} {t("courses.weeksUnit")}
         </li>
-        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2 py-1 text-[11px] text-[#bacbb9]">
-          <BookOpen size={12} className="text-[#4edea3]" />
+        <li className="inline-flex items-center gap-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] px-2.5 py-1.5 text-[12px] text-[#bacbb9]">
+          <BookOpen size={13} className="text-[#4edea3]" />
           {formatPrice(course.lessons)} {t("courses.lessonsUnit")}
         </li>
       </ul>
 
-      <div className="mt-auto flex flex-col gap-2.5 pt-6">
-        <div className="flex flex-wrap items-center gap-2">
-          {discount > 0 && (
-            <span className="rounded-md border border-[#ef9a9a]/30 bg-[#ef9a9a]/10 px-1.5 py-0.5 text-[11px] font-bold text-[#ef9a9a]">
-              {formatPrice(discount)}
-              {locale === "fa" ? "٪" : "%"} {t("courses.discount")}
-            </span>
-          )}
-          {course.oldPrice > 0 && (
-            <span className="text-[12px] tabular-nums text-[#7c8b7d] line-through">
-              {formatPrice(course.oldPrice)}
-            </span>
-          )}
-        </div>
-
-        <div className="flex items-baseline gap-1.5">
-          <span className="text-[26px] font-extrabold tabular-nums text-[#46fc8b]">
-            {formatPrice(course.price)}
-          </span>
-          <span className="text-[12px] text-[#bacbb9]">
-            {t("courses.currency")}
-          </span>
-        </div>
-
-        <span className="text-[11px] text-[#859585]">
-          {course.oldPrice > 0
-            ? t("courses.price.discounted")
-            : t("courses.price.standard")}
+      <div className="mt-5 flex items-center justify-center rounded-xl border border-dashed border-white/10 bg-white/[0.03] px-4 py-3">
+        <span className="text-[15px] font-bold tracking-wide text-[#46fc8b]">
+          {t("courses.comingSoon")}
         </span>
-
-        <button type="button" onClick={() => onBuy(course.key)} className={`${cta} mt-1.5`}>
-          <span className="inline-flex items-center justify-center gap-2">
-            <Lock size={15} strokeWidth={2.5} />
-            {t("courses.buy")}
-          </span>
-        </button>
       </div>
     </motion.article>
   );
 }
 
+type FilterKey = "all" | "hot" | "beginner" | "intermediate";
+
 export default function CoursesSection() {
   const { t, locale } = useLang();
-  const { data: session } = useSession();
-  const { open: openAuth } = useAuth();
-  const { add, has } = useCart();
-  const [toast, setToast] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(null), 3000);
-    return () => clearTimeout(timer);
-  }, [toast]);
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<FilterKey>("all");
 
   const formatPrice = (value: number) =>
     new Intl.NumberFormat(locale === "fa" ? "fa-IR" : "en-US").format(value);
 
-  const handleBuy = (key: CourseKey) => {
-    if (!session?.user) {
-      openAuth();
-      return;
-    }
-    if (has(key)) {
-      setToast(t("dashboard.courses.added"));
-      return;
-    }
-    add(key);
-    setToast(t("basket.addedToast"));
-  };
+  const filters: { key: FilterKey; label: string }[] = [
+    { key: "all", label: t("courses.filter.all") },
+    { key: "hot", label: t("courses.filter.hot") },
+    { key: "beginner", label: t("courses.filter.beginner") },
+    { key: "intermediate", label: t("courses.filter.intermediate") },
+  ];
+
+  const visibleCourses = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return courses.filter((course) => {
+      const matchesFilter =
+        filter === "all" ||
+        (filter === "hot" && course.hot) ||
+        (filter === "beginner" && course.level.includes("A1")) ||
+        (filter === "intermediate" && course.level.includes("B"));
+      if (!matchesFilter) return false;
+      if (!q) return true;
+      const title = t(`courses.${course.key}.title`).toLowerCase();
+      return title.includes(q) || course.key.includes(q);
+    });
+  }, [query, filter, t]);
 
   return (
     <section className="relative mx-auto w-full max-w-[1320px] px-4 pb-16 pt-28 sm:px-6 lg:px-10 lg:pb-20 lg:pt-24">
@@ -215,35 +158,55 @@ export default function CoursesSection() {
         </p>
       </motion.div>
 
-      {/* Section 2 — Course cards (desktop 4-column grid) */}
-      <div className="relative mt-12 hidden grid-cols-4 items-stretch gap-6 lg:grid">
-        {courses.map((course, index) => (
-          <CourseCard
-            key={course.key}
-            course={course}
-            index={index}
-            t={t}
-            locale={locale}
-            formatPrice={formatPrice}
-            onBuy={handleBuy}
+      {/* Search & filters */}
+      <div className="relative mt-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full sm:max-w-xs">
+          <Search
+            size={16}
+            className="pointer-events-none absolute start-4 top-1/2 -translate-y-1/2 text-[#859585]"
           />
-        ))}
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("courses.searchPlaceholder")}
+            className="w-full rounded-xl border border-white/[0.08] bg-[#161d19] ps-11 pe-4 py-3 text-[14px] text-[#dde5dd] placeholder:text-[#859585] outline-none transition-colors focus:border-[#05df72]/50"
+          />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          {filters.map((f) => (
+            <button
+              key={f.key}
+              type="button"
+              onClick={() => setFilter(f.key)}
+              className={`rounded-full border px-4 py-2 text-[13px] font-medium transition-colors ${
+                filter === f.key
+                  ? "border-[#05df72] bg-[#05df72]/10 text-[#46fc8b]"
+                  : "border-white/[0.08] bg-white/[0.03] text-[#bacbb9] hover:border-[#05df72]/40 hover:text-[#dde5dd]"
+              }`}>
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {/* Section 2 — Course cards (mobile snap carousel) */}
-      <div className="relative -mx-4 mt-9 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:-mx-6 sm:px-6 lg:hidden">
-        {courses.map((course, index) => (
+      {/* Section 2 — Course cards */}
+      <div className="relative mt-8 grid w-full grid-cols-1 items-stretch gap-6 sm:grid-cols-2 lg:max-w-4xl">
+        {visibleCourses.map((course, index) => (
           <CourseCard
             key={course.key}
             course={course}
             index={index}
-            className="w-[84%] shrink-0 snap-start"
             t={t}
-            locale={locale}
             formatPrice={formatPrice}
-            onBuy={handleBuy}
           />
         ))}
+        {visibleCourses.length === 0 && (
+          <p className="col-span-full py-10 text-center text-[14px] text-[#859585]">
+            {t("courses.noResults")}
+          </p>
+        )}
       </div>
 
       {/* Section 3 — Trust / value propositions */}
@@ -270,20 +233,6 @@ export default function CoursesSection() {
           </motion.div>
         ))}
       </div>
-
-      {/* Mock checkout toast */}
-      <AnimatePresence>
-        {toast && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20 }}
-            className="fixed bottom-24 sm:bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-white/10 bg-[#0d1412] px-4 py-3 text-[13px] text-[#dde5dd] shadow-xl">
-            <User size={14} className="shrink-0 text-[#46fc8b]" />
-            <span>{toast}</span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 }

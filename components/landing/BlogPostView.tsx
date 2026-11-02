@@ -55,7 +55,7 @@ export default function BlogPostView({
   const preset = getLearningPreset(post);
 
   const bodyClass =
-    "blog-post ProseMirror prose prose-invert max-w-none text-right leading-relaxed [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24";
+    "blog-post ProseMirror prose prose-invert max-w-none leading-relaxed [&_h1]:text-2xl [&_h2]:text-xl [&_h3]:text-lg [&_h2]:scroll-mt-24 [&_h3]:scroll-mt-24";
 
   const blocks: ReactNode[] = [];
   let formulaPlaced = false;
@@ -65,6 +65,7 @@ export default function BlogPostView({
     blocks.push(
       <div
         key="intro"
+        dir="rtl"
         className={bodyClass}
         dangerouslySetInnerHTML={{ __html: intro }}
       />,
@@ -75,6 +76,7 @@ export default function BlogPostView({
     blocks.push(
       <div
         key={`section-${index}`}
+        dir="rtl"
         className={bodyClass}
         dangerouslySetInnerHTML={{ __html: html }}
       />,

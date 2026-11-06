@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import moment from "moment-jalaali";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import HorizScrollbar from "@/components/dashboard/UI/HorizScrollbar";
 import { useLang } from "@/contexts/LanguageContext";
 

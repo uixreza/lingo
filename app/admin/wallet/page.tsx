@@ -19,7 +19,7 @@ import {
   CreditCard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import Avatar from "@/components/dashboard/Avatar";
 
 type RecentSession = {

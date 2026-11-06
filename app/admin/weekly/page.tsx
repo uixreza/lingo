@@ -14,7 +14,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "@/lib/toast";
 
 interface Word {
   id: number;
@@ -382,8 +382,6 @@ export default function WeeklyContentPage() {
 
   return (
     <div className="space-y-6">
-      <Toaster position="top-center" />
-
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

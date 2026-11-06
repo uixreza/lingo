@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Megaphone, Plus, Loader2, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 type MarqueeItem = {
   id: number;

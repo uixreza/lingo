@@ -23,7 +23,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Avatar from "@/components/dashboard/Avatar";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 type FluencyLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 type UserRole = "Admin" | "Teacher" | "Client";

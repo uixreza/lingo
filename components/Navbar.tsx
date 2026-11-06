@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { useLang } from "@/contexts/LanguageContext";
 
 const bannedMsg =

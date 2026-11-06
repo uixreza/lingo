@@ -13,7 +13,7 @@ import {
   ShoppingBasket,
   Trash2,
 } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { useLang } from "@/contexts/LanguageContext";
 import { useCart } from "@/contexts/CartContext";
 import { getCourse, courseDiscount, type Course, type CourseKey } from "@/lib/courses";

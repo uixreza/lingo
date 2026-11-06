@@ -8,7 +8,7 @@ import { useLang } from "@/contexts/LanguageContext";
 import { useSession } from "next-auth/react";
 import { useAuth } from "@/contexts/AuthContext";
 import confetti from "canvas-confetti";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 function fireConfetti() {
   const colors = ["#22c55e", "#4ade80", "#86efac", "#bbf7d0", "#ffffff"];

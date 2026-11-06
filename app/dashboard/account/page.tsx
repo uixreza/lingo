@@ -29,7 +29,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import LoadingSpinner from "@/components/dashboard/LoadingSpinner";
 import Avatar from "@/components/dashboard/Avatar";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { useLang } from "@/contexts/LanguageContext";
 import Link from "next/link";
 

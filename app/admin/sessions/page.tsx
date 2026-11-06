@@ -26,7 +26,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { ListSkeleton } from "@/components/dashboard/Skeletons";
 import Avatar from "@/components/dashboard/Avatar";
 

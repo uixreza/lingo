@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 type Notification = {
   id: string;

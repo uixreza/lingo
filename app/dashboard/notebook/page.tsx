@@ -3,7 +3,7 @@
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Trash2, PenLine, X, Save, CloudUpload, NotebookText, CloudCheck, Loader2 } from "lucide-react";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 import { useLang } from "@/contexts/LanguageContext";
 import { type TranslationKey } from "@/i18n";
 import RichTextEditor from "@/components/dashboard/UI/RichTextEditor";

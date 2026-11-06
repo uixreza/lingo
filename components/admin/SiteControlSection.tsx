@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Power, RefreshCw, Loader2, ShieldAlert, Wrench, Snowflake } from "lucide-react";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 export default function SiteControlSection() {
   const [shutdown, setShutdown] = useState(false);

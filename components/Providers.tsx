@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { ThemeProvider } from "next-themes";
 import { SessionProvider } from "next-auth/react";
-import { Toaster } from "react-hot-toast";
+import { Toaster } from "sileo";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { CartProvider } from "@/contexts/CartContext";
 
@@ -31,16 +31,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
           {children}
           <Toaster
             position="top-center"
-            toastOptions={{
-              style: {
-                background: "#1a1a2e",
-                color: "#fff",
-                border: "1px solid rgba(255,255,255,0.1)",
-                fontSize: "14px",
-              },
-              success: { iconTheme: { primary: "#22c55e", secondary: "#fff" } },
-              error: { iconTheme: { primary: "#ef4444", secondary: "#fff" } },
-            }}
+            theme="dark"
+            options={{ duration: 4000, fill: "#1a1a2e" }}
           />
         </ThemeProvider>
         </SessionProvider>

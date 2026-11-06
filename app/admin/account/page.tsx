@@ -25,7 +25,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Avatar from "@/components/dashboard/Avatar";
 import MentorTab from "@/components/admin/MentorTab";
 import { useSession } from "next-auth/react";
-import toast from "react-hot-toast";
+import toast from "@/lib/toast";
 
 const tabVariants = {
   initial: { opacity: 0, y: 16, scale: 0.99 },

@@ -133,8 +133,8 @@ export default function BlogList({ posts }: { posts: PostCard[] }) {
                       locale === "en" ? "left-3" : "right-3"
                     }`}>
                     {locale === "en"
-                      ? index + 1
-                      : toPersianDigits(String(index + 1))}
+                      ? posts.length - index
+                      : toPersianDigits(String(posts.length - index))}
                   </span>
                 </div>
 

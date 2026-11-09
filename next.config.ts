@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "trustseal.enamad.ir",
       },
+      {
+        protocol: "https",
+        hostname: "s3.ir-central1.arvanstorage.ir",
+      },
     ],
   },
   async rewrites() {

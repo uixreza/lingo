@@ -30,6 +30,20 @@ const footerLinks = {
   ],
 };
 
+const ctaFade = {
+  hidden: { opacity: 0, y: 18 },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: "easeOut" as const },
+  },
+};
+
+const ctaContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.12 } },
+};
+
 export default function ConversionFooter() {
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
@@ -40,48 +54,87 @@ export default function ConversionFooter() {
       {/* CTA Banner */}
       <section className="w-full max-w-[1280px] mx-auto px-5 lg:px-10 py-12 lg:py-20">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="relative rounded-3xl p-8 lg:p-12 bg-gradient-to-r from-[#242c27] via-[#1a211d] to-[#242c27] shadow-2xl overflow-hidden text-center flex flex-col items-center gap-4">
-          <div className="absolute inset-0 bg-[#46fc8b]/5 pointer-events-none" />
-          <span className="text-[12px] font-semibold text-[#46fc8b] uppercase tracking-widest z-10">
-            {t("landing.cta.label")}
-          </span>
-          <h2
-            className="text-[30px] lg:text-[40px] leading-tight font-bold text-[#dde5dd] max-w-2xl tracking-tight z-10"
-            style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
-            {t("landing.cta.headline")}
-          </h2>
-          <p className="text-[18px] leading-[28px] text-[#bacbb9] max-w-xl z-10">
-            {t("landing.cta.subtitle")}
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 pt-2 z-10">
-            <button
-              onClick={(e) => {
-                if (!session) {
-                  e.preventDefault();
-                  openAuth();
-                }
-              }}
-              className="px-6 py-3.5 rounded-xl bg-[#05df72] text-[#003918] font-semibold shadow-[0_0_30px_rgba(70,252,139,0.5)] hover:shadow-[0_0_40px_rgba(70,252,139,0.7)] hover:bg-[#3cfd8a] transition-all duration-300 flex items-center gap-2 text-[15px]">
-              <span>{t("landing.cta.claimTrial")}</span>
-              <ArrowRight size={18} />
-            </button>
-            <Link
-              href="/download"
-              className="px-5 py-3 rounded-xl bg-[#2f3732]/80 hover:bg-[#2f3732] text-[#dde5dd] text-[13px] transition-colors flex items-center gap-2">
-              <Download size={18} className="text-[#4edea3]" />
-              <span>{t("landing.cta.downloadApp")}</span>
-            </Link>
+          variants={ctaContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.3 }}
+          className="relative rounded-[28px] overflow-hidden border border-white/[0.08] shadow-[0_24px_80px_-28px_rgba(5,222,114,0.3)]">
+          {/* Background layers */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#131c16] via-[#0b1410] to-[#0b1410]" />
+          <div className="absolute top-[-150px] left-1/2 -translate-x-1/2 w-[560px] h-[320px] rounded-full bg-[#05df72]/20 blur-[130px] pointer-events-none" />
+          <div className="absolute bottom-[-130px] right-[-8%] w-[380px] h-[380px] rounded-full bg-[#46fc8b]/10 blur-[120px] pointer-events-none" />
+          {/* Top hairline */}
+          <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-[#46fc8b]/50 to-transparent pointer-events-none" />
+
+          <div className="relative z-10 flex flex-col items-center text-center gap-5 px-6 py-14 lg:py-20">
+            <motion.span
+              variants={ctaFade}
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#242c27]/80 border border-green-500/25 backdrop-blur-md text-[12px] font-semibold text-[#46fc8b] uppercase tracking-widest">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#46fc8b] shadow-[0_0_8px_#46fc8b] animate-pulse" />
+              {t("landing.cta.label")}
+            </motion.span>
+
+            <motion.h2
+              variants={ctaFade}
+              className="text-[32px] sm:text-[44px] leading-[1.15] font-bold max-w-2xl tracking-tight"
+              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
+              <span className="bg-gradient-to-r from-[#dde5dd] via-white to-[#46fc8b] bg-clip-text text-transparent">
+                {t("landing.cta.headline")}
+              </span>
+            </motion.h2>
+
+            <motion.p
+              variants={ctaFade}
+              className="text-[17px] leading-[28px] text-[#bacbb9] max-w-xl">
+              {t("landing.cta.subtitle")}
+            </motion.p>
+
+            <motion.div
+              variants={ctaFade}
+              className="flex flex-wrap items-center justify-center gap-4 pt-3">
+              <button
+                onClick={(e) => {
+                  if (!session) {
+                    e.preventDefault();
+                    openAuth();
+                  }
+                }}
+                className="group relative overflow-hidden px-7 py-3.5 rounded-2xl bg-[#05df72] text-[#003918] font-bold text-[15px] shadow-[0_0_30px_rgba(70,252,139,0.45)] hover:shadow-[0_0_44px_rgba(70,252,139,0.7)] hover:bg-[#3cfd8a] transition-all duration-300 flex items-center gap-2">
+                <span>{t("landing.cta.claimTrial")}</span>
+                <ArrowRight
+                  size={18}
+                  className="group-hover:translate-x-0.5 transition-transform"
+                />
+                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent pointer-events-none group-hover:translate-x-full transition-transform duration-700" />
+              </button>
+              <Link
+                href="/download"
+                className="px-6 py-3.5 rounded-2xl bg-white/[0.05] border border-white/10 backdrop-blur-md text-[#dde5dd] text-[14px] font-medium hover:border-green-500/40 hover:bg-green-500/10 transition-all duration-300 flex items-center gap-2">
+                <Download size={18} className="text-[#4edea3]" />
+                <span>{t("landing.cta.downloadApp")}</span>
+              </Link>
+            </motion.div>
           </div>
         </motion.div>
       </section>
 
       {/* Footer */}
-      <footer className="relative z-10 w-full bg-[#09100c] shadow-[0_-1px_12px_rgba(0,0,0,0.4)] mt-16">
-        <div className="max-w-[1280px] mx-auto px-5 lg:px-10 pt-12 lg:pt-16 pb-8">
+      <footer className="relative z-10 w-full bg-[#09100c] shadow-[0_-1px_12px_rgba(0,0,0,0.4)] mt-16 overflow-hidden">
+        {/* Fade grid pattern — left side */}
+        <div
+          aria-hidden
+          className="absolute bottom-0 left-0 w-[380px] h-[380px] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(to right, rgba(70,252,139,0.35) 1px, transparent 1px), linear-gradient(to bottom, rgba(70,252,139,0.35) 1px, transparent 1px)",
+            backgroundSize: "30px 30px",
+            maskImage:
+              "radial-gradient(ellipse 90% 90% at 0% 100%, rgba(0,0,0,0.9) 0%, transparent 72%)",
+            WebkitMaskImage:
+              "radial-gradient(ellipse 90% 90% at 0% 100%, rgba(0,0,0,0.9) 0%, transparent 72%)",
+          }}
+        />
+        <div className="relative z-10 max-w-[1280px] mx-auto px-5 lg:px-10 pt-12 lg:pt-16 pb-8">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 pb-12">
             {/* Brand */}
             <div className="lg:col-span-2 flex flex-col gap-4">

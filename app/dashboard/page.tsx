@@ -19,9 +19,11 @@ import {
   Download,
   HardDrive,
   Info,
+  Tv,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRadio } from "@/components/RadioProvider";
+import LiveTvModal from "@/components/dashboard/LiveTvModal";
 import { useLang } from "@/contexts/LanguageContext";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
 const kidsBooks = data.kids.items.map((item, i) => ({
@@ -302,34 +304,25 @@ export default function DashboardPage() {
         </h2>
 
         {/* Group Tabs */}
-        <div className="flex gap-3 mb-8">
-          <button
-            onClick={() => setActiveGroup("kids")}
-            className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
-              activeGroup === "kids"
-                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
-                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
-            }`}>
-            {t("dashboard.kids")}
-          </button>
-          <button
-            onClick={() => setActiveGroup("adults")}
-            className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
-              activeGroup === "adults"
-                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
-                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
-            }`}>
-            {t("dashboard.adults")}
-          </button>
-          <button
-            onClick={() => setActiveGroup("etc")}
-            className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-300 ${
-              activeGroup === "etc"
-                ? "bg-green-500/15 border border-green-500/40 text-green-500 shadow-sm"
-                : "bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:bg-[var(--hover-bg-strong)] hover:text-[var(--dash-text)]"
-            }`}>
-            {t("dashboard.misc")}
-          </button>
+        <div className="inline-flex items-center gap-1 p-1.5 mb-8 rounded-2xl bg-[var(--hover-bg)]/60 border border-white/[0.06] backdrop-blur-md">
+          {(
+            [
+              ["kids", "dashboard.kids"],
+              ["adults", "dashboard.adults"],
+              ["etc", "dashboard.misc"],
+            ] as const
+          ).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setActiveGroup(key)}
+              className={`px-5 sm:px-6 py-2.5 rounded-xl text-sm font-semibold transition-all duration-300 ${
+                activeGroup === key
+                  ? "bg-green-500 text-black shadow-[0_0_20px_rgba(70,252,139,0.35)]"
+                  : "text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:bg-white/5"
+              }`}>
+              {t(label)}
+            </button>
+          ))}
         </div>
 
         {/* Books Grid */}
@@ -516,6 +509,7 @@ function UpcomingSessionsCard({
 function RadioCard() {
   const { playing, failed, toggle, accent, setAccent, station } = useRadio();
   const { t } = useLang();
+  const [tvOpen, setTvOpen] = useState(false);
 
   return (
     <div className="relative flex flex-col justify-between rounded-2xl bg-[var(--dash-sides)]/80 backdrop-blur-2xl shadow-2xl p-4 overflow-hidden">
@@ -533,20 +527,30 @@ function RadioCard() {
             {t("dashboard.radioSubtitle")}
           </p>
         </div>
-        <div className="ms-auto flex items-center gap-1 p-0.5 rounded-full bg-[var(--hover-bg)]">
-          {(["UK", "US"] as const).map((a) => (
-            <button
-              key={a}
-              onClick={() => setAccent(a)}
-              aria-pressed={accent === a}
-              className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200 ${
-                accent === a
-                  ? "bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow"
-                  : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
-              }`}>
-              {a}
-            </button>
-          ))}
+        <div className="ms-auto flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => setTvOpen(true)}
+            aria-label={t("dashboard.liveTv")}
+            title={t("dashboard.liveTv")}
+            className="p-2 rounded-full bg-[var(--hover-bg)] text-[var(--dash-muted)] hover:text-[var(--dash-text)] hover:bg-[var(--hover-bg-strong)] transition-all duration-200">
+            <Tv className="w-4 h-4" />
+          </button>
+          <div className="flex items-center gap-1 p-0.5 rounded-full bg-[var(--hover-bg)]">
+            {(["UK", "US"] as const).map((a) => (
+              <button
+                key={a}
+                onClick={() => setAccent(a)}
+                aria-pressed={accent === a}
+                className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold transition-all duration-200 ${
+                  accent === a
+                    ? "bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white shadow"
+                    : "text-[var(--dash-muted)] hover:text-[var(--dash-text)]"
+                }`}>
+                {a}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -587,6 +591,8 @@ function RadioCard() {
           </div>
         </div>
       </div>
+
+      {tvOpen && <LiveTvModal onClose={() => setTvOpen(false)} />}
     </div>
   );
 }
@@ -608,7 +614,7 @@ function BookCard({
     <div className="relative group rounded-2xl overflow-hidden shadow-lg aspect-[4/5]">
       {/* Background Image with Fallback */}
       <div
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]"
+        className="absolute inset-0 bg-cover bg-center bg-gradient-to-br from-[var(--light-purple)] to-[var(--dark-purple)]"
         style={{ backgroundImage: `url(${book.cover})` }}
       />
       {/* Gradient Overlay */}
@@ -636,7 +642,7 @@ function BookCard({
               rel="noopener noreferrer"
               aria-label={t("dashboard.downloadAudio")}
               title={t("dashboard.downloadAudio")}
-              className="flex-1 h-9 sm:h-[42px] bg-white/20 text-white rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
+              className="w-10 sm:w-[42px] h-9 sm:h-[42px] shrink-0 bg-white/20 text-white rounded-xl hover:bg-white/30 backdrop-blur-sm transition-all duration-200 flex items-center justify-center">
               <Volume2 className="w-4 h-4" />
             </a>
           )}

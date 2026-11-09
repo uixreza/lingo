@@ -13,6 +13,7 @@ import PlatformPillars from "@/components/landing/PlatformPillars";
 import DiagnosticWidget from "@/components/landing/DiagnosticWidget";
 import FaqSection from "@/components/landing/FaqSection";
 import ConversionFooter from "@/components/landing/ConversionFooter";
+import ScrollToTop from "@/components/landing/blog/ScrollToTop";
 
 function useIsMobile() {
   const subscribe = (onChange: () => void) => {
@@ -77,6 +78,7 @@ export default function Home() {
       <DiagnosticWidget />
       <FaqSection />
       <ConversionFooter />
+      <ScrollToTop />
     </main>
   );
 }

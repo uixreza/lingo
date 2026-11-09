@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   BookOpen,
   Shield,
@@ -9,7 +10,9 @@ import {
   FileText,
   AlertTriangle,
   CheckCircle,
+  ArrowRight,
 } from "lucide-react";
+import { useLang } from "@/contexts/LanguageContext";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -99,6 +102,8 @@ const sections = [
 ];
 
 export default function Policy() {
+  const { t, locale } = useLang();
+
   return (
     <main className="relative min-h-screen bg-[#050505]">
       {/* Banner */}
@@ -112,6 +117,23 @@ export default function Policy() {
         />
         <div className="absolute top-[-50px] right-[-50px] w-64 h-64 rounded-full bg-white/5 blur-3xl" />
         <div className="absolute bottom-[-80px] left-[-30px] w-80 h-80 rounded-full bg-black/10 blur-3xl" />
+
+        {/* Back link */}
+        <motion.div
+          initial={{ opacity: 0, y: -8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+          className="absolute top-4 z-20 start-4 sm:top-6 sm:start-10">
+          <Link
+            href="/"
+            className={`group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-sm text-[#bacbb9] hover:text-white hover:border-green-500/40 hover:bg-green-500/10 transition-all duration-300 ${locale === "en" ? "flex-row" : "flex-row-reverse"}`}>
+            <ArrowRight
+              className={`w-4 h-4 text-green-400 transition-transform ${locale === "en" ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
+            />
+            {t("download.back")}
+          </Link>
+        </motion.div>
+
         <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-4">
           <motion.p
             initial={{ opacity: 0, y: 10 }}

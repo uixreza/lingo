@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -21,9 +21,16 @@ const item = {
 
 export default function HeroSection({ christmas }: { christmas: boolean }) {
   const [starting, setStarting] = useState(false);
+  const [avatarSeeds, setAvatarSeeds] = useState<string[] | null>(null);
   const { data: session } = useSession();
   const { open: openAuth } = useAuth();
   const { t, locale } = useLang();
+
+  useEffect(() => {
+    setAvatarSeeds(
+      Array.from({ length: 3 }, () => Math.random().toString(36).slice(2, 10)),
+    );
+  }, []);
 
   return (
     <section className="relative w-full max-w-[1280px] mx-auto px-5 lg:px-10 pt-28 lg:pt-24 pb-16 lg:pb-20">
@@ -115,15 +122,19 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
             variants={item}
             className="flex items-center gap-4 pt-2">
             <div className="flex -space-x-2">
-              {["EN", "TR", "DE"].map((lang, i) => (
+              {[0, 1, 2].map((i) => (
                 <div
-                  key={lang}
-                  className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold border-2 border-[#09100c]"
-                  style={{
-                    backgroundColor: ["#242c27", "#2f3732", "#3c4a3d"][i],
-                    color: ["#46fc8b", "#4edea3", "#3cfd8a"][i],
-                  }}>
-                  {lang}
+                  key={i}
+                  className="w-8 h-8 rounded-full overflow-hidden border-2 border-[#09100c] bg-[#242c27] shadow-[0_4px_14px_rgba(0,0,0,0.45)]">
+                  {avatarSeeds && (
+                    <img
+                      src={`https://api.dicebear.com/10.x/notionists/svg?seed=${encodeURIComponent(avatarSeeds[i])}`}
+                      alt="LingoFam student"
+                      width={32}
+                      height={32}
+                      className="w-full h-full object-cover"
+                    />
+                  )}
                 </div>
               ))}
             </div>

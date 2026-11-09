@@ -28,17 +28,34 @@ export default function DownloadPage() {
       <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#22c55e]/10 blur-[180px] rounded-full pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] bg-[#4ade80]/5 blur-[140px] rounded-full pointer-events-none" />
 
+      {/* Fade grid pattern — bottom right */}
+      <div
+        aria-hidden
+        className="absolute bottom-0 right-0 w-[380px] h-[380px] pointer-events-none"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, rgba(70,252,139,0.35) 1px, transparent 1px), linear-gradient(to bottom, rgba(70,252,139,0.35) 1px, transparent 1px)",
+          backgroundSize: "30px 30px",
+          maskImage:
+            "radial-gradient(ellipse 90% 90% at 100% 100%, rgba(0,0,0,0.9) 0%, transparent 72%)",
+          WebkitMaskImage:
+            "radial-gradient(ellipse 90% 90% at 100% 100%, rgba(0,0,0,0.9) 0%, transparent 72%)",
+        }}
+      />
+
       <motion.div
         variants={container}
         initial="hidden"
         animate="show"
         className="relative z-10 w-full max-w-md flex flex-col items-center gap-10">
         {/* Back link */}
-        <motion.div variants={item} className="w-full">
+        <motion.div variants={item} className="w-full flex justify-start">
           <Link
             href="/"
-            className={`inline-flex items-center gap-1.5 text-sm text-[#888] hover:text-white transition-colors ${locale === "en" ? "flex-row" : "flex-row-reverse"}`}>
-            <ArrowRight className={`w-4 h-4 ${locale === "en" ? "rotate-180" : ""}`} />
+            className={`group inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.04] border border-white/10 backdrop-blur-md text-sm text-[#bacbb9] hover:text-white hover:border-green-500/40 hover:bg-green-500/10 transition-all duration-300 ${locale === "en" ? "flex-row" : "flex-row-reverse"}`}>
+            <ArrowRight
+              className={`w-4 h-4 text-green-400 transition-transform ${locale === "en" ? "rotate-180 group-hover:-translate-x-1" : "group-hover:translate-x-1"}`}
+            />
             {t("download.back")}
           </Link>
         </motion.div>

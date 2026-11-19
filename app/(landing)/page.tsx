@@ -50,8 +50,8 @@ export default function Home() {
       style={{
         fontFamily:
           locale === "en"
-            ? "var(--font-plus-jakarta), 'Dana', sans-serif"
-            : "var(--font-morabba-light), 'Dana', sans-serif",
+            ? "var(--font-plus-jakarta), sans-serif"
+            : "'Anjoman', sans-serif",
       }}
       className="relative min-h-screen bg-[#09100c] overflow-hidden">
       {christmas && (

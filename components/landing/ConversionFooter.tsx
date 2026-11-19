@@ -77,7 +77,7 @@ export default function ConversionFooter() {
             <motion.h2
               variants={ctaFade}
               className="text-[32px] sm:text-[44px] leading-[1.15] font-bold max-w-2xl tracking-tight"
-              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
+              style={{ fontFamily: locale === "fa" ? "'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
               <span className="bg-gradient-to-r from-[#dde5dd] via-white to-[#46fc8b] bg-clip-text text-transparent">
                 {t("landing.cta.headline")}
               </span>

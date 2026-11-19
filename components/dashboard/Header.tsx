@@ -26,6 +26,7 @@ type User = {
   years?: number;
   streak?: number;
   badges?: string[];
+  fluencyLevel?: string | null;
 };
 
 export default function Header({ user }: { user: User }) {
@@ -38,6 +39,7 @@ export default function Header({ user }: { user: User }) {
     balance,
     years = 1,
     streak = 0,
+    fluencyLevel = null,
   } = user;
 
   const [realBalance, setRealBalance] = useState<number | null>(null);
@@ -108,21 +110,29 @@ export default function Header({ user }: { user: User }) {
             </button>
           </div>
 
-          {/* Profile Image with Level Badge */}
-          <div className="relative group">
-            <div className="relative bg-[var(--hover-bg-strong)] rounded-2xl p-0.5">
+          {/* Profile Image with Level Badge — opens the CEFR roadmap */}
+          <Link
+            href="/dashboard/roadmap"
+            title={t("roadmap.viewHint")}
+            aria-label={t("roadmap.viewHint")}
+            className="relative group block cursor-pointer">
+            <div className="relative bg-[var(--hover-bg-strong)] rounded-2xl p-0.5 transition-transform duration-200 group-hover:scale-105">
               <Avatar
                 seed={session?.user?.avatarSeed || displayName}
                 size={56}
                 className="rounded-xl w-12 h-12 sm:w-14 sm:h-14"
               />
               <div
-                title={`${years} ${t("header.yearsSuffix")}`}
-                className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
-                {years}
+                title={
+                  fluencyLevel
+                    ? `${t("account.languageLevel")}: ${fluencyLevel}`
+                    : `${years} ${t("header.yearsSuffix")}`
+                }
+                className="absolute -bottom-1 -right-1 bg-gradient-to-r from-[var(--light-purple)] to-[var(--dark-purple)] text-white text-[10px] font-bold rounded-full min-w-[20px] h-5 sm:min-w-[24px] sm:h-6 px-1 flex items-center justify-center shadow-lg border-2 border-[var(--header-bg)]">
+                {fluencyLevel || years}
               </div>
             </div>
-          </div>
+          </Link>
 
           {/* User Info and Progress */}
           <div className="space-y-1 sm:space-y-2 min-w-0 flex-1">

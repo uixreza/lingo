@@ -38,7 +38,7 @@ export default function DiagnosticWidget() {
             </div>
             <h2
               className="text-[30px] leading-tight font-semibold text-[#dde5dd]"
-              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
+              style={{ fontFamily: locale === "fa" ? "'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
               {t("landing.diagnostic.headline")}
             </h2>
             <p className="text-[13px] leading-[20px] text-[#bacbb9]">

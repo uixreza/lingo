@@ -33,7 +33,7 @@ export default async function RootLayout({
   return (
     <>
       <div
-        className="flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
+        className="font-morabba flex w-full overflow-hidden h-screen bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300"
         dir="rtl">
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">

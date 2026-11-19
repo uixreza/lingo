@@ -62,7 +62,7 @@ export default function MetricsBar() {
             className="flex flex-col items-center md:items-start text-center md:text-left gap-1">
             <span
               className={`text-[34px] leading-tight font-semibold ${m.color}`}
-              style={{ fontFamily: locale === "fa" ? "var(--font-morabba-light), 'Dana', sans-serif" : "var(--font-plus-jakarta), 'Dana', sans-serif" }}>
+              style={{ fontFamily: locale === "fa" ? "'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
               {metricValue(m.key)}
             </span>
             <span className="text-[13px] text-[#bacbb9]">

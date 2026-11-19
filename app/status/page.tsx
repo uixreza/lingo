@@ -48,7 +48,7 @@ export default function StatusPage() {
   return (
     <div
       className="min-h-[100dvh] bg-[#050505] flex items-end lg:items-center justify-center lg:px-4"
-      style={{ fontFamily: "'Morabba', 'Dana', sans-serif" }}>
+      style={{ fontFamily: "'Anjoman', sans-serif" }}>
       {/* Background blurs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[-200px] left-[-10%] w-[600px] h-[600px] rounded-full bg-[#22c55e]/5 blur-[150px]" />

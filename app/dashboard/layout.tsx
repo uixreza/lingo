@@ -39,7 +39,13 @@ export default async function RootLayout({
 
   const dbUser = await prisma.user.findUnique({
     where: { id: userId },
-    select: { isActive: true, badges: true, createdAt: true, avatarSeed: true },
+    select: {
+      isActive: true,
+      badges: true,
+      createdAt: true,
+      avatarSeed: true,
+      fluencyLevel: true,
+    },
   });
 
   if (!dbUser || !dbUser.isActive) {
@@ -62,26 +68,35 @@ export default async function RootLayout({
     ),
   );
   return (
-    <RadioProvider>
-      <BanGuard />
-      {session.user.role !== "Admin" && <SiteStatusGuard />}
-      {!dbUser.avatarSeed && <UserOnboarding />}
-      <DashboardShell>
-        {/* Main Content */}
-        <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Header */}
-          <Header user={{ ...user, badges: dbUser?.badges ?? [], years: yearsWithUs }} />
+    <div className="contents font-morabba">
+      <RadioProvider>
+        <BanGuard />
+        {session.user.role !== "Admin" && <SiteStatusGuard />}
+        {!dbUser.avatarSeed && <UserOnboarding />}
+        <DashboardShell>
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col overflow-hidden">
+            {/* Header */}
+            <Header
+              user={{
+                ...user,
+                badges: dbUser?.badges ?? [],
+                years: yearsWithUs,
+                fluencyLevel: dbUser?.fluencyLevel ?? null,
+              }}
+            />
 
-          {/* Page Content */}
-          <main className="flex-1 overflow-y-auto py-6 px-2 sm:px-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">
-            <Breadcrum />
-            <div className="max-w-7xl mx-auto">{children}</div>
-          </main>
-        </div>
-        {/* Sidebar */}
-        <Sidebar />
-      </DashboardShell>
-      <RadioButton />
-    </RadioProvider>
+            {/* Page Content */}
+            <main className="flex-1 overflow-y-auto py-6 px-2 sm:px-6 bg-[url('/assets/img/pattern.png')] bg-[var(--dash-bg)] transition-colors duration-300 bg-blend-exclusion">
+              <Breadcrum />
+              <div className="max-w-7xl mx-auto">{children}</div>
+            </main>
+          </div>
+          {/* Sidebar */}
+          <Sidebar />
+        </DashboardShell>
+        <RadioButton />
+      </RadioProvider>
+    </div>
   );
 }

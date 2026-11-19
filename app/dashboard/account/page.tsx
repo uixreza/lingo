@@ -255,7 +255,10 @@ function JalaliWheelPicker({
 }
 
 export default function AccountPage() {
-  const { update: updateSession } = useSession();
+  const { update: updateSession, data: sessionData } = useSession();
+  // Fluency level section is hidden for normal users (Client) — shown only for Teacher/Admin
+  const userRole = sessionData?.user?.role;
+  const showFluencySection = userRole === "Teacher" || userRole === "Admin";
   const { t, locale } = useLang();
   const [activeTab, setActiveTab] = useState("profile");
   const [isLoading, setIsLoading] = useState(true);
@@ -778,7 +781,8 @@ export default function AccountPage() {
                         </div>
                       </div>
 
-                      {/* Level Selection */}
+                      {/* Level Selection — hidden for normal users (Client), visible for Teacher/Admin */}
+                      {showFluencySection && (
                       <div className={cardClass}>
                         <div className={accentBar} />
                         <label className={labelClass}>
@@ -826,6 +830,7 @@ export default function AccountPage() {
                           {t("account.freeLevelTest")}
                         </Link>
                       </div>
+                      )}
                     </motion.div>
                   )}
 

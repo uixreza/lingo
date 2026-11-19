@@ -1,74 +1,27 @@
+/* Global styles */
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
 @font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-Thin.woff2") format("woff2");
-  font-weight: 100;
+  font-family: "Anjoman";
+  src: url("/assets/fonts/Anjoman/woff2/Anjoman-Light.woff2") format("woff2");
+  font-weight: 100 300;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-UltraLight.woff2") format("woff2");
-  font-weight: 200;
+  font-family: "Anjoman";
+  src: url("/assets/fonts/Anjoman/woff2/Anjoman-Regular.woff2") format("woff2");
+  font-weight: 400 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-Light.woff2") format("woff2");
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-Medium.woff2") format("woff2");
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-DemiBold.woff2") format("woff2");
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "DanaBold";
-  src: url("/fonts/woff2/Dana-Bold.woff2") format("woff2");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-ExtraBold.woff2") format("woff2");
-  font-weight: 800;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Dana";
-  src: url("/fonts/woff2/Dana-Black.woff2") format("woff2");
-  font-weight: 900;
+  font-family: "Anjoman";
+  src: url("/assets/fonts/Anjoman/woff2/Anjoman-Bold.woff2") format("woff2");
+  font-weight: 600 900;
   font-style: normal;
   font-display: swap;
 }
@@ -186,8 +139,8 @@
 }
 
 @theme inline {
-  --font-sans: "Dana", sans-serif;
-  --font-mono: "Dana", sans-serif;
+  --font-sans: "Anjoman", sans-serif;
+  --font-mono: "Anjoman", sans-serif;
 }
 
 :root {
@@ -554,7 +507,7 @@ body {
   direction: ltr;
   text-align: left;
   overflow-x: auto;
-  font-family: "Dana", sans-serif;
+  font-family: "Anjoman", sans-serif;
 }
 
 .ProseMirror a {
@@ -660,7 +613,16 @@ html[lang="en"] .animate-neon-flicker {
 }
 
 html[lang="en"] {
-  font-family: "JetBrains Mono", "Dana", monospace !important;
+  font-family: "JetBrains Mono", "Anjoman", monospace !important;
+}
+
+/* Morabba — scoped to dashboard and admin routes */
+.font-morabba {
+  font-family: "Morabba", "Anjoman", sans-serif;
+}
+
+html[lang="en"] .font-morabba {
+  font-family: "JetBrains Mono", "Anjoman", monospace;
 }
 
 /* Landing — Bioluminescent EdTech */

@@ -34,27 +34,6 @@ const latoRegular = localFont({
   variable: "--font-lato-regular",
 });
 
-const morabbaLight = localFont({
-  src: "../../public/assets/fonts/Morabba/Morabba-Light.woff",
-  weight: "300",
-  display: "swap",
-  variable: "--font-morabba-light",
-});
-
-const morabbaBold = localFont({
-  src: "../../public/assets/fonts/Morabba/Morabba-Bold.woff",
-  weight: "700",
-  display: "swap",
-  variable: "--font-morabba-bold",
-});
-
-const morabbaRegular = localFont({
-  src: "../../public/assets/fonts/Morabba/Morabba-Regular.woff",
-  weight: "400",
-  display: "swap",
-  variable: "--font-morabba-regular",
-});
-
 export const metadata: Metadata = {
   alternates: {
     canonical: "/",
@@ -73,7 +52,7 @@ export default async function RootLayout({
   return (
     <AuthProvider>
       <div
-        className={`${plusJakarta.variable} ${latoThin.variable} ${latoBold.variable} ${latoRegular.variable} ${morabbaLight.variable} ${morabbaBold.variable} ${morabbaRegular.variable}`}>
+        className={`${plusJakarta.variable} ${latoThin.variable} ${latoBold.variable} ${latoRegular.variable}`}>
         {children}
         <Navbar />
         <Auth />

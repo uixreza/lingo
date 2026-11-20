@@ -51,7 +51,7 @@ export default function Home() {
         fontFamily:
           locale === "en"
             ? "var(--font-plus-jakarta), sans-serif"
-            : "'Anjoman', sans-serif",
+            : "'Dana', 'Anjoman', sans-serif",
       }}
       className="relative min-h-screen bg-[#09100c] overflow-hidden">
       {christmas && (

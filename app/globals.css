@@ -27,6 +27,78 @@
 }
 
 @font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-UltraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-DemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Dana";
+  src: url("/assets/fonts/Dana/woff2/Dana-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: "Morabba";
   src: url("/assets/fonts/Morabba/Morabba-UltraLight.woff") format("woff");
   font-weight: 200;
@@ -622,6 +694,15 @@ html[lang="en"] {
 }
 
 html[lang="en"] .font-morabba {
+  font-family: "JetBrains Mono", "Anjoman", monospace;
+}
+
+/* Landing — Dana for the Farsi version only */
+.landing-font {
+  font-family: "Dana", "Anjoman", sans-serif;
+}
+
+html[lang="en"] .landing-font {
   font-family: "JetBrains Mono", "Anjoman", monospace;
 }
 

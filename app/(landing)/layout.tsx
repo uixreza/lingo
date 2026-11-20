@@ -52,7 +52,7 @@ export default async function RootLayout({
   return (
     <AuthProvider>
       <div
-        className={`${plusJakarta.variable} ${latoThin.variable} ${latoBold.variable} ${latoRegular.variable}`}>
+        className={`${plusJakarta.variable} ${latoThin.variable} ${latoBold.variable} ${latoRegular.variable} landing-font`}>
         {children}
         <Navbar />
         <Auth />

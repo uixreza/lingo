@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Lock,
   CalendarDays,
@@ -108,15 +107,14 @@ type RequestStatus = "Approved" | "Pending" | "Canceled";
 const cardClass =
   "relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/15 dark:border-white/20 bg-[var(--dash-sides)]/80 backdrop-blur-xl shadow-lg";
 
-function DateLegend() {
-  const { t } = useLang();
-  const Row = ({
-    swatch,
-    children,
-  }: {
-    swatch: React.ReactNode;
-    children: React.ReactNode;
-  }) => (
+function LegendRow({
+  swatch,
+  children,
+}: {
+  swatch: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
     <div className="flex items-center gap-3">
       <div className="w-9 h-9 shrink-0 rounded-lg overflow-hidden flex items-center justify-center relative">
         {swatch}
@@ -126,37 +124,41 @@ function DateLegend() {
       </span>
     </div>
   );
+}
+
+function DateLegend() {
+  const { t } = useLang();
 
   return (
     <div className="space-y-2.5">
-      <Row swatch={<div className="w-full h-full bg-purple-500/15 ring-1 ring-purple-500/40 rounded-lg" />}>
+      <LegendRow swatch={<div className="w-full h-full bg-purple-500/15 ring-1 ring-purple-500/40 rounded-lg" />}>
         {t("sessions.today")}
-      </Row>
-      <Row
+      </LegendRow>
+      <LegendRow
         swatch={
           <div className="w-full h-full bg-green-500 rounded-lg flex items-center justify-center">
             <Check className="h-3.5 w-3.5 text-black" strokeWidth={3} />
           </div>
         }>
         {t("sessions.sessionConfirmed")}
-      </Row>
-      <Row
+      </LegendRow>
+      <LegendRow
         swatch={
           <div className="w-full h-full bg-amber-500 rounded-lg flex items-center justify-center">
             <Loader2 className="h-3.5 w-3.5 text-black animate-spin" strokeWidth={3} />
           </div>
         }>
         {t("sessions.sessionPending")}
-      </Row>
-      <Row
+      </LegendRow>
+      <LegendRow
         swatch={
           <div className="w-full h-full bg-red-500 rounded-lg flex items-center justify-center">
             <Lock className="h-3 w-3 text-black" strokeWidth={2.5} />
           </div>
         }>
         {t("sessions.fullyBooked")}
-      </Row>
-      <Row
+      </LegendRow>
+      <LegendRow
         swatch={
           <div className="w-full h-full bg-green-500/15 rounded-lg flex items-center justify-end p-0.5">
             <span className="h-3.5 min-w-3.5 px-0.5 bg-green-500 rounded-full flex items-center justify-center">
@@ -165,13 +167,13 @@ function DateLegend() {
           </div>
         }>
         {t("sessions.selected")}
-      </Row>
-      <Row swatch={<div className="w-full h-full bg-[var(--hover-bg-strong)] rounded-lg" />}>
+      </LegendRow>
+      <LegendRow swatch={<div className="w-full h-full bg-[var(--hover-bg-strong)] rounded-lg" />}>
         {t("sessions.pastDay")}
-      </Row>
-      <Row swatch={<div className="w-full h-full bg-[var(--hover-bg)] rounded-lg" />}>
+      </LegendRow>
+      <LegendRow swatch={<div className="w-full h-full bg-[var(--hover-bg)] rounded-lg" />}>
         {t("sessions.bookableDay")}
-      </Row>
+      </LegendRow>
     </div>
   );
 }
@@ -268,13 +270,6 @@ export default function SessionsPage() {
                 ? mentor.languages
                 : [],
             });
-            setLanguage((prev) => {
-              const available = new Set(mentor.languages ?? []);
-              const prevLabel =
-                languages.find((l) => l.id === prev)?.label ?? "";
-              if (available.has(prevLabel)) return prev;
-              return languages.find((l) => available.has(l.label))?.id ?? "";
-            });
           }
         }
         if (panelRes.ok) {
@@ -308,12 +303,7 @@ export default function SessionsPage() {
   const pricePerSession = (p: number) =>
     discountedPrice(p) + extraPerSession;
 
-  const canSubmit =
-    language &&
-    availableLanguages.has(
-      languages.find((l) => l.id === language)?.label ?? "",
-    ) &&
-    totalSlots > 0;
+  const canSubmit = Boolean(language) && totalSlots > 0;
 
   const toggleSlot = (dateStr: string, time: string) => {
     setSelectedSlots((prev) => {
@@ -691,8 +681,8 @@ export default function SessionsPage() {
         </div>
 
         <div className="relative space-y-7">
-          {/* Language */}
-          <div>
+          {/* Language — hidden: English is the default language */}
+          <div className="hidden">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-[var(--light-purple)] bg-[var(--light-purple)]/10 px-2 py-0.5 rounded-md">
                 ۱
@@ -754,94 +744,97 @@ export default function SessionsPage() {
             </div>
           </div>
 
-          {/* Teacher Introduction */}
-          <div className="relative bg-gradient-to-br from-purple-500/8 via-purple-500/[0.03] to-indigo-500/5 rounded-2xl p-5 ring-1 ring-purple-500/15 overflow-hidden">
-            <div className="pointer-events-none absolute -top-20 -left-20 h-40 w-40 rounded-full bg-purple-500/15 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-20 -right-20 h-32 w-32 rounded-full bg-indigo-500/10 blur-3xl" />
+          {/* Your Mentor */}
+          <div className="relative overflow-hidden rounded-2xl border border-[var(--dash-muted)]/12 bg-gradient-to-br from-green-500/[0.08] via-[var(--dash-sides)]/70 to-transparent p-5">
+            <div className={accentBar} />
+            <div className="pointer-events-none absolute -top-20 -end-12 h-44 w-44 rounded-full bg-green-500/10 blur-3xl" />
 
-            <div className="relative flex items-center gap-2 mb-5">
-              <div className="h-5 w-1 rounded-full bg-purple-500" />
-              <span className="text-xs font-bold text-purple-500 dark:text-purple-400">
-                {t("sessions.mentor")}
+            <div className="relative mb-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-xl border border-green-500/20 bg-green-500/10 text-green-600 dark:text-green-400">
+                  <User size={15} />
+                </span>
+                <span className="text-xs font-black text-[var(--dash-text)]">
+                  {t("sessions.mentor")}
+                </span>
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-1 text-[10px] font-bold text-green-600 dark:text-green-400">
+                <Globe size={11} />
+                {languages.find((l) => l.id === language)?.label ?? "English"}
               </span>
             </div>
 
-            <div className="relative flex items-start gap-4 mb-5">
-              <div className="flex-1 min-w-0">
-                <p className="text-base font-extrabold text-[var(--dash-text)] leading-tight">
+            <div className="relative flex items-start gap-3.5 sm:gap-4">
+              <div className="relative w-20 shrink-0 sm:w-24">
+                <div className="h-20 w-20 overflow-hidden rounded-[20px] shadow-xl ring-1 ring-[var(--dash-muted)]/15 sm:h-24 sm:w-24 sm:rounded-[22px]">
+                  <Image
+                    src="/me.jpg"
+                    alt={mentor.name}
+                    width={256}
+                    height={256}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <span className="absolute -bottom-1.5 -end-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-green-500 text-black ring-4 ring-[var(--dash-sides)] sm:h-7 sm:w-7">
+                  <CheckCircle size={12} strokeWidth={2.5} className="sm:hidden" />
+                  <CheckCircle size={14} strokeWidth={2.5} className="hidden sm:block" />
+                </span>
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-extrabold leading-tight text-[var(--dash-text)] sm:text-lg">
                   {mentor.name}
                 </p>
                 {mentor.title && (
-                  <p className="text-[11px] text-purple-400 font-medium mt-1">
+                  <p className="mt-1 text-[11px] font-semibold text-green-600 dark:text-green-400">
                     {mentor.title}
                   </p>
                 )}
-                {mentor.bio && (
-                  <p className="text-[11px] text-[var(--dash-muted)] mt-2 leading-relaxed line-clamp-3">
-                    {mentor.bio}
-                  </p>
-                )}
                 {mentor.certifications.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 mt-3">
+                  <div className="mt-3 flex flex-wrap gap-1.5">
                     {mentor.certifications.map((c) => (
                       <span
                         key={c}
-                        className="text-[10px] bg-blue-500/10 text-blue-500 dark:text-blue-400 px-1.5 py-0.5 rounded-md font-bold ring-1 ring-blue-500/15">
+                        className="inline-flex items-center gap-1 rounded-md border border-green-500/15 bg-green-500/10 px-2 py-0.5 text-[10px] font-bold text-green-600 dark:text-green-400">
+                        <CheckCircle size={10} />
                         {c}
                       </span>
                     ))}
                   </div>
                 )}
               </div>
-              <div className="relative shrink-0 w-20 h-20">
-                <div className="w-20 h-20 rounded-2xl overflow-hidden shadow-xl ring-2 ring-purple-500/25">
-                  <Image
-                    src="/me.jpg"
-                    alt={mentor.name}
-                    width={256}
-                    height={256}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
             </div>
 
-            <div className="relative grid grid-cols-2 gap-3">
+            <div className="relative mt-5 grid gap-px overflow-hidden rounded-xl border border-[var(--dash-muted)]/10 bg-[var(--dash-muted)]/10 sm:grid-cols-3">
               {mentor.languages.length > 0 && (
-                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Globe className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.languages")}</span>
+                <div className="bg-[var(--dash-sides)]/85 p-3.5">
+                  <div className="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-[0.08em] text-[var(--dash-muted)]">
+                    <Globe size={11} className="text-green-500" />
+                    {t("sessions.languages")}
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {mentor.languages.map((lang) => (
-                        <span
-                          key={lang}
-                          className="text-[10px] font-medium text-[var(--dash-text)]">
-                          {lang}
-                        </span>
-                      ))}
-                  </div>
+                  <p className="mt-1.5 text-[11.5px] font-semibold text-[var(--dash-text)]">
+                    {mentor.languages.join(" · ")}
+                  </p>
                 </div>
               )}
               {mentor.experience && (
-                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Clock className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.experience")}</span>
+                <div className="bg-[var(--dash-sides)]/85 p-3.5">
+                  <div className="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-[0.08em] text-[var(--dash-muted)]">
+                    <Clock size={11} className="text-green-500" />
+                    {t("sessions.experience")}
                   </div>
-                  <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
+                  <p className="mt-1.5 text-[11.5px] font-semibold text-[var(--dash-text)]">
                     {mentor.experience}
                   </p>
                 </div>
               )}
               {mentor.education && (
-                <div className="bg-[var(--dash-bg)]/60 rounded-xl px-3.5 py-2.5 ring-1 ring-[var(--dash-muted)]/8 col-span-2">
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <BookOpen className="h-3 w-3 text-purple-400" />
-                    <span className="text-[10px] font-bold text-purple-400">{t("sessions.education")}</span>
+                <div className="bg-[var(--dash-sides)]/85 p-3.5">
+                  <div className="flex items-center gap-1.5 text-[9.5px] font-bold uppercase tracking-[0.08em] text-[var(--dash-muted)]">
+                    <BookOpen size={11} className="text-green-500" />
+                    {t("sessions.education")}
                   </div>
-                  <p className="text-[11px] font-medium text-[var(--dash-text)] leading-relaxed">
+                  <p className="mt-1.5 text-[11.5px] font-semibold leading-5 text-[var(--dash-text)] line-clamp-2">
                     {mentor.education}
                   </p>
                 </div>
@@ -853,7 +846,7 @@ export default function SessionsPage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
-                ۲
+                ۱
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.mode")}
@@ -921,7 +914,7 @@ export default function SessionsPage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
-                ۳
+                ۲
               </span>
               <label className="flex-1 min-w-0 text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.dateTime")}
@@ -1039,7 +1032,7 @@ export default function SessionsPage() {
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[10px] font-bold text-green-600 dark:text-green-400 bg-green-500/10 px-2 py-0.5 rounded-md">
-                ۴
+                ۳
               </span>
               <label className="text-sm font-medium text-[var(--dash-muted)]">
                 {t("sessions.description")}
@@ -1163,17 +1156,6 @@ export default function SessionsPage() {
             )}
           </div>
 
-          {/* Fluency notice */}
-          <p className="text-xs text-[var(--dash-muted)] leading-relaxed">
-            {t("sessions.selectLevelHintBefore")}{" "}
-            <Link
-              href="/dashboard/account"
-              className="font-bold text-green-600 dark:text-green-400 underline underline-offset-2 hover:opacity-80 transition-opacity">
-              {t("sessions.goToAccount")}
-            </Link>{" "}
-            {t("sessions.selectLevelHintAfter")}
-          </p>
-
           {/* Submit */}
           <motion.button
             whileTap={canSubmit && !submitting ? { scale: 0.98 } : {}}
@@ -1260,7 +1242,7 @@ export default function SessionsPage() {
             </div>
           ) : null}
           <AnimatePresence initial={false}>
-            {filteredRequests.map((req, i) => {
+            {filteredRequests.map((req) => {
               const StatusIcon = statusIcons[req.status];
               return (
                 <motion.div

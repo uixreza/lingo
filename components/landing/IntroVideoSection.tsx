@@ -31,7 +31,7 @@ export default function IntroVideoSection() {
           </span>
           <h2
             className="text-[30px] lg:text-[40px] leading-tight font-semibold text-[#dde5dd] tracking-tight"
-            style={{ fontFamily: locale === "fa" ? "'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
+            style={{ fontFamily: locale === "fa" ? "'Dana', 'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
             {t("landing.intro.headline")}
           </h2>
         </div>

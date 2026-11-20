@@ -86,19 +86,20 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
               style={{
                 fontFamily:
                   locale === "fa"
-                    ? "'Anjoman', sans-serif"
+                    ? "'Dana', 'Anjoman', sans-serif"
                     : "var(--font-plus-jakarta), sans-serif",
-                fontWeight: 300,
+                fontWeight: locale === "fa" ? 900 : 700,
               }}>
               {t("landing.hero.heading1")}
             </span>
             <span
-              className="text-balance bg-gradient-to-r from-[#46fc8b] via-[#7bffb0] to-[#05df72] bg-clip-text text-4xl font-semibold leading-[1.12] tracking-tight text-transparent drop-shadow-[0_0_28px_rgba(70,252,139,0.32)] sm:text-5xl md:text-[56px]"
+              className="text-balance bg-gradient-to-r from-[#46fc8b] via-[#7bffb0] to-[#05df72] bg-clip-text text-4xl leading-[1.12] tracking-tight text-transparent drop-shadow-[0_0_28px_rgba(70,252,139,0.32)] sm:text-5xl md:text-[56px]"
               style={{
                 fontFamily:
                   locale === "fa"
-                    ? "'Anjoman', sans-serif"
+                    ? "'Dana', 'Anjoman', sans-serif"
                     : "var(--font-plus-jakarta), sans-serif",
+                fontWeight: locale === "fa" ? 900 : 700,
               }}>
               {t("landing.hero.heading2")}
             </span>
@@ -117,7 +118,7 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
               style={{
                 fontFamily:
                   locale === "fa"
-                    ? "'Anjoman', sans-serif"
+                    ? "'Dana', 'Anjoman', sans-serif"
                     : "var(--font-plus-jakarta), sans-serif",
               }}>
               {t("landing.hero.subtitle")}
@@ -137,7 +138,7 @@ export default function HeroSection({ christmas }: { christmas: boolean }) {
                     openAuth();
                   }
                 }}
-                className="group relative flex flex-1 items-center justify-between gap-3 overflow-hidden rounded-[18px] bg-gradient-to-br from-[#46fc8b] via-[#20f47f] to-[#05df72] px-5 py-3.5 font-semibold text-[#003918] ring-1 ring-inset ring-white/25 shadow-[0_16px_40px_-16px_rgba(5,223,114,0.8)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_20px_50px_-14px_rgba(70,252,139,0.9)] active:translate-y-0 active:scale-[0.99]">
+                className="group relative flex flex-1 items-center justify-between gap-3 overflow-hidden rounded-[18px] bg-gradient-to-br from-[#46fc8b] via-[#20f47f] to-[#05df72] px-5 py-3.5 font-semibold text-[#003918] ring-1 ring-inset ring-white/25 transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.99]">
                 <span
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 -translate-x-full bg-[linear-gradient(110deg,transparent_25%,rgba(255,255,255,0.45)_50%,transparent_75%)] opacity-0 transition-all duration-700 group-hover:translate-x-full group-hover:opacity-100"

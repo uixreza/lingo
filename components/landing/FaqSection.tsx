@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, HelpCircle } from "lucide-react";
+import { HelpCircle, Minus, Plus } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
 
 const faqKeys = ["q1", "q2", "q3", "q4", "q5", "q6"] as const;
@@ -10,84 +10,118 @@ const faqKeys = ["q1", "q2", "q3", "q4", "q5", "q6"] as const;
 export default function FaqSection() {
   const [open, setOpen] = useState<number | null>(0);
   const { t, locale } = useLang();
+  const headingFont =
+    locale === "fa"
+      ? "'Dana', 'Anjoman', sans-serif"
+      : "var(--font-plus-jakarta), sans-serif";
 
   return (
-    <section className="w-full max-w-[1280px] mx-auto px-5 lg:px-10 py-12 lg:py-20">
-      <div className="flex flex-col lg:flex-row gap-10 lg:gap-16">
+    <section className="relative mx-auto w-full max-w-[1280px] px-5 py-14 lg:px-10 lg:py-24">
+      <div className="flex flex-col gap-8 lg:gap-10">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="lg:w-1/3 flex flex-col gap-3">
-          <span className="text-[12px] font-semibold text-[#46fc8b] uppercase tracking-widest">
-            {t("landing.faq.label")}
+          className="flex flex-col gap-5">
+          <span className="inline-flex w-fit items-center gap-2 rounded-full border border-[#46fc8b]/20 bg-[#46fc8b]/[0.06] px-3 py-1.5 text-[10.5px] font-semibold text-[#46fc8b]">
+            <HelpCircle size={13} />
+            <span
+              className={locale === "fa" ? "" : "uppercase tracking-[0.18em]"}>
+              {t("landing.faq.label")}
+            </span>
           </span>
-          <h2
-            className="text-[30px] lg:text-[40px] leading-tight font-semibold text-[#dde5dd] tracking-tight"
-            style={{ fontFamily: locale === "fa" ? "'Anjoman', sans-serif" : "var(--font-plus-jakarta), sans-serif" }}>
-            {t("landing.faq.headline")}
-          </h2>
-          <p className="text-[15px] leading-[24px] text-[#bacbb9] max-w-md">
-            {t("landing.faq.subtitle")}
-          </p>
+
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <h2
+              className="max-w-2xl text-[32px] leading-[1.15] tracking-tight text-[#eef4ee] sm:text-[38px] lg:text-[46px]"
+              style={{
+                fontFamily: headingFont,
+                fontWeight: locale === "fa" ? 800 : 700,
+              }}>
+              {t("landing.faq.headline")}
+            </h2>
+            <p className="max-w-md text-[14.5px] leading-7 text-[#9fb5a6] lg:text-end">
+              {t("landing.faq.subtitle")}
+            </p>
+          </div>
         </motion.div>
 
         {/* Accordion */}
-        <div className="lg:w-2/3 flex flex-col gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-60px" }}
+          transition={{ duration: 0.5, delay: 0.05 }}
+          className="overflow-hidden rounded-[28px] border border-white/[0.07] bg-[#0f1612]">
           {faqKeys.map((key, i) => {
             const isOpen = open === i;
+            const panelId = `faq-panel-${key}`;
+            const buttonId = `faq-button-${key}`;
+
             return (
-              <motion.div
+              <div
                 key={key}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.06 }}
-                className={`rounded-2xl bg-[#1a211d] overflow-hidden transition-colors ${
-                  isOpen ? "bg-[#242c27] shadow-lg" : "hover:bg-[#242c27]"
-                }`}>
+                className={`transition-colors duration-300 ${
+                  i > 0 ? "border-t border-white/[0.06]" : ""
+                } ${isOpen ? "bg-[#121b15]" : "hover:bg-white/[0.02]"}`}>
                 <button
+                  id={buttonId}
+                  type="button"
+                  aria-expanded={isOpen}
+                  aria-controls={panelId}
                   onClick={() => setOpen(isOpen ? null : i)}
-                  className="w-full flex items-center justify-between gap-4 p-5 text-right cursor-pointer">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <HelpCircle
-                      size={20}
-                      className={`shrink-0 transition-colors ${
-                        isOpen ? "text-[#46fc8b]" : "text-[#bacbb9]"
-                      }`}
-                    />
-                    <span className="text-[16px] font-medium text-[#dde5dd]">
-                      {t(`landing.faq.${key}.question`)}
-                    </span>
-                  </div>
-                  <ChevronDown
-                    size={20}
-                    className={`shrink-0 text-[#bacbb9] transition-transform duration-300 ${
-                      isOpen ? "rotate-180 text-[#46fc8b]" : ""
-                    }`}
-                  />
+                  className="group flex w-full cursor-pointer items-center gap-4 px-5 py-5 text-start sm:px-6">
+                  <span
+                    className={`w-7 shrink-0 font-mono text-[10px] font-semibold tracking-[0.15em] transition-colors ${
+                      isOpen ? "text-[#46fc8b]" : "text-[#5d7565]"
+                    }`}>
+                    {`0${i + 1}`}
+                  </span>
+                  <span
+                    className={`min-w-0 flex-1 text-[14.5px] font-medium leading-snug transition-colors sm:text-[16px] ${
+                      isOpen
+                        ? "text-[#eef4ee]"
+                        : "text-[#dde5dd] group-hover:text-white"
+                    }`}>
+                    {t(`landing.faq.${key}.question`)}
+                  </span>
+                  <span
+                    className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 ${
+                      isOpen
+                        ? "border-[#46fc8b]/30 bg-[#46fc8b]/10 text-[#46fc8b]"
+                        : "border-white/[0.08] text-[#9fb5a6] group-hover:border-[#46fc8b]/25 group-hover:text-[#46fc8b]"
+                    }`}>
+                    {isOpen ? (
+                      <Minus size={15} className="transition-transform duration-300" />
+                    ) : (
+                      <Plus size={15} className="transition-transform duration-300" />
+                    )}
+                  </span>
                 </button>
 
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div
+                      id={panelId}
+                      role="region"
+                      aria-labelledby={buttonId}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3 }}
+                      transition={{ duration: 0.28, ease: "easeOut" }}
                       className="overflow-hidden">
-                      <p className="px-5 pb-5 ps-[2.75rem] text-[13px] leading-[20px] text-[#bacbb9]">
+                      <p className="px-5 pb-6 text-[13.5px] leading-7 text-[#9fb5a6] ps-[3.1rem] sm:px-6 sm:ps-[3.6rem]">
                         {t(`landing.faq.${key}.answer`)}
                       </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
-        </div>
+        </motion.div>
       </div>
     </section>
   );

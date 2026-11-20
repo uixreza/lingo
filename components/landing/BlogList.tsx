@@ -75,7 +75,7 @@ export default function BlogList({ posts }: { posts: PostCard[] }) {
         className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 pt-10 pb-24">
         <motion.div
           variants={item}
-          style={{ fontFamily: locale === "en" ? "'JetBrains Mono', monospace" : "'Anjoman', sans-serif" }}
+          style={{ fontFamily: locale === "en" ? "'JetBrains Mono', monospace" : "'Dana', 'Anjoman', sans-serif" }}
           className={`mb-14 ${locale === "en" ? "text-left" : "text-right"}`}>
           <p className="text-green-400 text-sm font-medium tracking-wide mb-3">
             {t("blog.siteTitle")}

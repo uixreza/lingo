@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useRadio } from "@/components/RadioProvider";
-import LiveTvModal from "@/components/dashboard/LiveTvModal";
+import LiveTvPlayer from "@/components/dashboard/LiveTvPlayer";
 import { useLang } from "@/contexts/LanguageContext";
 import { PageSkeleton } from "@/components/dashboard/Skeletons";
 const kidsBooks = data.kids.items.map((item, i) => ({
@@ -592,7 +592,7 @@ function RadioCard() {
         </div>
       </div>
 
-      {tvOpen && <LiveTvModal onClose={() => setTvOpen(false)} />}
+      {tvOpen && <LiveTvPlayer onClose={() => setTvOpen(false)} />}
     </div>
   );
 }

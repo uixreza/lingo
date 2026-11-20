@@ -79,7 +79,7 @@ export default function DownloadPage() {
         <motion.div variants={item} className="text-center space-y-3">
           <h1
             className="text-3xl font-bold text-white"
-            style={{ fontFamily: locale === "en" ? "'JetBrains Mono', monospace" : "'Anjoman', sans-serif" }}>
+            style={{ fontFamily: locale === "en" ? "'JetBrains Mono', monospace" : "'Dana', 'Anjoman', sans-serif" }}>
             {t("download.title")}
           </h1>
           <p className="text-[#aaa] text-sm leading-relaxed max-w-xs mx-auto">

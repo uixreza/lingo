@@ -15,7 +15,7 @@ export default function CoursesPage() {
         fontFamily:
           locale === "en"
             ? "var(--font-plus-jakarta), sans-serif"
-            : "'Anjoman', sans-serif",
+            : "'Dana', 'Anjoman', sans-serif",
       }}
       className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#0b1410] via-[#09100c] to-[#060b08]">
       {/* Ambient blurs */}
